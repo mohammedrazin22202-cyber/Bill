@@ -1,0 +1,15 @@
+{
+  "name": "billify",
+  "version": "1.0.0",
+  "description": "BillForge invoice management app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^7.2.0"
+  }
+}
