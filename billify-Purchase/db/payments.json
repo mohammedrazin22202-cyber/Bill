@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "6a2aab40c19d78d9f4a8fa80",
+    "id": 1781181246003,
+    "party": "Test Customer",
+    "amount": 500,
+    "date": "2026-06-11",
+    "note": "Test Collection",
+    "created": 1781181246003,
+    "updated": 1781181246018
+  }
+]

@@ -1,0 +1,121 @@
+[
+  {
+    "_id": "6a2bd3f0c19d78d9f4a90bce",
+    "id": 1781257200107,
+    "name": "Megatron",
+    "phone": "9342234674",
+    "notes": "Added automatically via Purchase Bill",
+    "partyType": "supplier",
+    "creditLimit": 0,
+    "creditPeriod": 0,
+    "created": 1781257200107,
+    "updated": 1781265801268
+  },
+  {
+    "_id": "6a2cffdfc19d78d9f4a913a1",
+    "id": 1781333983062,
+    "name": "Megatronus",
+    "phone": "+91 897889898",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 250000,
+    "creditPeriod": 12,
+    "created": 1781333983062,
+    "updated": 1781333983065
+  },
+  {
+    "_id": "6a2e3f10c19d78d9f4a91ff9",
+    "id": 1781415695749,
+    "name": "Mohammed Kashif",
+    "phone": "+91 7695966500",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 50000,
+    "creditPeriod": 100,
+    "created": 1781415695749,
+    "updated": 1781415695753
+  },
+  {
+    "_id": "6a2e3fb1c19d78d9f4a92000",
+    "id": 1781415857388,
+    "name": "Karthikeyan",
+    "phone": "+91 6380376354",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 100000,
+    "creditPeriod": 50,
+    "created": 1781415857388,
+    "updated": 1781415857392
+  },
+  {
+    "_id": "6a2e3fd9c19d78d9f4a92002",
+    "id": 1781415896916,
+    "name": "Haja",
+    "phone": "+91 9042073677",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 75000,
+    "creditPeriod": 75,
+    "created": 1781415896916,
+    "updated": 1781415896919
+  },
+  {
+    "_id": "6a2e3ff1c19d78d9f4a92003",
+    "id": 1781415921116,
+    "name": "Arthy Raj",
+    "phone": "+91 9841014441",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 50000,
+    "creditPeriod": 100,
+    "created": 1781415921116,
+    "updated": 1781415921119
+  },
+  {
+    "_id": "6a2e4025c19d78d9f4a92007",
+    "id": 1781415973063,
+    "name": "Lokesh",
+    "phone": "+91 87144415555",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 100000,
+    "creditPeriod": 100,
+    "created": 1781415973063,
+    "updated": 1781415973072
+  },
+  {
+    "_id": "6a2f9aa5c19d78d9f4a9283d",
+    "id": 1781504676605,
+    "name": "Kaleel",
+    "phone": "+91 9444441925",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 1000000,
+    "creditPeriod": 100,
+    "created": 1781504676606,
+    "updated": 1781504676620
+  },
+  {
+    "_id": "6a3952d78cd7df304541a2dc",
+    "id": 1782141655163,
+    "name": "Bhathru",
+    "phone": "+91 9176101274",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": -1,
+    "creditPeriod": -1,
+    "created": 1782141655163,
+    "updated": 1782141655573
+  },
+  {
+    "id": 1787720429906,
+    "name": "D16",
+    "phone": "+91 9110032211",
+    "notes": "",
+    "partyType": "supplier",
+    "creditLimit": 0,
+    "creditPeriod": 0,
+    "created": 1787720429906,
+    "updated": 1787720429916
+  }
+]

@@ -1,0 +1,31 @@
+[
+  {
+    "_id": "6a316987c19d78d9f4a9719b",
+    "id": 1781623174881,
+    "invNo": "INV-2026-001",
+    "billTo": "Mohammed Razin",
+    "invDate": "2026-06-16",
+    "dueDate": "2026-07-16",
+    "currency": "INR",
+    "discount": 0,
+    "deliveryCharge": 0,
+    "tax": 0,
+    "notes": "",
+    "phone": "9342234674",
+    "status": "paid",
+    "amountPaid": 0,
+    "lines": [
+      {
+        "id": 1,
+        "desc": "Vanjaram",
+        "qty": 150,
+        "rate": 500,
+        "unit": "Kg"
+      }
+    ],
+    "subtotal": 75000,
+    "total": 75000,
+    "created": 1781623174881,
+    "updated": 1781623175346
+  }
+]
