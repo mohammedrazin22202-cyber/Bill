@@ -1,0 +1,192 @@
+[
+  {
+    "_id": "6a378d6a30edd79718025cc7",
+    "id": 1782025578253,
+    "name": "Aarthy Raj",
+    "phone": "9811134560",
+    "notes": "",
+    "created": 1782025578253,
+    "updated": 1782025578266,
+    "amountDue": 7500
+  },
+  {
+    "_id": "6a37895030edd79718025cbb",
+    "id": 1782024528164,
+    "name": "Arun",
+    "phone": "9841021203",
+    "notes": "",
+    "created": 1782024528165,
+    "updated": 1782024528700,
+    "amountDue": 37500
+  },
+  {
+    "_id": "6a37855530edd79718025cab",
+    "id": 1782023509246,
+    "name": "Karthikeyan",
+    "phone": "6380376354",
+    "notes": "",
+    "created": 1782023509246,
+    "updated": 1782023509255,
+    "amountDue": 22500
+  },
+  {
+    "_id": "6a3782ca30edd79718025c86",
+    "id": 1782022857767,
+    "name": "MegaTron",
+    "phone": "8072761448",
+    "notes": "",
+    "created": 1782022857767,
+    "updated": 1782022858312,
+    "amountDue": -41500
+  },
+  {
+    "_id": "6a3782f430edd79718025c9f",
+    "id": 1782022603904,
+    "name": "MegaTron",
+    "phone": "8072761448",
+    "notes": "",
+    "created": 1782022603904,
+    "updated": 1782022603908,
+    "amountDue": -41500
+  },
+  {
+    "_id": "6a37852c30edd79718025ca9",
+    "id": 1782023467892,
+    "name": "Mohammed Kashif",
+    "phone": "7695966500",
+    "notes": "",
+    "created": 1782023467892,
+    "updated": 1782023468016,
+    "amountDue": 3000
+  },
+  {
+    "_id": "6a317d5a92eeecd1cd97f815",
+    "id": 1781628249838,
+    "name": "Mohammed Razin",
+    "phone": "9342234674",
+    "notes": "",
+    "created": 1781628249838,
+    "updated": 1781628250321,
+    "amountDue": 68250
+  },
+  {
+    "_id": "6a3782f430edd79718025c9e",
+    "id": 1780586434511,
+    "name": "Mohammed Razin",
+    "phone": "9342234674",
+    "notes": "",
+    "created": 1780586434511,
+    "updated": 1782022182409,
+    "amountDue": 68250
+  },
+  {
+    "_id": "6a39512430edd79718026409",
+    "id": 1782141220183,
+    "name": "Test Credit Customer",
+    "phone": "9999999999",
+    "notes": "",
+    "amountDue": -30,
+    "created": 1782141220183,
+    "updated": 1782141220545
+  },
+  {
+    "_id": "6a3782f430edd79718025c94",
+    "id": 1780586038039,
+    "name": "Valued Customer 1",
+    "phone": "+91 98401 0001",
+    "notes": "Preferred client #1 with specific billing requirements.",
+    "created": 1780586038025,
+    "updated": 1782022182274,
+    "amountDue": -0.40000000000009095
+  },
+  {
+    "_id": "6a3782f430edd79718025c95",
+    "id": 1780586039835,
+    "name": "Valued Customer 10",
+    "phone": "+91 98401 0010",
+    "notes": "Preferred client #10 with specific billing requirements.",
+    "created": 1780586038839,
+    "updated": 1782022182311,
+    "amountDue": 0
+  },
+  {
+    "_id": "6a3782f430edd79718025c96",
+    "id": 1780586038292,
+    "name": "Valued Customer 2",
+    "phone": "+91 98401 0002",
+    "notes": "Preferred client #2 with specific billing requirements.",
+    "created": 1780586038096,
+    "updated": 1782022182323,
+    "amountDue": 3448.4
+  },
+  {
+    "_id": "6a3782f430edd79718025c97",
+    "id": 1780586038766,
+    "name": "Valued Customer 3",
+    "phone": "+91 98401 0003",
+    "notes": "Preferred client #3 with specific billing requirements.",
+    "created": 1780586038472,
+    "updated": 1782022182330,
+    "amountDue": 5041.4
+  },
+  {
+    "_id": "6a3782f430edd79718025c98",
+    "id": 1780586038911,
+    "name": "Valued Customer 4",
+    "phone": "+91 98401 0004",
+    "notes": "Preferred client #4 with specific billing requirements.",
+    "created": 1780586038517,
+    "updated": 1782022182343,
+    "amountDue": 6563.6
+  },
+  {
+    "_id": "6a3782f430edd79718025c99",
+    "id": 1780586039059,
+    "name": "Valued Customer 5",
+    "phone": "+91 98401 0005",
+    "notes": "Preferred client #5 with specific billing requirements.",
+    "created": 1780586038564,
+    "updated": 1782022182355,
+    "amountDue": 8015
+  },
+  {
+    "_id": "6a3782f430edd79718025c9a",
+    "id": 1780586039209,
+    "name": "Valued Customer 6",
+    "phone": "+91 98401 0006",
+    "notes": "Preferred client #6 with specific billing requirements.",
+    "created": 1780586038618,
+    "updated": 1782022182364,
+    "amountDue": 9395.6
+  },
+  {
+    "_id": "6a3782f430edd79718025c9b",
+    "id": 1780586039373,
+    "name": "Valued Customer 7",
+    "phone": "+91 98401 0007",
+    "notes": "Preferred client #7 with specific billing requirements.",
+    "created": 1780586038678,
+    "updated": 1782022182377,
+    "amountDue": 10705.4
+  },
+  {
+    "_id": "6a3782f430edd79718025c9c",
+    "id": 1780586039528,
+    "name": "Valued Customer 8",
+    "phone": "+91 98401 0008",
+    "notes": "Preferred client #8 with specific billing requirements.",
+    "created": 1780586038735,
+    "updated": 1782022182389,
+    "amountDue": 11944.4
+  },
+  {
+    "_id": "6a3782f430edd79718025c9d",
+    "id": 1780586039684,
+    "name": "Valued Customer 9",
+    "phone": "+91 98401 0009",
+    "notes": "Preferred client #9 with specific billing requirements.",
+    "created": 1780586038791,
+    "updated": 1782022182397,
+    "amountDue": 13112.6
+  }
+]
