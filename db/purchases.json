@@ -1,0 +1,810 @@
+[
+  {
+    "_id": "6a2bd3f0c19d78d9f4a90bcf",
+    "id": 1781257200107,
+    "billNo": "AHE12062026-001",
+    "supplier": "Megatron",
+    "billDate": "2026-06-12",
+    "dueDate": "2026-07-12",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 500,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 1000,
+        "operation": "+"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "note": "Vanjaram",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 20,
+            "unit": "Kg",
+            "rate": 650
+          },
+          {
+            "id": 2,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 20,
+            "unit": "Kg",
+            "rate": 450
+          }
+        ]
+      }
+    ],
+    "subtotal": 22000,
+    "total": 22500,
+    "stockUpdated": true,
+    "created": 1781257200214,
+    "updated": 1781257200214
+  },
+  {
+    "_id": "6a2f9aeac19d78d9f4a92841",
+    "id": 1781504745831,
+    "billNo": "AHE-15062026-001",
+    "supplier": "Kaleel",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 5000,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 500,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "Box 1",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 15,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          },
+          {
+            "id": 2,
+            "desc": "",
+            "productId": null,
+            "qty": 0,
+            "unit": "kg",
+            "rate": 0,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "",
+            "productId": null,
+            "qty": 0,
+            "unit": "kg",
+            "rate": 0,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 9750,
+    "total": 4250,
+    "stockUpdated": true,
+    "created": 1781504745849,
+    "updated": 1781504745849
+  },
+  {
+    "_id": "6a2f9b36c19d78d9f4a92845",
+    "id": 1781504821846,
+    "billNo": "AHE-15062026-002",
+    "supplier": "Megatron",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vaazhai",
+            "productId": 1781332637066,
+            "qty": 15,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 15000,
+    "total": 15000,
+    "stockUpdated": true,
+    "created": 1781504821853,
+    "updated": 1781504821853
+  },
+  {
+    "_id": "6a2f9b38c19d78d9f4a92846",
+    "id": 1781504823866,
+    "billNo": "AHE-15062026-002",
+    "supplier": "Megatron",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vaazhai",
+            "productId": 1781332637066,
+            "qty": 15,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 15000,
+    "total": 15000,
+    "stockUpdated": true,
+    "created": 1781504823879,
+    "updated": 1781504823879
+  },
+  {
+    "_id": "6a2f9be5c19d78d9f4a9286a",
+    "id": 1781504996934,
+    "billNo": "AHE-15062026-003",
+    "supplier": "Megatron",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 10000,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 6500000,
+    "total": 6500000,
+    "stockUpdated": true,
+    "created": 1781504996941,
+    "updated": 1781504996941
+  },
+  {
+    "_id": "6a2f9be7c19d78d9f4a9286b",
+    "id": 1781504998571,
+    "billNo": "AHE-15062026-003",
+    "supplier": "Megatron",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 10000,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 6500000,
+    "total": 6500000,
+    "stockUpdated": true,
+    "created": 1781504998587,
+    "updated": 1781504998587
+  },
+  {
+    "_id": "6a2f9cd7c19d78d9f4a92898",
+    "id": 1781505238958,
+    "billNo": "AHE-15062026-004",
+    "supplier": "Kaleel",
+    "billDate": "2026-06-15",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vaazhai",
+            "productId": 1781332637066,
+            "qty": 100,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 100000,
+    "total": 100000,
+    "stockUpdated": true,
+    "created": 1781505238977,
+    "updated": 1781505238977
+  },
+  {
+    "_id": "6a3150b9c19d78d9f4a9708e",
+    "id": 1781616825294,
+    "billNo": "AHE-16062026-001",
+    "supplier": "Megatron",
+    "billDate": "2026-06-16",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "Box 1",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 100,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 65000,
+    "total": 65000,
+    "stockUpdated": true,
+    "created": 1781616825306,
+    "updated": 1781616825306
+  },
+  {
+    "_id": "6a3953398cd7df304541a2de",
+    "id": 1782141752393,
+    "billNo": "AHE-22062026-001",
+    "supplier": "Bhathru",
+    "billDate": "2026-06-22",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 5000,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "Box 1",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 15,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          },
+          {
+            "id": 2,
+            "desc": "Vaazhai",
+            "productId": 1781332637066,
+            "qty": 18,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 27750,
+    "total": 22750,
+    "stockUpdated": true,
+    "created": 1782141753237,
+    "updated": 1782141753237
+  },
+  {
+    "_id": "6a3a222d8cd7df304541ddcb",
+    "id": 1782194732039,
+    "billNo": "AHE-23062026-001",
+    "supplier": "Megatronus",
+    "billDate": "2026-06-23",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vaazhai",
+            "productId": 1781332637066,
+            "qty": 2,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 2000,
+    "total": 2000,
+    "stockUpdated": true,
+    "created": 1782194733047,
+    "updated": 1782194733047
+  },
+  {
+    "_id": "6a3a25c78cd7df304541ddcf",
+    "id": 1782195653669,
+    "billNo": "AHE-23062026-002",
+    "supplier": "Megatron",
+    "billDate": "2026-06-23",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Keluthi",
+            "productId": 1782195655430,
+            "qty": 150,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 150000,
+    "total": 150000,
+    "stockUpdated": true,
+    "created": 1782195654718,
+    "updated": 1782195654718
+  },
+  {
+    "_id": "6a3a25f38cd7df304541ddd0",
+    "id": 1782195698336,
+    "billNo": "AHE-23062026-003",
+    "supplier": "Megatron",
+    "billDate": "2026-06-23",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 0,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Kendai",
+            "productId": 1782195699019,
+            "qty": 25,
+            "unit": "kg",
+            "rate": 750,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 18750,
+    "total": 18750,
+    "stockUpdated": true,
+    "created": 1782195698381,
+    "updated": 1782195698381
+  },
+  {
+    "_id": "6a5888d343260280597af03c",
+    "id": 1784187089749,
+    "billNo": "AHE-16072026-001",
+    "supplier": "Megatron",
+    "billDate": "2026-07-16",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 8000,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 0,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 220,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 143000,
+    "total": 135000,
+    "stockUpdated": true,
+    "created": 1784187091384,
+    "updated": 1784187091384
+  },
+  {
+    "id": 1787720431979,
+    "billNo": "AHE-26082026-001",
+    "supplier": "D16",
+    "billDate": "2026-08-26",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 250,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 400,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Vanjaram",
+            "productId": 1781257200345,
+            "qty": 16,
+            "unit": "Kg",
+            "rate": 650,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 10400,
+    "total": 9750,
+    "stockUpdated": true,
+    "created": 1787720431991,
+    "updated": 1787720431991
+  },
+  {
+    "id": 1787720459962,
+    "billNo": "AHE-26082026-002",
+    "supplier": "D16",
+    "billDate": "2026-08-26",
+    "dueDate": "",
+    "currency": "INR",
+    "discount": 0,
+    "tax": 0,
+    "adjustments": [
+      {
+        "name": "Commission",
+        "amount": 150,
+        "operation": "-"
+      },
+      {
+        "name": "Expenses",
+        "amount": 600,
+        "operation": "-"
+      }
+    ],
+    "notes": "",
+    "phone": "",
+    "status": "received",
+    "amountPaid": 0,
+    "lines": [],
+    "boxes": [
+      {
+        "id": 1,
+        "name": "",
+        "note": "",
+        "items": [
+          {
+            "id": 1,
+            "desc": "Keluthi",
+            "productId": 1782195655430,
+            "qty": 12,
+            "unit": "kg",
+            "rate": 1000,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "subtotal": 12000,
+    "total": 11250,
+    "stockUpdated": true,
+    "created": 1787720460073,
+    "updated": 1787720460073
+  }
+]

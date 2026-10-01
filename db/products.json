@@ -1,0 +1,58 @@
+[
+  {
+    "_id": "6a2bd3f04678e8386bee88f8",
+    "id": 1781257200345,
+    "name": "Vanjaram",
+    "sku": "",
+    "unit": "Kg",
+    "purchasePrice": 650,
+    "sellingPrice": 0,
+    "stock": 0,
+    "lowStockAlert": 0,
+    "notes": "Auto-created via Purchase Bill: AHE12062026-001",
+    "created": 1781257200345,
+    "updated": 1781257200345
+  },
+  {
+    "_id": "6a2cfa9d3095bb14e50d5233",
+    "id": 1781332637066,
+    "name": "Vaazhai",
+    "sku": "",
+    "unit": "kg",
+    "purchasePrice": 1000,
+    "sellingPrice": 0,
+    "stock": 0,
+    "lowStockAlert": 0,
+    "notes": "Auto-created via Purchase Bill: AHE-13062026-016",
+    "created": 1781332637066,
+    "updated": 1781332637066
+  },
+  {
+    "_id": "6a3a25c791125c76211b27b7",
+    "id": 1782195655430,
+    "name": "Keluthi",
+    "sku": "",
+    "unit": "kg",
+    "purchasePrice": 1000,
+    "sellingPrice": 0,
+    "stock": 0,
+    "lowStockAlert": 0,
+    "notes": "Auto-created via Purchase Bill: AHE-23062026-002",
+    "created": 1782195655430,
+    "updated": 1782195655430
+  },
+  {
+    "_id": "6a3a25f340ae1ce8e087a31b",
+    "id": 1782195699019,
+    "name": "Kendai",
+    "sku": "",
+    "unit": "kg",
+    "purchasePrice": 750,
+    "sellingPrice": 0,
+    "stock": 0,
+    "lowStockAlert": 0,
+    "notes": "Auto-created via Purchase Bill: AHE-23062026-003",
+    "created": 1782195699019,
+    "updated": 1782195699019
+  }
+]
