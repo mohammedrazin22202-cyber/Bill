@@ -2083,6 +2083,66 @@ function renderList(){
     </div>`).join('');
 };
 
+function openReconciliationBreakdown() {
+  const totalPayments = supplierPayments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+
+  const unreceivedList = purchases.filter(p => p.status !== 'received');
+  const totalUnreceived = unreceivedList.reduce((sum, p) => sum + (p.total || 0), 0);
+
+  const totalCOGS = invoices.filter(i => i.status !== 'cancelled' && i.status !== 'draft').reduce((sum, i) => {
+    let invCogs = 0;
+    if (Array.isArray(i.lines)) {
+      i.lines.forEach(l => {
+        const qty = l.qty || 0;
+        const prod = products.find(p => p.id === l.productId || String(p.id) === String(l.productId));
+        const purchasePrice = prod ? (prod.purchasePrice || 0) : 0;
+        invCogs += qty * purchasePrice;
+      });
+    }
+    return sum + invCogs;
+  }, 0);
+
+  const totalOpening = customers.filter(cu => cu.partyType === 'supplier').reduce((sum, cu) => sum + (parseFloat(cu.openingBalance) || 0), 0);
+
+  const totalPayable = customers.filter(cu => cu.partyType === 'supplier').reduce((sum, cu) => {
+    const bal = supplierBalance(cu.name);
+    return sum + (bal > 0 ? bal : 0);
+  }, 0);
+
+  const totalStockValuation = lots.reduce((sum, l) => sum + (l.qty || 0) * (l.purchasePrice || 0), 0);
+
+  const reconciliationDiff = totalPayable - totalStockValuation;
+  let sumOfAdjustments = 0;
+  purchases.forEach(p => {
+    if (Array.isArray(p.adjustments)) {
+      p.adjustments.forEach(adj => {
+        const amt = adj.amount || 0;
+        const op = adj.operation || '-';
+        sumOfAdjustments += op === '+' ? amt : -amt;
+      });
+    }
+  });
+
+  const remainder = reconciliationDiff - sumOfAdjustments;
+  const variance = remainder - (totalUnreceived + totalCOGS - totalPayments + totalOpening);
+
+  // --- Compile Detail Breakdowns for Expandable Accordions ---
+  const formatBreakdownTable = (items, isNegativeOnly = false) => {
+    if (!items || !items.length) return `<div style="padding:8px; color:var(--ink4); font-style:italic;">No records found</div>`;
+    return items.map(item => {
+      const displayAmount = isNegativeOnly ? -Math.abs(item.amount) : item.amount;
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.03); font-size:11.5px;">
+          <div style="display:flex; flex-direction:column; align-items:flex-start;">
+            <span style="font-weight:600; color:var(--ink);">${esc(item.name)}</span>
+            <span style="color:var(--ink3); font-size:10px;">${item.date && item.date !== '—' ? niceDate(item.date) + ' • ' : ''}${esc(item.details)}</span>
+          </div>
+          <span style="font-family:var(--ff-mono); font-weight:600; color:${displayAmount >= 0 ? 'var(--green)' : '#c62828'}">${displayAmount >= 0 ? '+' : '–'} ₹ ${fmt(Math.abs(displayAmount))}</span>
+        </div>
+      `;
+    }).join('');
+  };
+
   // 1. Payments Breakdown
   const paymentsBreakdown = supplierPayments.slice().sort((a,b) => b.date.localeCompare(a.date)).map(p => ({
     date: p.date,
