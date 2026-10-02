@@ -60,3 +60,15 @@ npm install
 node server.js
 ```
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
+
+---
+
+## Authentication & Default Credentials
+
+Billify requires sign-in to protect invoices and financial records. Preconfigured credentials:
+
+| Role / Account | Username | Password |
+|---|---|---|
+| **Admin** | `admin` | `admin123` |
+| **Mobile Account** | `9841021203` | `Msbdeen@21203` |
+
