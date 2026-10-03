@@ -42,8 +42,12 @@ function readJsonFile(filename, defaultVal = []) {
     return defaultVal;
   }
   try {
-    const raw = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(raw);
+    let raw = fs.readFileSync(filePath, 'utf8');
+    if (raw.charCodeAt(0) === 0xFEFF) {
+      raw = raw.slice(1);
+    }
+    raw = raw.trim();
+    return raw ? JSON.parse(raw) : defaultVal;
   } catch (err) {
     console.error(`Error reading ${filename}:`, err);
     return defaultVal;
@@ -78,12 +82,6 @@ function matchItem(item, query) {
         if (!Array.isArray(val.$in) || !val.$in.includes(item[key])) return false;
       } else if ('$nin' in val) {
         if (Array.isArray(val.$nin) && val.$nin.includes(item[key])) return false;
-      } else if ('$regex' in val) {
-        let regex = val.$regex;
-        if (!(regex instanceof RegExp)) {
-          regex = new RegExp(regex);
-        }
-        if (!regex.test(item[key])) return false;
       } else {
         if (JSON.stringify(item[key]) !== JSON.stringify(val)) return false;
       }
@@ -96,16 +94,7 @@ function matchItem(item, query) {
 
 const localDbWrapper = {
   collection(collectionName) {
-    let filename = '';
-    if (collectionName === 'Invoices') filename = 'invoices.json';
-    else if (collectionName === 'Parties') filename = 'customers.json';
-    else if (collectionName === 'Payments') filename = 'payments.json';
-    else if (collectionName === 'SupplierPayments') filename = 'supplier_payments.json';
-    else if (collectionName === 'Products') filename = 'products.json';
-    else if (collectionName === 'Lots') filename = 'lots.json';
-    else if (collectionName === 'StockTransactions') filename = 'stock_transactions.json';
-    else if (collectionName === 'Purchases') filename = 'purchases.json';
-    else filename = `${collectionName.toLowerCase()}.json`;
+    let filename = `${collectionName.toLowerCase()}.json`;
 
     return {
       find(query = {}) {
@@ -293,33 +282,6 @@ function hybridDbWrapper(mongoDb) {
   };
 }
 
-async function syncMongoToLocal() {
-  try {
-    const mongoDb = client.db('Billify');
-    const collections = [
-      { name: 'Invoices', file: 'invoices.json' },
-      { name: 'Parties', file: 'customers.json' },
-      { name: 'Payments', file: 'payments.json' },
-      { name: 'SupplierPayments', file: 'supplier_payments.json' },
-      { name: 'Products', file: 'products.json' },
-      { name: 'Lots', file: 'lots.json' },
-      { name: 'StockTransactions', file: 'stock_transactions.json' },
-      { name: 'Purchases', file: 'purchases.json' }
-    ];
-
-    console.log('Syncing MongoDB Atlas data to local JSON files...');
-    for (const col of collections) {
-      const docs = await mongoDb.collection(col.name).find({}).toArray();
-      if (docs && docs.length > 0) {
-        writeJsonFile(col.file, docs);
-      }
-    }
-    console.log('Sync completed successfully.');
-  } catch (err) {
-    console.error('Failed to sync MongoDB Atlas to local JSON files:', err.message);
-  }
-}
-
 async function connectDb() {
   if (useLocalStorage || !client) {
     return localDbWrapper;
@@ -338,702 +300,571 @@ async function connectDb() {
   return db;
 }
 
-function initDb() {
-  if (useLocalStorage || !client) {
-    console.log('Running in Local JSON File Storage mode.');
-    return;
-  }
-  connectDb().then(async () => {
-    await syncMongoToLocal();
-  }).catch(err => {
-    console.error('Failed to connect in initDb:', err.message);
-  });
-}
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA MODELS & NORMALIZATION
+// ─────────────────────────────────────────────────────────────────────────────
 
-async function readDb() {
-  const database = await connectDb();
-  return await database.collection('Invoices').find({}).sort({ created: -1 }).toArray();
-}
-
-async function writeDb(invoices) {
-  const database = await connectDb();
-  const invoicesCol = database.collection('Invoices');
-  await invoicesCol.deleteMany({});
-  if (invoices.length > 0) {
-    await invoicesCol.insertMany(invoices);
-  }
-}
-
-function normalizeInvoice(data) {
-  const now = Date.now();
-  return {
-    id: Number(data.id) || now,
-    invNo: String(data.invNo || '').trim(),
-    billTo: String(data.billTo || '').trim(),
-    invDate: data.invDate || '',
-    dueDate: data.dueDate || '',
-    currency: data.currency || 'INR',
-    discount: Number(data.discount) || 0,
-    deliveryCharge: Number(data.deliveryCharge) || 0,
-    tax: Number(data.tax) || 0,
-    notes: data.notes || '',
-    phone: data.phone || '',
-    status: data.status || 'draft',
-    amountPaid: Number(data.amountPaid) || 0,
-    lines: Array.isArray(data.lines)
-      ? data.lines.map((l, i) => ({
-          id: Number(l.id) || i + 1,
-          productId: l.productId ? Number(l.productId) : null,
-          desc: String(l.desc || '').trim(),
-          qty: Number(l.qty) || 0,
-          rate: Number(l.rate) || 0,
-          unit: String(l.unit || 'pcs').trim(),
-        }))
-      : [],
-    subtotal: Number(data.subtotal) || 0,
-    total: Number(data.total) || 0,
-    stockUpdated: !!data.stockUpdated,
-    created: Number(data.created) || now,
-    updated: now,
-  };
-}
-
-function normalizeParty(data) {
-  const now = Date.now();
-  return {
-    id: Number(data.id) || now,
-    name: String(data.name || data.billTo || '').trim(),
-    phone: String(data.phone || '').trim(),
-    notes: data.notes || '',
-    partyType: data.partyType === 'supplier' ? 'supplier' : 'customer',
-    creditLimit: Number(data.creditLimit) || 0,
-    creditPeriod: Number(data.creditPeriod) || 0,
-    amountDue: Number(data.amountDue) || 0,
-    created: Number(data.created) || now,
-    updated: now,
-  };
-}
-
-// ── Products / Stock ──────────────────────────────────────────────────────────
-
-function normalizeProduct(data) {
+function normalizeContact(data) {
   const now = Date.now();
   return {
     id: Number(data.id) || now,
     name: String(data.name || '').trim(),
-    sku: String(data.sku || '').trim(),
-    unit: String(data.unit || 'pcs').trim(),
-    purchasePrice: Number(data.purchasePrice) || 0,
-    sellingPrice: Number(data.sellingPrice) || 0,
-    stock: Number(data.stock) || 0,
-    lowStockAlert: Number(data.lowStockAlert) || 0,
-    notes: data.notes || '',
+    phone: String(data.phone || '').trim(),
+    address: String(data.address || '').trim(),
+    notes: String(data.notes || '').trim(),
+    isDealer: data.isDealer !== undefined ? !!data.isDealer : true,
+    isBuyer: data.isBuyer !== undefined ? !!data.isBuyer : false,
+    defaultCommissionType: data.defaultCommissionType || 'percent', // 'percent' or 'flat_per_crate'
+    defaultCommissionVal: Number(data.defaultCommissionVal) || 5, // e.g. 5% or 50/crate
+    creditLimit: Number(data.creditLimit) || 0,
+    creditPeriod: Number(data.creditPeriod) || 0, // days allowed
+    bypassCreditCheck: !!data.bypassCreditCheck,
+    isBadDebtDefaulter: !!data.isBadDebtDefaulter,
+    badDebtReason: String(data.badDebtReason || ''),
     created: Number(data.created) || now,
-    updated: now,
+    updated: now
   };
 }
 
-async function readProducts() {
-  const database = await connectDb();
-  return await database.collection('Products').find({}).sort({ name: 1 }).toArray();
-}
-
-async function saveProduct(data) {
-  const product = normalizeProduct(data);
-  if (!product.name) return { error: 'Product name is required' };
-
-  const database = await connectDb();
-  const productsCol = database.collection('Products');
-  await productsCol.replaceOne(
-    { id: product.id },
-    product,
-    { upsert: true }
-  );
-  return product;
-}
-
-async function deleteProduct(id) {
-  const database = await connectDb();
-  await database.collection('Products').deleteOne({ id: Number(id) });
-}
-
-async function adjustStock(productId, deltaQty, reason = '', txType = 'ADJUSTMENT') {
-  const database = await connectDb();
-  const productsCol = database.collection('Products');
-  const product = await productsCol.findOne({ id: Number(productId) });
-  if (!product) return;
-
-  const prevStock = Number(product.stock) || 0;
-  const newStock = Math.max(0, prevStock + Number(deltaQty));
-  await productsCol.updateOne({ id: Number(productId) }, { $set: { stock: newStock, updated: Date.now() } });
-
-  const tx = {
-    id: Date.now() + Math.random(),
-    productId: Number(productId),
-    productName: product.name,
-    txType: String(txType).toUpperCase(),
-    qty: Number(deltaQty),
-    prevStock,
-    newStock,
-    reason: String(reason || '').trim(),
-    created: Date.now(),
-  };
-  await database.collection('StockTransactions').insertOne(tx);
-  return { prevStock, newStock };
-}
-
-// ── Purchases ─────────────────────────────────────────────────────────────────
-
-function normalizePurchase(data) {
+function normalizeConsignment(data) {
   const now = Date.now();
   return {
     id: Number(data.id) || now,
-    billNo: String(data.billNo || '').trim(),
-    supplier: String(data.supplier || '').trim(),
-    billDate: data.billDate || '',
-    dueDate: data.dueDate || '',
-    currency: data.currency || 'INR',
-    discount: Number(data.discount) || 0,
-    tax: Number(data.tax) || 0,
-    adjustments: Array.isArray(data.adjustments)
-      ? data.adjustments.map((a, i) => ({
-          id: Number(a.id) || i + 1,
-          name: String(a.name || '').trim(),
-          amount: Number(a.amount) || 0,
-          type: a.type === 'sub' ? 'sub' : 'add',
+    consignmentNo: String(data.consignmentNo || `INW-${now}`).trim(),
+    date: data.date || new Date().toISOString().split('T')[0],
+    dealerId: Number(data.dealerId) || 0,
+    dealerName: String(data.dealerName || '').trim(),
+    vehicleNo: String(data.vehicleNo || '').trim(),
+    driverPhone: String(data.driverPhone || '').trim(),
+    // Lorry Bhada (Advance freight paid to driver upon arrival)
+    lorryBhada: Number(data.lorryBhada) || 0,
+    lorryBhadaMode: data.lorryBhadaMode || 'Cash', // 'Cash', 'Bank', 'UPI'
+    lorryBhadaNotes: String(data.lorryBhadaNotes || ''),
+    items: Array.isArray(data.items)
+      ? data.items.map((it, idx) => ({
+          id: Number(it.id) || idx + 1,
+          variety: String(it.variety || '').trim(),
+          crates: Number(it.crates) || 0,
+          weightKg: Number(it.weightKg) || 0,
+          unsoldCrates: Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0,
+          unsoldWeightKg: Number(it.unsoldWeightKg !== undefined ? it.unsoldWeightKg : it.weightKg) || 0,
+          rateExpectation: Number(it.rateExpectation) || 0,
+          notes: String(it.notes || '')
         }))
       : [],
-    notes: data.notes || '',
-    phone: data.phone || '',
-    status: data.status || 'due',
-    amountPaid: Number(data.amountPaid) || 0,
+    status: data.status || 'Active', // 'Active', 'Settled'
+    notes: String(data.notes || ''),
+    created: Number(data.created) || now,
+    updated: now
+  };
+}
+
+function normalizeSale(data) {
+  const now = Date.now();
+  return {
+    id: Number(data.id) || now,
+    billNo: String(data.billNo || `SAL-${now}`).trim(),
+    date: data.date || new Date().toISOString().split('T')[0],
+    time: data.time || new Date().toLocaleTimeString('en-US', { hour12: false }),
+    buyerId: Number(data.buyerId) || 0,
+    buyerName: String(data.buyerName || '').trim(),
+    buyerPhone: String(data.buyerPhone || '').trim(),
+    paymentType: data.paymentType === 'Credit' ? 'Credit' : 'Cash',
+    paymentMode: data.paymentMode || 'Cash', // 'Cash', 'UPI', 'Bank'
     lines: Array.isArray(data.lines)
-      ? data.lines.map((l, i) => ({
-          id: Number(l.id) || i + 1,
-          productId: l.productId ? Number(l.productId) : null,
-          productName: String(l.productName || l.desc || '').trim(),
-          qty: Number(l.qty) || 0,
+      ? data.lines.map((l, idx) => ({
+          id: Number(l.id) || idx + 1,
+          consignmentId: Number(l.consignmentId) || null,
+          consignmentNo: String(l.consignmentNo || ''),
+          dealerId: Number(l.dealerId) || null,
+          dealerName: String(l.dealerName || ''),
+          variety: String(l.variety || '').trim(),
+          unit: l.unit === 'Kg' ? 'Kg' : 'Crate',
+          qty: Number(l.qty) || 0, // crates or kg
           rate: Number(l.rate) || 0,
-          unit: String(l.unit || 'pcs').trim(),
-          total: Number(l.total) || 0,
-        }))
-      : [],
-    boxes: Array.isArray(data.boxes)
-      ? data.boxes.map((b, i) => ({
-          boxNo: Number(b.boxNo) || i + 1,
-          grossWeight: Number(b.grossWeight) || 0,
-          items: Array.isArray(b.items)
-            ? b.items.map((it, j) => ({
-                id: Number(it.id) || j + 1,
-                productId: it.productId ? Number(it.productId) : null,
-                productName: String(it.productName || it.desc || '').trim(),
-                grossWeight: Number(it.grossWeight) || 0,
-                iceTare: Number(it.iceTare) || 0,
-                boxTare: Number(it.boxTare) || 0,
-                waterTare: Number(it.waterTare) || 0,
-                tareWeight: Number(it.tareWeight) || 0,
-                netWeight: Number(it.netWeight) || 0,
-                rate: Number(it.rate) || 0,
-                unit: String(it.unit || 'Kg').trim(),
-                total: Number(it.total) || 0,
-              }))
-            : []
+          amount: Number(l.amount) || (Number(l.qty) || 0) * (Number(l.rate) || 0)
         }))
       : [],
     subtotal: Number(data.subtotal) || 0,
+    discount: Number(data.discount) || 0,
     total: Number(data.total) || 0,
-    stockUpdated: !!data.stockUpdated,
+    amountPaid: Number(data.amountPaid) || 0,
+    notes: String(data.notes || ''),
+    isBadDebt: !!data.isBadDebt,
     created: Number(data.created) || now,
-    updated: now,
+    updated: now
   };
 }
 
-async function readPurchases() {
-  const database = await connectDb();
-  return await database.collection('Purchases').find({}).sort({ created: -1 }).toArray();
+function normalizeSettlement(data) {
+  const now = Date.now();
+  return {
+    id: Number(data.id) || now,
+    settlementNo: String(data.settlementNo || `SET-${now}`).trim(),
+    date: data.date || new Date().toISOString().split('T')[0],
+    dealerId: Number(data.dealerId) || 0,
+    dealerName: String(data.dealerName || '').trim(),
+    // Summary of goods sold for this dealer
+    items: Array.isArray(data.items)
+      ? data.items.map((it, idx) => ({
+          id: Number(it.id) || idx + 1,
+          consignmentId: Number(it.consignmentId) || null,
+          consignmentNo: String(it.consignmentNo || ''),
+          variety: String(it.variety || ''),
+          unit: it.unit || 'Crate',
+          qtySold: Number(it.qtySold) || 0,
+          realizedRevenue: Number(it.realizedRevenue) || 0,
+          systemAvgRate: Number(it.systemAvgRate) || 0,
+          reportedRate: Number(it.reportedRate !== undefined ? it.reportedRate : it.systemAvgRate) || 0,
+          reportedGross: Number(it.reportedGross) || (Number(it.qtySold) || 0) * (Number(it.reportedRate) || 0),
+          brokingProfit: Number(it.brokingProfit) || (Number(it.realizedRevenue) || 0) - (Number(it.reportedGross) || 0)
+        }))
+      : [],
+    totalQtySold: Number(data.totalQtySold) || 0,
+    totalRealizedRevenue: Number(data.totalRealizedRevenue) || 0,
+    totalReportedGross: Number(data.totalReportedGross) || 0,
+    totalBrokingProfit: Number(data.totalBrokingProfit) || 0,
+    
+    // Dynamic line-item expenses (Transport, Ice, Coolie, Storage, Lorry Bhada, etc.)
+    expenses: Array.isArray(data.expenses)
+      ? data.expenses.map((e, idx) => ({
+          id: Number(e.id) || idx + 1,
+          name: String(e.name || '').trim(),
+          amount: Number(e.amount) || 0
+        }))
+      : [],
+    totalExpenses: Number(data.totalExpenses) || 0,
+
+    // Commission structure
+    commissionType: data.commissionType || 'percent', // 'percent' or 'flat_per_crate' or 'fixed'
+    commissionRate: Number(data.commissionRate) || 5,
+    commissionAmount: Number(data.commissionAmount) || 0,
+
+    // Net amount credited to dealer
+    netPayableToDealer: Number(data.netPayableToDealer) || 0,
+    unsoldCratesCarriedForward: Number(data.unsoldCratesCarriedForward) || 0,
+    notes: String(data.notes || ''),
+    created: Number(data.created) || now,
+    updated: now
+  };
 }
-
-async function savePurchase(data) {
-  const purchase = normalizePurchase(data);
-  if (!purchase.billNo) return { error: 'Bill number is required' };
-  if (!purchase.supplier) return { error: 'Supplier is required' };
-
-  const database = await connectDb();
-  const purchasesCol = database.collection('Purchases');
-
-  const existing = await purchasesCol.findOne({ id: purchase.id });
-  const isNew = !existing;
-
-  if (isNew) {
-    const existingSupplier = await database.collection('Parties').findOne({ name: purchase.supplier, partyType: 'supplier' });
-    if (!existingSupplier) {
-      await saveParty({
-        name: purchase.supplier,
-        phone: purchase.phone || '',
-        notes: 'Added automatically via Purchase Bill',
-        partyType: 'supplier',
-      });
-    }
-  }
-
-  await purchasesCol.replaceOne(
-    { id: purchase.id },
-    purchase,
-    { upsert: true }
-  );
-
-  // Update stock and create Lots if not already done
-  if (!purchase.stockUpdated && isNew) {
-    const itemsToAdd = [];
-    if (purchase.boxes && purchase.boxes.length > 0) {
-      for (const b of purchase.boxes) {
-        for (const it of b.items) {
-          if (it.productName && it.netWeight > 0) {
-            itemsToAdd.push({
-              productId: it.productId,
-              productName: it.productName,
-              qty: it.netWeight,
-              unit: it.unit || 'Kg',
-              rate: it.rate || 0,
-            });
-          }
-        }
-      }
-    } else if (purchase.lines && purchase.lines.length > 0) {
-      for (const l of purchase.lines) {
-        if (l.productName && l.qty > 0) {
-          itemsToAdd.push({
-            productId: l.productId,
-            productName: l.productName,
-            qty: l.qty,
-            unit: l.unit || 'pcs',
-            rate: l.rate || 0,
-          });
-        }
-      }
-    }
-
-    for (const item of itemsToAdd) {
-      const prodId = await resolveProductId(database, item.productId, item.productName, item.unit, item.rate);
-      if (prodId) {
-        await adjustStock(
-          prodId,
-          item.qty,
-          `Purchase: ${purchase.billNo} from ${purchase.supplier}`,
-          'PURCHASE'
-        );
-
-        const lot = {
-          id: Date.now() + Math.random(),
-          productId: prodId,
-          productName: item.productName,
-          purchaseNo: purchase.billNo,
-          purchasePrice: item.rate,
-          originalQty: item.qty,
-          qty: item.qty,
-          unit: item.unit,
-          created: Date.now(),
-        };
-        await database.collection('Lots').insertOne(lot);
-      }
-    }
-
-    await purchasesCol.updateOne(
-      { id: purchase.id },
-      { $set: { stockUpdated: true } }
-    );
-    purchase.stockUpdated = true;
-  }
-
-  return purchase;
-}
-
-async function resolveProductId(database, existingId, productName, unit, purchasePrice) {
-  if (existingId) return existingId;
-  const productsCol = database.collection('Products');
-  const existing = await productsCol.findOne({ name: productName });
-  if (existing) return existing.id;
-
-  const newProd = normalizeProduct({
-    name: productName,
-    unit: unit || 'Kg',
-    purchasePrice: purchasePrice || 0,
-    stock: 0,
-  });
-  await productsCol.insertOne(newProd);
-  return newProd.id;
-}
-
-async function deletePurchase(id) {
-  const database = await connectDb();
-  const purchase = await database.collection('Purchases').findOne({ id: Number(id) });
-  if (purchase) {
-    if (purchase.stockUpdated) {
-      const itemsToRevert = [];
-      if (purchase.boxes && purchase.boxes.length > 0) {
-        for (const b of purchase.boxes) {
-          for (const it of b.items) {
-            if (it.productName && it.netWeight > 0) {
-              itemsToRevert.push({ productId: it.productId, productName: it.productName, qty: it.netWeight });
-            }
-          }
-        }
-      } else if (purchase.lines && purchase.lines.length > 0) {
-        for (const l of purchase.lines) {
-          if (l.productName && l.qty > 0) {
-            itemsToRevert.push({ productId: l.productId, productName: l.productName, qty: l.qty });
-          }
-        }
-      }
-
-      for (const item of itemsToRevert) {
-        const prodId = await resolveProductId(database, item.productId, item.productName);
-        if (prodId) {
-          await adjustStock(prodId, -item.qty, `Revert Purchase: ${purchase.billNo}`, 'REVERT_PURCHASE');
-        }
-      }
-      await database.collection('Lots').deleteMany({ purchaseNo: purchase.billNo });
-    }
-    await database.collection('Purchases').deleteOne({ id: Number(id) });
-  }
-}
-
-// ── Invoices & Customer Balance Sync ──────────────────────────────────────────
-
-async function syncCustomersAmountDue() {
-  try {
-    const database = await connectDb();
-    const invoices = await database.collection('Invoices').find({}).toArray();
-    const payments = await database.collection('Payments').find({}).toArray();
-    const partiesCol = database.collection('Parties');
-    const parties = await partiesCol.find({ partyType: { $ne: 'supplier' } }).toArray();
-
-    for (const cust of parties) {
-      const custName = (cust.name || '').toLowerCase();
-      const custInvoices = invoices.filter(i => (i.billTo || '').toLowerCase() === custName);
-      
-      const unlinkedPayments = payments.filter(p => {
-        const pName = (p.customerName || p.party || '').toLowerCase();
-        return pName === custName && !p.invoiceId;
-      });
-
-      const totalInvoiceDue = custInvoices.reduce((sum, inv) => {
-        const bal = (Number(inv.total) || 0) - (Number(inv.amountPaid) || 0);
-        return sum + Math.max(0, bal);
-      }, 0);
-
-      const totalUnlinkedPaid = unlinkedPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-      const newDue = totalInvoiceDue - totalUnlinkedPaid;
-
-      await partiesCol.updateOne(
-        { id: cust.id },
-        { $set: { amountDue: newDue, updated: Date.now() } }
-      );
-    }
-  } catch (err) {
-    console.warn('Failed to sync customer amounts due:', err.message);
-  }
-}
-
-async function saveInvoice(data) {
-  const invoice = normalizeInvoice(data);
-  if (!invoice.invNo) return { error: 'Invoice number is required' };
-  if (!invoice.billTo) return { error: 'Bill To is required' };
-
-  const database = await connectDb();
-  const invoicesCol = database.collection('Invoices');
-
-  const wasStockUpdated = invoice.stockUpdated;
-  const existing = await invoicesCol.findOne({ id: invoice.id });
-
-  await invoicesCol.replaceOne(
-    { id: invoice.id },
-    invoice,
-    { upsert: true }
-  );
-
-  // Deduct stock when invoice is marked paid or partially_paid
-  const isChargeable = ['paid', 'partially_paid'].includes(invoice.status);
-  if (
-    isChargeable &&
-    !wasStockUpdated &&
-    !(existing && existing.stockUpdated)
-  ) {
-    for (const line of invoice.lines) {
-      if (line.productId && line.qty > 0) {
-        await adjustStock(
-          line.productId,
-          -line.qty,
-          `Invoice: ${invoice.invNo}`,
-          'SALE'
-        );
-      }
-    }
-    await invoicesCol.updateOne(
-      { id: invoice.id },
-      { $set: { stockUpdated: true } }
-    );
-    invoice.stockUpdated = true;
-  }
-
-  // Synchronize customer amountDue
-  await syncCustomersAmountDue();
-
-  return invoice;
-}
-
-async function deleteInvoice(id) {
-  const database = await connectDb();
-  const invoice = await database.collection('Invoices').findOne({ id: Number(id) });
-  if (invoice) {
-    if (invoice.stockUpdated) {
-      for (const line of invoice.lines) {
-        if (line.productId && line.qty > 0) {
-          await adjustStock(line.productId, line.qty, `Revert Sale: ${invoice.invNo}`, 'REVERT_SALE');
-        }
-      }
-    }
-    await database.collection('Invoices').deleteOne({ id: Number(id) });
-    await syncCustomersAmountDue();
-  }
-}
-
-// ── Parties (Customers & Suppliers) ───────────────────────────────────────────
-
-async function readParties(typeFilter = null) {
-  const database = await connectDb();
-  let query = {};
-  if (typeFilter === 'customer') {
-    query = { partyType: { $ne: 'supplier' } };
-  } else if (typeFilter === 'supplier') {
-    query = { partyType: 'supplier' };
-  }
-  return await database.collection('Parties').find(query).sort({ name: 1 }).toArray();
-}
-
-async function saveParty(data) {
-  const party = normalizeParty(data);
-  if (!party.name) return { error: 'Party name is required' };
-
-  const database = await connectDb();
-  const partiesCol = database.collection('Parties');
-  await partiesCol.replaceOne(
-    { id: party.id },
-    party,
-    { upsert: true }
-  );
-  return party;
-}
-
-async function deleteParty(id, cleanBills = false, cleanPayments = false) {
-  const database = await connectDb();
-  const party = await database.collection('Parties').findOne({ id: Number(id) });
-  if (party) {
-    if (cleanBills && party.partyType === 'supplier') {
-      const supplierName = party.name;
-      const purchasesCol = database.collection('Purchases');
-      const purchases = await purchasesCol.find({ supplier: supplierName }).toArray();
-      for (const p of purchases) {
-        await deletePurchase(p.id);
-      }
-    }
-    if (cleanPayments && party.partyType === 'supplier') {
-      const supplierName = party.name;
-      await database.collection('SupplierPayments').deleteMany({ supplier: supplierName });
-    }
-    await database.collection('Parties').deleteOne({ id: Number(id) });
-  }
-}
-
-// ── Payments (Customer Collections) ───────────────────────────────────────────
 
 function normalizePayment(data) {
   const now = Date.now();
-  const party = String(data.party || data.customerName || '').trim();
-  const date = data.date || data.payDate || '';
-  const method = data.paymentMode || data.method || 'Cash';
-  const refNo = String(data.transactionNumber || data.payRefNo || '').trim();
-  const note = data.note || data.notes || '';
   return {
     id: Number(data.id) || now,
-    party: party,
-    customerName: party,
-    customerId: Number(data.customerId) || 0,
-    invoiceId: data.invoiceId ? Number(data.invoiceId) : null,
-    invoiceNo: data.invoiceNo ? String(data.invoiceNo).trim() : null,
+    paymentNo: String(data.paymentNo || `PAY-${now}`).trim(),
+    date: data.date || new Date().toISOString().split('T')[0],
+    contactId: Number(data.contactId) || 0,
+    contactName: String(data.contactName || '').trim(),
+    // 'DEALER_PAYMENT' (we pay dealer), 'BUYER_COLLECTION' (buyer pays us), 'CONTRA_ADJUSTMENT' (offsetting dual-role balances)
+    type: data.type || 'DEALER_PAYMENT',
     amount: Number(data.amount) || 0,
-    date: date,
-    payDate: date,
-    paymentMode: method,
-    method: method,
-    transactionNumber: refNo,
-    payRefNo: refNo,
-    personName: String(data.personName || '').trim(),
-    bankDetails: String(data.bankDetails || '').trim(),
-    remarks: String(data.remarks || '').trim(),
-    note: note,
-    notes: note,
+    // Settlement discount / Kasar (e.g. paying 100k, reducing balance by 8,250 -> 250 discount)
+    settlementDiscount: Number(data.settlementDiscount) || 0,
+    paymentMode: data.paymentMode || 'Cash', // 'Cash', 'Bank Transfer', 'UPI', 'Cheque'
+    referenceNo: String(data.referenceNo || '').trim(), // Cheque No, UTR, Txn ID
+    bankName: String(data.bankName || '').trim(),
+    paymentDate: data.paymentDate || data.date || '',
+    notes: String(data.notes || ''),
     created: Number(data.created) || now,
-    updated: now,
+    updated: now
   };
 }
 
-async function readPayments() {
+// ─────────────────────────────────────────────────────────────────────────────
+// BALANCE RECOMPUTATION & DUAL-ROLE LEDGER LOGIC
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function getContactFinancials(contactId) {
   const database = await connectDb();
-  return await database.collection('Payments').find({}).sort({ created: -1 }).toArray();
-}
+  const cId = Number(contactId);
 
-async function savePayment(data) {
-  const payment = normalizePayment(data);
-  if (!payment.party) return { error: 'Customer / Party name is required' };
-  if (payment.amount <= 0) return { error: 'Payment amount must be greater than 0' };
+  // 1. Dealer Payable: Generated from Dealer Settlements (Patiya)
+  const settlements = await database.collection('settlements').find({ dealerId: cId }).toArray();
+  const totalSettlementCredited = settlements.reduce((sum, s) => sum + (Number(s.netPayableToDealer) || 0), 0);
 
-  const database = await connectDb();
-  const paymentsCol = database.collection('Payments');
-  const invoicesCol = database.collection('Invoices');
+  // 2. Buyer Receivable: Generated from Sales where this contact bought items
+  const sales = await database.collection('sales').find({ buyerId: cId }).toArray();
+  const totalPurchasedGoods = sales.reduce((sum, s) => {
+    if (s.isBadDebt) return sum; // If written off as bad debt, not active receivable
+    return sum + (Number(s.total) || 0);
+  }, 0);
+  const totalImmediateCashPaid = sales.reduce((sum, s) => {
+    return sum + (s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0));
+  }, 0);
 
-  const oldPayment = await paymentsCol.findOne({ id: payment.id });
+  // 3. Payments made to dealer
+  const payments = await database.collection('payments').find({ contactId: cId }).toArray();
+  
+  let totalPaidToDealer = 0;
+  let totalDealerDiscounts = 0;
+  let totalCollectedFromBuyer = 0;
+  let totalContraAdjustments = 0;
 
-  // 1. Save payment
-  await paymentsCol.replaceOne(
-    { id: payment.id },
-    payment,
-    { upsert: true }
-  );
-
-  // 2. Invoice Synchronization if linked
-  if (oldPayment && oldPayment.invoiceId) {
-    const oldInv = await invoicesCol.findOne({ id: oldPayment.invoiceId });
-    if (oldInv) {
-      if (!payment.invoiceId || payment.invoiceId !== oldPayment.invoiceId) {
-        oldInv.amountPaid = Math.max(0, (oldInv.amountPaid || 0) - oldPayment.amount);
-      } else {
-        const diff = payment.amount - oldPayment.amount;
-        oldInv.amountPaid = Math.max(0, (oldInv.amountPaid || 0) + diff);
-      }
-      if (oldInv.amountPaid >= oldInv.total) {
-        oldInv.status = 'paid';
-      } else if (oldInv.amountPaid > 0) {
-        oldInv.status = 'partially_paid';
-      } else {
-        oldInv.status = 'due';
-      }
-      await invoicesCol.replaceOne({ id: oldInv.id }, oldInv);
+  for (const p of payments) {
+    const amt = Number(p.amount) || 0;
+    const disc = Number(p.settlementDiscount) || 0;
+    if (p.type === 'DEALER_PAYMENT') {
+      totalPaidToDealer += amt;
+      totalDealerDiscounts += disc;
+    } else if (p.type === 'BUYER_COLLECTION') {
+      totalCollectedFromBuyer += amt;
+    } else if (p.type === 'CONTRA_ADJUSTMENT') {
+      totalContraAdjustments += amt;
     }
   }
 
-  if (payment.invoiceId && (!oldPayment || oldPayment.invoiceId !== payment.invoiceId)) {
-    const newInv = await invoicesCol.findOne({ id: payment.invoiceId });
-    if (newInv) {
-      newInv.amountPaid = (newInv.amountPaid || 0) + payment.amount;
-      if (newInv.amountPaid >= newInv.total) {
-        newInv.status = 'paid';
-      } else {
-        newInv.status = 'partially_paid';
+  // Dealer Balance: What we owe them
+  const payableBalance = Math.max(0, totalSettlementCredited - totalPaidToDealer - totalDealerDiscounts - totalContraAdjustments);
+
+  // Buyer Balance: What they owe us
+  const receivableBalance = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalContraAdjustments);
+
+  // Net Balance: (+ve means we owe them, -ve means they owe us)
+  const netBalance = payableBalance - receivableBalance;
+
+  // Check Overdue Status
+  const contact = await database.collection('contacts').findOne({ id: cId });
+  const creditPeriod = Number(contact?.creditPeriod) || 0;
+  let isOverdue = false;
+  let daysOverdue = 0;
+
+  if (receivableBalance > 0 && creditPeriod > 0) {
+    const unpaidCreditSales = sales.filter(s => s.paymentType === 'Credit' && !s.isBadDebt);
+    const now = Date.now();
+    for (const s of unpaidCreditSales) {
+      const saleDate = new Date(s.date).getTime();
+      const elapsedDays = Math.floor((now - saleDate) / (1000 * 60 * 60 * 24));
+      if (elapsedDays > creditPeriod) {
+        isOverdue = true;
+        daysOverdue = Math.max(daysOverdue, elapsedDays - creditPeriod);
       }
-      await invoicesCol.replaceOne({ id: newInv.id }, newInv);
     }
   }
 
-  // 3. Update customer balance
-  await syncCustomersAmountDue();
-
-  return payment;
-}
-
-async function deletePayment(id) {
-  const database = await connectDb();
-  const paymentsCol = database.collection('Payments');
-  const payment = await paymentsCol.findOne({ id: Number(id) });
-
-  if (payment) {
-    await paymentsCol.deleteOne({ id: Number(id) });
-
-    // Revert invoice payment
-    if (payment.invoiceId) {
-      const invoicesCol = database.collection('Invoices');
-      const inv = await invoicesCol.findOne({ id: payment.invoiceId });
-      if (inv) {
-        inv.amountPaid = Math.max(0, (inv.amountPaid || 0) - payment.amount);
-        if (inv.amountPaid >= inv.total) {
-          inv.status = 'paid';
-        } else if (inv.amountPaid > 0) {
-          inv.status = 'partially_paid';
-        } else {
-          inv.status = 'due';
-        }
-        await invoicesCol.replaceOne({ id: inv.id }, inv);
-      }
-    }
-
-    await syncCustomersAmountDue();
-  }
-}
-
-// ── Supplier Payments ─────────────────────────────────────────────────────────
-
-function normalizeSupplierPayment(data) {
-  const now = Date.now();
   return {
-    id: Number(data.id) || now,
-    supplier: String(data.supplier || '').trim(),
-    amount: Number(data.amount) || 0,
-    date: data.date || '',
-    note: data.note || '',
-    paymentMode: String(data.paymentMode || '').trim(),
-    personName: String(data.personName || '').trim(),
-    transactionNumber: String(data.transactionNumber || '').trim(),
-    bankDetails: String(data.bankDetails || '').trim(),
-    remarks: String(data.remarks || '').trim(),
-    created: Number(data.created) || now,
-    updated: now,
+    payableBalance,
+    receivableBalance,
+    netBalance,
+    isOverdue,
+    daysOverdue,
+    totalSettlementCredited,
+    totalPurchasedGoods,
+    totalPaidToDealer,
+    totalCollectedFromBuyer,
+    totalContraAdjustments
   };
 }
 
-async function readSupplierPayments() {
+// ─────────────────────────────────────────────────────────────────────────────
+// INVENTORY & STOCK TRACKING
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function getLiveStockSummary() {
   const database = await connectDb();
-  return await database.collection('SupplierPayments').find({}).sort({ created: -1 }).toArray();
+  const consignments = await database.collection('consignments').find({}).toArray();
+
+  const productMap = {}; // varietyName -> { totalCrates, totalKg, byDealer: { [dealerName]: { crates, kg } } }
+
+  for (const c of consignments) {
+    for (const it of c.items) {
+      const v = it.variety || 'General';
+      const uCrates = Number(it.unsoldCrates) || 0;
+      const uKg = Number(it.unsoldWeightKg) || 0;
+
+      if (!productMap[v]) {
+        productMap[v] = {
+          variety: v,
+          totalCrates: 0,
+          totalKg: 0,
+          byDealer: {}
+        };
+      }
+
+      productMap[v].totalCrates += uCrates;
+      productMap[v].totalKg += uKg;
+
+      const dName = c.dealerName || 'Unknown Dealer';
+      if (!productMap[v].byDealer[dName]) {
+        productMap[v].byDealer[dName] = { dealerId: c.dealerId, crates: 0, kg: 0 };
+      }
+      productMap[v].byDealer[dName].crates += uCrates;
+      productMap[v].byDealer[dName].kg += uKg;
+    }
+  }
+
+  return Object.values(productMap);
 }
 
-async function saveSupplierPayment(data) {
-  const payment = normalizeSupplierPayment(data);
-  if (!payment.supplier) return { error: 'Supplier name is required' };
-  if (payment.amount <= 0) return { error: 'Payment amount must be greater than 0' };
+// ─────────────────────────────────────────────────────────────────────────────
+// DAYBOOK & CASH/BANK BOOK
+// ─────────────────────────────────────────────────────────────────────────────
 
+async function getDaybook(dateStr) {
+  const targetDate = dateStr || new Date().toISOString().split('T')[0];
   const database = await connectDb();
-  const supplierPaymentsCol = database.collection('SupplierPayments');
-  await supplierPaymentsCol.replaceOne(
-    { id: payment.id },
-    payment,
-    { upsert: true }
-  );
-  return payment;
+
+  const entries = [];
+
+  // 1. Inward Lorry Bhada (Cash Out)
+  const consignments = await database.collection('consignments').find({ date: targetDate }).toArray();
+  for (const c of consignments) {
+    if (Number(c.lorryBhada) > 0) {
+      entries.push({
+        id: `LB-${c.id}`,
+        time: 'Morning',
+        type: 'LORRY_BHADA',
+        category: 'Cash Out',
+        description: `Lorry Bhada to driver (${c.vehicleNo}) - Dealer: ${c.dealerName}`,
+        mode: c.lorryBhadaMode || 'Cash',
+        inflow: 0,
+        outflow: Number(c.lorryBhada)
+      });
+    }
+  }
+
+  // 2. Daily Sales (Cash In for cash sales)
+  const sales = await database.collection('sales').find({ date: targetDate }).toArray();
+  for (const s of sales) {
+    if (s.paymentType === 'Cash' || Number(s.amountPaid) > 0) {
+      const amt = s.paymentType === 'Cash' ? Number(s.total) : Number(s.amountPaid);
+      entries.push({
+        id: `SALE-${s.id}`,
+        time: s.time || '06:00',
+        type: 'SALE_COLLECTION',
+        category: 'Cash In',
+        description: `Cash Sale Bill #${s.billNo} - Buyer: ${s.buyerName}`,
+        mode: s.paymentMode || 'Cash',
+        inflow: amt,
+        outflow: 0
+      });
+    }
+  }
+
+  // 3. Payments and Collections
+  const payments = await database.collection('payments').find({ date: targetDate }).toArray();
+  for (const p of payments) {
+    if (p.type === 'DEALER_PAYMENT') {
+      entries.push({
+        id: `PAY-${p.id}`,
+        time: 'Settlement',
+        type: 'DEALER_PAYMENT',
+        category: 'Cash Out',
+        description: `Payment to Dealer: ${p.contactName} (${p.paymentMode})`,
+        mode: p.paymentMode,
+        inflow: 0,
+        outflow: Number(p.amount)
+      });
+    } else if (p.type === 'BUYER_COLLECTION') {
+      entries.push({
+        id: `COL-${p.id}`,
+        time: 'Collection',
+        type: 'BUYER_COLLECTION',
+        category: 'Cash In',
+        description: `Payment Collection from Buyer: ${p.contactName} (${p.paymentMode})`,
+        mode: p.paymentMode,
+        inflow: Number(p.amount),
+        outflow: 0
+      });
+    }
+  }
+
+  // 4. Custom manual daybook entries
+  const manualEntries = await database.collection('daybook').find({ date: targetDate }).toArray();
+  for (const m of manualEntries) {
+    entries.push(m);
+  }
+
+  // Calculate totals
+  let totalCashIn = 0;
+  let totalCashOut = 0;
+  let totalBankIn = 0;
+  let totalBankOut = 0;
+
+  for (const e of entries) {
+    const isCash = String(e.mode || '').toLowerCase() === 'cash';
+    if (isCash) {
+      totalCashIn += Number(e.inflow) || 0;
+      totalCashOut += Number(e.outflow) || 0;
+    } else {
+      totalBankIn += Number(e.inflow) || 0;
+      totalBankOut += Number(e.outflow) || 0;
+    }
+  }
+
+  return {
+    date: targetDate,
+    entries,
+    summary: {
+      cashIn: totalCashIn,
+      cashOut: totalCashOut,
+      netCashChange: totalCashIn - totalCashOut,
+      bankIn: totalBankIn,
+      bankOut: totalBankOut,
+      netBankChange: totalBankIn - totalBankOut
+    }
+  };
 }
 
-async function deleteSupplierPayment(id) {
+// ─────────────────────────────────────────────────────────────────────────────
+// STATEMENT GENERATOR (PURCHASES ONLY, SALES ONLY, OR COMBINED)
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function getContactFullStatement(contactId, mode = 'all') {
   const database = await connectDb();
-  await database.collection('SupplierPayments').deleteOne({ id: Number(id) });
+  const cId = Number(contactId);
+  const contact = await database.collection('contacts').findOne({ id: cId });
+  if (!contact) return null;
+
+  const rows = [];
+
+  // Consignments Received
+  if (mode === 'all' || mode === 'sales_only') {
+    const consignments = await database.collection('consignments').find({ dealerId: cId }).toArray();
+    for (const c of consignments) {
+      const totalCrates = c.items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
+      rows.push({
+        id: `CON-${c.id}`,
+        date: c.date,
+        type: 'CONSIGNMENT_INWARD',
+        ref: c.consignmentNo,
+        description: `Inward Consignment: ${totalCrates} crates (Veh: ${c.vehicleNo})`,
+        crates: totalCrates,
+        rate: '-',
+        debit: 0,
+        credit: 0,
+        notes: c.lorryBhada > 0 ? `Lorry Bhada paid: ₹${c.lorryBhada}` : ''
+      });
+    }
+
+    // Settlements (Patiya) - Credits Dealer
+    const settlements = await database.collection('settlements').find({ dealerId: cId }).toArray();
+    for (const s of settlements) {
+      rows.push({
+        id: `SET-${s.id}`,
+        date: s.date,
+        type: 'SETTLEMENT_PATIYA',
+        ref: s.settlementNo,
+        description: `Patiya: ${s.totalQtySold} crates sold @ ₹${s.items[0]?.reportedRate || '-'} (Gross: ₹${s.totalReportedGross} - Exp: ₹${s.totalExpenses} - Comm: ₹${s.commissionAmount})`,
+        crates: s.totalQtySold,
+        rate: s.items[0]?.reportedRate || 0,
+        debit: 0,
+        credit: Number(s.netPayableToDealer),
+        brokingProfit: s.totalBrokingProfit,
+        notes: `Unsold carried forward: ${s.unsoldCratesCarriedForward} crates`
+      });
+    }
+  }
+
+  // Purchases made by contact (Goods bought from broker) - Debits Buyer
+  if (mode === 'all' || mode === 'purchases_only') {
+    const sales = await database.collection('sales').find({ buyerId: cId }).toArray();
+    for (const s of sales) {
+      const isBad = !!s.isBadDebt;
+      rows.push({
+        id: `SAL-${s.id}`,
+        date: s.date,
+        type: 'GOODS_PURCHASED',
+        ref: s.billNo,
+        description: `Fish Bought: ${s.lines.map(l => `${l.qty} ${l.unit} ${l.variety}`).join(', ')}`,
+        crates: s.lines.reduce((acc, l) => acc + (l.unit === 'Crate' ? l.qty : 0), 0),
+        rate: s.lines[0]?.rate || 0,
+        debit: Number(s.total),
+        credit: 0,
+        isBadDebt: isBad,
+        notes: isBad ? 'MARKED AS BAD DEBT (Loss absorbed by broker)' : s.paymentType
+      });
+    }
+  }
+
+  // Payments & Collections
+  const payments = await database.collection('payments').find({ contactId: cId }).toArray();
+  for (const p of payments) {
+    if (p.type === 'DEALER_PAYMENT' && (mode === 'all' || mode === 'sales_only')) {
+      rows.push({
+        id: `PAY-${p.id}`,
+        date: p.date,
+        type: 'DEALER_PAYMENT',
+        ref: p.paymentNo,
+        description: `Payment paid to dealer (${p.paymentMode}${p.referenceNo ? ' Ref:' + p.referenceNo : ''})`,
+        crates: 0,
+        rate: 0,
+        debit: Number(p.amount) + (Number(p.settlementDiscount) || 0),
+        credit: 0,
+        notes: p.settlementDiscount > 0 ? `Paid ₹${p.amount} + Kasar/Discount ₹${p.settlementDiscount}` : ''
+      });
+    } else if (p.type === 'BUYER_COLLECTION' && (mode === 'all' || mode === 'purchases_only')) {
+      rows.push({
+        id: `COL-${p.id}`,
+        date: p.date,
+        type: 'BUYER_COLLECTION',
+        ref: p.paymentNo,
+        description: `Collection received from buyer (${p.paymentMode})`,
+        crates: 0,
+        rate: 0,
+        debit: 0,
+        credit: Number(p.amount),
+        notes: p.notes
+      });
+    } else if (p.type === 'CONTRA_ADJUSTMENT' && mode === 'all') {
+      rows.push({
+        id: `CNT-${p.id}`,
+        date: p.date,
+        type: 'CONTRA_ADJUSTMENT',
+        ref: p.paymentNo,
+        description: `Contra Balance Adjustment (Offsetting goods bought against consignment credit)`,
+        crates: 0,
+        rate: 0,
+        debit: Number(p.amount),
+        credit: Number(p.amount),
+        notes: 'Net balance offset'
+      });
+    }
+  }
+
+  // Sort rows chronologically
+  rows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Compute running balance
+  let runningBalance = 0;
+  for (const r of rows) {
+    // Credit increases what we owe (+), Debit decreases it (-)
+    runningBalance += (r.credit - r.debit);
+    r.runningBalance = runningBalance;
+  }
+
+  const financials = await getContactFinancials(cId);
+
+  return {
+    contact,
+    financials,
+    mode,
+    rows
+  };
 }
 
-// ── HTTP Helpers ──────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// HTTP SERVER & API ROUTES
+// ─────────────────────────────────────────────────────────────────────────────
 
 function sendJson(res, data, status = 200) {
   res.writeHead(status, {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json; charset=utf-8',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
   });
   res.end(JSON.stringify(data));
 }
 
 function readBody(req) {
   return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => { body += chunk; });
+    let raw = '';
+    req.on('data', chunk => { raw += chunk; });
     req.on('end', () => {
       try {
-        resolve(body ? JSON.parse(body) : {});
+        resolve(raw ? JSON.parse(raw) : {});
       } catch (err) {
         reject(err);
       }
@@ -1049,179 +880,456 @@ const MIME_TYPES = {
   '.json': 'application/json; charset=utf-8',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
   '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon',
-  '.woff': 'font/woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
+  '.ico': 'image/x-icon'
 };
 
 function serveStatic(req, res, pathname) {
-  let relativePath = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
-  const filePath = path.join(ROOT, relativePath);
+  let safePath = pathname === '/' ? '/index.html' : pathname;
+  safePath = path.normalize(safePath).replace(/^(\.\.[\/\\])+/, '');
+  const filePath = path.join(ROOT, safePath);
 
-  if (!filePath.startsWith(ROOT)) {
-    res.writeHead(403);
-    return res.end('Forbidden');
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
+    // Fallback to index.html for SPA
+    const indexPath = path.join(ROOT, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return fs.createReadStream(indexPath).pipe(res);
+    }
+    res.writeHead(404);
+    return res.end('Not Found');
   }
 
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      return res.end('Not Found');
-    }
-
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, { 'Content-Type': contentType });
-    fs.createReadStream(filePath).pipe(res);
-  });
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+  res.writeHead(200, { 'Content-Type': contentType });
+  fs.createReadStream(filePath).pipe(res);
 }
-
-// ── Authentication & Sessions ─────────────────────────────────────────────────
-
-const SESSIONS = new Set();
-
-function getSessionId(req) {
-  const cookie = req.headers.cookie;
-  if (!cookie) return null;
-  const match = cookie.match(/session=([^;]+)/);
-  return match ? match[1] : null;
-}
-
-// ── HTTP Server ───────────────────────────────────────────────────────────────
 
 const server = http.createServer(async (req, res) => {
-  const { pathname, searchParams } = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-
-  // CORS preflight
+  // CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
     });
     return res.end();
   }
 
-  // Authentication endpoints
+  const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const pathname = urlObj.pathname;
+  const searchParams = urlObj.searchParams;
+
+  // ── Auth API ──
   if (req.method === 'POST' && pathname === '/api/auth/login') {
     try {
-      const { username, password } = await readBody(req);
-      if ((username === '9841021203' && password === 'Msbdeen@21203') ||
-          (username === 'admin' && password === 'admin123')) {
-        const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
-        SESSIONS.add(sessionId);
-        res.writeHead(200, {
-          'Set-Cookie': `session=${sessionId}; Path=/; HttpOnly; Max-Age=86400; SameSite=Strict`,
-          'Content-Type': 'application/json'
-        });
-        return res.end(JSON.stringify({ ok: true }));
-      } else {
-        return sendJson(res, { error: 'Invalid username or password' }, 401);
+      const body = await readBody(req);
+      const user = String(body.username || '').trim();
+      const pass = String(body.password || '').trim();
+
+      if ((user === 'admin' && pass === 'admin123') || (user === '9841021203' && pass === 'Msbdeen@21203')) {
+        return sendJson(res, { ok: true, user: { username: user, name: 'M S Bhathrudeen', role: 'admin' } });
       }
-    } catch (err) {
-      return sendJson(res, { error: 'Invalid request body' }, 400);
+      return sendJson(res, { error: 'Invalid username or password' }, 401);
+    } catch (e) {
+      return sendJson(res, { error: e.message }, 500);
     }
   }
 
-  if (req.method === 'POST' && pathname === '/api/auth/logout') {
-    const sessionId = getSessionId(req);
-    if (sessionId) {
-      SESSIONS.delete(sessionId);
-    }
-    res.writeHead(200, {
-      'Set-Cookie': 'session=; Path=/; HttpOnly; Max-Age=0; SameSite=Strict',
-      'Content-Type': 'application/json'
-    });
-    return res.end(JSON.stringify({ ok: true }));
-  }
-
-  if (req.method === 'GET' && pathname === '/api/auth/status') {
-    const sessionId = getSessionId(req);
-    const loggedIn = sessionId && SESSIONS.has(sessionId);
-    return sendJson(res, { loggedIn: !!loggedIn });
-  }
-
-  // Protected API middleware
-  if (pathname.startsWith('/api/')) {
-    const sessionId = getSessionId(req);
-    if (!sessionId || !SESSIONS.has(sessionId)) {
-      return sendJson(res, { error: 'Unauthorized' }, 401);
-    }
-  }
-
-  // Invoices API
-  if (req.method === 'GET' && pathname === '/api/invoices') {
+  // ── Contacts API (Dealers & Buyers with Dual-Role) ──
+  if (req.method === 'GET' && pathname === '/api/contacts') {
     try {
-      const data = await readDb();
-      return sendJson(res, data);
+      const database = await connectDb();
+      const contacts = await database.collection('contacts').find({}).sort({ name: 1 }).toArray();
+
+      // Enrich with live financial calculations
+      const enriched = [];
+      for (const c of contacts) {
+        const fin = await getContactFinancials(c.id);
+        enriched.push({
+          ...c,
+          ...fin
+        });
+      }
+      return sendJson(res, enriched);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  if (req.method === 'POST' && pathname === '/api/invoices') {
-    try {
-      const saved = await saveInvoice(await readBody(req));
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
-    } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid invoice data' }, 400);
-    }
-  }
-
-  if (req.method === 'DELETE' && pathname.startsWith('/api/invoices/')) {
-    try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      await deleteInvoice(id);
-      return sendJson(res, { ok: true });
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  // Parties & Customers API (Unified & Backward Compatible)
-  if (req.method === 'GET' && (pathname === '/api/parties' || pathname === '/api/customers')) {
-    try {
-      const filter = pathname === '/api/customers' ? 'customer' : searchParams.get('type');
-      const data = await readParties(filter);
-      return sendJson(res, data);
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  if (req.method === 'POST' && (pathname === '/api/parties' || pathname === '/api/customers')) {
+  if (req.method === 'POST' && pathname === '/api/contacts') {
     try {
       const body = await readBody(req);
-      if (pathname === '/api/customers' && !body.partyType) {
-        body.partyType = 'customer';
-      }
-      const saved = await saveParty(body);
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
+      const contact = normalizeContact(body);
+      if (!contact.name) return sendJson(res, { error: 'Contact name is required' }, 400);
+
+      const database = await connectDb();
+      await database.collection('contacts').replaceOne({ id: contact.id }, contact, { upsert: true });
+      return sendJson(res, contact);
     } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid party data' }, 400);
+      return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  if (req.method === 'DELETE' && (pathname.startsWith('/api/parties/') || pathname.startsWith('/api/customers/'))) {
+  if (req.method === 'POST' && pathname.startsWith('/api/contacts/') && pathname.endsWith('/bad-debt')) {
     try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      const cleanBills = searchParams.get('cleanBills') === 'true';
-      const cleanPayments = searchParams.get('cleanPayments') === 'true';
-      await deleteParty(id, cleanBills, cleanPayments);
+      const parts = pathname.split('/');
+      const id = Number(parts[3]);
+      const body = await readBody(req);
+      const database = await connectDb();
+
+      await database.collection('contacts').updateOne(
+        { id },
+        { $set: { isBadDebtDefaulter: !!body.isBadDebtDefaulter, badDebtReason: body.reason || 'Defaulted on payment', updated: Date.now() } }
+      );
       return sendJson(res, { ok: true });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  // Payments (Customer Collections) API
+  if (req.method === 'DELETE' && pathname.startsWith('/api/contacts/')) {
+    try {
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      await database.collection('contacts').deleteOne({ id });
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Statement & Ledger API ──
+  if (req.method === 'GET' && pathname.startsWith('/api/contacts/') && pathname.endsWith('/statement')) {
+    try {
+      const parts = pathname.split('/');
+      const id = Number(parts[3]);
+      const mode = searchParams.get('mode') || 'all'; // 'all', 'sales_only', 'purchases_only'
+      const statement = await getContactFullStatement(id, mode);
+      if (!statement) return sendJson(res, { error: 'Contact not found' }, 404);
+      return sendJson(res, statement);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Inward Consignments API (Arrivals) ──
+  if (req.method === 'GET' && pathname === '/api/consignments') {
+    try {
+      const database = await connectDb();
+      const consignments = await database.collection('consignments').find({}).sort({ date: -1, id: -1 }).toArray();
+      return sendJson(res, consignments);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/consignments') {
+    try {
+      const body = await readBody(req);
+      const cons = normalizeConsignment(body);
+      if (!cons.dealerName) return sendJson(res, { error: 'Dealer name is required' }, 400);
+
+      const database = await connectDb();
+
+      // Ensure Dealer exists in contacts
+      let contact = await database.collection('contacts').findOne({ name: cons.dealerName });
+      if (!contact && cons.dealerId) {
+        contact = await database.collection('contacts').findOne({ id: cons.dealerId });
+      }
+      if (!contact) {
+        contact = normalizeContact({ name: cons.dealerName, isDealer: true });
+        await database.collection('contacts').insertOne(contact);
+      }
+      cons.dealerId = contact.id;
+
+      await database.collection('consignments').replaceOne({ id: cons.id }, cons, { upsert: true });
+      return sendJson(res, cons);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname.startsWith('/api/consignments/')) {
+    try {
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      await database.collection('consignments').deleteOne({ id });
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Daily Market Sales API ──
+  if (req.method === 'GET' && pathname === '/api/sales') {
+    try {
+      const database = await connectDb();
+      const sales = await database.collection('sales').find({}).sort({ date: -1, id: -1 }).toArray();
+      return sendJson(res, sales);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/sales') {
+    try {
+      const body = await readBody(req);
+      const sale = normalizeSale(body);
+      if (!sale.buyerName) return sendJson(res, { error: 'Buyer name is required' }, 400);
+      if (!sale.lines || sale.lines.length === 0) return sendJson(res, { error: 'At least one item is required' }, 400);
+
+      const database = await connectDb();
+
+      // Ensure Buyer exists in contacts
+      let contact = await database.collection('contacts').findOne({ name: sale.buyerName });
+      if (!contact && sale.buyerId) {
+        contact = await database.collection('contacts').findOne({ id: sale.buyerId });
+      }
+      if (!contact) {
+        contact = normalizeContact({ name: sale.buyerName, isBuyer: true, phone: sale.buyerPhone });
+        await database.collection('contacts').insertOne(contact);
+      }
+      sale.buyerId = contact.id;
+
+      // Credit limit & Overdue check (unless cash or explicitly bypassed)
+      if (sale.paymentType === 'Credit' && !body.bypassCreditCheck && !contact.bypassCreditCheck) {
+        const fin = await getContactFinancials(contact.id);
+        const newTotalDue = fin.receivableBalance + sale.total;
+        if (contact.creditLimit > 0 && newTotalDue > contact.creditLimit) {
+          return sendJson(res, {
+            error: `Credit limit exceeded! Limit: ₹${contact.creditLimit}, Current Due: ₹${fin.receivableBalance}, Bill Total: ₹${sale.total}. Authorize bypass to proceed.`,
+            creditLimitBreached: true
+          }, 400);
+        }
+        if (fin.isOverdue) {
+          return sendJson(res, {
+            error: `Buyer has overdue bills by ${fin.daysOverdue} days! Outstanding: ₹${fin.receivableBalance}. Authorize bypass to proceed.`,
+            creditPeriodBreached: true
+          }, 400);
+        }
+      }
+
+      // Check existing sale to handle edits/stock changes
+      const existing = await database.collection('sales').findOne({ id: sale.id });
+      if (existing) {
+        // Revert stock for existing lines
+        for (const oldLine of existing.lines) {
+          if (oldLine.consignmentId) {
+            const cons = await database.collection('consignments').findOne({ id: oldLine.consignmentId });
+            if (cons) {
+              const updatedItems = cons.items.map(it => {
+                if (it.variety === oldLine.variety) {
+                  return {
+                    ...it,
+                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + (oldLine.unit === 'Crate' ? oldLine.qty : 0)),
+                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + (oldLine.unit === 'Kg' ? oldLine.qty : 0))
+                  };
+                }
+                return it;
+              });
+              await database.collection('consignments').updateOne({ id: cons.id }, { $set: { items: updatedItems, updated: Date.now() } });
+            }
+          }
+        }
+      }
+
+      // Deduct stock from the chosen consignments
+      for (const line of sale.lines) {
+        if (line.consignmentId) {
+          const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
+          if (cons) {
+            const updatedItems = cons.items.map(it => {
+              if (it.variety === line.variety) {
+                return {
+                  ...it,
+                  unsoldCrates: Math.max(0, (it.unsoldCrates || 0) - (line.unit === 'Crate' ? line.qty : 0)),
+                  unsoldWeightKg: Math.max(0, (it.unsoldWeightKg || 0) - (line.unit === 'Kg' ? line.qty : 0))
+                };
+              }
+              return it;
+            });
+            await database.collection('consignments').updateOne({ id: cons.id }, { $set: { items: updatedItems, updated: Date.now() } });
+          }
+        }
+      }
+
+      await database.collection('sales').replaceOne({ id: sale.id }, sale, { upsert: true });
+      return sendJson(res, sale);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname.startsWith('/api/sales/')) {
+    try {
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      const sale = await database.collection('sales').findOne({ id });
+      if (sale) {
+        // Revert stock
+        for (const line of sale.lines) {
+          if (line.consignmentId) {
+            const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
+            if (cons) {
+              const updatedItems = cons.items.map(it => {
+                if (it.variety === line.variety) {
+                  return {
+                    ...it,
+                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + (line.unit === 'Crate' ? line.qty : 0)),
+                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + (line.unit === 'Kg' ? line.qty : 0))
+                  };
+                }
+                return it;
+              });
+              await database.collection('consignments').updateOne({ id: cons.id }, { $set: { items: updatedItems, updated: Date.now() } });
+            }
+          }
+        }
+        await database.collection('sales').deleteOne({ id });
+      }
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Dealer Settlements API (Patiya) ──
+  if (req.method === 'GET' && pathname === '/api/settlements') {
+    try {
+      const database = await connectDb();
+      const settlements = await database.collection('settlements').find({}).sort({ date: -1, id: -1 }).toArray();
+      return sendJson(res, settlements);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // Pre-calculate sales for a dealer to build Patiya
+  if (req.method === 'POST' && pathname === '/api/settlements/calculate') {
+    try {
+      const body = await readBody(req);
+      const dealerId = Number(body.dealerId);
+      const date = body.date || new Date().toISOString().split('T')[0];
+
+      if (!dealerId) return sendJson(res, { error: 'dealerId is required' }, 400);
+
+      const database = await connectDb();
+      const dealer = await database.collection('contacts').findOne({ id: dealerId });
+      if (!dealer) return sendJson(res, { error: 'Dealer not found' }, 404);
+
+      // Find all sales bills that contained fish from this dealer
+      const allSales = await database.collection('sales').find({}).toArray();
+      const matchingLines = [];
+
+      for (const s of allSales) {
+        // filter by date if provided, or take all unsettled
+        if (body.date && s.date !== body.date) continue;
+        for (const line of s.lines) {
+          if (line.dealerId === dealerId || (line.dealerName && line.dealerName.toLowerCase() === dealer.name.toLowerCase())) {
+            matchingLines.push({
+              saleId: s.id,
+              billNo: s.billNo,
+              date: s.date,
+              consignmentId: line.consignmentId,
+              variety: line.variety,
+              unit: line.unit,
+              qty: line.qty,
+              rate: line.rate,
+              amount: line.amount
+            });
+          }
+        }
+      }
+
+      // Group by variety
+      const varietyGroups = {};
+      for (const l of matchingLines) {
+        const v = l.variety || 'Fish';
+        if (!varietyGroups[v]) {
+          varietyGroups[v] = {
+            variety: v,
+            unit: l.unit,
+            consignmentId: l.consignmentId,
+            qtySold: 0,
+            realizedRevenue: 0
+          };
+        }
+        varietyGroups[v].qtySold += Number(l.qty) || 0;
+        varietyGroups[v].realizedRevenue += Number(l.amount) || 0;
+      }
+
+      const items = Object.values(varietyGroups).map((g, idx) => {
+        const avg = g.qtySold > 0 ? g.realizedRevenue / g.qtySold : 0;
+        const roundedAvg = Math.floor(avg * 100) / 100;
+        return {
+          id: idx + 1,
+          consignmentId: g.consignmentId,
+          variety: g.variety,
+          unit: g.unit,
+          qtySold: g.qtySold,
+          realizedRevenue: g.realizedRevenue,
+          systemAvgRate: roundedAvg,
+          reportedRate: Math.floor(roundedAvg), // Default suggestion (e.g. 116.66 -> 116 or 115)
+          reportedGross: (g.qtySold * Math.floor(roundedAvg)),
+          brokingProfit: g.realizedRevenue - (g.qtySold * Math.floor(roundedAvg))
+        };
+      });
+
+      // Find unsold crates for this dealer
+      const consignments = await database.collection('consignments').find({ dealerId }).toArray();
+      let unsoldCrates = 0;
+      for (const c of consignments) {
+        for (const it of c.items) {
+          unsoldCrates += Number(it.unsoldCrates) || 0;
+        }
+      }
+
+      return sendJson(res, {
+        dealer,
+        date,
+        items,
+        defaultCommissionType: dealer.defaultCommissionType || 'percent',
+        defaultCommissionVal: dealer.defaultCommissionVal || 5,
+        unsoldCratesRemaining: unsoldCrates
+      });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/settlements') {
+    try {
+      const body = await readBody(req);
+      const settlement = normalizeSettlement(body);
+      if (!settlement.dealerName) return sendJson(res, { error: 'Dealer name is required' }, 400);
+
+      const database = await connectDb();
+      await database.collection('settlements').replaceOne({ id: settlement.id }, settlement, { upsert: true });
+      return sendJson(res, settlement);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname.startsWith('/api/settlements/')) {
+    try {
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      await database.collection('settlements').deleteOne({ id });
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Payments & Settlements API ──
   if (req.method === 'GET' && pathname === '/api/payments') {
     try {
-      const data = await readPayments();
-      return sendJson(res, data);
+      const database = await connectDb();
+      const payments = await database.collection('payments').find({}).sort({ date: -1, id: -1 }).toArray();
+      return sendJson(res, payments);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
@@ -1229,57 +1337,88 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && pathname === '/api/payments') {
     try {
-      const saved = await savePayment(await readBody(req));
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
+      const body = await readBody(req);
+      const p = normalizePayment(body);
+      if (!p.contactName) return sendJson(res, { error: 'Contact name is required' }, 400);
+      if (p.amount <= 0 && p.settlementDiscount <= 0) {
+        return sendJson(res, { error: 'Payment amount or discount must be greater than 0' }, 400);
+      }
+
+      const database = await connectDb();
+      let contact = await database.collection('contacts').findOne({ name: p.contactName });
+      if (!contact && p.contactId) {
+        contact = await database.collection('contacts').findOne({ id: p.contactId });
+      }
+      if (contact) p.contactId = contact.id;
+
+      await database.collection('payments').replaceOne({ id: p.id }, p, { upsert: true });
+      return sendJson(res, p);
     } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid payment data' }, 400);
+      return sendJson(res, { error: err.message }, 500);
     }
   }
 
   if (req.method === 'DELETE' && pathname.startsWith('/api/payments/')) {
     try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      await deletePayment(id);
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      await database.collection('payments').deleteOne({ id });
       return sendJson(res, { ok: true });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  // Supplier Payments API
-  if (req.method === 'GET' && pathname === '/api/supplier-payments') {
+  // ── Inventory API ──
+  if (req.method === 'GET' && pathname === '/api/inventory') {
     try {
-      const data = await readSupplierPayments();
-      return sendJson(res, data);
+      const stock = await getLiveStockSummary();
+      return sendJson(res, stock);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  if (req.method === 'POST' && pathname === '/api/supplier-payments') {
+  // ── Daybook API ──
+  if (req.method === 'GET' && pathname === '/api/daybook') {
     try {
-      const saved = await saveSupplierPayment(await readBody(req));
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
-    } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid supplier payment data' }, 400);
-    }
-  }
-
-  if (req.method === 'DELETE' && pathname.startsWith('/api/supplier-payments/')) {
-    try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      await deleteSupplierPayment(id);
-      return sendJson(res, { ok: true });
+      const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
+      const daybookData = await getDaybook(date);
+      return sendJson(res, daybookData);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  // Products API
+  if (req.method === 'POST' && pathname === '/api/daybook') {
+    try {
+      const body = await readBody(req);
+      const database = await connectDb();
+      const entry = {
+        id: Number(body.id) || Date.now(),
+        date: body.date || new Date().toISOString().split('T')[0],
+        time: body.time || new Date().toLocaleTimeString('en-US', { hour12: false }),
+        type: body.type || 'MANUAL_ENTRY',
+        category: body.category || 'Expense',
+        description: String(body.description || '').trim(),
+        mode: body.mode || 'Cash',
+        inflow: Number(body.inflow) || 0,
+        outflow: Number(body.outflow) || 0,
+        created: Date.now()
+      };
+      await database.collection('daybook').insertOne(entry);
+      return sendJson(res, entry);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Products / Fish Varieties API ──
   if (req.method === 'GET' && pathname === '/api/products') {
     try {
-      const data = await readProducts();
-      return sendJson(res, data);
+      const database = await connectDb();
+      const products = await database.collection('products').find({}).sort({ name: 1 }).toArray();
+      return sendJson(res, products);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
@@ -1287,88 +1426,108 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'POST' && pathname === '/api/products') {
     try {
-      const saved = await saveProduct(await readBody(req));
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
-    } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid product data' }, 400);
-    }
-  }
-
-  if (req.method === 'DELETE' && pathname.startsWith('/api/products/')) {
-    try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      await deleteProduct(id);
-      return sendJson(res, { ok: true });
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  if (req.method === 'POST' && pathname === '/api/products/stock-adjust') {
-    try {
       const body = await readBody(req);
-      const { productId, deltaQty, reason } = body;
-      if (!productId || deltaQty === undefined) {
-        return sendJson(res, { error: 'productId and deltaQty are required' }, 400);
+      const database = await connectDb();
+      const prod = {
+        id: Number(body.id) || Date.now(),
+        name: String(body.name || '').trim(),
+        defaultUnit: body.defaultUnit === 'Kg' ? 'Kg' : 'Crate',
+        created: Date.now()
+      };
+      await database.collection('products').replaceOne({ id: prod.id }, prod, { upsert: true });
+      return sendJson(res, prod);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Reports & Dashboard Stats API ──
+  if (req.method === 'GET' && pathname === '/api/reports') {
+    try {
+      const database = await connectDb();
+      const settlements = await database.collection('settlements').find({}).toArray();
+      const sales = await database.collection('sales').find({}).toArray();
+      const contacts = await database.collection('contacts').find({}).toArray();
+      const consignments = await database.collection('consignments').find({}).toArray();
+
+      let totalGrossConsignmentSales = 0;
+      let totalBrokerCommission = 0;
+      let totalBrokingProfit = 0;
+      let totalBadDebtLoss = 0;
+
+      for (const s of settlements) {
+        totalGrossConsignmentSales += Number(s.totalReportedGross) || 0;
+        totalBrokerCommission += Number(s.commissionAmount) || 0;
+        totalBrokingProfit += Number(s.totalBrokingProfit) || 0;
       }
-      const result = await adjustStock(productId, deltaQty, reason);
-      return sendJson(res, { ok: true, ...result });
+
+      for (const s of sales) {
+        if (s.isBadDebt) {
+          totalBadDebtLoss += Number(s.total) || 0;
+        }
+      }
+
+      const totalBrokerEarnings = totalBrokerCommission + totalBrokingProfit;
+      const netCompanyProfit = totalBrokerEarnings - totalBadDebtLoss;
+
+      // Crates counts
+      let totalCratesReceived = 0;
+      let totalCratesUnsold = 0;
+      for (const c of consignments) {
+        for (const it of c.items) {
+          totalCratesReceived += Number(it.crates) || 0;
+          totalCratesUnsold += Number(it.unsoldCrates) || 0;
+        }
+      }
+
+      // Overdue stats
+      let overdueBuyersCount = 0;
+      let totalOverdueAmount = 0;
+      const overdueList = [];
+
+      for (const c of contacts) {
+        if (c.isBuyer) {
+          const fin = await getContactFinancials(c.id);
+          if (fin.isOverdue && fin.receivableBalance > 0) {
+            overdueBuyersCount++;
+            totalOverdueAmount += fin.receivableBalance;
+            overdueList.push({
+              id: c.id,
+              name: c.name,
+              phone: c.phone,
+              receivableBalance: fin.receivableBalance,
+              daysOverdue: fin.daysOverdue
+            });
+          }
+        }
+      }
+
+      // Cash today
+      const todayDate = new Date().toISOString().split('T')[0];
+      const todayDaybook = await getDaybook(todayDate);
+
+      return sendJson(res, {
+        totalGrossConsignmentSales,
+        totalBrokerCommission,
+        totalBrokingProfit,
+        totalBrokerEarnings,
+        totalBadDebtLoss,
+        netCompanyProfit,
+        totalCratesReceived,
+        totalCratesUnsold,
+        overdueBuyersCount,
+        totalOverdueAmount,
+        overdueList,
+        todayCashIn: todayDaybook.summary.cashIn,
+        todayCashOut: todayDaybook.summary.cashOut,
+        netCashToday: todayDaybook.summary.netCashChange
+      });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
   }
 
-  // Stock Transactions, Movements & Lots API
-  if (req.method === 'GET' && (pathname === '/api/stock-transactions' || pathname === '/api/stock-movements')) {
-    try {
-      const database = await connectDb();
-      const txs = await database.collection('StockTransactions').find({}).sort({ created: -1 }).toArray();
-      return sendJson(res, txs);
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  if (req.method === 'GET' && pathname === '/api/lots') {
-    try {
-      const database = await connectDb();
-      const lots = await database.collection('Lots').find({}).sort({ created: -1 }).toArray();
-      return sendJson(res, lots);
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  // Purchases API
-  if (req.method === 'GET' && pathname === '/api/purchases') {
-    try {
-      const data = await readPurchases();
-      return sendJson(res, data);
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  if (req.method === 'POST' && pathname === '/api/purchases') {
-    try {
-      const saved = await savePurchase(await readBody(req));
-      return saved.error ? sendJson(res, saved, 400) : sendJson(res, saved);
-    } catch (err) {
-      return sendJson(res, { error: err.message || 'Invalid purchase data' }, 400);
-    }
-  }
-
-  if (req.method === 'DELETE' && pathname.startsWith('/api/purchases/')) {
-    try {
-      const id = Number(decodeURIComponent(pathname.split('/').pop()));
-      await deletePurchase(id);
-      return sendJson(res, { ok: true });
-    } catch (err) {
-      return sendJson(res, { error: err.message }, 500);
-    }
-  }
-
-  // Static files fallback
+  // ── Static Files Fallback ──
   if (req.method === 'GET') {
     return serveStatic(req, res, pathname);
   }
@@ -1377,35 +1536,10 @@ const server = http.createServer(async (req, res) => {
   res.end('Method Not Allowed');
 });
 
-initDb();
-
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Billify Unified Server is running at http://localhost:${PORT}`);
+    console.log(`Fish Brokerage ERP Server running at http://localhost:${PORT}`);
   });
 }
 
-module.exports = {
-  server,
-  connectDb,
-  readDb,
-  writeDb,
-  saveInvoice,
-  deleteInvoice,
-  readParties,
-  saveParty,
-  deleteParty,
-  readPayments,
-  savePayment,
-  deletePayment,
-  readSupplierPayments,
-  saveSupplierPayment,
-  deleteSupplierPayment,
-  readProducts,
-  saveProduct,
-  deleteProduct,
-  adjustStock,
-  readPurchases,
-  savePurchase,
-  deletePurchase,
-};
+module.exports = { server, connectDb };
