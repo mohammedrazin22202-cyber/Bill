@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Billify – Commission Brokerage ERP</title>
+<title>Billify – Fish Brokerage & Commission</title>
 <link rel="icon" type="image/png" href="/logo.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -15,235 +15,247 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --paper:        #fbf9f5;
-  --paper2:       #f3efe8;
-  --paper3:       #e8e2d6;
-  --ink:          #241b15;
-  --ink2:         #3e352c;
-  --ink3:         #6b6055;
-  --ink4:         #9e9386;
-  --ink5:         #d4ccc2;
-  --rule:         #e7e1d8;
-  --rule2:        #d4cbbe;
-  --accent:       #c8502a;
-  --accent2:      #e06234;
-  --accent-bg:    rgba(200,80,42,0.08);
-  --green:        #1e7e48;
-  --green-bg:     rgba(30,126,72,0.1);
-  --blue:         #1d5b96;
-  --blue-bg:      rgba(29,91,150,0.1);
-  --gold:         #b37b1d;
-  --gold-bg:      rgba(179,123,29,0.1);
-  --red:          #d32f2f;
-  --red-bg:       rgba(211,47,47,0.1);
-  --sidebar-w:    260px;
-  --ff-serif:     'DM Serif Display', Georgia, serif;
-  --ff-sans:      'Instrument Sans', system-ui, sans-serif;
-  --ff-mono:      'JetBrains Mono', monospace;
+  --bg-page:        #f8fafc;
+  --bg-surface:     #ffffff;
+  --paper:          #f8fafc;
+  --paper2:         #f1f5f9;
+  --paper3:         #e2e8f0;
+  --ink:            #0f172a;
+  --ink2:           #1e293b;
+  --ink3:           #475569;
+  --ink4:           #64748b;
+  --ink5:           #cbd5e1;
+  --rule:           #e2e8f0;
+  --rule2:          #cbd5e1;
+
+  --accent:         #2563eb;
+  --accent2:        #3b82f6;
+  --accent-bg:      #eff6ff;
+
+  --green:          #059669;
+  --green-bg:       #ecfdf5;
+  --blue:           #0284c7;
+  --blue-bg:        #f0f9ff;
+  --gold:           #d97706;
+  --gold-bg:        #fffbeb;
+  --purple:         #7c3aed;
+  --purple-bg:      #f5f3ff;
+  --red:            #dc2626;
+  --red-bg:         #fef2f2;
+
+  --sidebar-w:      260px;
+  --ff-sans:        'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --ff-serif:       'Plus Jakarta Sans', system-ui, sans-serif;
+  --ff-mono:        'JetBrains Mono', monospace;
 }
 
-html,body{height:100%;background:var(--paper);color:var(--ink);font-family:var(--ff-sans);font-size:13.5px;line-height:1.55}
+html,body{height:100%;background:var(--bg-page);color:var(--ink);font-family:var(--ff-sans);font-size:13.5px;line-height:1.55}
 body{display:flex;overflow-x:hidden}
 
-/* ── Blinking Red for Overdue Accounts ── */
-@keyframes blinkOverdueAnim {
-  0% { opacity: 1; color: #ff1744; text-shadow: 0 0 4px rgba(255,23,68,0.4); }
-  50% { opacity: 0.35; color: #b71c1c; text-shadow: none; }
-  100% { opacity: 1; color: #ff1744; text-shadow: 0 0 4px rgba(255,23,68,0.4); }
-}
-.blink-overdue {
-  animation: blinkOverdueAnim 1.1s infinite ease-in-out;
-  font-weight: 700 !important;
-}
-.badge-overdue {
-  background: rgba(255,23,68,0.15);
-  color: #ff1744;
-  border: 1px solid rgba(255,23,68,0.5);
-  animation: blinkOverdueAnim 1.1s infinite ease-in-out;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.badge-baddebt {
-  background: #b71c1c !important;
-  color: #fff !important;
-  font-weight: 700;
-  border: 1px solid #7f0000;
-  letter-spacing: 0.05em;
-  padding: 3px 8px;
-  border-radius: 4px;
+/* ── Tasteful Alert Badges (Zero Blinking / Zero Headache) ── */
+.badge-overdue, .badge-late {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11.5px;
+}
+.blink-overdue {
+  color: #b91c1c !important;
+  font-weight: 700 !important;
+}
+.badge-baddebt {
+  background: #7f1d1d !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border: 1px solid #991b1b;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
 }
 
 /* ── Sidebar ── */
 .sidebar{
-  width:var(--sidebar-w);min-height:100vh;background:#181310;
+  width:var(--sidebar-w);min-height:100vh;background:#ffffff;
   display:flex;flex-direction:column;flex-shrink:0;position:fixed;
-  top:0;left:0;bottom:0;z-index:100;border-right:1px solid rgba(255,255,255,0.08);
+  top:0;left:0;bottom:0;z-index:100;border-right:1px solid #e2e8f0;
 }
 .brand{
-  padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:22px 20px 18px;border-bottom:1px solid #f1f5f9;
   display:flex;align-items:center;gap:12px;
 }
-.brand img{width:36px;height:36px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,0.06);padding:2px}
-.brand-wordmark{font-family:var(--ff-serif);font-size:22px;color:#f7f4ef;letter-spacing:-0.01em;line-height:1}
-.brand-wordmark span{color:var(--accent2)}
-.brand-sub{font-size:10px;color:rgba(247,244,239,0.38);letter-spacing:0.12em;text-transform:uppercase;margin-top:4px;font-family:var(--ff-mono)}
+.brand img{
+  width:38px;height:38px;object-fit:contain;border-radius:10px;
+  background:#f8fafc;border:1px solid #e2e8f0;padding:3px;
+}
+.brand-wordmark{
+  font-family:var(--ff-sans);font-size:20px;font-weight:800;
+  color:#0f172a;letter-spacing:-0.02em;line-height:1.1;
+}
+.brand-wordmark span{color:var(--accent)}
+.brand-sub{font-size:11px;color:#64748b;font-weight:500;margin-top:3px}
 
-.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sidebar-nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
 .sidebar-header{
-  font-family:var(--ff-mono);font-size:9.5px;font-weight:700;letter-spacing:0.14em;
-  text-transform:uppercase;color:rgba(247,244,239,0.32);margin:14px 10px 6px;padding-left:4px;
+  font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  color:#94a3b8;margin:16px 12px 6px;padding-left:2px;
 }
 .nav-item{
-  display:flex;align-items:center;gap:11px;padding:9.5px 12px;border-radius:8px;
-  background:none;border:none;color:rgba(247,244,239,0.55);font-family:var(--ff-sans);
-  font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;
+  display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:9px;
+  background:none;border:none;color:#475569;font-family:var(--ff-sans);
+  font-size:13.5px;font-weight:500;cursor:pointer;transition:all 0.15s ease;text-align:left;
 }
-.nav-item i{width:16px;text-align:center;font-size:13px;flex-shrink:0;opacity:0.85}
-.nav-item:hover{background:rgba(255,255,255,0.06);color:rgba(247,244,239,0.9)}
-.nav-item.active{background:rgba(200,80,42,0.22);color:#f7f4ef;border:1px solid rgba(200,80,42,0.3)}
-.nav-item.active i{color:var(--accent2);opacity:1}
+.nav-item i{width:18px;text-align:center;font-size:14px;flex-shrink:0;color:#64748b;transition:color 0.15s}
+.nav-item:hover{background:#f1f5f9;color:#0f172a}
+.nav-item:hover i{color:#0f172a}
+.nav-item.active{background:#eff6ff;color:#2563eb;font-weight:600}
+.nav-item.active i{color:#2563eb}
 .nav-badge{
-  margin-left:auto;background:rgba(255,255,255,0.12);color:rgba(247,244,239,0.7);
-  font-size:10px;font-weight:600;padding:1px 7px;border-radius:12px;font-family:var(--ff-mono);
+  margin-left:auto;background:#e2e8f0;color:#475569;
+  font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;
 }
-.nav-item.active .nav-badge{background:var(--accent);color:#fff}
+.nav-item.active .nav-badge{background:#2563eb;color:#ffffff}
 
-.sidebar-footer{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;gap:2px}
-.sidebar-user{display:flex;align-items:center;gap:10px;padding:8px 12px;color:rgba(247,244,239,0.6);font-size:12.5px}
+.sidebar-footer{padding:16px 14px;border-top:1px solid #f1f5f9;display:flex;flex-direction:column;gap:4px}
+.sidebar-user{display:flex;align-items:center;gap:10px;padding:8px 10px;color:#334155;font-size:13px;font-weight:600}
+.sidebar-user i{font-size:18px;color:#64748b}
 
 /* ── Main Layout ── */
-.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;background:var(--paper);position:relative}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;background:var(--bg-page);position:relative}
 .view{display:none}
 .view.active{display:block;animation:viewIn 0.2s ease}
-@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes viewIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* ── Page Header ── */
 .page-head{
-  padding:32px 40px 22px;display:flex;align-items:flex-end;justify-content:space-between;
-  gap:20px;flex-wrap:wrap;border-bottom:1px solid var(--rule);background:#fff;
+  padding:26px 36px 20px;display:flex;align-items:center;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;border-bottom:1px solid #e2e8f0;background:#ffffff;
 }
-.page-eyebrow{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink4);font-family:var(--ff-mono);margin-bottom:4px}
-.page-title{font-family:var(--ff-serif);font-size:27px;color:var(--ink);line-height:1;letter-spacing:-0.02em}
-.page-title em{color:var(--accent);font-style:italic}
+.page-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#64748b;margin-bottom:4px}
+.page-title{font-family:var(--ff-sans);font-size:24px;font-weight:700;color:#0f172a;line-height:1.2;letter-spacing:-0.02em}
+.page-title em{color:var(--accent);font-style:normal}
 .page-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
 /* ── Content ── */
-.content{padding:28px 40px}
+.content{padding:28px 36px 40px}
 
 /* ── Buttons ── */
 .btn{
-  display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:6px;
-  font-family:var(--ff-sans);font-size:12.5px;font-weight:600;cursor:pointer;
-  border:1px solid transparent;transition:all 0.12s;white-space:nowrap;text-decoration:none;
+  display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;
+  font-family:var(--ff-sans);font-size:13px;font-weight:600;cursor:pointer;
+  border:1px solid transparent;transition:all 0.15s ease;white-space:nowrap;text-decoration:none;
 }
-.btn-primary{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,0.15)}
-.btn-primary:hover{background:var(--ink2);box-shadow:0 2px 8px rgba(0,0,0,0.25)}
-.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 1px 4px rgba(200,80,42,0.3)}
-.btn-accent:hover{background:var(--accent2);box-shadow:0 3px 10px rgba(200,80,42,0.4)}
-.btn-outline{background:#fff;color:var(--ink2);border-color:var(--rule2)}
-.btn-outline:hover{background:var(--paper2);border-color:var(--ink4)}
-.btn-ghost{background:transparent;color:var(--ink3);border-color:transparent}
-.btn-ghost:hover{background:var(--paper2);color:var(--ink)}
-.btn-danger{background:#fff;color:var(--red);border-color:rgba(211,47,47,0.3)}
-.btn-danger:hover{background:var(--red-bg);border-color:var(--red)}
-.btn-wa{background:#25d366;color:#fff;border-color:#25d366}
-.btn-wa:hover{background:#1ebc59;box-shadow:0 2px 8px rgba(37,211,102,0.35)}
-.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:5px}
+.btn-primary{background:#2563eb;color:#ffffff;border-color:#2563eb;box-shadow:0 1px 2px rgba(37,99,235,0.2)}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.btn-accent{background:#059669;color:#ffffff;border-color:#059669;box-shadow:0 1px 2px rgba(5,150,105,0.2)}
+.btn-accent:hover{background:#047857}
+.btn-outline{background:#ffffff;color:#334155;border-color:#cbd5e1}
+.btn-outline:hover{background:#f8fafc;border-color:#94a3b8}
+.btn-ghost{background:transparent;color:#64748b;border-color:transparent}
+.btn-ghost:hover{background:#f1f5f9;color:#0f172a}
+.btn-danger{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.btn-danger:hover{background:#fee2e2}
+.btn-wa{background:#22c55e;color:#ffffff;border-color:#22c55e}
+.btn-wa:hover{background:#16a34a}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:6px}
 
 /* ── Cards & Panels ── */
 .panel{
-  background:#fff;border:1px solid var(--rule);border-radius:10px;
-  overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.03),0 6px 20px rgba(0,0,0,0.02);
+  background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;
+  overflow:hidden;box-shadow:0 1px 3px 0 rgba(0,0,0,0.03);
 }
 .panel-head{
-  padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;
-  align-items:center;justify-content:space-between;gap:12px;background:var(--paper);
+  padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;background:#ffffff;
 }
-.panel-title{font-size:13px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.panel-title{font-size:14px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
 .panel-body{padding:20px}
 
 /* ── KPI Grid ── */
 .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
 .kpi-card{
-  background:#fff;border:1px solid var(--rule);border-radius:10px;padding:18px 20px;
-  box-shadow:0 1px 4px rgba(0,0,0,0.02);display:flex;flex-direction:column;gap:6px;
+  background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:18px 20px;
+  box-shadow:0 1px 3px 0 rgba(0,0,0,0.03);display:flex;flex-direction:column;gap:4px;
   position:relative;overflow:hidden;
 }
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ink5)}
-.kpi-card.accent::before{background:var(--accent)}
-.kpi-card.green::before{background:var(--green)}
-.kpi-card.blue::before{background:var(--blue)}
-.kpi-card.gold::before{background:var(--gold)}
-.kpi-card.red::before{background:var(--red)}
-.kpi-label{font-size:11px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.06em;font-family:var(--ff-mono)}
-.kpi-val{font-size:23px;font-weight:700;font-family:var(--ff-mono);color:var(--ink);letter-spacing:-0.02em}
-.kpi-sub{font-size:11px;color:var(--ink4)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#e2e8f0;border-radius:12px 12px 0 0}
+.kpi-card.accent::before{background:#2563eb}
+.kpi-card.green::before{background:#059669}
+.kpi-card.blue::before{background:#0284c7}
+.kpi-card.gold::before{background:#d97706}
+.kpi-card.red::before{background:#dc2626}
+.kpi-label{font-size:11.5px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.04em}
+.kpi-val{font-size:25px;font-weight:700;color:#0f172a;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:12px;color:#94a3b8}
 
 /* ── Tables ── */
 .table-wrap{overflow-x:auto;width:100%}
 .table{width:100%;border-collapse:collapse;font-size:13px;text-align:left}
 .table th{
-  background:var(--paper);padding:11px 14px;font-size:11px;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.05em;color:var(--ink3);border-bottom:1px solid var(--rule);
-  font-family:var(--ff-mono);
+  background:#f8fafc;padding:12px 16px;font-size:11.5px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.04em;color:#475569;border-bottom:1px solid #e2e8f0;
 }
-.table td{padding:12px 14px;border-bottom:1px solid var(--rule);color:var(--ink2);vertical-align:middle}
-.table tr:hover td{background:rgba(200,80,42,0.02)}
-.table td.num, .table th.num{text-align:right;font-family:var(--ff-mono)}
+.table td{padding:13px 16px;border-bottom:1px solid #f1f5f9;color:#1e293b;vertical-align:middle}
+.table tr:hover td{background:#f8fafc}
+.table td.num, .table th.num{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── Badges ── */
 .badge{
-  display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;
-  font-size:11px;font-weight:600;font-family:var(--ff-mono);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;
+  font-size:11.5px;font-weight:600;white-space:nowrap;
 }
-.badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(30,126,72,0.25)}
-.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(29,91,150,0.25)}
-.badge-gold{background:var(--gold-bg);color:var(--gold);border:1px solid rgba(179,123,29,0.25)}
-.badge-accent{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(200,80,42,0.25)}
+.badge-green{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.badge-blue{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
+.badge-gold{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.badge-accent{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
 
 /* ── Form Inputs ── */
-.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.field label{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:0.04em;font-family:var(--ff-mono)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:600;color:#334155}
 .input, input[type="text"], input[type="number"], input[type="date"], select, textarea {
-  width:100%;padding:9px 12px;background:#fff;border:1px solid var(--rule2);
-  border-radius:6px;font-family:var(--ff-sans);font-size:13px;color:var(--ink);
-  outline:none;transition:border-color 0.15s,box-shadow 0.15s;
+  width:100%;padding:9px 12px;background:#ffffff;border:1px solid #cbd5e1;
+  border-radius:8px;font-family:var(--ff-sans);font-size:13.5px;color:#0f172a;
+  outline:none;transition:all 0.15s ease;
 }
 .input:focus, input:focus, select:focus, textarea:focus{
-  border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,80,42,0.12);
+  border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.15);
 }
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 
 /* ── Modals ── */
 .modal-overlay{
-  position:fixed;inset:0;background:rgba(24,19,16,0.65);backdrop-filter:blur(3px);
+  position:fixed;inset:0;background:rgba(15,23,42,0.45);backdrop-filter:blur(4px);
   z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;
 }
 .modal-overlay.open{display:flex}
 .modal{
-  background:#fff;border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,0.25);
-  max-width:96vw;width:720px;max-height:92vh;display:flex;flex-direction:column;
-  overflow:hidden;animation:modalIn 0.2s cubic-bezier(0.16,1,0.3,1);
+  background:#ffffff;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 8px 10px -6px rgba(0,0,0,0.05);
+  max-width:96vw;width:740px;max-height:92vh;display:flex;flex-direction:column;
+  overflow:hidden;border:1px solid #e2e8f0;animation:modalIn 0.2s cubic-bezier(0.16,1,0.3,1);
 }
 .modal-lg{width:960px}
 .modal-sm{width:460px}
-@keyframes modalIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes modalIn{from{opacity:0;transform:scale(0.97) translateY(8px)}to{opacity:1;transform:none}}
 .modal-head{
-  padding:16px 22px;border-bottom:1px solid var(--rule);display:flex;
-  align-items:center;justify-content:space-between;background:var(--paper);
+  padding:18px 24px;border-bottom:1px solid #f1f5f9;display:flex;
+  align-items:center;justify-content:space-between;background:#ffffff;
 }
-.modal-title{font-size:15px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:8px}
-.modal-body{padding:22px;overflow-y:auto;flex:1}
+.modal-title{font-size:16px;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:8px}
+.modal-body{padding:24px;overflow-y:auto;flex:1}
 .modal-footer{
-  padding:14px 22px;border-top:1px solid var(--rule);display:flex;
-  align-items:center;justify-content:flex-end;gap:10px;background:var(--paper);
+  padding:16px 24px;border-top:1px solid #f1f5f9;display:flex;
+  align-items:center;justify-content:flex-end;gap:10px;background:#f8fafc;
 }
 
 /* ── Toast ── */
@@ -251,9 +263,9 @@ body{display:flex;overflow-x:hidden}
   position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;
 }
 .toast{
-  background:#181310;color:#fff;padding:11px 18px;border-radius:8px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.25);font-size:12.5px;font-weight:500;
-  display:flex;align-items:center;gap:9px;animation:toastIn 0.2s ease;
+  background:#0f172a;color:#ffffff;padding:12px 18px;border-radius:10px;
+  box-shadow:0 10px 25px -5px rgba(0,0,0,0.2);font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:10px;animation:toastIn 0.2s ease;
   border-left:4px solid var(--accent);max-width:380px;
 }
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
@@ -263,14 +275,14 @@ body{display:flex;overflow-x:hidden}
 /* ── Autocomplete / Suggest Dropdown ── */
 .autocomplete-wrap{position:relative}
 .autocomplete-list{
-  position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid var(--rule2);
-  border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-height:220px;
+  position:absolute;top:100%;left:0;right:0;background:#ffffff;border:1px solid #cbd5e1;
+  border-radius:8px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);max-height:220px;
   overflow-y:auto;z-index:1500;display:none;
 }
 .autocomplete-item{
-  padding:9px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--rule);
+  padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9;color:#1e293b;
 }
-.autocomplete-item:hover{background:var(--accent-bg);color:var(--accent)}
+.autocomplete-item:hover{background:#eff6ff;color:#2563eb}
 
 /* ── Responsive ── */
 @media(max-width:960px){
@@ -287,29 +299,29 @@ body{display:flex;overflow-x:hidden}
 <body>
 
 <!-- ── Login Overlay ── -->
-<div id="loginScreen" style="display:none;position:fixed;inset:0;background:#181310;z-index:9999;align-items:center;justify-content:center">
-  <div class="panel" style="width:min(380px,92vw);box-shadow:0 32px 80px rgba(0,0,0,0.45)">
-    <div class="panel-head" style="justify-content:center;padding:26px 20px 18px;background:#fff;border-bottom:none">
+<div id="loginScreen" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.65);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center">
+  <div class="panel" style="width:min(400px,92vw);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e2e8f0;border-radius:16px">
+    <div class="panel-head" style="justify-content:center;padding:28px 24px 18px;background:#ffffff;border-bottom:none">
       <div style="text-align:center">
-        <img src="/logo.png" style="width:48px;height:48px;margin-bottom:8px"/>
-        <div class="brand-wordmark" style="font-size:26px;color:var(--ink)">Billify<span>.</span></div>
-        <div class="brand-sub" style="font-size:11px;color:var(--ink4);margin-top:4px">Al Haseena Exports · Brokerage ERP</div>
+        <img src="/logo.png" style="width:52px;height:52px;margin-bottom:10px;border-radius:12px;background:#f8fafc;padding:4px;border:1px solid #e2e8f0"/>
+        <div class="brand-wordmark" style="font-size:24px;color:#0f172a;font-weight:800">Billify<span>.</span></div>
+        <div class="brand-sub" style="font-size:12px;color:#64748b;margin-top:4px">Al Haseena Exports · Fish Broking</div>
       </div>
     </div>
-    <div class="panel-body" style="padding:16px 24px 24px;display:flex;flex-direction:column;gap:14px">
+    <div class="panel-body" style="padding:16px 28px 28px;display:flex;flex-direction:column;gap:14px">
       <div class="field">
         <label>Username</label>
-        <input type="text" id="loginUsername" placeholder="e.g. admin or 9841021203" autofocus />
+        <input type="text" id="loginUsername" placeholder="e.g. admin" autofocus />
       </div>
       <div class="field">
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" />
       </div>
-      <button class="btn btn-primary" id="loginSubmitBtn" style="width:100%;justify-content:center;padding:10px;margin-top:6px">
+      <button class="btn btn-primary" id="loginSubmitBtn" style="width:100%;justify-content:center;padding:11px;margin-top:6px;font-size:14px">
         Sign In
       </button>
-      <div style="font-size:11px;color:var(--ink4);text-align:center;margin-top:4px">
-        Default: <span style="font-family:var(--ff-mono);color:var(--ink2)">admin</span> / <span style="font-family:var(--ff-mono);color:var(--ink2)">admin123</span>
+      <div style="font-size:11.5px;color:#64748b;text-align:center;margin-top:4px">
+        Default: <strong style="color:#0f172a">admin</strong> / <strong style="color:#0f172a">admin123</strong>
       </div>
     </div>
   </div>
@@ -326,42 +338,42 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <nav class="sidebar-nav">
-    <div class="sidebar-header">Daily Operations</div>
+    <div class="sidebar-header">Daily Market</div>
     <button class="nav-item active" data-view="dashboard">
-      <i class="fas fa-chart-line"></i><span>Dashboard & Alerts</span>
+      <i class="fas fa-house"></i><span>Home</span>
       <span class="nav-badge" id="badgeOverdueCount" style="display:none">0</span>
     </button>
     <button class="nav-item" data-view="arrivals">
-      <i class="fas fa-truck-loading"></i><span>Inward Arrivals</span>
+      <i class="fas fa-truck-ramp-box"></i><span>Fish In (Arrivals)</span>
       <span class="nav-badge" id="badgeArrivalsCount">0</span>
     </button>
     <button class="nav-item" data-view="sales">
-      <i class="fas fa-shopping-basket"></i><span>Morning Sales</span>
+      <i class="fas fa-basket-shopping"></i><span>Fish Sold (Sales)</span>
       <span class="nav-badge" id="badgeSalesCount">0</span>
     </button>
     <button class="nav-item" data-view="settlements">
-      <i class="fas fa-file-invoice-dollar"></i><span>Dealer Settlements (Patiya)</span>
+      <i class="fas fa-file-invoice-dollar"></i><span>Dealer Bills (Patiya)</span>
       <span class="nav-badge" id="badgeSettlementsCount">0</span>
     </button>
 
-    <div class="sidebar-header">Accounts & Daybook</div>
+    <div class="sidebar-header">Accounts & Cash</div>
     <button class="nav-item" data-view="contacts">
-      <i class="fas fa-users"></i><span>Contacts (Dealers & Buyers)</span>
+      <i class="fas fa-users"></i><span>Dealers & Buyers</span>
       <span class="nav-badge" id="badgeContactsCount">0</span>
     </button>
     <button class="nav-item" data-view="payments">
-      <i class="fas fa-money-bill-transfer"></i><span>Payments & Contra</span>
+      <i class="fas fa-money-bill-transfer"></i><span>Payments & Cut Balance</span>
     </button>
     <button class="nav-item" data-view="daybook">
-      <i class="fas fa-book"></i><span>Cash & Bank Daybook</span>
+      <i class="fas fa-vault"></i><span>Daily Cash Box</span>
     </button>
 
-    <div class="sidebar-header">Inventory & Insights</div>
+    <div class="sidebar-header">Stock & Profits</div>
     <button class="nav-item" data-view="inventory">
-      <i class="fas fa-cubes-stacked"></i><span>Live Stock Board</span>
+      <i class="fas fa-boxes-stacked"></i><span>Boxes in Shop</span>
     </button>
     <button class="nav-item" data-view="reports">
-      <i class="fas fa-file-invoice"></i><span>Brokerage Reports</span>
+      <i class="fas fa-chart-pie"></i><span>Profit & Reports</span>
     </button>
   </nav>
 
@@ -369,7 +381,7 @@ body{display:flex;overflow-x:hidden}
     <div class="sidebar-user">
       <i class="fas fa-user-circle"></i><span>M S Bhathrudeen</span>
     </div>
-    <button class="btn btn-ghost btn-sm" id="logoutBtn" style="color:#e57373;justify-content:flex-start;padding:6px 12px">
+    <button class="btn btn-ghost btn-sm" id="logoutBtn" style="color:#dc2626;justify-content:flex-start;padding:8px 10px">
       <i class="fas fa-sign-out-alt"></i> Logout
     </button>
   </div>
@@ -379,35 +391,35 @@ body{display:flex;overflow-x:hidden}
 <main class="main">
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: DASHBOARD & ALERTS
+       VIEW: DASHBOARD / HOME
   ══════════════════════════════════════════════════════════════ -->
   <div class="view active" id="view-dashboard">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Commission Brokerage Overview</div>
-        <h1 class="page-title">Morning <em>Pulse</em> & Alerts</h1>
+        <div class="page-eyebrow">Welcome back, M S Bhathrudeen</div>
+        <h1 class="page-title">Shop <em>Overview</em> & Today's Summary</h1>
       </div>
       <div class="page-actions">
-        <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Inward Arrival</button>
-        <button class="btn btn-accent" onclick="openSaleModal()"><i class="fas fa-bolt"></i> Fast Morning Sale</button>
-        <button class="btn btn-outline" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Build Patiya</button>
+        <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Record Fish In</button>
+        <button class="btn btn-accent" onclick="openSaleModal()"><i class="fas fa-plus"></i> New Sale Bill</button>
+        <button class="btn btn-outline" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Make Dealer Bill</button>
       </div>
     </div>
 
     <div class="content">
-      <!-- Blinking Overdue Alert Banner if any overdue accounts -->
-      <div id="overdueAlertBanner" style="display:none;background:#fff0f2;border:2px solid #ff1744;border-radius:10px;padding:16px 20px;margin-bottom:24px;box-shadow:0 4px 16px rgba(255,23,68,0.15)">
+      <!-- Calm Alert Banner for Late Payments (NO blinking!) -->
+      <div id="overdueAlertBanner" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 20px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.04)">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
           <div style="display:flex;align-items:center;gap:12px">
-            <span class="badge badge-overdue" style="font-size:13px;padding:6px 12px">
-              <i class="fas fa-bell"></i> ACTION REQUIRED: OVERDUE BUYER PAYMENTS
+            <span class="badge badge-late" style="font-size:12px;padding:5px 10px">
+              <i class="fas fa-bell"></i> Payment Follow-Up
             </span>
-            <span style="font-size:13px;color:var(--ink2);font-weight:600" id="overdueBannerText">
-              You have overdue collections. Follow up immediately.
+            <span style="font-size:13px;color:#991b1b;font-weight:600" id="overdueBannerText">
+              You have buyers past their credit days. Follow up to collect.
             </span>
           </div>
           <button class="btn btn-danger btn-sm" onclick="switchTo('contacts');filterContacts('overdue')">
-            View All Overdue Parties <i class="fas fa-arrow-right"></i>
+            View Late Buyers <i class="fas fa-arrow-right"></i>
           </button>
         </div>
         <div id="overdueListQuick" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"></div>
@@ -416,38 +428,38 @@ body{display:flex;overflow-x:hidden}
       <!-- KPI Grid -->
       <div class="kpi-grid">
         <div class="kpi-card accent">
-          <span class="kpi-label">Total Broker Earnings</span>
+          <span class="kpi-label">Our Total Profit</span>
           <span class="kpi-val" id="dashTotalEarnings">₹0</span>
-          <span class="kpi-sub">Commission + Broking Profit</span>
-        </div>
-        <div class="kpi-card gold">
-          <span class="kpi-label">Broker Commission</span>
-          <span class="kpi-val" id="dashCommission">₹0</span>
-          <span class="kpi-sub">Levied on dealer deals</span>
-        </div>
-        <div class="kpi-card green">
-          <span class="kpi-label">Broking Rate Profit</span>
-          <span class="kpi-val" id="dashBrokingProfit">₹0</span>
-          <span class="kpi-sub">Extra trading rate margin</span>
+          <span class="kpi-sub">Commission + Extra Rate Cut</span>
         </div>
         <div class="kpi-card blue">
-          <span class="kpi-label">Unsold Crates in Godown</span>
+          <span class="kpi-label">Boxes in Shop</span>
           <span class="kpi-val" id="dashUnsoldCrates">0</span>
-          <span class="kpi-sub">Across all dealer stocks</span>
+          <span class="kpi-sub">Unsold crates in godown</span>
         </div>
-        <div class="kpi-card">
-          <span class="kpi-label">Today's Cash in Drawer</span>
+        <div class="kpi-card green">
+          <span class="kpi-label">Cash in Drawer</span>
           <span class="kpi-val" id="dashCashToday">₹0</span>
-          <span class="kpi-sub">Physical drawer cash</span>
+          <span class="kpi-sub">Physical counter drawer cash</span>
+        </div>
+        <div class="kpi-card gold">
+          <span class="kpi-label">Dealer Commission</span>
+          <span class="kpi-val" id="dashCommission">₹0</span>
+          <span class="kpi-sub">Commission earned on deals</span>
+        </div>
+        <div class="kpi-card red">
+          <span class="kpi-label">Extra Rate Profit</span>
+          <span class="kpi-val" id="dashBrokingProfit">₹0</span>
+          <span class="kpi-sub">Our rate overwrite gain</span>
         </div>
       </div>
 
       <div class="grid-2">
-        <!-- Live Stock by Dealer & Item -->
+        <!-- Stock Left by Variety -->
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-title"><i class="fas fa-cubes"></i> Live Unsold Stock Breakdown</span>
-            <button class="btn btn-ghost btn-sm" onclick="switchTo('inventory')">View All</button>
+            <span class="panel-title"><i class="fas fa-boxes-stacked" style="color:var(--accent)"></i> Boxes Left in Shop (By Dealer)</span>
+            <button class="btn btn-ghost btn-sm" onclick="switchTo('inventory')">View All Stock</button>
           </div>
           <div class="panel-body" style="padding:0">
             <div id="dashStockList" class="table-wrap">
@@ -456,31 +468,31 @@ body{display:flex;overflow-x:hidden}
                   <tr>
                     <th>Variety</th>
                     <th>Dealer Ownership</th>
-                    <th class="num">Crates Remaining</th>
+                    <th class="num">Crates Left</th>
                   </tr>
                 </thead>
                 <tbody id="dashStockTbody">
-                  <tr><td colspan="3" style="text-align:center;color:var(--ink4);padding:24px">No active stock in godown</td></tr>
+                  <tr><td colspan="3" style="text-align:center;color:var(--ink4);padding:24px">No active stock in shop</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- Overdue Reminders Panel -->
+        <!-- Late Payments Follow-up -->
         <div class="panel">
           <div class="panel-head">
-            <span class="panel-title"><i class="fas fa-clock" style="color:var(--red)"></i> Overdue Parties (Blinking Alerts)</span>
-            <button class="btn btn-ghost btn-sm" onclick="switchTo('contacts');filterContacts('overdue')">Directory</button>
+            <span class="panel-title"><i class="fas fa-clock" style="color:var(--red)"></i> Late Payments to Collect</span>
+            <button class="btn btn-ghost btn-sm" onclick="switchTo('contacts');filterContacts('overdue')">View Directory</button>
           </div>
           <div class="panel-body" style="padding:0">
             <div class="table-wrap">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Party</th>
-                    <th>Due Amount</th>
-                    <th>Overdue</th>
+                    <th>Buyer Name</th>
+                    <th>Amount Due</th>
+                    <th>Status</th>
                     <th class="num">WhatsApp</th>
                   </tr>
                 </thead>
@@ -496,24 +508,24 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: INWARD ARRIVALS (CONSIGNMENTS)
+       VIEW: FISH IN (ARRIVALS)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-arrivals">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Consignment Inward</div>
-        <h1 class="page-title">Dealer Fish <em>Arrivals</em></h1>
+        <div class="page-eyebrow">Fish Received</div>
+        <h1 class="page-title">Fish Received from <em>Dealers</em></h1>
       </div>
       <div class="page-actions">
-        <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> New Inward Arrival</button>
+        <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Record Fish In</button>
       </div>
     </div>
 
     <div class="content">
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-truck-loading"></i> Inward Consignments Ledger</span>
-          <input type="text" id="arrivalSearch" placeholder="Search dealer, vehicle no..." style="width:240px;padding:6px 10px;font-size:12px" oninput="renderArrivals()"/>
+          <span class="panel-title"><i class="fas fa-truck-ramp-box" style="color:var(--accent)"></i> Fish In Records</span>
+          <input type="text" id="arrivalSearch" placeholder="Search dealer, vehicle no..." style="width:240px;padding:7px 12px;font-size:13px" oninput="renderArrivals()"/>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
@@ -522,17 +534,17 @@ body{display:flex;overflow-x:hidden}
                 <tr>
                   <th>Ref #</th>
                   <th>Date</th>
-                  <th>Dealer (Consignor)</th>
+                  <th>Dealer</th>
                   <th>Vehicle No</th>
-                  <th>Varieties & Crates</th>
-                  <th class="num">Lorry Bhada</th>
-                  <th class="num">Unsold Crates</th>
+                  <th>Fish & Crates</th>
+                  <th class="num">Lorry Driver Cash</th>
+                  <th class="num">Boxes Left</th>
                   <th>Status</th>
                   <th class="num">Actions</th>
                 </tr>
               </thead>
               <tbody id="arrivalsTbody">
-                <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--ink4)">No inward consignments recorded yet.</td></tr>
+                <tr><td colspan="9" style="text-align:center;padding:32px;color:var(--ink4)">No fish received yet.</td></tr>
               </tbody>
             </table>
           </div>
@@ -542,24 +554,24 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: MORNING SALES (AUCTION & BILLING)
+       VIEW: FISH SOLD (SALES)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-sales">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Daily Market Billing</div>
+        <div class="page-eyebrow">Daily Sales</div>
         <h1 class="page-title">Morning <em>Sales</em> Bills</h1>
       </div>
       <div class="page-actions">
-        <button class="btn btn-accent" onclick="openSaleModal()"><i class="fas fa-bolt"></i> New Morning Sale Bill</button>
+        <button class="btn btn-accent" onclick="openSaleModal()"><i class="fas fa-plus"></i> New Sale Bill</button>
       </div>
     </div>
 
     <div class="content">
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-receipt"></i> Sales Invoices</span>
-          <input type="text" id="saleSearch" placeholder="Search buyer, bill no..." style="width:240px;padding:6px 10px;font-size:12px" oninput="renderSales()"/>
+          <span class="panel-title"><i class="fas fa-basket-shopping" style="color:var(--green)"></i> Sales Bills to Buyers</span>
+          <input type="text" id="saleSearch" placeholder="Search buyer, bill no..." style="width:240px;padding:7px 12px;font-size:13px" oninput="renderSales()"/>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
@@ -568,10 +580,10 @@ body{display:flex;overflow-x:hidden}
                 <tr>
                   <th>Bill #</th>
                   <th>Date / Time</th>
-                  <th>Buyer (Party)</th>
-                  <th>Dealer Stock Source</th>
-                  <th>Items / Qty</th>
-                  <th class="num">Gross Total</th>
+                  <th>Buyer</th>
+                  <th>Dealer Source</th>
+                  <th>Items & Qty</th>
+                  <th class="num">Total Amount</th>
                   <th>Payment Type</th>
                   <th class="num">Actions</th>
                 </tr>
@@ -587,45 +599,45 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: DEALER SETTLEMENTS (PATIYA)
+       VIEW: DEALER BILLS (PATIYA)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-settlements">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Dealer Daily Statement</div>
-        <h1 class="page-title">Patiya <em>Settlement</em></h1>
+        <div class="page-eyebrow">Dealer Final Accounts</div>
+        <h1 class="page-title">Dealer <em>Bills</em> (Patiya)</h1>
       </div>
       <div class="page-actions">
-        <button class="btn btn-primary" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Build New Patiya</button>
+        <button class="btn btn-primary" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Make Dealer Bill</button>
       </div>
     </div>
 
     <div class="content">
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-file-invoice-dollar"></i> Generated Patiya Statements</span>
-          <input type="text" id="settlementSearch" placeholder="Search dealer..." style="width:240px;padding:6px 10px;font-size:12px" oninput="renderSettlements()"/>
+          <span class="panel-title"><i class="fas fa-file-invoice-dollar" style="color:var(--accent)"></i> Finalized Dealer Bills</span>
+          <input type="text" id="settlementSearch" placeholder="Search dealer..." style="width:240px;padding:7px 12px;font-size:13px" oninput="renderSettlements()"/>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Patiya #</th>
+                  <th>Bill #</th>
                   <th>Date</th>
                   <th>Dealer</th>
-                  <th class="num">Qty Sold</th>
-                  <th class="num">Reported Gross</th>
-                  <th class="num">Broking Profit</th>
-                  <th class="num">Expenses Deducted</th>
+                  <th class="num">Sold Boxes</th>
+                  <th class="num">Reported Amount</th>
+                  <th class="num">Our Extra Profit</th>
+                  <th class="num">Expenses Cut</th>
                   <th class="num">Commission</th>
-                  <th class="num">Net Payable to Dealer</th>
-                  <th class="num">Unsold Stock</th>
+                  <th class="num">We Pay Dealer</th>
+                  <th class="num">Boxes Left</th>
                   <th class="num">Actions</th>
                 </tr>
               </thead>
               <tbody id="settlementsTbody">
-                <tr><td colspan="11" style="text-align:center;padding:32px;color:var(--ink4)">No settlements built yet.</td></tr>
+                <tr><td colspan="11" style="text-align:center;padding:32px;color:var(--ink4)">No dealer bills created yet.</td></tr>
               </tbody>
             </table>
           </div>
@@ -635,42 +647,42 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: CONTACTS & DUAL-ROLE DIRECTORY
+       VIEW: DEALERS & BUYERS (PEOPLE)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-contacts">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Dual-Role Ledger Directory</div>
-        <h1 class="page-title">Dealers & <em>Parties</em></h1>
+        <div class="page-eyebrow">Address Book & Accounts</div>
+        <h1 class="page-title">Dealers & <em>Buyers</em></h1>
       </div>
       <div class="page-actions">
         <button class="btn btn-outline" onclick="filterContacts('all')">All</button>
         <button class="btn btn-outline" onclick="filterContacts('dealers')">Dealers</button>
         <button class="btn btn-outline" onclick="filterContacts('buyers')">Buyers</button>
-        <button class="btn btn-danger btn-sm" onclick="filterContacts('overdue')"><i class="fas fa-exclamation-circle"></i> Overdue</button>
-        <button class="btn btn-primary" onclick="openContactModal()"><i class="fas fa-user-plus"></i> New Contact</button>
+        <button class="btn btn-danger btn-sm" onclick="filterContacts('overdue')"><i class="fas fa-clock"></i> Late Payments</button>
+        <button class="btn btn-primary" onclick="openContactModal()"><i class="fas fa-user-plus"></i> New Person</button>
       </div>
     </div>
 
     <div class="content">
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-address-book"></i> Accounts & Running Balances</span>
-          <input type="text" id="contactSearch" placeholder="Search name, phone..." style="width:240px;padding:6px 10px;font-size:12px" oninput="renderContacts()"/>
+          <span class="panel-title"><i class="fas fa-users" style="color:var(--accent)"></i> Accounts & Running Balances</span>
+          <input type="text" id="contactSearch" placeholder="Search name, phone..." style="width:240px;padding:7px 12px;font-size:13px" oninput="renderContacts()"/>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Contact Name</th>
-                  <th>Roles</th>
-                  <th>Phone / Address</th>
-                  <th>Credit Limit & Period</th>
-                  <th class="num">We Owe (Dealer)</th>
-                  <th class="num">They Owe (Buyer)</th>
-                  <th class="num">Net Balance</th>
-                  <th>Status / Overdue</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Phone / Location</th>
+                  <th>Credit Allowed</th>
+                  <th class="num">We Pay Them (Dealer)</th>
+                  <th class="num">They Owe Us (Buyer)</th>
+                  <th class="num">Final Balance</th>
+                  <th>Payment Status</th>
                   <th class="num">Actions</th>
                 </tr>
               </thead>
@@ -685,26 +697,26 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: PAYMENTS, COLLECTIONS & CONTRA
+       VIEW: PAYMENTS & CUT BALANCE (CONTRA)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-payments">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Cash & Bank Settlements</div>
-        <h1 class="page-title">Payments & <em>Contra</em></h1>
+        <div class="page-eyebrow">Money In & Out</div>
+        <h1 class="page-title">Payments & <em>Cut Balance</em></h1>
       </div>
       <div class="page-actions">
         <button class="btn btn-primary" onclick="openPaymentModal('DEALER_PAYMENT')"><i class="fas fa-hand-holding-dollar"></i> Pay Dealer</button>
-        <button class="btn btn-accent" onclick="openPaymentModal('BUYER_COLLECTION')"><i class="fas fa-sack-dollar"></i> Collect From Buyer</button>
-        <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-arrows-split-up-and-left"></i> Contra Offset</button>
+        <button class="btn btn-accent" onclick="openPaymentModal('BUYER_COLLECTION')"><i class="fas fa-sack-dollar"></i> Collect from Buyer</button>
+        <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-arrows-split-up-and-left"></i> Cut from Both Sides (Contra)</button>
       </div>
     </div>
 
     <div class="content">
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-money-bill-transfer"></i> Transaction History</span>
-          <input type="text" id="paymentSearch" placeholder="Search contact, mode..." style="width:240px;padding:6px 10px;font-size:12px" oninput="renderPayments()"/>
+          <span class="panel-title"><i class="fas fa-money-bill-transfer" style="color:var(--accent)"></i> Payment History</span>
+          <input type="text" id="paymentSearch" placeholder="Search contact, mode..." style="width:240px;padding:7px 12px;font-size:13px" oninput="renderPayments()"/>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
@@ -714,9 +726,9 @@ body{display:flex;overflow-x:hidden}
                   <th>Txn #</th>
                   <th>Date</th>
                   <th>Type</th>
-                  <th>Contact Name</th>
+                  <th>Party Name</th>
                   <th class="num">Amount</th>
-                  <th class="num">Kasar / Discount</th>
+                  <th class="num">Discount / Kasar</th>
                   <th>Mode / Ref</th>
                   <th>Notes</th>
                   <th class="num">Actions</th>
@@ -733,16 +745,16 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: CASH & BANK DAYBOOK
+       VIEW: DAILY CASH BOX (DAYBOOK)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-daybook">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Daily Reconciliation</div>
-        <h1 class="page-title">Daybook <em>Register</em></h1>
+        <div class="page-eyebrow">Counter Cash & Bank</div>
+        <h1 class="page-title">Daily <em>Cash Box</em> Register</h1>
       </div>
       <div class="page-actions">
-        <input type="date" id="daybookDate" style="width:160px;padding:6px 10px;font-size:13px" onchange="loadDaybook()"/>
+        <input type="date" id="daybookDate" style="width:160px;padding:7px 12px;font-size:13px" onchange="loadDaybook()"/>
         <button class="btn btn-outline" onclick="openManualDaybookModal()"><i class="fas fa-plus"></i> Add Cash Expense</button>
       </div>
     </div>
@@ -750,26 +762,26 @@ body{display:flex;overflow-x:hidden}
     <div class="content">
       <div class="kpi-grid">
         <div class="kpi-card green">
-          <span class="kpi-label">Cash Inflow Today</span>
+          <span class="kpi-label">Cash In Today</span>
           <span class="kpi-val" id="daybookCashIn">₹0</span>
         </div>
         <div class="kpi-card red">
-          <span class="kpi-label">Cash Outflow Today</span>
+          <span class="kpi-label">Cash Out Today</span>
           <span class="kpi-val" id="daybookCashOut">₹0</span>
         </div>
         <div class="kpi-card accent">
-          <span class="kpi-label">Net Physical Cash in Drawer</span>
+          <span class="kpi-label">Cash in Drawer</span>
           <span class="kpi-val" id="daybookNetCash">₹0</span>
         </div>
         <div class="kpi-card blue">
-          <span class="kpi-label">Net Bank Movement</span>
+          <span class="kpi-label">Bank Movement</span>
           <span class="kpi-val" id="daybookNetBank">₹0</span>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-book"></i> Cash & Bank Movement for Selected Date</span>
+          <span class="panel-title"><i class="fas fa-vault" style="color:var(--accent)"></i> Cash & Bank Movement for Selected Date</span>
         </div>
         <div class="panel-body" style="padding:0">
           <div class="table-wrap">
@@ -780,8 +792,8 @@ body{display:flex;overflow-x:hidden}
                   <th>Category</th>
                   <th>Description</th>
                   <th>Mode</th>
-                  <th class="num">Inflow (+)</th>
-                  <th class="num">Outflow (-)</th>
+                  <th class="num">Money In (+)</th>
+                  <th class="num">Money Out (-)</th>
                 </tr>
               </thead>
               <tbody id="daybookTbody">
@@ -795,13 +807,13 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: LIVE STOCK BOARD
+       VIEW: BOXES IN SHOP (INVENTORY)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-inventory">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Real-Time Inventory</div>
-        <h1 class="page-title">Live <em>Stock</em> Board</h1>
+        <div class="page-eyebrow">Stock in Cold Storage & Shop</div>
+        <h1 class="page-title">Boxes Left in <em>Shop</em></h1>
       </div>
       <div class="page-actions">
         <button class="btn btn-outline" onclick="loadStockBoard()"><i class="fas fa-rotate"></i> Refresh Stock</button>
@@ -814,13 +826,13 @@ body{display:flex;overflow-x:hidden}
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: BROKERAGE REPORTS & ANALYTICS
+       VIEW: PROFIT & REPORTS
   ══════════════════════════════════════════════════════════════ -->
   <div class="view" id="view-reports">
     <div class="page-head">
       <div>
-        <div class="page-eyebrow">Company Analytics</div>
-        <h1 class="page-title">Brokerage <em>Financials</em></h1>
+        <div class="page-eyebrow">Business Performance</div>
+        <h1 class="page-title">Profit & <em>Loss</em> Summary</h1>
       </div>
       <div class="page-actions">
         <button class="btn btn-outline" onclick="downloadFinancialSummaryPDF()"><i class="fas fa-file-pdf"></i> Export Summary PDF</button>
@@ -830,35 +842,35 @@ body{display:flex;overflow-x:hidden}
     <div class="content">
       <div class="panel" style="margin-bottom:24px">
         <div class="panel-head">
-          <span class="panel-title"><i class="fas fa-chart-pie"></i> Profit & Loss (Broker Earnings Breakdown)</span>
+          <span class="panel-title"><i class="fas fa-chart-pie" style="color:var(--accent)"></i> Total Broker Earnings Breakdown</span>
         </div>
         <div class="panel-body">
           <div class="grid-3" style="margin-bottom:20px">
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Gross Consignment Sales Realized</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--ink)" id="repGrossSales">₹0</div>
+            <div style="background:#f8fafc;padding:18px;border-radius:10px;border:1px solid #e2e8f0">
+              <div class="kpi-label">Total Fish Sales Value</div>
+              <div style="font-size:24px;font-weight:700;color:var(--ink);margin-top:4px" id="repGrossSales">₹0</div>
             </div>
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Broker Commission Earned</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--gold)" id="repCommission">₹0</div>
+            <div style="background:#f8fafc;padding:18px;border-radius:10px;border:1px solid #e2e8f0">
+              <div class="kpi-label">Our Commission Earned</div>
+              <div style="font-size:24px;font-weight:700;color:var(--gold);margin-top:4px" id="repCommission">₹0</div>
             </div>
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Broking Rate Profit (Margin)</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--green)" id="repBrokingProfit">₹0</div>
+            <div style="background:#f8fafc;padding:18px;border-radius:10px;border:1px solid #e2e8f0">
+              <div class="kpi-label">Our Extra Rate Profit</div>
+              <div style="font-size:24px;font-weight:700;color:var(--green);margin-top:4px" id="repBrokingProfit">₹0</div>
             </div>
           </div>
           <div class="grid-3">
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Total Company Broker Revenue</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--accent)" id="repTotalEarnings">₹0</div>
+            <div style="background:#eff6ff;padding:18px;border-radius:10px;border:1px solid #bfdbfe">
+              <div class="kpi-label" style="color:#1e40af">Total Company Broker Revenue</div>
+              <div style="font-size:24px;font-weight:700;color:#1e3a8a;margin-top:4px" id="repTotalEarnings">₹0</div>
             </div>
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Bad Debts Absorbed by Broker</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--red)" id="repBadDebts">₹0</div>
+            <div style="background:#fef2f2;padding:18px;border-radius:10px;border:1px solid #fecaca">
+              <div class="kpi-label" style="color:#991b1b">Lost Money (Bad Debts Absorbed)</div>
+              <div style="font-size:24px;font-weight:700;color:#dc2626;margin-top:4px" id="repBadDebts">₹0</div>
             </div>
-            <div style="background:var(--paper);padding:16px;border-radius:8px">
-              <div class="kpi-label">Net Broker Profit</div>
-              <div style="font-size:22px;font-weight:700;font-family:var(--ff-mono);color:var(--ink)" id="repNetProfit">₹0</div>
+            <div style="background:#ecfdf5;padding:18px;border-radius:10px;border:1px solid #a7f3d0">
+              <div class="kpi-label" style="color:#065f46">Clean Net Profit</div>
+              <div style="font-size:24px;font-weight:700;color:#047857;margin-top:4px" id="repNetProfit">₹0</div>
             </div>
           </div>
         </div>
@@ -872,11 +884,11 @@ body{display:flex;overflow-x:hidden}
      MODALS
 ══════════════════════════════════════════════════════════════ -->
 
-<!-- 1. Modal: Inward Arrival -->
+<!-- 1. Modal: Inward Arrival (Fish In) -->
 <div class="modal-overlay" id="arrivalModal">
   <div class="modal modal-lg">
     <div class="modal-head">
-      <span class="modal-title"><i class="fas fa-truck-loading" style="color:var(--accent)"></i> Record Inward Fish Arrival</span>
+      <span class="modal-title"><i class="fas fa-truck-ramp-box" style="color:var(--accent)"></i> Record Fish Received (Fish In)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('arrivalModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -886,8 +898,8 @@ body{display:flex;overflow-x:hidden}
           <input type="date" id="arrDate"/>
         </div>
         <div class="field autocomplete-wrap">
-          <label>Dealer (Consignor) Name</label>
-          <input type="text" id="arrDealer" placeholder="e.g. Dealer X" oninput="searchDealerArrival(this.value)"/>
+          <label>Dealer Name (Sender) *</label>
+          <input type="text" id="arrDealer" placeholder="Type dealer name" oninput="searchDealerArrival(this.value)"/>
           <div class="autocomplete-list" id="arrDealerList"></div>
         </div>
         <div class="field">
@@ -896,9 +908,9 @@ body{display:flex;overflow-x:hidden}
         </div>
       </div>
 
-      <div style="background:#fff6f3;border:1px solid #ffd4c6;border-radius:8px;padding:14px;margin-bottom:18px">
-        <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;font-family:var(--ff-mono);margin-bottom:8px">
-          <i class="fas fa-truck-moving"></i> Lorry Bhada (Advance Freight to Truck Driver)
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:16px;margin-bottom:18px">
+        <div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:10px">
+          <i class="fas fa-truck"></i> Cash Paid to Truck Driver on Arrival (Lorry Bhada)
         </div>
         <div class="grid-3">
           <div class="field" style="margin-bottom:0">
@@ -906,24 +918,24 @@ body{display:flex;overflow-x:hidden}
             <input type="number" id="arrLorryBhada" value="0" placeholder="0"/>
           </div>
           <div class="field" style="margin-bottom:0">
-            <label>Payment Mode</label>
+            <label>Paid From</label>
             <select id="arrLorryBhadaMode">
               <option value="Cash">Cash (from drawer)</option>
               <option value="Bank">Bank Transfer / UPI</option>
             </select>
           </div>
           <div class="field" style="margin-bottom:0">
-            <label>Notes / Driver Phone</label>
-            <input type="text" id="arrDriverPhone" placeholder="Driver contact / remarks"/>
+            <label>Driver Phone / Remarks</label>
+            <input type="text" id="arrDriverPhone" placeholder="Driver contact notes"/>
           </div>
         </div>
       </div>
 
-      <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-weight:700;font-size:12px;text-transform:uppercase;font-family:var(--ff-mono);color:var(--ink2)">
-          Fish Varieties & Crates
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-weight:700;font-size:13px;color:var(--ink)">
+          Fish Varieties & Crates Received
         </span>
-        <button class="btn btn-outline btn-sm" onclick="addArrivalRow()"><i class="fas fa-plus"></i> Add Item Row</button>
+        <button class="btn btn-outline btn-sm" onclick="addArrivalRow()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
       <div class="table-wrap">
@@ -933,7 +945,7 @@ body{display:flex;overflow-x:hidden}
               <th>Fish Variety</th>
               <th class="num">Crates Count</th>
               <th class="num">Total Weight (Kg) [Optional]</th>
-              <th>Remarks</th>
+              <th>Quality / Remarks</th>
               <th class="num">Action</th>
             </tr>
           </thead>
@@ -943,7 +955,7 @@ body{display:flex;overflow-x:hidden}
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('arrivalModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveArrival()"><i class="fas fa-save"></i> Save Inward Arrival</button>
+      <button class="btn btn-primary" onclick="saveArrival()"><i class="fas fa-check"></i> Save Received Fish</button>
     </div>
   </div>
 </div>
@@ -952,53 +964,53 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="saleModal">
   <div class="modal modal-lg">
     <div class="modal-head">
-      <span class="modal-title"><i class="fas fa-bolt" style="color:var(--accent)"></i> Rapid Morning Sale Bill</span>
+      <span class="modal-title"><i class="fas fa-basket-shopping" style="color:var(--green)"></i> New Morning Sale Bill</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('saleModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="grid-3">
         <div class="field autocomplete-wrap">
-          <label>Buyer (Party Name)</label>
+          <label>Buyer Name *</label>
           <input type="text" id="saleBuyer" placeholder="Select or type buyer name" oninput="searchBuyerSale(this.value)"/>
           <div class="autocomplete-list" id="saleBuyerList"></div>
-          <small id="saleBuyerCreditInfo" style="font-size:11px;color:var(--ink4);margin-top:2px"></small>
+          <small id="saleBuyerCreditInfo" style="font-size:11.5px;color:var(--ink4);margin-top:2px"></small>
         </div>
         <div class="field">
-          <label>Bill Date & Time</label>
+          <label>Bill Date</label>
           <input type="date" id="saleDate"/>
         </div>
         <div class="field">
           <label>Payment Terms</label>
           <select id="salePaymentType" onchange="toggleSalePaymentFields()">
-            <option value="Cash">Cash Sale (Instant Collection)</option>
-            <option value="Credit">Credit Sale (Party Ledger)</option>
+            <option value="Cash">Cash Sale (Paid Now)</option>
+            <option value="Credit">Credit Sale (Pay Later)</option>
           </select>
         </div>
       </div>
 
-      <div id="creditBypassWarning" style="display:none;background:#ffebee;border:1px solid #ef9a9a;border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#c62828">
-        <i class="fas fa-triangle-exclamation"></i> <strong>Credit Warning:</strong> <span id="creditWarningText"></span>
+      <div id="creditBypassWarning" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:12.5px;color:#991b1b">
+        <i class="fas fa-exclamation-triangle"></i> <strong>Credit Alert:</strong> <span id="creditWarningText"></span>
         <label style="margin-left:14px;font-weight:700;cursor:pointer">
-          <input type="checkbox" id="bypassCreditCheck"/> Authorize & Bypass Credit Block
+          <input type="checkbox" id="bypassCreditCheck"/> Authorize & Allow Sale
         </label>
       </div>
 
-      <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-weight:700;font-size:12px;text-transform:uppercase;font-family:var(--ff-mono);color:var(--ink2)">
-          Line Items (Select From Dealer Inward Stock)
+      <div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-weight:700;font-size:13px;color:var(--ink)">
+          Items Sold (Deducts from Dealer's Stock)
         </span>
-        <button class="btn btn-outline btn-sm" onclick="addSaleRow()"><i class="fas fa-plus"></i> Add Item Line</button>
+        <button class="btn btn-outline btn-sm" onclick="addSaleRow()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
       <div class="table-wrap">
         <table class="table" id="saleLinesTable">
           <thead>
             <tr>
-              <th style="width:36%">Select Dealer Consignment Stock</th>
+              <th style="width:36%">Select Dealer Stock</th>
               <th style="width:14%">Unit</th>
               <th style="width:16%" class="num">Quantity</th>
-              <th style="width:16%" class="num">Sale Rate (₹)</th>
-              <th style="width:14%" class="num">Line Total</th>
+              <th style="width:16%" class="num">Selling Rate (₹)</th>
+              <th style="width:14%" class="num">Total Amount</th>
               <th style="width:4%"></th>
             </tr>
           </thead>
@@ -1006,26 +1018,26 @@ body{display:flex;overflow-x:hidden}
         </table>
       </div>
 
-      <div style="display:flex;justify-content:flex-end;margin-top:14px">
-        <div style="background:var(--paper);padding:14px 20px;border-radius:8px;border:1px solid var(--rule);min-width:240px">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px;color:var(--ink3)">
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <div style="background:#f8fafc;padding:16px 22px;border-radius:10px;border:1px solid #e2e8f0;min-width:260px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;color:var(--ink3)">
             <span>Subtotal:</span>
-            <span style="font-family:var(--ff-mono)" id="saleSubtotal">₹0</span>
+            <strong id="saleSubtotal">₹0</strong>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;color:var(--ink3)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:var(--ink3)">
             <span>Discount (₹):</span>
-            <input type="number" id="saleDiscount" value="0" style="width:80px;padding:3px 6px;text-align:right" oninput="calculateSaleTotals()"/>
+            <input type="number" id="saleDiscount" value="0" style="width:90px;padding:4px 8px;text-align:right" oninput="calculateSaleTotals()"/>
           </div>
-          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;color:var(--ink);border-top:1px solid var(--rule);padding-top:6px">
+          <div style="display:flex;justify-content:space-between;font-size:17px;font-weight:700;color:var(--ink);border-top:1px solid #e2e8f0;padding-top:8px">
             <span>Bill Total:</span>
-            <span style="font-family:var(--ff-mono);color:var(--accent)" id="saleTotal">₹0</span>
+            <span style="color:var(--accent)" id="saleTotal">₹0</span>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('saleModal')">Cancel</button>
-      <button class="btn btn-accent" onclick="saveSale()"><i class="fas fa-check"></i> Complete & Print Bill</button>
+      <button class="btn btn-accent" onclick="saveSale()"><i class="fas fa-print"></i> Save & Print Bill</button>
     </div>
   </div>
 </div>
@@ -1034,47 +1046,47 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="patiyaModal">
   <div class="modal modal-lg">
     <div class="modal-head">
-      <span class="modal-title"><i class="fas fa-calculator" style="color:var(--accent)"></i> Build Dealer Settlement (Patiya)</span>
+      <span class="modal-title"><i class="fas fa-calculator" style="color:var(--accent)"></i> Make Dealer Bill (Patiya)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('patiyaModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="grid-3" style="align-items:flex-end">
         <div class="field autocomplete-wrap">
-          <label>Select Dealer</label>
+          <label>Select Dealer *</label>
           <input type="text" id="patDealer" placeholder="Select dealer name" oninput="searchDealerPatiya(this.value)"/>
           <div class="autocomplete-list" id="patDealerList"></div>
         </div>
         <div class="field">
-          <label>Settlement Date</label>
+          <label>Bill Date</label>
           <input type="date" id="patDate"/>
         </div>
         <div class="field">
           <button class="btn btn-primary" style="width:100%;height:38px;justify-content:center" onclick="fetchPatiyaData()">
-            <i class="fas fa-sync"></i> Fetch Sold Goods
+            <i class="fas fa-sync"></i> Fetch Sold Fish
           </button>
         </div>
       </div>
 
       <div id="patiyaCalculationContainer" style="display:none">
         <!-- Goods Sold Realization vs Overwrite -->
-        <div style="background:#fdfcf9;border:1px solid var(--rule);border-radius:8px;padding:14px;margin-bottom:18px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:700;font-size:12px;font-family:var(--ff-mono);color:var(--ink2)">
-              1. REALIZED SALES & OVERWRITE UNIT RATE
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-weight:700;font-size:13px;color:var(--ink)">
+              1. Fish Sold & Change Our Rate (Overwrite)
             </span>
-            <span class="badge badge-green" id="patBrokingProfitBadge">Broking Profit: ₹0</span>
+            <span class="badge badge-green" id="patBrokingProfitBadge">Our Extra Profit: ₹0</span>
           </div>
           <div class="table-wrap">
             <table class="table">
               <thead>
                 <tr>
                   <th>Variety</th>
-                  <th class="num">Qty Sold</th>
-                  <th class="num">Actual Realized Sales</th>
-                  <th class="num">System Avg Rate</th>
-                  <th class="num" style="background:#fff3e0;color:#e65100">Overwrite Rate (₹)</th>
-                  <th class="num">Reported Gross</th>
-                  <th class="num">Broker Margin Profit</th>
+                  <th class="num">Sold Boxes</th>
+                  <th class="num">Actual Total</th>
+                  <th class="num">Average Rate</th>
+                  <th class="num" style="background:#fffbeb;color:#b45309">Change Rate (₹)</th>
+                  <th class="num">Reported Amount</th>
+                  <th class="num">Our Extra Profit</th>
                 </tr>
               </thead>
               <tbody id="patItemsTbody"></tbody>
@@ -1083,10 +1095,10 @@ body{display:flex;overflow-x:hidden}
         </div>
 
         <!-- Dynamic Expenses Line Items -->
-        <div style="background:#fdfcf9;border:1px solid var(--rule);border-radius:8px;padding:14px;margin-bottom:18px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <span style="font-weight:700;font-size:12px;font-family:var(--ff-mono);color:var(--ink2)">
-              2. DEDUCT EXPENSES (TRANSPORT, ICE, COOLIE, STORAGE, LORRY BHADA)
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-weight:700;font-size:13px;color:var(--ink)">
+              2. Deduct Expenses (Lorry, Ice, Labour, Coolie, Storage)
             </span>
             <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseRow()"><i class="fas fa-plus"></i> Add Expense</button>
           </div>
@@ -1104,16 +1116,16 @@ body{display:flex;overflow-x:hidden}
 
         <!-- Commission & Net Payout -->
         <div class="grid-2">
-          <div style="background:#fdfcf9;border:1px solid var(--rule);border-radius:8px;padding:14px">
-            <span style="font-weight:700;font-size:12px;font-family:var(--ff-mono);color:var(--ink2);display:block;margin-bottom:10px">
-              3. BROKER COMMISSION CALCULATION
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px">
+            <span style="font-weight:700;font-size:13px;color:var(--ink);display:block;margin-bottom:12px">
+              3. Our Commission
             </span>
             <div class="grid-2">
               <div class="field">
                 <label>Commission Type</label>
                 <select id="patCommType" onchange="recalculatePatiya()">
                   <option value="percent">Percentage (%)</option>
-                  <option value="flat_per_crate">Flat per Crate (₹)</option>
+                  <option value="flat_per_crate">Flat per Box (₹)</option>
                   <option value="fixed">Fixed Lump Sum (₹)</option>
                 </select>
               </div>
@@ -1123,21 +1135,21 @@ body{display:flex;overflow-x:hidden}
               </div>
             </div>
             <div style="font-size:13px;color:var(--ink3)">
-              Commission Deducted: <strong style="font-family:var(--ff-mono);color:var(--ink)" id="patCommAmount">₹0</strong>
+              Commission Cut: <strong style="color:var(--ink)" id="patCommAmount">₹0</strong>
             </div>
           </div>
 
-          <div style="background:#fff;border:2px solid var(--accent);border-radius:8px;padding:16px;display:flex;flex-direction:column;justify-content:space-between">
+          <div style="background:#ffffff;border:2px solid #2563eb;border-radius:12px;padding:18px;display:flex;flex-direction:column;justify-content:space-between">
             <div>
-              <div style="font-size:11px;font-weight:700;color:var(--ink4);text-transform:uppercase;font-family:var(--ff-mono)">
-                Net Amount Credited to Dealer
+              <div style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase">
+                Final Amount We Owe Dealer
               </div>
-              <div style="font-size:28px;font-weight:700;font-family:var(--ff-mono);color:var(--accent);margin-top:4px" id="patNetPayable">
+              <div style="font-size:30px;font-weight:700;color:#2563eb;margin-top:4px" id="patNetPayable">
                 ₹0
               </div>
             </div>
-            <div style="border-top:1px solid var(--rule);padding-top:8px;font-size:12px;color:var(--ink3)">
-              <i class="fas fa-boxes-stacked"></i> Unsold Crates Carried Forward: <strong id="patUnsoldCount">0</strong> crates
+            <div style="border-top:1px solid #f1f5f9;padding-top:10px;font-size:12.5px;color:var(--ink3)">
+              <i class="fas fa-boxes-stacked"></i> Unsold Boxes Left with Us: <strong id="patUnsoldCount">0</strong> boxes
             </div>
           </div>
         </div>
@@ -1145,7 +1157,7 @@ body{display:flex;overflow-x:hidden}
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('patiyaModal')">Cancel</button>
-      <button class="btn btn-primary" id="savePatiyaBtn" style="display:none" onclick="savePatiya()"><i class="fas fa-check"></i> Finalize & Credit Dealer</button>
+      <button class="btn btn-primary" id="savePatiyaBtn" style="display:none" onclick="savePatiya()"><i class="fas fa-check"></i> Finalize Bill & Credit Dealer</button>
     </div>
   </div>
 </div>
@@ -1154,7 +1166,7 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="contactModal">
   <div class="modal modal-sm">
     <div class="modal-head">
-      <span class="modal-title" id="contactModalTitle"><i class="fas fa-user"></i> Contact Account</span>
+      <span class="modal-title" id="contactModalTitle"><i class="fas fa-user-plus"></i> New Person (Dealer / Buyer)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('contactModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -1168,27 +1180,27 @@ body{display:flex;overflow-x:hidden}
         <input type="text" id="contPhone" placeholder="e.g. 9841021203"/>
       </div>
       <div class="field">
-        <label>Address / Harbor / Port</label>
-        <input type="text" id="contAddress" placeholder="e.g. Royapuram, Chennai"/>
+        <label>Address / Harbor / Location</label>
+        <input type="text" id="contAddress" placeholder="e.g. Kasimedu, Chennai"/>
       </div>
 
-      <div style="background:var(--paper);padding:12px;border-radius:6px;margin-bottom:14px;border:1px solid var(--rule)">
-        <label style="font-size:11px;font-weight:700;font-family:var(--ff-mono);color:var(--ink3);display:block;margin-bottom:6px">
-          BUSINESS ROLE (CAN BE BOTH!)
+      <div style="background:#f8fafc;padding:14px;border-radius:10px;margin-bottom:14px;border:1px solid #e2e8f0">
+        <label style="font-size:12px;font-weight:700;color:var(--ink2);display:block;margin-bottom:8px">
+          WHAT DOES THIS PERSON DO? (CAN TICK BOTH!)
         </label>
         <div style="display:flex;gap:20px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" id="contIsDealer" checked/> Dealer (Consignor)
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="contIsDealer" checked/> Dealer (Sends Fish)
           </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-            <input type="checkbox" id="contIsBuyer"/> Buyer (Party)
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
+            <input type="checkbox" id="contIsBuyer"/> Buyer (Buys Fish)
           </label>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="field">
-          <label>Credit Limit (₹)</label>
+          <label>Credit Allowed (₹)</label>
           <input type="number" id="contCreditLimit" value="0"/>
         </div>
         <div class="field">
@@ -1202,14 +1214,14 @@ body{display:flex;overflow-x:hidden}
         <input type="number" id="contCommVal" value="5"/>
       </div>
 
-      <div style="display:flex;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
         <input type="checkbox" id="contBypass"/>
-        <label for="contBypass" style="font-size:12px;cursor:pointer">Always bypass credit limit checks</label>
+        <label for="contBypass" style="font-size:12.5px;cursor:pointer">Always allow sales without credit block</label>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('contactModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveContact()"><i class="fas fa-save"></i> Save Account</button>
+      <button class="btn btn-primary" onclick="saveContact()"><i class="fas fa-check"></i> Save Person</button>
     </div>
   </div>
 </div>
@@ -1218,16 +1230,16 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="paymentModal">
   <div class="modal modal-sm">
     <div class="modal-head">
-      <span class="modal-title" id="paymentModalTitle"><i class="fas fa-money-bill"></i> Record Payment</span>
+      <span class="modal-title" id="paymentModalTitle"><i class="fas fa-money-bill-transfer"></i> Record Payment</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('paymentModal')">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="payType"/>
       <div class="field autocomplete-wrap">
-        <label id="payContactLabel">Contact Name *</label>
-        <input type="text" id="payContactName" placeholder="Select contact" oninput="searchPaymentContact(this.value)"/>
+        <label id="payContactLabel">Person Name *</label>
+        <input type="text" id="payContactName" placeholder="Select dealer or buyer" oninput="searchPaymentContact(this.value)"/>
         <div class="autocomplete-list" id="payContactList"></div>
-        <div id="payBalancePrompt" style="font-size:11.5px;color:var(--ink3);margin-top:4px"></div>
+        <div id="payBalancePrompt" style="font-size:12px;color:var(--ink3);margin-top:4px"></div>
       </div>
 
       <div class="grid-2">
@@ -1238,7 +1250,7 @@ body{display:flex;overflow-x:hidden}
         <div class="field">
           <label>Payment Mode</label>
           <select id="payMode">
-            <option value="Cash">Cash (Physical Drawer)</option>
+            <option value="Cash">Cash (Counter Drawer)</option>
             <option value="Bank Transfer">Bank Transfer / NEFT</option>
             <option value="UPI">UPI / GPay</option>
             <option value="Cheque">Cheque</option>
@@ -1251,16 +1263,16 @@ body{display:flex;overflow-x:hidden}
         <input type="number" id="payAmount" placeholder="0"/>
       </div>
 
-      <!-- Kasar / Settlement Discount (e.g. paying 100k, reducing balance by 8,250 -> 250 write-off) -->
+      <!-- Kasar / Settlement Discount -->
       <div class="field" id="payDiscountField">
         <label>Settlement Discount / Kasar (₹)</label>
         <input type="number" id="payDiscount" value="0" placeholder="0"/>
-        <small style="color:var(--ink4);font-size:11px">Agreed reduction/round-off written off from balance</small>
+        <small style="color:var(--ink4);font-size:11.5px">Agreed reduction or round-off discount</small>
       </div>
 
       <div class="grid-2">
         <div class="field">
-          <label>Ref / Cheque / UTR No</label>
+          <label>Ref / UTR / Cheque No</label>
           <input type="text" id="payRef" placeholder="Optional"/>
         </div>
         <div class="field">
@@ -1270,13 +1282,13 @@ body{display:flex;overflow-x:hidden}
       </div>
 
       <div class="field">
-        <label>Notes / Remarks</label>
+        <label>Notes</label>
         <input type="text" id="payNotes" placeholder="Optional notes"/>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('paymentModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePayment()"><i class="fas fa-check"></i> Post Transaction</button>
+      <button class="btn btn-primary" onclick="savePayment()"><i class="fas fa-check"></i> Save Payment</button>
     </div>
   </div>
 </div>
@@ -1285,34 +1297,34 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="contraModal">
   <div class="modal modal-sm">
     <div class="modal-head">
-      <span class="modal-title"><i class="fas fa-arrows-split-up-and-left" style="color:var(--accent)"></i> Contra Adjustment (Dual-Role)</span>
+      <span class="modal-title"><i class="fas fa-arrows-split-up-and-left" style="color:var(--accent)"></i> Cut from Both Sides (Contra)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('contraModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div style="background:#fdfcf9;border:1px solid var(--rule);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--ink3)">
-        Offset goods bought by a party against what you owe them for consigned fish.
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:#1e40af">
+        Minus what this person bought from what you owe them for fish, so you settle the difference easily.
       </div>
       <div class="field autocomplete-wrap">
-        <label>Dual-Role Contact *</label>
-        <input type="text" id="contraContactName" placeholder="Select contact" oninput="searchContraContact(this.value)"/>
+        <label>Select 2-in-1 Person *</label>
+        <input type="text" id="contraContactName" placeholder="Select person" oninput="searchContraContact(this.value)"/>
         <div class="autocomplete-list" id="contraContactList"></div>
       </div>
-      <div id="contraBalanceBox" style="display:none;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px;margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px">
-          <span>We Owe (Consignment Credit):</span>
-          <strong id="contraPayableBal" style="font-family:var(--ff-mono);color:var(--green)">₹0</strong>
+      <div id="contraBalanceBox" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span>We Owe Them (As Dealer):</span>
+          <strong id="contraPayableBal" style="color:var(--green)">₹0</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px">
-          <span>They Owe (Fish Purchased):</span>
-          <strong id="contraReceivableBal" style="font-family:var(--ff-mono);color:var(--blue)">₹0</strong>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px">
+          <span>They Owe Us (As Buyer):</span>
+          <strong id="contraReceivableBal" style="color:var(--blue)">₹0</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;border-top:1px solid var(--rule);padding-top:4px">
-          <span>Net Balance:</span>
-          <strong id="contraNetBal" style="font-family:var(--ff-mono)">₹0</strong>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;border-top:1px solid #e2e8f0;padding-top:6px">
+          <span>Net Difference:</span>
+          <strong id="contraNetBal">₹0</strong>
         </div>
       </div>
       <div class="field">
-        <label>Adjustment Amount (₹) *</label>
+        <label>Amount to Cut / Offset (₹) *</label>
         <input type="number" id="contraAmount" placeholder="Amount to offset"/>
       </div>
       <div class="field">
@@ -1322,45 +1334,45 @@ body{display:flex;overflow-x:hidden}
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('contraModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveContra()"><i class="fas fa-check"></i> Execute Contra</button>
+      <button class="btn btn-primary" onclick="saveContra()"><i class="fas fa-check"></i> Cut & Settle</button>
     </div>
   </div>
 </div>
 
-<!-- 7. Modal: Full Dual-Role Ledger & Statement -->
+<!-- 7. Modal: Full Ledger & Statement -->
 <div class="modal-overlay" id="statementModal">
   <div class="modal modal-lg">
     <div class="modal-head">
       <div>
-        <span class="modal-title" id="statementModalTitle"><i class="fas fa-book-open"></i> Account Statement</span>
-        <div id="statementModalSub" style="font-size:12px;color:var(--ink4);margin-top:2px"></div>
+        <span class="modal-title" id="statementModalTitle"><i class="fas fa-book-open"></i> Party Passbook & Ledger</span>
+        <div id="statementModalSub" style="font-size:12.5px;color:var(--ink4);margin-top:2px"></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <button class="btn btn-outline btn-sm" onclick="exportStatementPDF()"><i class="fas fa-file-pdf"></i> Download A4 PDF</button>
+        <button class="btn btn-outline btn-sm" onclick="exportStatementPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
         <button class="btn btn-ghost btn-sm" onclick="closeModal('statementModal')">✕</button>
       </div>
     </div>
     <div class="modal-body">
       <!-- Filter Tabs -->
-      <div style="display:flex;gap:8px;border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:16px">
+      <div style="display:flex;gap:8px;border-bottom:1px solid #e2e8f0;padding-bottom:12px;margin-bottom:16px">
         <button class="btn btn-primary btn-sm" id="tabStmtAll" onclick="setStatementMode('all')">Combined (Both)</button>
-        <button class="btn btn-outline btn-sm" id="tabStmtSales" onclick="setStatementMode('sales_only')">Consignment Sales Only (Patiya)</button>
-        <button class="btn btn-outline btn-sm" id="tabStmtPurchases" onclick="setStatementMode('purchases_only')">Purchases Only (Goods Bought)</button>
+        <button class="btn btn-outline btn-sm" id="tabStmtSales" onclick="setStatementMode('sales_only')">Fish Sent to Us (Patiya)</button>
+        <button class="btn btn-outline btn-sm" id="tabStmtPurchases" onclick="setStatementMode('purchases_only')">Fish Bought from Us</button>
       </div>
 
       <!-- Financials Summary Card -->
       <div class="grid-3" style="margin-bottom:18px" id="stmtFinancialsBox">
-        <div style="background:var(--paper);padding:12px 16px;border-radius:8px;border:1px solid var(--rule)">
-          <div class="kpi-label">We Owe (Dealer Credit)</div>
-          <div style="font-size:18px;font-weight:700;font-family:var(--ff-mono);color:var(--green)" id="stmtPayable">₹0</div>
+        <div style="background:#f8fafc;padding:14px 18px;border-radius:10px;border:1px solid #e2e8f0">
+          <div class="kpi-label">We Owe Them (Dealer)</div>
+          <div style="font-size:20px;font-weight:700;color:var(--green);margin-top:2px" id="stmtPayable">₹0</div>
         </div>
-        <div style="background:var(--paper);padding:12px 16px;border-radius:8px;border:1px solid var(--rule)">
-          <div class="kpi-label">They Owe (Buyer Debit)</div>
-          <div style="font-size:18px;font-weight:700;font-family:var(--ff-mono);color:var(--blue)" id="stmtReceivable">₹0</div>
+        <div style="background:#f8fafc;padding:14px 18px;border-radius:10px;border:1px solid #e2e8f0">
+          <div class="kpi-label">They Owe Us (Buyer)</div>
+          <div style="font-size:20px;font-weight:700;color:var(--blue);margin-top:2px" id="stmtReceivable">₹0</div>
         </div>
-        <div style="background:var(--paper);padding:12px 16px;border-radius:8px;border:1px solid var(--rule)">
-          <div class="kpi-label">Net Balance</div>
-          <div style="font-size:18px;font-weight:700;font-family:var(--ff-mono);color:var(--ink)" id="stmtNet">₹0</div>
+        <div style="background:#f8fafc;padding:14px 18px;border-radius:10px;border:1px solid #e2e8f0">
+          <div class="kpi-label">Final Net Balance</div>
+          <div style="font-size:20px;font-weight:700;color:var(--ink);margin-top:2px" id="stmtNet">₹0</div>
         </div>
       </div>
 
@@ -1373,7 +1385,7 @@ body{display:flex;overflow-x:hidden}
               <th>Description</th>
               <th class="num">Debit (₹)</th>
               <th class="num">Credit (₹)</th>
-              <th class="num">Running Net Balance</th>
+              <th class="num">Balance</th>
               <th>Notes</th>
             </tr>
           </thead>
@@ -1390,7 +1402,7 @@ body{display:flex;overflow-x:hidden}
 <div class="modal-overlay" id="manualDaybookModal">
   <div class="modal modal-sm">
     <div class="modal-head">
-      <span class="modal-title"><i class="fas fa-wallet"></i> Add Daybook Entry</span>
+      <span class="modal-title"><i class="fas fa-wallet"></i> Add Daily Cash Box Entry</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('manualDaybookModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -1406,8 +1418,8 @@ body{display:flex;overflow-x:hidden}
         </select>
       </div>
       <div class="field">
-        <label>Description (e.g. Ice purchase, Coolie labor)</label>
-        <input type="text" id="mDayDesc" placeholder="e.g. Ice factory cash payment"/>
+        <label>Description (e.g. Ice purchase, Coolie labour)</label>
+        <input type="text" id="mDayDesc" placeholder="e.g. Ice payment"/>
       </div>
       <div class="field">
         <label>Amount (₹) *</label>
@@ -1589,12 +1601,12 @@ async function loadReports() {
     if (overdueCount > 0) {
       banner.style.display = 'block';
       document.getElementById('overdueBannerText').textContent = 
-        `${overdueCount} buyer(s) are overdue past their credit period (Total Overdue: ₹${(data.totalOverdueAmount || 0).toLocaleString('en-IN')}).`;
+        `${overdueCount} buyer(s) are past their credit days (Total to collect: ₹${(data.totalOverdueAmount || 0).toLocaleString('en-IN')}).`;
       
       const quickContainer = document.getElementById('overdueListQuick');
       quickContainer.innerHTML = (data.overdueList || []).map(o => `
-        <span class="badge badge-overdue" style="cursor:pointer" onclick="openWhatsAppReminder('${o.phone}', '${o.name}', ${o.receivableBalance}, ${o.daysOverdue})">
-          ${o.name} (₹${o.receivableBalance.toLocaleString('en-IN')}, ${o.daysOverdue}d overdue) <i class="fab fa-whatsapp"></i>
+        <span class="badge badge-late" style="cursor:pointer" onclick="openWhatsAppReminder('${o.phone}', '${o.name}', ${o.receivableBalance}, ${o.daysOverdue})">
+          ${o.name} (₹${o.receivableBalance.toLocaleString('en-IN')}, ${o.daysOverdue}d late) <i class="fab fa-whatsapp"></i>
         </span>
       `).join('');
     } else {
@@ -1606,9 +1618,9 @@ async function loadReports() {
     if (data.overdueList && data.overdueList.length > 0) {
       overdueTbody.innerHTML = data.overdueList.map(o => `
         <tr>
-          <td><strong class="blink-overdue">${o.name}</strong></td>
-          <td class="num" style="font-family:var(--ff-mono);font-weight:700;color:var(--red)">₹${o.receivableBalance.toLocaleString('en-IN')}</td>
-          <td><span class="badge badge-overdue">${o.daysOverdue} days past</span></td>
+          <td><strong style="color:var(--red)">${o.name}</strong></td>
+          <td class="num" style="font-weight:700;color:var(--red)">₹${o.receivableBalance.toLocaleString('en-IN')}</td>
+          <td><span class="badge badge-late"><i class="fas fa-clock"></i> ${o.daysOverdue} days late</span></td>
           <td class="num">
             <button class="btn btn-wa btn-sm" onclick="openWhatsAppReminder('${o.phone}', '${o.name}', ${o.receivableBalance}, ${o.daysOverdue})">
               <i class="fab fa-whatsapp"></i> Remind
@@ -1878,8 +1890,8 @@ function renderSales() {
         <td><strong style="font-family:var(--ff-mono)">${s.billNo}</strong></td>
         <td>${s.date} <small style="color:var(--ink4)">${s.time || ''}</small></td>
         <td>
-          <strong class="${s.isBadDebt ? 'blink-overdue' : ''}">${s.buyerName}</strong>
-          ${s.isBadDebt ? '<span class="badge badge-baddebt" style="margin-left:4px">BAD DEBT</span>' : ''}
+          <strong>${s.buyerName}</strong>
+          ${s.isBadDebt ? '<span class="badge badge-baddebt" style="margin-left:4px"><i class="fas fa-ban"></i> Bad Debt</span>' : ''}
         </td>
         <td><span class="badge badge-blue">${dealers || 'Market'}</span></td>
         <td>${itemsSummary}</td>
@@ -2590,38 +2602,37 @@ function renderContacts() {
   tbody.innerHTML = filtered.map(c => {
     const isDual = c.isDealer && c.isBuyer;
     let roleBadge = '';
-    if (isDual) roleBadge = '<span class="badge badge-accent">DUAL ROLE</span>';
-    else if (c.isDealer) roleBadge = '<span class="badge badge-green">DEALER</span>';
-    else roleBadge = '<span class="badge badge-blue">BUYER</span>';
+    if (isDual) roleBadge = '<span class="badge" style="background:#f5f3ff;color:#6b21a8;border:1px solid #ddd6fe">Both (2-in-1)</span>';
+    else if (c.isDealer) roleBadge = '<span class="badge badge-green">Dealer</span>';
+    else roleBadge = '<span class="badge badge-blue">Buyer</span>';
 
-    // Blinking name if overdue
     const nameHtml = c.isOverdue
-      ? `<strong class="blink-overdue" style="cursor:pointer" onclick="viewContactStatement(${c.id})">${c.name}</strong>`
-      : `<strong style="cursor:pointer" onclick="viewContactStatement(${c.id})">${c.name}</strong>`;
+      ? `<strong style="cursor:pointer;color:#b91c1c" onclick="viewContactStatement(${c.id})">${c.name}</strong>`
+      : `<strong style="cursor:pointer;color:#0f172a" onclick="viewContactStatement(${c.id})">${c.name}</strong>`;
 
     return `
       <tr>
         <td>
           ${nameHtml}
-          ${c.isBadDebtDefaulter ? '<div class="badge-baddebt" style="margin-top:3px"><i class="fas fa-ban"></i> BAD DEBT DEFAULTER</div>' : ''}
+          ${c.isBadDebtDefaulter ? '<div class="badge-baddebt" style="margin-top:4px"><i class="fas fa-ban"></i> Defaulter</div>' : ''}
         </td>
         <td>${roleBadge}</td>
         <td>${c.phone || '-'} <small style="display:block;color:var(--ink4)">${c.address || ''}</small></td>
         <td>Limit: ₹${c.creditLimit.toLocaleString('en-IN')}<br><small style="color:var(--ink4)">Period: ${c.creditPeriod} days</small></td>
-        <td class="num" style="font-family:var(--ff-mono);color:var(--green);font-weight:700">₹${(c.payableBalance || 0).toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--ff-mono);color:var(--blue);font-weight:700">₹${(c.receivableBalance || 0).toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--ff-mono);font-weight:700;color:${c.netBalance >= 0 ? 'var(--green)' : 'var(--blue)'}">
-          ${c.netBalance >= 0 ? `We Owe ₹${c.netBalance.toLocaleString('en-IN')}` : `They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
+        <td class="num" style="color:var(--green);font-weight:700">₹${(c.payableBalance || 0).toLocaleString('en-IN')}</td>
+        <td class="num" style="color:var(--blue);font-weight:700">₹${(c.receivableBalance || 0).toLocaleString('en-IN')}</td>
+        <td class="num" style="font-weight:700;color:${c.netBalance >= 0 ? 'var(--green)' : 'var(--blue)'}">
+          ${c.netBalance >= 0 ? `We Pay ₹${c.netBalance.toLocaleString('en-IN')}` : `They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
         </td>
         <td>
           ${c.isOverdue 
-            ? `<span class="badge badge-overdue"><i class="fas fa-clock"></i> Overdue ${c.daysOverdue}d</span>` 
+            ? `<span class="badge badge-late"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>` 
             : '<span class="badge badge-green">Active</span>'}
         </td>
         <td class="num">
-          <button class="btn btn-outline btn-sm" onclick="viewContactStatement(${c.id})" title="View Statement"><i class="fas fa-book-open"></i></button>
+          <button class="btn btn-outline btn-sm" onclick="viewContactStatement(${c.id})" title="View Passbook"><i class="fas fa-book-open"></i></button>
           ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="openWhatsAppReminder('${c.phone}', '${c.name}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
-          <button class="btn btn-outline btn-sm" onclick="toggleBadDebt(${c.id}, ${!c.isBadDebtDefaulter})" title="Toggle Bad Debt"><i class="fas fa-ban" style="color:var(--red)"></i></button>
+          <button class="btn btn-outline btn-sm" onclick="toggleBadDebt(${c.id}, ${!c.isBadDebtDefaulter})" title="Toggle Defaulter"><i class="fas fa-ban" style="color:var(--red)"></i></button>
           <button class="btn btn-ghost btn-sm" onclick="editContact(${c.id})"><i class="fas fa-pen"></i></button>
         </td>
       </tr>
