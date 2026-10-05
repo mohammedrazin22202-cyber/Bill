@@ -168,20 +168,21 @@ body {
 .sidebar-bottom-artwork {
   margin-top: auto;
   position: relative;
-  height: 260px;
+  flex: 1;
+  min-height: 320px;
   width: 100%;
   background: url('/sidebar_harbor.jpg') center bottom / cover no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 14px 12px;
+  padding: 16px 12px 14px;
 }
 
 .sidebar-bottom-artwork::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(9,19,34,0.96) 0%, rgba(9,19,34,0.65) 55%, rgba(9,19,34,0.1) 100%);
+  background: linear-gradient(to top, rgba(9,19,34,0.98) 0%, rgba(9,19,34,0.6) 50%, rgba(9,19,34,0.08) 85%, #091322 100%);
   pointer-events: none;
 }
 
@@ -294,7 +295,7 @@ body {
 .hero-inner-content {
   position: relative;
   z-index: 2;
-  padding: 16px 24px 74px; /* Extra bottom padding for docked flow cards */
+  padding: 18px 24px 84px; /* Extra bottom padding for docked flow cards */
 }
 
 /* Top bar floating row inside the hero */
@@ -513,27 +514,42 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   4 CONNECTED FLOW CARDS
+   DASHBOARD 2-COLUMN MAIN CONTENT GRID (DOCKS ON HERO BANNER)
 ══════════════════════════════════════════════════════════════ */
-.flow-cards-row {
-  margin: -48px 20px 0;
+.dashboard-content-columns {
+  margin: -50px 20px 0;
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Left flow cards (Cards 1, 2, 3) */
+.flow-cards-left-wrap {
+  display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.flow-cards-left-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
 }
 
 .flow-metric-card {
   background: #ffffff;
   border-radius: 14px;
-  padding: 14px 18px;
+  padding: 12px 16px;
   box-shadow: 0 4px 18px rgba(15,23,42,0.06);
   border: 1px solid #eef2f6;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -572,7 +588,7 @@ body {
 }
 
 .flow-main-val {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.02em;
@@ -600,23 +616,28 @@ body {
 
 .flow-connector-arrow {
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 13px;
   opacity: 0.75;
 }
 
-/* ══════════════════════════════════════════════════════════════
-   QUICK ACTION BUTTONS
-══════════════════════════════════════════════════════════════ */
-.action-cards-grid {
-  margin: 16px 20px 0;
+.flow-bridge-arrow {
+  color: #94a3b8;
+  font-size: 14px;
+  opacity: 0.75;
+  padding: 0 4px;
+}
+
+/* Left quick action cards (Cards 1, 2) */
+.action-cards-left-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0 16px;
 }
 
 .quick-action-card {
   border-radius: 16px;
-  padding: 14px 20px;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1092,6 +1113,7 @@ body {
   align-items: center;
   gap: 12px;
   flex: 1;
+  min-width: 0;
 }
 
 .insight-chart-icon {
@@ -1107,20 +1129,30 @@ body {
   flex-shrink: 0;
 }
 
+.insight-text-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+
 .insight-heading {
   font-weight: 700;
   color: #0f172a;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 .insight-sentence {
   color: #64748b;
   font-size: 12.5px;
-  margin-left: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .insight-wave-graphic {
-  width: 90px;
+  width: 80px;
   height: 20px;
   flex-shrink: 0;
 }
@@ -1129,7 +1161,7 @@ body {
   background: #fffbeb;
   border: 1px solid #fef3c7;
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 6px 14px;
   display: flex;
   align-items: center;
   gap: 8px;
