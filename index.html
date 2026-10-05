@@ -2008,10 +2008,38 @@ body {
 
     <!-- 2-Column Dashboard Main Content -->
     <div class="dashboard-content-columns">
+
+      <!-- Left Column -->
+      <div>
+        <!-- Today's Activity with Spine & Nodes -->
+        <div class="standard-card">
+          <div class="card-title-bar">
+            <div class="card-title-group">
+              <i class="fa-regular fa-clock" style="color:#0084ff; font-size:16px;"></i>
+              <div>
+                <div class="card-heading">Today's Activity</div>
+                <div class="card-subheading">Live updates of arrivals, sales and payments</div>
+              </div>
+            </div>
+
+            <div class="filter-pills-wrap">
+              <button class="filter-tab-pill active" onclick="setActivityTab('all', this)">All</button>
+              <button class="filter-tab-pill" onclick="setActivityTab('fish-in', this)">Fish In</button>
+              <button class="filter-tab-pill" onclick="setActivityTab('fish-sold', this)">Fish Sold</button>
+              <button class="filter-tab-pill" onclick="setActivityTab('payment', this)">Payments</button>
+              <a class="card-action-link" style="margin-left:8px;" onclick="switchTo('arrivals')">View All <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>
+
+          <div class="activity-stream-wrap" id="activityTimelineStream">
+            <!-- Timeline items rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
       <div>
         <div class="standard-card" style="padding:20px;">
-          <div class="card-heading">Activity Overview</div>
-          <div id="activityTimelineStream"></div>
+          <div class="card-heading">Financial Overview</div>
         </div>
       </div>
     </div>
