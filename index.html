@@ -1819,8 +1819,144 @@ body {
       </div>
     </div>
 
-    <!-- Flow Cards Placeholder -->
-    <div class="flow-cards-row"></div>
+    <!-- 4 Connected Flow Metric Cards -->
+    <div class="flow-cards-row">
+      <!-- 1. Fish In -->
+      <div class="flow-metric-card" onclick="switchTo('arrivals')">
+        <div class="flow-crate-visual">
+          <!-- 3D Blue Crate SVG -->
+          <svg width="48" height="44" viewBox="0 0 64 56" fill="none">
+            <polygon points="32,4 58,16 32,28 6,16" fill="#38bdf8"/>
+            <polygon points="32,8 54,18 32,27 10,18" fill="#0284c7"/>
+            <polygon points="6,16 32,28 32,50 6,38" fill="#0084ff"/>
+            <polygon points="32,28 58,16 58,38 32,50" fill="#0266c8"/>
+            <line x1="12" y1="23" x2="12" y2="40" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18" y1="26" x2="18" y2="43" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="24" y1="28" x2="24" y2="46" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="40" y1="28" x2="40" y2="46" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="46" y1="26" x2="46" y2="43" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="52" y1="23" x2="52" y2="40" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+            <line x1="32" y1="28" x2="32" y2="50" stroke="#0369a1" stroke-width="2"/>
+            <ellipse cx="19" cy="28" rx="4" ry="1.8" fill="#0369a1"/>
+            <ellipse cx="45" cy="28" rx="4" ry="1.8" fill="#0b172a"/>
+          </svg>
+        </div>
+        <div class="flow-data-content">
+          <div class="flow-title">FISH IN <span>(Today)</span></div>
+          <div class="flow-main-val" id="valFishInKg">1,280 KG</div>
+          <div class="flow-meta-line">
+            <span>14 arrivals</span>
+            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- 2. Fish Sold -->
+      <div class="flow-metric-card" onclick="switchTo('sales')">
+        <div class="flow-crate-visual">
+          <!-- 3D Green Crate SVG -->
+          <svg width="48" height="44" viewBox="0 0 64 56" fill="none">
+            <polygon points="32,4 58,16 32,28 6,16" fill="#34d399"/>
+            <polygon points="32,8 54,18 32,27 10,18" fill="#059669"/>
+            <polygon points="6,16 32,28 32,50 6,38" fill="#10b981"/>
+            <polygon points="32,28 58,16 58,38 32,50" fill="#047857"/>
+            <line x1="12" y1="23" x2="12" y2="40" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="18" y1="26" x2="18" y2="43" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="24" y1="28" x2="24" y2="46" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="40" y1="28" x2="40" y2="46" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="46" y1="26" x2="46" y2="43" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="52" y1="23" x2="52" y2="40" stroke="#a7f3d0" stroke-width="2" stroke-linecap="round"/>
+            <line x1="32" y1="28" x2="32" y2="50" stroke="#065f46" stroke-width="2"/>
+            <ellipse cx="19" cy="28" rx="4" ry="1.8" fill="#065f46"/>
+            <ellipse cx="45" cy="28" rx="4" ry="1.8" fill="#064e3b"/>
+          </svg>
+        </div>
+        <div class="flow-data-content">
+          <div class="flow-title">FISH SOLD <span>(Today)</span></div>
+          <div class="flow-main-val" id="valFishSoldKg">860 KG</div>
+          <div class="flow-meta-line">
+            <span>12 sales</span>
+            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- 3. In Stock -->
+      <div class="flow-metric-card" onclick="switchTo('inventory')">
+        <div class="flow-crate-visual">
+          <!-- 3D Stacked Blue & Yellow Crates SVG -->
+          <svg width="48" height="46" viewBox="0 0 64 60" fill="none">
+            <!-- Lower Blue Crate -->
+            <polygon points="8,26 32,37 32,54 8,43" fill="#0084ff"/>
+            <polygon points="32,37 56,26 56,43 32,54" fill="#0266c8"/>
+            <line x1="16" y1="33" x2="16" y2="46" stroke="#7dd3fc" stroke-width="1.8"/>
+            <line x1="24" y1="36" x2="24" y2="50" stroke="#7dd3fc" stroke-width="1.8"/>
+            <line x1="40" y1="36" x2="40" y2="50" stroke="#7dd3fc" stroke-width="1.8"/>
+            <line x1="48" y1="33" x2="48" y2="46" stroke="#7dd3fc" stroke-width="1.8"/>
+            <!-- Upper Yellow Crate -->
+            <polygon points="32,4 52,14 32,24 12,14" fill="#fde047"/>
+            <polygon points="32,7 49,15 32,23 15,15" fill="#d97706"/>
+            <polygon points="12,14 32,24 32,38 12,28" fill="#f59e0b"/>
+            <polygon points="32,24 52,14 52,28 32,38" fill="#d97706"/>
+            <line x1="18" y1="20" x2="18" y2="31" stroke="#fef08a" stroke-width="1.6"/>
+            <line x1="25" y1="23" x2="25" y2="34" stroke="#fef08a" stroke-width="1.6"/>
+            <line x1="39" y1="23" x2="39" y2="34" stroke="#fef08a" stroke-width="1.6"/>
+            <line x1="46" y1="20" x2="46" y2="31" stroke="#fef08a" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <div class="flow-data-content">
+          <div class="flow-title">IN STOCK <span>(Now)</span></div>
+          <div class="flow-main-val" id="valInStockKg">640 KG</div>
+          <div class="flow-meta-line">
+            <span>22 lots</span>
+            <span class="trend-badge red"><i class="fa-solid fa-arrow-down"></i> 6%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flow-connector-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+
+      <!-- 4. Commission -->
+      <div class="flow-metric-card" onclick="switchTo('reports')">
+        <div class="flow-crate-visual">
+          <!-- 3D Stack of Shiny Gold Coins SVG -->
+          <svg width="48" height="44" viewBox="0 0 64 56" fill="none">
+            <!-- Left Stack -->
+            <ellipse cx="22" cy="46" rx="14" ry="5.5" fill="#92400e"/>
+            <rect x="8" y="40" width="28" height="6" fill="#b45309"/>
+            <ellipse cx="22" cy="40" rx="14" ry="5.5" fill="#d97706"/>
+            <rect x="8" y="34" width="28" height="6" fill="#d97706"/>
+            <ellipse cx="22" cy="34" rx="14" ry="5.5" fill="#f59e0b"/>
+            <rect x="8" y="28" width="28" height="6" fill="#f59e0b"/>
+            <ellipse cx="22" cy="28" rx="14" ry="5.5" fill="#fde047"/>
+            <ellipse cx="22" cy="28" rx="11" ry="4" fill="none" stroke="#d97706" stroke-width="1"/>
+            <!-- Right Front Stack -->
+            <ellipse cx="42" cy="40" rx="14" ry="5.5" fill="#92400e"/>
+            <rect x="28" y="34" width="28" height="6" fill="#b45309"/>
+            <ellipse cx="42" cy="34" rx="14" ry="5.5" fill="#d97706"/>
+            <rect x="28" y="28" width="28" height="6" fill="#d97706"/>
+            <ellipse cx="42" cy="28" rx="14" ry="5.5" fill="#f59e0b"/>
+            <rect x="28" y="22" width="28" height="6" fill="#f59e0b"/>
+            <ellipse cx="42" cy="22" rx="14" ry="5.5" fill="#fef08a"/>
+            <ellipse cx="42" cy="22" rx="11" ry="4" fill="none" stroke="#d97706" stroke-width="1"/>
+            <!-- Currency Symbol -->
+            <text x="42" y="24" font-size="7.5" font-weight="900" fill="#b45309" text-anchor="middle">₹</text>
+            <text x="22" y="30" font-size="7.5" font-weight="900" fill="#b45309" text-anchor="middle">₹</text>
+          </svg>
+        </div>
+        <div class="flow-data-content">
+          <div class="flow-title">COMMISSION <span>(Today)</span></div>
+          <div class="flow-main-val" id="valCommission">₹38,400</div>
+          <div class="flow-meta-line">
+            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 15%</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Quick Actions Placeholder -->
     <div class="action-cards-grid"></div>
