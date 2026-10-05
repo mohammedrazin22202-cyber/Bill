@@ -2036,11 +2036,155 @@ body {
           </div>
         </div>
 
-      </div>
-      <div>
-        <div class="standard-card" style="padding:20px;">
-          <div class="card-heading">Financial Overview</div>
+        <!-- Current Stock (640 KG) -->
+        <div class="standard-card">
+          <div class="card-title-bar">
+            <div class="card-title-group">
+              <i class="fa-solid fa-cubes" style="color:#0084ff; font-size:16px;"></i>
+              <div>
+                <div class="card-heading">Current Stock (640 KG)</div>
+                <div class="card-subheading">Stock available in godown by fish type</div>
+              </div>
+            </div>
+            <a class="card-action-link" onclick="switchTo('inventory')">View Full Inventory <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+
+          <div class="fish-cards-grid" id="fishCratesGrid">
+            <!-- 5 Fish cards + 1 Add Fish Type -->
+          </div>
         </div>
+
+        <!-- Market Insight Bottom Bar -->
+        <div class="market-insight-container">
+          <div class="insight-left-block">
+            <div class="insight-chart-icon">
+              <i class="fa-solid fa-chart-simple"></i>
+            </div>
+            <div>
+              <span class="insight-heading">Market Insight: </span>
+              <span class="insight-sentence">Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.</span>
+            </div>
+          </div>
+
+          <svg class="insight-wave-graphic" viewBox="0 0 100 24" fill="none">
+            <path d="M0,12 C25,2 35,22 60,12 C75,5 85,18 100,10" stroke="#0084ff" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+
+          <div class="insight-tip-pill" onclick="showTipNotice()">
+            <span class="insight-tip-badge-tag"><i class="fa-solid fa-lightbulb"></i> Tip</span>
+            <span>Sardine rates may increase tomorrow due to low arrivals at Kasimedu.</span>
+            <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Money Position & Needs Attention -->
+      <div>
+        <!-- Money Position Card -->
+        <div class="standard-card">
+          <div class="card-title-bar">
+            <div class="card-title-group">
+              <i class="fa-solid fa-chart-column" style="color:#0084ff; font-size:15px;"></i>
+              <div class="card-heading">Money Position</div>
+            </div>
+            <a class="card-action-link" onclick="switchTo('dealers')">View Ledger <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+
+          <div class="money-dual-cards">
+            <!-- Receivables -->
+            <div class="money-sub-card green-theme">
+              <div class="money-sub-header">
+                <div class="money-user-icon-circle"><i class="fa-solid fa-user-group"></i></div>
+                <div>Dealers Owe You<br/>(Receivables)</div>
+              </div>
+              <div class="money-big-number" id="boxReceivables">₹3,21,400</div>
+              <div class="money-dealers-count" id="boxReceivablesCount">5 dealers</div>
+            </div>
+
+            <!-- Payables -->
+            <div class="money-sub-card red-theme">
+              <div class="money-sub-header">
+                <div class="money-user-icon-circle"><i class="fa-solid fa-user"></i></div>
+                <div>You Owe Dealers<br/>(Payables)</div>
+              </div>
+              <div class="money-big-number" id="boxPayables">₹2,84,600</div>
+              <div class="money-dealers-count" id="boxPayablesCount">3 dealers</div>
+            </div>
+          </div>
+
+          <!-- Net Position Strip -->
+          <div class="net-position-strip">
+            <div class="net-pos-left-item">
+              <i class="fa-solid fa-scale-balanced net-pos-scales-icon"></i>
+              <div>
+                <div class="net-pos-label-text">Net Position</div>
+                <div class="net-pos-number" id="boxNetPosition">₹36,800 <span style="font-size:13px; color:#10b981;">↑</span></div>
+              </div>
+            </div>
+
+            <svg class="net-pos-svg-curve" viewBox="0 0 80 26" fill="none">
+              <path d="M2,20 Q 20,24 35,14 T 65,8 T 78,4" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </svg>
+
+            <div class="net-pos-profit-text">You are in profit today!</div>
+          </div>
+        </div>
+
+        <!-- Needs Attention Card -->
+        <div class="standard-card" id="needsAttentionBlock">
+          <div class="card-title-bar">
+            <div class="card-title-group">
+              <i class="fa-solid fa-bell" style="color:#ef4444; font-size:15px;"></i>
+              <div class="card-heading">Needs Attention</div>
+            </div>
+            <a class="card-action-link" onclick="switchTo('dealers')">View All <i class="fa-solid fa-arrow-right"></i></a>
+          </div>
+
+          <div class="attention-card-list">
+            <!-- 1. Overdue payments -->
+            <div class="attention-item-box item-red" onclick="filterLateBuyers()">
+              <div class="attention-left-group">
+                <div class="attention-icon-tile tile-red">
+                  <i class="fa-solid fa-file-invoice"></i>
+                </div>
+                <div>
+                  <div class="attention-title-text red-t" id="attTitleOverdue">3 overdue payments</div>
+                  <div class="attention-sub-text" id="attSubOverdue">Total amount: ₹1,42,800</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+            </div>
+
+            <!-- 2. Low stock -->
+            <div class="attention-item-box item-orange" onclick="switchTo('inventory')">
+              <div class="attention-left-group">
+                <div class="attention-icon-tile tile-orange">
+                  <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div>
+                  <div class="attention-title-text orange-t">Low stock (2 items)</div>
+                  <div class="attention-sub-text">Sardine: 30 KG | Anchovy: 15 KG</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+            </div>
+
+            <!-- 3. Dealer to settle -->
+            <div class="attention-item-box item-blue" onclick="settleKumar()">
+              <div class="attention-left-group">
+                <div class="attention-icon-tile tile-blue">
+                  <i class="fa-solid fa-user-check"></i>
+                </div>
+                <div>
+                  <div class="attention-title-text blue-t">1 dealer to settle</div>
+                  <div class="attention-sub-text">Kumar Traders: ₹82,080 payable</div>
+                </div>
+              </div>
+              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
