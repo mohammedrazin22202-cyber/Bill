@@ -1765,9 +1765,58 @@ body {
   ══════════════════════════════════════════════════════════════ -->
   <div class="view-container active" id="view-dashboard">
 
-    <!-- Hero Banner Placeholder -->
-    <div class="hero-panorama-container" style="min-height:120px; display:flex; align-items:center; padding:24px; color:#fff;">
-      <h1 class="hero-greeting-title">Billify Dashboard</h1>
+    <!-- Hero Banner with Integrated Topbar Row -->
+    <div class="hero-panorama-container">
+      <div class="hero-panorama-image"></div>
+      <div class="hero-panorama-overlay"></div>
+      
+      <div class="hero-inner-content">
+        <!-- Floating Top Bar Row: Search, Date, Bell, Profile Avatar -->
+        <div class="hero-top-controls-row">
+          <div class="global-search-pill" onclick="openGlobalSearch()">
+            <i class="fa-solid fa-magnifying-glass global-search-icon"></i>
+            <input type="text" class="global-search-input" id="dashSearchBox" placeholder="Search dealer, fish type, bill number..." readonly/>
+            <span class="global-search-shortcut">Ctrl K</span>
+          </div>
+
+          <div class="date-selector-pill" onclick="openDatePrompt()">
+            <i class="fa-regular fa-calendar-days"></i>
+            <span id="displayDatePill">Sat, 04 Oct 2026</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:9px; color:#64748b;"></i>
+          </div>
+
+          <button class="top-round-btn" onclick="scrollToAttention()" title="Alerts & Follow-ups">
+            <i class="fa-solid fa-bell"></i>
+            <span class="top-badge-dot">1</span>
+          </button>
+
+          <div class="top-avatar-circle" onclick="handleLogout()" title="M S Bhathrudeen (Admin)">
+            MB
+          </div>
+        </div>
+
+        <!-- Greeting & Weather Quote -->
+        <div class="hero-middle-row">
+          <div>
+            <div class="hero-greeting-sub">Good Evening,</div>
+            <h1 class="hero-greeting-title">M S Bhathrudeen</h1>
+            <div class="hero-greeting-desc">Today's fish trade at a glance.</div>
+          </div>
+
+          <div class="hero-weather-quote-box">
+            <div class="weather-header">
+              <i class="fa-solid fa-sun"></i>
+              <div>
+                <span class="weather-city">Chennai</span>
+                <span class="weather-cond">28°C | Clear Skies</span>
+              </div>
+            </div>
+            <div class="weather-quote">
+              "Different people.<br/>Same direction.<br/>Growth."
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Flow Cards Placeholder -->
