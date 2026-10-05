@@ -1,1 +1,121 @@
-[]
+[
+  {
+    "id": 101,
+    "consignmentNo": "INW-2026-001",
+    "dealerId": 1,
+    "dealerName": "Kumar Traders",
+    "date": "2026-10-04",
+    "time": "10:42 AM",
+    "vehicleNo": "TN-04-E-4892",
+    "lorryBhada": 1500,
+    "lorryBhadaMode": "Cash",
+    "driverPhone": "9841987654",
+    "items": [
+      {
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 3,
+        "weightKg": 180,
+        "unsoldCrates": 3,
+        "unsoldWeightKg": 180,
+        "rateExpected": 480,
+        "notes": "Grade A Kasimedu Deep Sea Catch"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "consignmentNo": "INW-2026-002",
+    "dealerId": 3,
+    "dealerName": "AR Fish Mart",
+    "date": "2026-10-04",
+    "time": "09:21 AM",
+    "vehicleNo": "TN-05-F-2219",
+    "lorryBhada": 1200,
+    "lorryBhadaMode": "Cash",
+    "driverPhone": "9841876543",
+    "items": [
+      {
+        "variety": "Sardine",
+        "crates": 5,
+        "weightKg": 210,
+        "unsoldCrates": 5,
+        "unsoldWeightKg": 210,
+        "rateExpected": 450,
+        "notes": "Fresh iced small crate lot"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "consignmentNo": "INW-2026-003",
+    "dealerId": 5,
+    "dealerName": "Mohammed Traders",
+    "date": "2026-10-04",
+    "time": "07:48 AM",
+    "vehicleNo": "TN-18-B-8901",
+    "lorryBhada": 2000,
+    "lorryBhadaMode": "Cash",
+    "driverPhone": "9841765432",
+    "items": [
+      {
+        "variety": "Anchovy",
+        "crates": 1,
+        "weightKg": 40,
+        "unsoldCrates": 1,
+        "unsoldWeightKg": 40,
+        "rateExpected": 480,
+        "notes": "Nethili premium small fish"
+      },
+      {
+        "variety": "Seer",
+        "crates": 2,
+        "weightKg": 125,
+        "unsoldCrates": 2,
+        "unsoldWeightKg": 125,
+        "rateExpected": 520,
+        "notes": "Medium cut quality"
+      },
+      {
+        "variety": "Pomfret",
+        "crates": 2,
+        "weightKg": 95,
+        "unsoldCrates": 2,
+        "unsoldWeightKg": 95,
+        "rateExpected": 650,
+        "notes": "White pomfret export size"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "consignmentNo": "INW-2026-004",
+    "dealerId": 8,
+    "dealerName": "Star Marine Exports",
+    "date": "2026-10-04",
+    "time": "05:30 AM",
+    "vehicleNo": "TN-02-K-9012",
+    "lorryBhada": 1800,
+    "lorryBhadaMode": "Bank",
+    "driverPhone": "9841654321",
+    "items": [
+      {
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 4,
+        "weightKg": 240,
+        "unsoldCrates": 0,
+        "unsoldWeightKg": 0,
+        "rateExpected": 500,
+        "notes": "Morning sold out"
+      },
+      {
+        "variety": "Sardine",
+        "crates": 6,
+        "weightKg": 390,
+        "unsoldCrates": 0,
+        "unsoldWeightKg": 0,
+        "rateExpected": 420,
+        "notes": "Morning sold out"
+      }
+    ]
+  }
+]

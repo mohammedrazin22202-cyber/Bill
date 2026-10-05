@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "id": 501,
+    "date": "2026-10-04",
+    "time": "06:32 AM",
+    "type": "PAYMENT",
+    "category": "Bank Out",
+    "description": "Dealer payout to Kumar Traders (UTR: 3487 9203 11)",
+    "mode": "Bank Transfer",
+    "inflow": 0,
+    "outflow": 50000,
+    "created": 1791076627149
+  },
+  {
+    "id": 502,
+    "date": "2026-10-04",
+    "time": "07:48 AM",
+    "type": "CONSIGNMENT_FREIGHT",
+    "category": "Cash Out",
+    "description": "Advance Lorry Bhada - Mohammed Traders (TN-18-B-8901)",
+    "mode": "Cash",
+    "inflow": 0,
+    "outflow": 2000,
+    "created": 1791080227149
+  },
+  {
+    "id": 503,
+    "date": "2026-10-04",
+    "time": "09:21 AM",
+    "type": "CONSIGNMENT_FREIGHT",
+    "category": "Cash Out",
+    "description": "Advance Lorry Bhada - AR Fish Mart (TN-05-F-2219)",
+    "mode": "Cash",
+    "inflow": 0,
+    "outflow": 1200,
+    "created": 1791087427149
+  },
+  {
+    "id": 504,
+    "date": "2026-10-04",
+    "time": "10:42 AM",
+    "type": "CONSIGNMENT_FREIGHT",
+    "category": "Cash Out",
+    "description": "Advance Lorry Bhada - Kumar Traders (TN-04-E-4892)",
+    "mode": "Cash",
+    "inflow": 0,
+    "outflow": 1500,
+    "created": 1791091027149
+  }
+]

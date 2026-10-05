@@ -1,1 +1,10 @@
-﻿[{" id\: 1, \name\: \Mackerel\, \defaultUnit\: \Crate\}, {\id\: 2, \name\: \Shrimp\, \defaultUnit\: \Kg\}, {\id\: 3, \name\: \Sardine\, \defaultUnit\: \Crate\}, {\id\: 4, \name\: \Kingfish\, \defaultUnit\: \Kg\}, {\id\: 5, \name\: \Pomfret\, \defaultUnit\: \Kg\}]
+[
+  { "id": 1, "name": "Vanjaram (Seer Fish)", "defaultUnit": "Kg" },
+  { "id": 2, "name": "Seer", "defaultUnit": "Kg" },
+  { "id": 3, "name": "Sardine", "defaultUnit": "Kg" },
+  { "id": 4, "name": "Pomfret", "defaultUnit": "Kg" },
+  { "id": 5, "name": "Anchovy", "defaultUnit": "Kg" },
+  { "id": 6, "name": "Mackerel", "defaultUnit": "Crate" },
+  { "id": 7, "name": "Shrimp", "defaultUnit": "Kg" },
+  { "id": 8, "name": "Kingfish", "defaultUnit": "Kg" }
+]

@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": 401,
+    "paymentNo": "PAY-2026-042",
+    "date": "2026-10-04",
+    "time": "06:32 AM",
+    "type": "DEALER_PAYMENT",
+    "contactId": 1,
+    "contactName": "Kumar Traders",
+    "amount": 50000,
+    "settlementDiscount": 0,
+    "paymentMode": "Bank Transfer",
+    "referenceNo": "UTR: 3487 9203 11",
+    "bankName": "HDFC Bank",
+    "notes": "Morning advance payout for consignment arrivals"
+  }
+]

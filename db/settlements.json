@@ -1,1 +1,75 @@
-[]
+[
+  {
+    "id": 301,
+    "settlementNo": "PAT-2026-088",
+    "dealerId": 1,
+    "dealerName": "Kumar Traders",
+    "date": "2026-10-04",
+    "totalQtySold": 180,
+    "totalRealizedRevenue": 140000,
+    "totalReportedGross": 136080,
+    "totalBrokingProfit": 3920,
+    "expenses": [
+      {
+        "name": "Advance Lorry Bhada",
+        "amount": 1500
+      },
+      {
+        "name": "Ice & Coolie Labor",
+        "amount": 2500
+      }
+    ],
+    "totalExpenses": 4000,
+    "commissionType": "percent",
+    "commissionRate": 5,
+    "commissionAmount": 6804,
+    "netPayableToDealer": 132080,
+    "unsoldCratesCarriedForward": 3
+  },
+  {
+    "id": 302,
+    "settlementNo": "PAT-2026-089",
+    "dealerId": 3,
+    "dealerName": "AR Fish Mart",
+    "date": "2026-10-04",
+    "totalQtySold": 240,
+    "totalRealizedRevenue": 120000,
+    "totalReportedGross": 118000,
+    "totalBrokingProfit": 2000,
+    "expenses": [
+      {
+        "name": "Transport & Ice",
+        "amount": 3200
+      }
+    ],
+    "totalExpenses": 3200,
+    "commissionType": "percent",
+    "commissionRate": 5,
+    "commissionAmount": 5900,
+    "netPayableToDealer": 108900,
+    "unsoldCratesCarriedForward": 5
+  },
+  {
+    "id": 303,
+    "settlementNo": "PAT-2026-090",
+    "dealerId": 5,
+    "dealerName": "Mohammed Traders",
+    "date": "2026-10-04",
+    "totalQtySold": 210,
+    "totalRealizedRevenue": 102000,
+    "totalReportedGross": 100000,
+    "totalBrokingProfit": 2000,
+    "expenses": [
+      {
+        "name": "Coolie & Unloading",
+        "amount": 2000
+      }
+    ],
+    "totalExpenses": 2000,
+    "commissionType": "percent",
+    "commissionRate": 5,
+    "commissionAmount": 5000,
+    "netPayableToDealer": 93620,
+    "unsoldCratesCarriedForward": 5
+  }
+]

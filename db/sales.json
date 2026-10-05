@@ -1,1 +1,177 @@
-[]
+[
+  {
+    "id": 201,
+    "billNo": "SB-2026-1042",
+    "date": "2026-10-04",
+    "time": "08:15 AM",
+    "buyerId": 4,
+    "buyerName": "Chennai Sea Foods",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 48000,
+    "discount": 0,
+    "total": 48000,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Seer Fish",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 80,
+        "rate": 600,
+        "amount": 48000
+      }
+    ]
+  },
+  {
+    "id": 202,
+    "billNo": "SB-2026-1043",
+    "date": "2026-10-04",
+    "time": "09:55 AM",
+    "buyerId": 2,
+    "buyerName": "Ravi Fish Traders",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 25200,
+    "discount": 0,
+    "total": 25200,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Vanjaram (Seer Fish)",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 45,
+        "rate": 560,
+        "amount": 25200
+      }
+    ]
+  },
+  {
+    "id": 203,
+    "billNo": "SB-2026-0912",
+    "date": "2026-09-22",
+    "time": "07:30 AM",
+    "buyerId": 6,
+    "buyerName": "Balaji Sea Foods",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 65400,
+    "discount": 0,
+    "total": 65400,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Sardine",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 150,
+        "rate": 436,
+        "amount": 65400
+      }
+    ]
+  },
+  {
+    "id": 204,
+    "billNo": "SB-2026-0915",
+    "date": "2026-09-24",
+    "time": "08:00 AM",
+    "buyerId": 7,
+    "buyerName": "Annai Fish Co",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 42600,
+    "discount": 0,
+    "total": 42600,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Vanjaram (Seer Fish)",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 80,
+        "rate": 532.5,
+        "amount": 42600
+      }
+    ]
+  },
+  {
+    "id": 205,
+    "billNo": "SB-2026-0918",
+    "date": "2026-09-25",
+    "time": "09:10 AM",
+    "buyerId": 8,
+    "buyerName": "Star Marine Exports",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 34800,
+    "discount": 0,
+    "total": 34800,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Anchovy",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 75,
+        "rate": 464,
+        "amount": 34800
+      }
+    ]
+  },
+  {
+    "id": 206,
+    "billNo": "SB-2026-1044",
+    "date": "2026-10-04",
+    "time": "06:45 AM",
+    "buyerId": 4,
+    "buyerName": "Chennai Sea Foods",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 78400,
+    "discount": 0,
+    "total": 78400,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Vanjaram (Seer Fish)",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 160,
+        "rate": 490,
+        "amount": 78400
+      }
+    ]
+  },
+  {
+    "id": 207,
+    "billNo": "SB-2026-1045",
+    "date": "2026-10-04",
+    "time": "06:15 AM",
+    "buyerId": 2,
+    "buyerName": "Ravi Fish Traders",
+    "paymentType": "Credit",
+    "amountPaid": 0,
+    "subtotal": 27000,
+    "discount": 0,
+    "total": 27000,
+    "lines": [
+      {
+        "consignmentId": 104,
+        "variety": "Sardine",
+        "dealerId": 8,
+        "dealerName": "Star Marine Exports",
+        "unit": "Kg",
+        "qty": 60,
+        "rate": 450,
+        "amount": 27000
+      }
+    ]
+  }
+]
