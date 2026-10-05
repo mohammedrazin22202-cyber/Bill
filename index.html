@@ -1958,8 +1958,53 @@ body {
       </div>
     </div>
 
-    <!-- Quick Actions Placeholder -->
-    <div class="action-cards-grid"></div>
+    <!-- Quick Action Cards Bar -->
+    <div class="action-cards-grid">
+      <div class="quick-action-card theme-blue" onclick="openArrivalModal()">
+        <div class="action-card-left">
+          <div class="action-icon-circle">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <div>
+            <div class="action-main-title">+ Record Fish In</div>
+            <div class="action-sub-text">Add arrival from dealer</div>
+          </div>
+        </div>
+        <div class="action-arrow-bubble">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+
+      <div class="quick-action-card theme-green" onclick="openSaleModal()">
+        <div class="action-card-left">
+          <div class="action-icon-circle">
+            <i class="fa-solid fa-cart-shopping"></i>
+          </div>
+          <div>
+            <div class="action-main-title">+ Record Fish Sold</div>
+            <div class="action-sub-text">Sell to dealer</div>
+          </div>
+        </div>
+        <div class="action-arrow-bubble">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+
+      <div class="quick-action-card theme-amber" onclick="openPaymentModal('DEALER_PAYMENT')">
+        <div class="action-card-left">
+          <div class="action-icon-circle">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div>
+            <div class="action-main-title">Make Payment</div>
+            <div class="action-sub-text">Settle with dealer</div>
+          </div>
+        </div>
+        <div class="action-arrow-bubble">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+    </div>
 
     <!-- 2-Column Dashboard Main Content -->
     <div class="dashboard-content-columns">
