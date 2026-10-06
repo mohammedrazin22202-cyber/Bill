@@ -1895,7 +1895,7 @@ body {
           <div class="flow-title">FISH IN <span>(Today)</span></div>
           <div class="flow-main-val" id="valFishInKg">1,280 KG</div>
           <div class="flow-meta-line">
-            <span>14 arrivals</span>
+            <span id="subFishInArrivals">14 arrivals</span>
             <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 12%</span>
           </div>
         </div>
@@ -1927,7 +1927,7 @@ body {
           <div class="flow-title">FISH SOLD <span>(Today)</span></div>
           <div class="flow-main-val" id="valFishSoldKg">860 KG</div>
           <div class="flow-meta-line">
-            <span>12 sales</span>
+            <span id="subFishSoldSales">12 sales</span>
             <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 8%</span>
           </div>
         </div>
@@ -1962,7 +1962,7 @@ body {
           <div class="flow-title">IN STOCK <span>(Now)</span></div>
           <div class="flow-main-val" id="valInStockKg">640 KG</div>
           <div class="flow-meta-line">
-            <span>22 lots</span>
+            <span id="subInStockLots">22 lots</span>
             <span class="trend-badge red"><i class="fa-solid fa-arrow-down"></i> 6%</span>
           </div>
         </div>
@@ -2092,7 +2092,7 @@ body {
             <div class="card-title-group">
               <i class="fa-solid fa-cubes" style="color:#0084ff; font-size:16px;"></i>
               <div>
-                <div class="card-heading">Current Stock (640 KG)</div>
+                <div class="card-heading" id="headerCurrentStock">Current Stock (640 KG)</div>
                 <div class="card-subheading">Stock available in godown by fish type</div>
               </div>
             </div>
@@ -2110,7 +2110,7 @@ body {
             <div class="insight-chart-icon">
               <i class="fa-solid fa-chart-simple"></i>
             </div>
-            <div>
+            <div class="insight-text-wrapper">
               <span class="insight-heading">Market Insight: </span>
               <span class="insight-sentence">Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.</span>
             </div>
@@ -3184,6 +3184,7 @@ async function initApp() {
     loadReports(),
     loadDaybook()
   ]);
+  updateDashboardMetrics();
   renderActivityTimeline();
   renderFishStockCards();
 }
@@ -3200,9 +3201,17 @@ function switchTo(viewId) {
   if (nav) nav.classList.add('active');
 
   if (viewId === 'dashboard') {
-    loadReports();
-    renderActivityTimeline();
-    renderFishStockCards();
+    Promise.all([
+      loadConsignments(),
+      loadSales(),
+      loadPayments(),
+      loadContacts(),
+      loadReports()
+    ]).then(() => {
+      updateDashboardMetrics();
+      renderActivityTimeline();
+      renderFishStockCards();
+    });
   } else if (viewId === 'inventory') {
     loadStockBoard();
   } else if (viewId === 'dealers') {
@@ -3258,6 +3267,7 @@ async function loadReports() {
     const attS = document.getElementById('attSubOverdue'); if (attS) attS.textContent = `Total amount: ₹${(data.totalOverdueAmount || 142800).toLocaleString('en-IN')}`;
 
     updateMoneyCardBalances();
+    updateDashboardMetrics();
   } catch (err) {
     console.error('Failed to load reports:', err);
   }
@@ -3265,7 +3275,7 @@ async function loadReports() {
 
 function updateMoneyCardBalances() {
   let rec = 0, pay = 0, recCount = 0, payCount = 0;
-  appState.contacts.forEach(c => {
+  (appState.contacts || []).forEach(c => {
     if (c.receivableBalance > 0) { rec += c.receivableBalance; recCount++; }
     if (c.payableBalance > 0) { pay += c.payableBalance; payCount++; }
   });
@@ -3278,6 +3288,81 @@ function updateMoneyCardBalances() {
 
   const net = (rec || 321400) - (pay || 284600);
   const bNet = document.getElementById('boxNetPosition'); if (bNet) bNet.innerHTML = `₹${Math.abs(net).toLocaleString('en-IN')} <span style="font-size:13px; color:#10b981;">↑</span>`;
+}
+
+function updateDashboardMetrics() {
+  // 1. Fish In (Today)
+  let fishInKg = 0;
+  (appState.consignments || []).forEach(c => {
+    (c.items || []).forEach(it => {
+      fishInKg += (Number(it.weightKg) || 0);
+    });
+  });
+  const arrivalsCount = (appState.consignments || []).length;
+  const elFishIn = document.getElementById('valFishInKg');
+  if (elFishIn) elFishIn.textContent = `${fishInKg.toLocaleString('en-IN')} KG`;
+  const elArrCount = document.getElementById('subFishInArrivals');
+  if (elArrCount) elArrCount.textContent = `${arrivalsCount} arrivals`;
+
+  // 2. Fish Sold (Today)
+  let fishSoldKg = 0;
+  (appState.sales || []).forEach(s => {
+    (s.lines || []).forEach(l => {
+      fishSoldKg += (Number(l.qty) || 0);
+    });
+  });
+  const salesCount = (appState.sales || []).length;
+  const elFishSold = document.getElementById('valFishSoldKg');
+  if (elFishSold) elFishSold.textContent = `${fishSoldKg.toLocaleString('en-IN')} KG`;
+  const elSalesCount = document.getElementById('subFishSoldSales');
+  if (elSalesCount) elSalesCount.textContent = `${salesCount} sales`;
+
+  // 3. In Stock (Now)
+  let inStockKg = 0;
+  let inStockLots = 0;
+  (appState.consignments || []).forEach(c => {
+    (c.items || []).forEach(it => {
+      const leftKg = it.unsoldWeightKg !== undefined ? Number(it.unsoldWeightKg) : Number(it.weightKg);
+      const leftCrates = it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates);
+      if (leftKg > 0 || leftCrates > 0) {
+        inStockKg += (leftKg || 0);
+        inStockLots += 1;
+      }
+    });
+  });
+  const elInStock = document.getElementById('valInStockKg');
+  if (elInStock) elInStock.textContent = `${inStockKg.toLocaleString('en-IN')} KG`;
+  const elStockLots = document.getElementById('subInStockLots');
+  if (elStockLots) elStockLots.textContent = `${inStockLots} lots`;
+  const elHeaderStock = document.getElementById('headerCurrentStock');
+  if (elHeaderStock) elHeaderStock.textContent = `Current Stock (${inStockKg.toLocaleString('en-IN')} KG)`;
+
+  // 4. Commission (Today)
+  const comm = appState.reports?.totalBrokerCommission || 38400;
+  const elComm = document.getElementById('valCommission');
+  if (elComm) elComm.textContent = `₹${comm.toLocaleString('en-IN')}`;
+}
+
+function formatTimelineTime(timeStr, createdTs) {
+  if (timeStr) {
+    if (timeStr.includes('AM') || timeStr.includes('PM')) return timeStr;
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      let h = parseInt(parts[0], 10);
+      const m = parts[1];
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      const hStr = h < 10 ? `0${h}` : `${h}`;
+      return `${hStr}:${m} ${ampm}`;
+    }
+  }
+  if (createdTs) {
+    const d = new Date(createdTs);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+  }
+  return '10:00 AM';
 }
 
 function setActivityTab(tab, btn) {
