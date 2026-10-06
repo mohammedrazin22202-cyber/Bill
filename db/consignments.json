@@ -117,5 +117,71 @@
         "notes": "Morning sold out"
       }
     ]
+  },
+  {
+    "id": 1791184365546,
+    "consignmentNo": "INW-1791184365546",
+    "date": "2026-10-04",
+    "dealerId": 1791184365549,
+    "dealerName": "Razin",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 3,
+        "weightKg": 75,
+        "unsoldCrates": 3,
+        "unsoldWeightKg": 40,
+        "rateExpectation": 0,
+        "notes": ""
+      },
+      {
+        "id": 2,
+        "variety": "Seer",
+        "crates": 5,
+        "weightKg": 100,
+        "unsoldCrates": 5,
+        "unsoldWeightKg": 100,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Active",
+    "notes": "",
+    "created": 1791184365546,
+    "updated": 1791184425316
+  },
+  {
+    "id": 1791185874463,
+    "consignmentNo": "INW-1791185874463",
+    "date": "2026-10-04",
+    "dealerId": 1791185874468,
+    "dealerName": "mg",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 4,
+        "weightKg": 0,
+        "unsoldCrates": 4,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Active",
+    "notes": "",
+    "created": 1791185874463,
+    "updated": 1791185874463
   }
 ]

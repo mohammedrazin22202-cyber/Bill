@@ -173,5 +173,38 @@
         "amount": 27000
       }
     ]
+  },
+  {
+    "id": 1791184425233,
+    "billNo": "SAL-1791184425233",
+    "date": "2026-10-04",
+    "time": "12:43:45",
+    "buyerId": 1791184365549,
+    "buyerName": "Razin",
+    "buyerPhone": "",
+    "paymentType": "Credit",
+    "paymentMode": "Cash",
+    "lines": [
+      {
+        "id": 1,
+        "consignmentId": 1791184365546,
+        "consignmentNo": "",
+        "dealerId": 1791184365549,
+        "dealerName": "Razin",
+        "variety": "Vanjaram (Seer Fish)",
+        "unit": "Kg",
+        "qty": 35,
+        "rate": 560,
+        "amount": 19600
+      }
+    ],
+    "subtotal": 19600,
+    "discount": 0,
+    "total": 19600,
+    "amountPaid": 0,
+    "notes": "",
+    "isBadDebt": false,
+    "created": 1791184425233,
+    "updated": 1791184425233
   }
 ]

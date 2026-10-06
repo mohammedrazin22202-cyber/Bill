@@ -110,5 +110,41 @@
     "bypassCreditCheck": false,
     "isBadDebtDefaulter": false,
     "created": 1790083027149
+  },
+  {
+    "id": 1791184365549,
+    "name": "Razin",
+    "phone": "",
+    "address": "",
+    "notes": "",
+    "isDealer": true,
+    "isBuyer": false,
+    "defaultCommissionType": "percent",
+    "defaultCommissionVal": 5,
+    "creditLimit": 0,
+    "creditPeriod": 0,
+    "bypassCreditCheck": false,
+    "isBadDebtDefaulter": false,
+    "badDebtReason": "",
+    "created": 1791184365549,
+    "updated": 1791184365549
+  },
+  {
+    "id": 1791185874468,
+    "name": "mg",
+    "phone": "",
+    "address": "",
+    "notes": "",
+    "isDealer": true,
+    "isBuyer": false,
+    "defaultCommissionType": "percent",
+    "defaultCommissionVal": 5,
+    "creditLimit": 0,
+    "creditPeriod": 0,
+    "bypassCreditCheck": false,
+    "isBadDebtDefaulter": false,
+    "badDebtReason": "",
+    "created": 1791185874468,
+    "updated": 1791185874468
   }
 ]
