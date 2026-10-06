@@ -3376,90 +3376,94 @@ function renderActivityTimeline() {
   const container = document.getElementById('activityTimelineStream');
   if (!container) return;
 
-  const entries = [
-    {
-      time: '10:42 AM',
+  const entries = [];
+
+  // Consignments (Fish In)
+  (appState.consignments || []).forEach(c => {
+    const weightKg = (c.items || []).reduce((s, it) => s + (Number(it.weightKg) || 0), 0);
+    const totalAmt = (c.items || []).reduce((s, it) => s + ((Number(it.weightKg) || 0) * (Number(it.rateExpected || it.rateExpectation) || 0)), 0);
+    const avgRate = weightKg > 0 && totalAmt > 0 ? Math.round(totalAmt / weightKg) : (c.items && c.items[0] && (c.items[0].rateExpected || c.items[0].rateExpectation) || 0);
+
+    const varietyList = (c.items || []).map(it => it.variety).filter(Boolean);
+    const details = varietyList.length > 0 ? varietyList.join(', ') : 'Fish Consignment';
+    const time = formatTimelineTime(c.time, c.created);
+    const timestamp = c.created || (c.date ? new Date(`${c.date} ${c.time || '10:00 AM'}`).getTime() : Date.now());
+
+    entries.push({
+      time,
+      timestamp,
       type: 'fish-in',
       tag: '↓ Fish In',
       nodeClass: '',
-      party: 'Kumar Traders',
-      details: 'Vanjaram (Seer Fish)',
-      weight: '180 KG',
-      rate: '@ ₹480/kg',
-      amount: '₹82,080',
+      party: c.dealerName || 'Dealer',
+      details,
+      weight: weightKg > 0 ? `${weightKg.toLocaleString('en-IN')} KG` : '',
+      rate: avgRate > 0 ? `@ ₹${avgRate}/kg` : '',
+      amount: totalAmt > 0 ? `₹${totalAmt.toLocaleString('en-IN')}` : (weightKg > 0 ? `${weightKg.toLocaleString('en-IN')} KG` : '—'),
       isRed: false,
-      onClick: () => printArrivalGatepass(101)
-    },
-    {
-      time: '09:55 AM',
+      onClick: () => printArrivalGatepass(c.id)
+    });
+  });
+
+  // Sales (Fish Sold)
+  (appState.sales || []).forEach(s => {
+    const weightKg = (s.lines || []).reduce((acc, l) => acc + (Number(l.qty) || 0), 0);
+    const avgRate = weightKg > 0 && s.total > 0 ? Math.round(s.total / weightKg) : ((s.lines && s.lines[0]?.rate) || 0);
+    const varietyList = (s.lines || []).map(l => l.variety).filter(Boolean);
+    const details = varietyList.length > 0 ? varietyList.join(', ') : 'Morning Sale';
+    const time = formatTimelineTime(s.time, s.created);
+    const timestamp = s.created || (s.date ? new Date(`${s.date} ${s.time || '10:00 AM'}`).getTime() : Date.now());
+
+    entries.push({
+      time,
+      timestamp,
       type: 'fish-sold',
       tag: '↑ Fish Sold',
       nodeClass: 'node-blue',
-      party: 'Ravi Fish Traders',
-      details: 'Vanjaram (Seer Fish)',
-      weight: '45 KG',
-      rate: '@ ₹560/kg',
-      amount: '₹25,200',
+      party: s.buyerName || 'Buyer',
+      details,
+      weight: weightKg > 0 ? `${weightKg.toLocaleString('en-IN')} KG` : '',
+      rate: avgRate > 0 ? `@ ₹${avgRate}/kg` : '',
+      amount: `₹${(s.total || 0).toLocaleString('en-IN')}`,
       isRed: false,
-      onClick: () => downloadA4SalesBill(202)
-    },
-    {
-      time: '09:21 AM',
-      type: 'fish-in',
-      tag: '↓ Fish In',
-      nodeClass: '',
-      party: 'AR Fish Mart',
-      details: 'Sardine',
-      weight: '120 KG',
-      rate: '@ ₹450/kg',
-      amount: '₹54,000',
-      isRed: false,
-      onClick: () => printArrivalGatepass(102)
-    },
-    {
-      time: '08:15 AM',
-      type: 'fish-sold',
-      tag: '↑ Fish Sold',
-      nodeClass: 'node-blue',
-      party: 'Chennai Sea Foods',
-      details: 'Seer Fish',
-      weight: '80 KG',
-      rate: '@ ₹600/kg',
-      amount: '₹48,000',
-      isRed: false,
-      onClick: () => downloadA4SalesBill(201)
-    },
-    {
-      time: '07:48 AM',
-      type: 'fish-in',
-      tag: '↓ Fish In',
-      nodeClass: '',
-      party: 'Mohammed Traders',
-      details: 'Anchovy',
-      weight: '150 KG',
-      rate: '@ ₹480/kg',
-      amount: '₹72,000',
-      isRed: false,
-      onClick: () => printArrivalGatepass(103)
-    },
-    {
-      time: '06:32 AM',
+      onClick: () => downloadA4SalesBill(s.id)
+    });
+  });
+
+  // Payments
+  (appState.payments || []).forEach(p => {
+    const time = formatTimelineTime(p.time, p.created);
+    const timestamp = p.created || (p.date ? new Date(`${p.date} ${p.time || '10:00 AM'}`).getTime() : Date.now());
+    const isOutflow = p.type === 'DEALER_PAYMENT';
+
+    entries.push({
+      time,
+      timestamp,
       type: 'payment',
-      tag: '💼 Payment',
+      tag: isOutflow ? '💼 Pay Dealer' : '💼 Buyer Cash',
       nodeClass: 'node-orange',
-      party: 'Kumar Traders',
-      details: 'Bank Transfer (UTR: 3487 9203 11)',
+      party: p.contactName || 'Party',
+      details: `${p.paymentMode || 'Payment'}${p.referenceNo ? ` (${p.referenceNo})` : ''}`,
       weight: '',
       rate: '',
-      amount: '₹50,000',
-      isRed: true,
+      amount: `₹${(p.amount || 0).toLocaleString('en-IN')}`,
+      isRed: isOutflow,
       onClick: () => switchTo('payments')
-    }
-  ];
+    });
+  });
+
+  // Sort descending: newest activity at the top
+  entries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
   let filtered = entries;
   if (appState.activityFilter !== 'all') {
     filtered = entries.filter(e => e.type === appState.activityFilter);
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:32px; color:#64748b; font-size:12.5px;">No activity recorded for this filter today.</div>';
+    window._timelineEntries = [];
+    return;
   }
 
   container.innerHTML = filtered.map((e, idx) => `
@@ -3484,35 +3488,9 @@ function renderActivityTimeline() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. 3D FISH CRATES VISUALIZER (CURRENT STOCK SECTION)
 // ─────────────────────────────────────────────────────────────────────────────
-const FISH_3D_ASSETS = {
-  'Vanjaram (Seer Fish)': {
-    top: '#38bdf8', side1: '#0284c7', side2: '#0084ff', stroke: '#0369a1', kg: '180 KG', lots: '3 lots'
-  },
-  'Seer': {
-    top: '#34d399', side1: '#059669', side2: '#10b981', stroke: '#047857', kg: '125 KG', lots: '2 lots'
-  },
-  'Sardine': {
-    top: '#fde047', side1: '#d97706', side2: '#f59e0b', stroke: '#b45309', kg: '210 KG', lots: '5 lots'
-  },
-  'Pomfret': {
-    top: '#fca5a5', side1: '#dc2626', side2: '#ef4444', stroke: '#b91c1c', kg: '95 KG', lots: '2 lots'
-  },
-  'Anchovy': {
-    top: '#c4b5fd', side1: '#6d28d9', side2: '#8b5cf6', stroke: '#5b21b6', kg: '40 KG', lots: '1 lot'
-  }
-};
-
 function renderFishStockCards() {
   const grid = document.getElementById('fishCratesGrid');
   if (!grid) return;
-
-  const fishList = [
-    { title: 'Vanjaram', sub: '(Seer Fish)', kg: '180 KG', lots: '3 lots', fill: 72, color: 'blue' },
-    { title: 'Seer', sub: '', kg: '125 KG', lots: '2 lots', fill: 50, color: 'green' },
-    { title: 'Sardine', sub: '', kg: '210 KG', lots: '5 lots', fill: 84, color: 'amber' },
-    { title: 'Pomfret', sub: '', kg: '95 KG', lots: '2 lots', fill: 38, color: 'red' },
-    { title: 'Anchovy', sub: '', kg: '40 KG', lots: '1 lot', fill: 16, color: 'purple' }
-  ];
 
   const CRATE_SVGS = {
     blue: '<svg width="46" height="34" viewBox="0 0 64 46" fill="none"><polygon points="32,2 58,14 32,26 6,14" fill="#38bdf8" stroke="#0369a1" stroke-width="1.5"/><polygon points="6,14 32,26 32,44 6,32" fill="#0284c7"/><polygon points="32,26 58,14 58,32 32,44" fill="#0084ff"/><line x1="14" y1="18" x2="14" y2="34" stroke="#bae6fd" stroke-width="1.5"/><line x1="22" y1="22" x2="22" y2="38" stroke="#bae6fd" stroke-width="1.5"/><line x1="42" y1="22" x2="42" y2="38" stroke="#bae6fd" stroke-width="1.5"/><line x1="50" y1="18" x2="50" y2="34" stroke="#bae6fd" stroke-width="1.5"/></svg>',
@@ -3522,11 +3500,61 @@ function renderFishStockCards() {
     purple: '<svg width="46" height="34" viewBox="0 0 64 46" fill="none"><polygon points="32,2 58,14 32,26 6,14" fill="#c4b5fd" stroke="#5b21b6" stroke-width="1.5"/><polygon points="6,14 32,26 32,44 6,32" fill="#6d28d9"/><polygon points="32,26 58,14 58,32 32,44" fill="#8b5cf6"/><line x1="14" y1="18" x2="14" y2="34" stroke="#ddd6fe" stroke-width="1.5"/><line x1="22" y1="22" x2="22" y2="38" stroke="#ddd6fe" stroke-width="1.5"/><line x1="42" y1="22" x2="42" y2="38" stroke="#ddd6fe" stroke-width="1.5"/><line x1="50" y1="18" x2="50" y2="34" stroke="#ddd6fe" stroke-width="1.5"/></svg>'
   };
 
+  const colorMap = {
+    'vanjaram': 'blue',
+    'seer': 'green',
+    'sardine': 'amber',
+    'pomfret': 'red',
+    'anchovy': 'purple'
+  };
+  const palette = ['blue', 'green', 'amber', 'red', 'purple'];
+
+  // Aggregate current inventory by variety from consignments
+  const varietyMap = {};
+  (appState.consignments || []).forEach(c => {
+    (c.items || []).forEach(it => {
+      const v = (it.variety || '').trim();
+      if (!v) return;
+      if (!varietyMap[v]) {
+        varietyMap[v] = { variety: v, kg: 0, crates: 0, count: 0 };
+      }
+      const leftKg = it.unsoldWeightKg !== undefined ? Number(it.unsoldWeightKg) : Number(it.weightKg);
+      const leftCrates = it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates);
+      if (leftKg > 0 || leftCrates > 0) {
+        varietyMap[v].kg += (leftKg || 0);
+        varietyMap[v].crates += (leftCrates || 0);
+        varietyMap[v].count += 1;
+      }
+    });
+  });
+
+  const varieties = Object.values(varietyMap);
+  const fishList = varieties.map((v, i) => {
+    let title = v.variety;
+    let sub = '';
+    const match = v.variety.match(/^(.*?)\s*(\(.*?\))$/);
+    if (match) {
+      title = match[1];
+      sub = match[2];
+    }
+    const lowerKey = title.toLowerCase().trim();
+    const color = colorMap[lowerKey] || palette[i % palette.length];
+    const fill = Math.min(100, Math.max(16, Math.round((v.kg / 250) * 100)));
+    return {
+      title,
+      sub,
+      kg: `${v.kg.toLocaleString('en-IN')} KG`,
+      lots: `${v.count} lot${v.count === 1 ? '' : 's'} (${v.crates}c)`,
+      fill,
+      color
+    };
+  });
+
   grid.innerHTML = fishList.map(f => `
     <div class="fish-crate-item" onclick="switchTo('inventory')">
       <div class="fish-name-label">${f.title}</div>
       ${f.sub ? `<div class="fish-sub-label">${f.sub}</div>` : '<div class="fish-sub-label" style="visibility:hidden">-</div>'}
-      <div class="fish-crate-svg-box">${CRATE_SVGS[f.color]}</div>
+      <div class="fish-crate-svg-box">${CRATE_SVGS[f.color] || CRATE_SVGS.blue}</div>
       <div class="fish-stats-row">
         <span class="fish-kg-tag">${f.kg}</span>
         <span class="fish-lots-text">${f.lots}</span>
@@ -3542,51 +3570,6 @@ function renderFishStockCards() {
     </div>
   `;
 }
-function __dummyOldFishStock() {
-  const grid = document.getElementById('fishCratesGrid');
-  if (!grid) return;
-
-  const fishList = [
-    { title: 'Vanjaram', sub: '(Seer Fish)' },
-    { title: 'Seer', sub: '' },
-    { title: 'Sardine', sub: '' },
-    { title: 'Pomfret', sub: '' },
-    { title: 'Anchovy', sub: '' }
-  ];
-
-  grid.innerHTML = fishList.map(f => {
-    const key = f.sub ? `${f.title} ${f.sub}` : f.title;
-    const a = FISH_3D_ASSETS[key] || FISH_3D_ASSETS['Vanjaram (Seer Fish)'];
-
-    return `
-      <div class="fish-crate-item" onclick="switchTo('inventory')">
-        <div class="fish-name-label">${f.title}</div>
-        ${f.sub ? `<div class="fish-sub-label">${f.sub}</div>` : '<div class="fish-sub-label" style="visibility:hidden">-</div>'}
-        <div class="fish-crate-svg-box">
-          <svg width="46" height="34" viewBox="0 0 64 46" fill="none">
-            <polygon points="32,2 58,14 32,26 6,14" fill="${a.top}" stroke="${a.stroke}" stroke-width="1.5"/>
-            <polygon points="6,14 32,26 32,44 6,32" fill="${a.side1}"/>
-            <polygon points="32,26 58,14 58,32 32,44" fill="${a.side2}"/>
-            <line x1="14" y1="18" x2="14" y2="34" stroke="${a.top}" stroke-width="1.5"/>
-            <line x1="22" y1="22" x2="22" y2="38" stroke="${a.top}" stroke-width="1.5"/>
-            <line x1="42" y1="22" x2="42" y2="38" stroke="${a.top}" stroke-width="1.5"/>
-            <line x1="50" y1="18" x2="50" y2="34" stroke="${a.top}" stroke-width="1.5"/>
-          </svg>
-        </div>
-        <div class="fish-stats-row">
-          <span class="fish-kg-tag">${a.kg}</span>
-          <span class="fish-lots-text">${a.lots}</span>
-        </div>
-        <div class="fish-solid-progress-bar"></div>
-      </div>
-    `;
-  }).join('') + `
-    <div class="fish-crate-item add-fish-dotted-card" onclick="openArrivalModal()">
-      <div class="add-fish-circle"><i class="fas fa-plus"></i></div>
-      <div style="font-size:11.5px; font-weight:700;">Add Fish Type</div>
-    </div>
-  `;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. INWARD ARRIVALS (FISH IN)
@@ -3596,6 +3579,9 @@ async function loadConsignments() {
     const res = await fetch('/api/consignments');
     appState.consignments = await res.json();
     renderArrivalsList();
+    updateDashboardMetrics();
+    renderActivityTimeline();
+    renderFishStockCards();
   } catch (err) {
     console.error('Failed to load consignments:', err);
   }
@@ -3732,7 +3718,7 @@ async function deleteInwardArrival(id) {
 }
 
 function printArrivalGatepass(id) {
-  const cons = appState.consignments.find(c => c.id === id);
+  const cons = appState.consignments.find(c => c.id == id);
   if (!cons) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
@@ -3773,6 +3759,9 @@ async function loadSales() {
     const res = await fetch('/api/sales');
     appState.sales = await res.json();
     renderSalesList();
+    updateDashboardMetrics();
+    renderActivityTimeline();
+    renderFishStockCards();
   } catch (err) {
     console.error('Failed to load sales:', err);
   }
@@ -4002,7 +3991,7 @@ async function deleteSaleBill(id) {
 }
 
 function downloadA4SalesBill(saleId) {
-  const sale = appState.sales.find(s => s.id === saleId);
+  const sale = appState.sales.find(s => s.id == saleId);
   if (!sale) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
@@ -4589,6 +4578,8 @@ async function loadPayments() {
     const res = await fetch('/api/payments');
     appState.payments = await res.json();
     renderPaymentsList();
+    updateDashboardMetrics();
+    renderActivityTimeline();
   } catch (err) {
     console.error('Failed to load payments:', err);
   }
