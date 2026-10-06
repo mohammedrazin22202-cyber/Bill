@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Billify – Fish Broking</title>
 <link rel="icon" type="image/png" href="/logo.png"/>
+<link rel="apple-touch-icon" href="/logo.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@700&family=JetBrains+Mono:wght@500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -82,10 +83,15 @@ body {
   gap: 12px;
 }
 
-.sidebar-logo-svg {
-  width: 32px;
-  height: 32px;
+.sidebar-logo-svg,
+.sidebar-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  object-fit: cover;
   flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
 .brand-text-block {
@@ -259,6 +265,8 @@ body {
 .main-wrapper {
   margin-left: var(--sidebar-w);
   flex: 1;
+  min-width: 0;
+  max-width: calc(100vw - var(--sidebar-w));
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -277,6 +285,7 @@ body {
   overflow: hidden;
   box-shadow: 0 10px 30px -8px rgba(15,23,42,0.18);
   background: #0f172a;
+  min-height: 240px;
 }
 
 .hero-panorama-image {
@@ -295,7 +304,7 @@ body {
 .hero-inner-content {
   position: relative;
   z-index: 2;
-  padding: 18px 24px 84px; /* Extra bottom padding for docked flow cards */
+  padding: 18px 24px 76px; /* Clean bottom padding for docked flow cards */
 }
 
 /* Top bar floating row inside the hero */
@@ -304,12 +313,15 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin-bottom: 22px;
+  margin-bottom: 20px;
+  max-width: 100%;
 }
 
 .global-search-pill {
   position: relative;
-  width: 340px;
+  width: 380px;
+  max-width: 440px;
+  flex-shrink: 1;
 }
 
 .global-search-input {
@@ -318,14 +330,17 @@ body {
   border-radius: 999px;
   border: 1px solid rgba(226,232,240,0.85);
   background: #ffffff;
-  padding: 0 66px 0 36px;
+  padding: 0 68px 0 36px;
   font-family: var(--font-main);
-  font-size: 12px;
+  font-size: 11.5px;
   color: #0f172a;
   outline: none;
   transition: all 0.15s ease;
   box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .global-search-input:focus {
@@ -355,6 +370,7 @@ body {
   padding: 2px 7px;
   border-radius: 5px;
   pointer-events: none;
+  border: 1px solid #e2e8f0;
 }
 
 .date-selector-pill {
@@ -514,44 +530,30 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   DASHBOARD 2-COLUMN MAIN CONTENT GRID (DOCKS ON HERO BANNER)
+   4 CONNECTED FLOW METRIC CARDS (DOCKS ON HERO BANNER)
 ══════════════════════════════════════════════════════════════ */
-.dashboard-content-columns {
-  margin: -50px 20px 0;
+.flow-cards-row {
+  margin: -42px 20px 0;
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 16px;
-  align-items: start;
-}
-
-/* Left flow cards (Cards 1, 2, 3) */
-.flow-cards-left-wrap {
-  display: flex;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-}
-
-.flow-cards-left-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
 }
 
 .flow-metric-card {
   background: #ffffff;
   border-radius: 14px;
-  padding: 12px 16px;
+  padding: 11px 14px;
   box-shadow: 0 4px 18px rgba(15,23,42,0.06);
   border: 1px solid #eef2f6;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
 }
 
 .flow-metric-card:hover {
@@ -560,8 +562,8 @@ body {
 }
 
 .flow-crate-visual {
-  width: 48px;
-  height: 44px;
+  width: 44px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -574,11 +576,14 @@ body {
 }
 
 .flow-title {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #475569;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .flow-title span {
@@ -588,13 +593,14 @@ body {
 }
 
 .flow-main-val {
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 800;
   color: #0f172a;
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 2px 0;
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 .flow-meta-line {
@@ -603,6 +609,7 @@ body {
   gap: 8px;
   font-size: 11px;
   color: #64748b;
+  white-space: nowrap;
 }
 
 .trend-badge {
@@ -616,27 +623,26 @@ body {
 
 .flow-connector-arrow {
   color: #94a3b8;
-  font-size: 13px;
+  font-size: 12px;
   opacity: 0.75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.flow-bridge-arrow {
-  color: #94a3b8;
-  font-size: 14px;
-  opacity: 0.75;
-  padding: 0 4px;
-}
-
-/* Left quick action cards (Cards 1, 2) */
-.action-cards-left-grid {
+/* ══════════════════════════════════════════════════════════════
+   QUICK ACTION BUTTONS
+══════════════════════════════════════════════════════════════ */
+.action-cards-grid {
+  margin: 14px 20px 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-  margin: 14px 0 16px;
 }
 
 .quick-action-card {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 12px 18px;
   display: flex;
   align-items: center;
@@ -644,6 +650,24 @@ body {
   cursor: pointer;
   transition: all 0.18s ease;
   border: 1px solid transparent;
+  min-width: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD 2-COLUMN MAIN CONTENT GRID
+══════════════════════════════════════════════════════════════ */
+.dashboard-content-columns {
+  margin: 14px 20px 0;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.dashboard-content-columns > div {
+  min-width: 0;
 }
 
 .quick-action-card.theme-blue {
@@ -987,7 +1011,7 @@ body {
 .fish-cards-grid {
   padding: 14px 18px 18px;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -1134,6 +1158,7 @@ body {
   align-items: baseline;
   gap: 6px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .insight-heading {
@@ -1141,6 +1166,7 @@ body {
   color: #0f172a;
   font-size: 13px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .insight-sentence {
@@ -1699,11 +1725,11 @@ body {
 }
 .ctrl-k-item:hover { background: #f1f5f9; }
 
-@media(max-width: 1050px) {
+@media(max-width: 950px) {
   .dashboard-content-columns { grid-template-columns: 1fr; }
-  .flow-cards-row { grid-template-columns: 1fr 1fr; }
+  .flow-cards-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .flow-connector-arrow { display: none; }
-  .fish-cards-grid { grid-template-columns: repeat(3, 1fr); }
+  .fish-cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .action-cards-grid { grid-template-columns: 1fr; }
 }
 </style>
@@ -1715,16 +1741,8 @@ body {
 ══════════════════════════════════════════════════════════════ -->
 <aside class="sidebar">
   <div class="sidebar-header">
-    <!-- Stylized Sailboat Line-art SVG matching reference image -->
-    <svg class="sidebar-logo-svg" viewBox="0 0 64 64" fill="none">
-      <circle cx="32" cy="32" r="30" fill="#0084ff"/>
-      <path d="M14 42 C24 46, 40 46, 50 42 C44 47, 20 47, 14 42 Z" fill="#ffffff"/>
-      <path d="M12 43 C22 49, 42 49, 52 43" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M22 38 L32 16 L32 38 Z" fill="#ffffff"/>
-      <path d="M35 22 L45 38 L35 38 Z" fill="#ffffff" opacity="0.9"/>
-      <path d="M32 14 L32 38" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-      <path d="M10 50 C24 53, 40 53, 54 50" stroke="#7dd3fc" stroke-width="2" stroke-linecap="round"/>
-    </svg>
+    <!-- App Logo Icon -->
+    <img src="/logo.png" class="sidebar-logo-img" alt="Billify Logo"/>
     <div class="brand-text-block">
       <div class="brand-title">Billify</div>
       <div class="brand-subtitle">Fish Broking</div>
