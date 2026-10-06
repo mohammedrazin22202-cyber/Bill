@@ -4877,15 +4877,47 @@ function handleCtrlKSearch(q) {
   }
 
   const matches = [];
-  appState.contacts.forEach(c => {
+
+  // Contacts
+  (appState.contacts || []).forEach(c => {
     if (c.name.toLowerCase().includes(term) || (c.phone && c.phone.includes(term))) {
-      matches.push({ title: c.name, sub: `Party (${c.isDealer ? 'Dealer' : ''} ${c.isBuyer ? 'Buyer' : ''}) · ${c.phone || ''}`, action: () => { switchTo('dealers'); openStatementModal(c.id); } });
+      matches.push({
+        title: c.name,
+        sub: `Party (${c.isDealer ? 'Dealer' : ''}${c.isDealer && c.isBuyer ? ' & ' : ''}${c.isBuyer ? 'Buyer' : ''}) · ${c.phone || 'No phone'}`,
+        action: () => { switchTo('dealers'); openStatementModal(c.id); }
+      });
     }
   });
 
-  appState.sales.forEach(s => {
-    if (s.billNo.toLowerCase().includes(term) || s.buyerName.toLowerCase().includes(term)) {
-      matches.push({ title: `Sale Bill ${s.billNo} - ${s.buyerName}`, sub: `₹${s.total.toLocaleString('en-IN')} (${s.date})`, action: () => downloadA4SalesBill(s.id) });
+  // Consignments (Arrivals / Inward)
+  (appState.consignments || []).forEach(c => {
+    const fishDesc = (c.items || []).map(it => it.variety).join(' ');
+    if (
+      c.consignmentNo.toLowerCase().includes(term) ||
+      (c.dealerName && c.dealerName.toLowerCase().includes(term)) ||
+      fishDesc.toLowerCase().includes(term)
+    ) {
+      matches.push({
+        title: `Arrival ${c.consignmentNo} - ${c.dealerName}`,
+        sub: `Inward (${(c.items || []).map(it => `${it.crates}c ${it.variety}`).join(', ')}) · ${c.date}`,
+        action: () => { switchTo('arrivals'); }
+      });
+    }
+  });
+
+  // Sales Bills
+  (appState.sales || []).forEach(s => {
+    const fishDesc = (s.lines || []).map(l => l.variety).join(' ');
+    if (
+      (s.billNo && s.billNo.toLowerCase().includes(term)) ||
+      (s.buyerName && s.buyerName.toLowerCase().includes(term)) ||
+      fishDesc.toLowerCase().includes(term)
+    ) {
+      matches.push({
+        title: `Sale Bill ${s.billNo || ('#' + s.id)} - ${s.buyerName}`,
+        sub: `₹${(s.total || 0).toLocaleString('en-IN')} (${s.date}) · ${fishDesc}`,
+        action: () => downloadA4SalesBill(s.id)
+      });
     }
   });
 
