@@ -13,5 +13,22 @@
     "referenceNo": "UTR: 3487 9203 11",
     "bankName": "HDFC Bank",
     "notes": "Morning advance payout for consignment arrivals"
+  },
+  {
+    "id": 1791358201230,
+    "paymentNo": "PAY-1791358201230",
+    "date": "2026-10-07",
+    "contactId": 1791357596240,
+    "contactName": "DEVI CHP",
+    "type": "BUYER_COLLECTION",
+    "amount": 25000,
+    "settlementDiscount": 0,
+    "paymentMode": "Cash",
+    "referenceNo": "",
+    "bankName": "",
+    "paymentDate": "2026-10-07",
+    "notes": "",
+    "created": 1791358201230,
+    "updated": 1791358201230
   }
 ]

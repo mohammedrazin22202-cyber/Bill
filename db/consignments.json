@@ -38,12 +38,13 @@
         "variety": "Sardine",
         "crates": 5,
         "weightKg": 210,
-        "unsoldCrates": 5,
+        "unsoldCrates": 0,
         "unsoldWeightKg": 210,
         "rateExpected": 450,
         "notes": "Fresh iced small crate lot"
       }
-    ]
+    ],
+    "updated": 1791357899210
   },
   {
     "id": 103,
@@ -145,7 +146,7 @@
         "variety": "Seer",
         "crates": 5,
         "weightKg": 100,
-        "unsoldCrates": 5,
+        "unsoldCrates": 0,
         "unsoldWeightKg": 100,
         "rateExpectation": 0,
         "notes": ""
@@ -154,7 +155,7 @@
     "status": "Active",
     "notes": "",
     "created": 1791184365546,
-    "updated": 1791184425316
+    "updated": 1791357830703
   },
   {
     "id": 1791185874463,
@@ -183,5 +184,89 @@
     "notes": "",
     "created": 1791185874463,
     "updated": 1791185874463
+  },
+  {
+    "id": 1791349905262,
+    "consignmentNo": "INW-1791349905262",
+    "date": "2026-10-07",
+    "dealerId": 1791349905266,
+    "dealerName": "MegaTron",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 3,
+        "weightKg": 150,
+        "unsoldCrates": 0,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Active",
+    "notes": "",
+    "created": 1791349905262,
+    "updated": 1791349967794
+  },
+  {
+    "id": 1791355711156,
+    "consignmentNo": "INW-1791355711156",
+    "date": "2026-10-07",
+    "dealerId": 1791185874468,
+    "dealerName": "mg",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Vanjaram (Seer Fish)",
+        "crates": 200,
+        "weightKg": 0,
+        "unsoldCrates": 200,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Active",
+    "notes": "",
+    "created": 1791355711156,
+    "updated": 1791355711156
+  },
+  {
+    "id": 1791357114679,
+    "consignmentNo": "INW-1791357114679",
+    "date": "2026-10-07",
+    "dealerId": 1791184365549,
+    "dealerName": "Razin",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "nethili",
+        "crates": 200,
+        "weightKg": 0,
+        "unsoldCrates": 197,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Active",
+    "notes": "",
+    "created": 1791357114679,
+    "updated": 1791357596278
   }
 ]
