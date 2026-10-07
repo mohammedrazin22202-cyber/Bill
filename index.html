@@ -324,13 +324,18 @@ body {
   flex-shrink: 1;
 }
 
-.global-search-input {
-  width: 100%;
-  height: 38px;
-  border-radius: 999px;
+.global-search-pill .global-search-input,
+input[type="text"].global-search-input,
+#dashSearchBox {
+  width: 100% !important;
+  height: 38px !important;
+  border-radius: 999px !important;
   border: 1px solid rgba(226,232,240,0.85);
   background: #ffffff;
-  padding: 0 68px 0 36px;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  padding-left: 44px !important;
+  padding-right: 74px !important;
   font-family: var(--font-main);
   font-size: 11.5px;
   color: #0f172a;
@@ -341,20 +346,29 @@ body {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  box-sizing: border-box !important;
 }
 
-.global-search-input:focus {
+#dashSearchBox::placeholder {
+  color: #64748b;
+  font-size: 11.5px;
+}
+
+.global-search-pill .global-search-input:focus,
+input[type="text"].global-search-input:focus {
   border-color: #0084ff;
   box-shadow: 0 0 0 3px rgba(0,132,255,0.2);
 }
 
 .global-search-icon {
   position: absolute;
-  left: 13px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: #64748b;
   font-size: 13px;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .global-search-shortcut {
@@ -1016,6 +1030,7 @@ body {
 }
 
 .fish-crate-item {
+  position: relative;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
@@ -1033,6 +1048,39 @@ body {
   border-color: #cbd5e1;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+}
+
+.fish-stock-del-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.fish-crate-item:hover .fish-stock-del-btn {
+  color: #ef4444;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.fish-stock-del-btn:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  transform: scale(1.1);
 }
 
 .fish-name-label {
@@ -1292,30 +1340,51 @@ body {
 /* Net Position Strip */
 .net-position-strip {
   margin: 12px 16px 16px;
-  padding: 10px 14px;
+  padding: 10px 16px;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .net-pos-left-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.net-pos-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .net-pos-scales-icon {
-  color: #059669;
-  font-size: 16px;
+  color: #0284c7;
+  font-size: 14px;
 }
 
 .net-pos-label-text {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   color: #166534;
+}
+
+.net-pos-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
 }
 
 .net-pos-number {
@@ -1323,17 +1392,33 @@ body {
   font-size: 16px;
   font-weight: 800;
   color: #047857;
+  white-space: nowrap;
+}
+
+.net-pos-arrow {
+  font-size: 14px;
+  font-weight: 700;
+  color: #10b981;
+}
+
+.net-pos-trend-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
 }
 
 .net-pos-svg-curve {
-  width: 70px;
-  height: 22px;
+  width: 90px;
+  height: 20px;
 }
 
 .net-pos-profit-text {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #059669;
+  white-space: nowrap;
 }
 
 /* Needs Attention Rows */
@@ -1554,6 +1639,29 @@ body {
 .btn-wa { background: #22c55e; color: #ffffff; }
 .btn-wa:hover { background: #16a34a; }
 .btn-sm { padding: 4px 8px; font-size: 11.5px; border-radius: 6px; }
+
+.table-action-cell {
+  white-space: nowrap !important;
+  text-align: right !important;
+  min-width: 115px;
+}
+.table-actions-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+}
+.table-actions-group .btn {
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+th.num:last-child {
+  min-width: 115px !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
 
 .badge {
   display: inline-flex;
@@ -1829,9 +1937,10 @@ body {
             <span class="global-search-shortcut">Ctrl K</span>
           </div>
 
-          <div class="date-selector-pill" onclick="openDatePrompt()">
+          <div class="date-selector-pill" onclick="triggerDateSelector()" title="Click to change trading date">
             <i class="fa-regular fa-calendar-days"></i>
-            <span id="displayDatePill">Sat, 04 Oct 2026</span>
+            <span id="displayDatePill">Tue, 06 Oct 2026</span>
+            <input type="date" id="hiddenDateSelector" style="position:absolute; opacity:0; pointer-events:none; width:0; height:0;" onchange="onTradeDateChanged(this.value)"/>
             <i class="fa-solid fa-chevron-down" style="font-size:9px; color:#64748b;"></i>
           </div>
 
@@ -1892,8 +2001,8 @@ body {
           </svg>
         </div>
         <div class="flow-data-content">
-          <div class="flow-title">FISH IN <span>(Today)</span></div>
-          <div class="flow-main-val" id="valFishInKg">1,280 KG</div>
+          <div class="flow-title" id="titleFishIn">FISH IN <span>(Today)</span></div>
+          <div class="flow-main-val" id="valFishInKg">0 KG</div>
           <div class="flow-meta-line">
             <span id="subFishInArrivals">14 arrivals</span>
             <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 12%</span>
@@ -1924,8 +2033,8 @@ body {
           </svg>
         </div>
         <div class="flow-data-content">
-          <div class="flow-title">FISH SOLD <span>(Today)</span></div>
-          <div class="flow-main-val" id="valFishSoldKg">860 KG</div>
+          <div class="flow-title" id="titleFishSold">FISH SOLD <span>(Today)</span></div>
+          <div class="flow-main-val" id="valFishSoldKg">0 KG</div>
           <div class="flow-meta-line">
             <span id="subFishSoldSales">12 sales</span>
             <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 8%</span>
@@ -1999,8 +2108,8 @@ body {
           </svg>
         </div>
         <div class="flow-data-content">
-          <div class="flow-title">COMMISSION <span>(Today)</span></div>
-          <div class="flow-main-val" id="valCommission">₹38,400</div>
+          <div class="flow-title" id="titleCommission">COMMISSION <span>(Today)</span></div>
+          <div class="flow-main-val" id="valCommission">₹0</div>
           <div class="flow-meta-line">
             <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 15%</span>
           </div>
@@ -2067,8 +2176,8 @@ body {
             <div class="card-title-group">
               <i class="fa-regular fa-clock" style="color:#0084ff; font-size:16px;"></i>
               <div>
-                <div class="card-heading">Today's Activity</div>
-                <div class="card-subheading">Live updates of arrivals, sales and payments</div>
+                <div class="card-heading" id="headingActivityTitle">Today's Activity</div>
+                <div class="card-subheading" id="headingActivitySub">Live updates of arrivals, sales and payments</div>
               </div>
             </div>
 
@@ -2077,7 +2186,7 @@ body {
               <button class="filter-tab-pill" onclick="setActivityTab('fish-in', this)">Fish In</button>
               <button class="filter-tab-pill" onclick="setActivityTab('fish-sold', this)">Fish Sold</button>
               <button class="filter-tab-pill" onclick="setActivityTab('payment', this)">Payments</button>
-              <a class="card-action-link" style="margin-left:8px;" onclick="switchTo('arrivals')">View All <i class="fa-solid fa-arrow-right"></i></a>
+              <a class="card-action-link" id="linkTimelineToggle" style="margin-left:8px; cursor:pointer;" onclick="toggleTimelineViewAll()">View All <i class="fa-solid fa-arrow-right"></i></a>
             </div>
           </div>
 
@@ -2145,10 +2254,10 @@ body {
             <div class="money-sub-card green-theme">
               <div class="money-sub-header">
                 <div class="money-user-icon-circle"><i class="fa-solid fa-user-group"></i></div>
-                <div>Dealers Owe You<br/>(Receivables)</div>
+                <div>Buyers Owe You<br/>(Receivables)</div>
               </div>
-              <div class="money-big-number" id="boxReceivables">₹3,21,400</div>
-              <div class="money-dealers-count" id="boxReceivablesCount">5 dealers</div>
+              <div class="money-big-number" id="boxReceivables">₹0</div>
+              <div class="money-dealers-count" id="boxReceivablesCount">0 buyers</div>
             </div>
 
             <!-- Payables -->
@@ -2157,26 +2266,36 @@ body {
                 <div class="money-user-icon-circle"><i class="fa-solid fa-user"></i></div>
                 <div>You Owe Dealers<br/>(Payables)</div>
               </div>
-              <div class="money-big-number" id="boxPayables">₹2,84,600</div>
-              <div class="money-dealers-count" id="boxPayablesCount">3 dealers</div>
+              <div class="money-big-number" id="boxPayables">₹0</div>
+              <div class="money-dealers-count" id="boxPayablesCount">0 dealers</div>
             </div>
           </div>
 
           <!-- Net Position Strip -->
           <div class="net-position-strip">
             <div class="net-pos-left-item">
-              <i class="fa-solid fa-scale-balanced net-pos-scales-icon"></i>
+              <div class="net-pos-icon-circle">
+                <i class="fa-solid fa-scale-balanced net-pos-scales-icon"></i>
+              </div>
               <div>
                 <div class="net-pos-label-text">Net Position</div>
-                <div class="net-pos-number" id="boxNetPosition">₹36,800 <span style="font-size:13px; color:#10b981;">↑</span></div>
+                <div class="net-pos-value-row">
+                  <span class="net-pos-number" id="boxNetPosition">₹0</span>
+                  <span class="net-pos-arrow" id="boxNetArrow">↑</span>
+                </div>
               </div>
             </div>
 
-            <svg class="net-pos-svg-curve" viewBox="0 0 80 26" fill="none">
-              <path d="M2,20 Q 20,24 35,14 T 65,8 T 78,4" stroke="#10b981" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-            </svg>
-
-            <div class="net-pos-profit-text">You are in profit today!</div>
+            <div class="net-pos-trend-group">
+              <svg class="net-pos-svg-curve" viewBox="0 0 100 24" fill="none">
+                <path id="netPosSvgPath" d="M4 18 L 32 12 L 64 14 L 96 4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="4" cy="18" r="2.5" fill="#10b981"/>
+                <circle cx="32" cy="12" r="2.5" fill="#10b981"/>
+                <circle cx="64" cy="14" r="2.5" fill="#10b981"/>
+                <circle cx="96" cy="4" r="2.5" fill="#10b981"/>
+              </svg>
+              <div class="net-pos-profit-text" id="boxNetStatusText">Receivable Surplus</div>
+            </div>
           </div>
         </div>
 
@@ -2307,9 +2426,10 @@ body {
                 <th>Bill #</th>
                 <th>Date / Time</th>
                 <th>Buyer</th>
-                <th>Dealer Source</th>
-                <th>Items Sold</th>
-                <th class="num">Amount</th>
+                <th>Packages</th>
+                <th class="num">Today's Bill</th>
+                <th class="num">Prev Bal</th>
+                <th class="num">Total Due</th>
                 <th>Payment</th>
                 <th class="num">Actions</th>
               </tr>
@@ -2335,13 +2455,13 @@ body {
                 <th>Patiya #</th>
                 <th>Date</th>
                 <th>Dealer</th>
-                <th class="num">Qty</th>
+                <th class="num">Arrival Lot</th>
                 <th class="num">Gross</th>
-                <th class="num">Broking Margin</th>
-                <th class="num">Expenses</th>
-                <th class="num">Commission</th>
-                <th class="num">Net Payable</th>
-                <th class="num">Unsold Left</th>
+                <th class="num">Deductions</th>
+                <th class="num">Net Sale</th>
+                <th class="num">Prev Bal</th>
+                <th class="num">Cash Paid</th>
+                <th class="num">Closing Bal</th>
                 <th class="num">Actions</th>
               </tr>
             </thead>
@@ -2547,6 +2667,98 @@ body {
           </div>
         </div>
       </div>
+
+      <!-- Custom Report Download Generator -->
+      <div class="standard-card" style="padding:22px; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h3 style="font-size:15px; font-weight:700; margin:0;"><i class="fas fa-file-invoice-dollar" style="color:#0084ff; margin-right:8px;"></i> Custom Period & Category Reports</h3>
+            <div style="font-size:12px; color:#64748b; margin-top:4px;">Download daily, weekly, or custom reports filtered by purchases, sales, or payments</div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-outline" onclick="downloadCustomReport('csv')"><i class="fas fa-file-csv" style="color:#10b981;"></i> Export CSV</button>
+            <button class="btn btn-primary" onclick="downloadCustomReport('pdf')"><i class="fas fa-file-pdf"></i> Download PDF Report</button>
+          </div>
+        </div>
+
+        <!-- Filter Controls Row -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:18px;">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px; align-items:end;">
+            
+            <div class="input-block" style="margin:0;">
+              <label><i class="fa-regular fa-calendar" style="color:#64748b;"></i> Report Period</label>
+              <select id="reportPresetPeriod" onchange="onReportPresetChanged(this.value)">
+                <option value="today">Daily (Today)</option>
+                <option value="last7" selected>Weekly (Last 7 Days)</option>
+                <option value="last30">Monthly (Last 30 Days)</option>
+                <option value="all">All Time</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <div class="input-block" style="margin:0;">
+              <label>From Date</label>
+              <input type="date" id="reportFromDate" onchange="onCustomReportFilterChanged()"/>
+            </div>
+
+            <div class="input-block" style="margin:0;">
+              <label>To Date</label>
+              <input type="date" id="reportToDate" onchange="onCustomReportFilterChanged()"/>
+            </div>
+
+            <div class="input-block" style="margin:0;">
+              <label><i class="fa-solid fa-filter" style="color:#64748b;"></i> Transaction Filter</label>
+              <select id="reportCategoryScope" onchange="onCustomReportFilterChanged()">
+                <option value="all" selected>All Transactions (Full Report)</option>
+                <option value="purchases">Purchases Only (Fish In / Arrivals)</option>
+                <option value="sales">Sales Only (Fish Sold Bills)</option>
+                <option value="payments">Payments Only (Receipts & Payouts)</option>
+              </select>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Live Summary KPIs of Selection -->
+        <div class="three-col-grid" id="reportLiveKpis" style="margin-bottom:18px;">
+          <div class="money-sub-card">
+            <div class="flow-title">Selected Records</div>
+            <div class="flow-main-val" id="repFilteredCount" style="font-size:20px;">0 txns</div>
+          </div>
+          <div class="money-sub-card">
+            <div class="flow-title">Total Volume / Turnover</div>
+            <div class="flow-main-val" id="repFilteredVolume" style="font-size:20px; color:#0084ff;">₹0</div>
+          </div>
+          <div class="money-sub-card">
+            <div class="flow-title">Broker Commission / Net</div>
+            <div class="flow-main-val" id="repFilteredCommission" style="font-size:20px; color:#059669;">₹0</div>
+          </div>
+        </div>
+
+        <!-- Live Table Preview -->
+        <div class="data-table-box">
+          <div class="table-filter-bar" style="padding:10px 14px;">
+            <span style="font-weight:700; font-size:12.5px;"><i class="fas fa-table-list" style="color:#0084ff; margin-right:6px;"></i> Live Report Preview</span>
+            <span id="repPreviewScopeBadge" class="badge badge-blue">Weekly · All Transactions</span>
+          </div>
+          <div class="table-scroller" style="max-height:360px;">
+            <table class="data-grid">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Reference #</th>
+                  <th>Party Name</th>
+                  <th>Details / Varieties</th>
+                  <th class="num">Qty (Kg)</th>
+                  <th class="num">Amount (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="reportPreviewTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2684,7 +2896,7 @@ body {
 <div class="modal-backdrop" id="saleModal">
   <div class="modal-window modal-lg">
     <div class="modal-top-bar">
-      <span class="modal-headline"><i class="fas fa-cart-shopping" style="color:#10b981"></i> New Morning Sale Bill</span>
+      <span class="modal-headline"><i class="fas fa-cart-shopping" style="color:#10b981"></i> Wholesale Sales Bill (Patiya Chit)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('saleModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
@@ -2715,8 +2927,12 @@ body {
         </label>
       </div>
 
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <span style="font-weight:700; font-size:12.5px;">Items Sold (Deducts Dealer Consignment Stock)</span>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-weight:700; font-size:12.5px;">Items Sold</span>
+          <span class="badge badge-purple" id="mSaleBoxCountBadge" style="font-size:11.5px;"><i class="fas fa-boxes-stacked"></i> P - 0 Boxes</span>
+          <span class="badge badge-blue" id="mSaleWeightBadge" style="font-size:11.5px;"><i class="fas fa-scale-balanced"></i> 0 KG</span>
+        </div>
         <button class="btn btn-outline btn-sm" onclick="addSaleLine()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
@@ -2724,38 +2940,68 @@ body {
         <table class="data-grid" id="saleLinesGrid">
           <thead>
             <tr>
-              <th style="width:38%">Dealer Consignment Stock</th>
-              <th style="width:14%">Unit</th>
-              <th style="width:16%" class="num">Quantity</th>
-              <th style="width:16%" class="num">Selling Rate (₹)</th>
-              <th style="width:14%" class="num">Amount</th>
-              <th style="width:4%"></th>
+              <th style="width:28%">Dealer Stock / Variety</th>
+              <th style="width:11%" class="num">Boxes (P)</th>
+              <th style="width:13%" class="num">Kg / Box</th>
+              <th style="width:14%" class="num">Total Qty (Kg)</th>
+              <th style="width:14%" class="num">Rate (₹)</th>
+              <th style="width:15%" class="num">Amount (₹)</th>
+              <th style="width:5%"></th>
             </tr>
           </thead>
           <tbody id="saleLinesTbody"></tbody>
         </table>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-        <div style="background:#f8fafc; padding:12px 18px; border-radius:10px; border:1px solid #e2e8f0; min-width:240px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:12.5px;">
-            <span>Subtotal:</span>
+      <!-- Financials & Running Ledger Breakdown -->
+      <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:16px; margin-top:16px;">
+        <!-- Left: Today's Items Subtotal -->
+        <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid #e2e8f0;">
+          <div style="font-weight:700; font-size:12px; color:#475569; text-transform:uppercase; margin-bottom:10px;">
+            <i class="fas fa-file-invoice"></i> Today's Invoice
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12.5px;">
+            <span>Goods Subtotal:</span>
             <strong id="mSaleSubtotal">₹0</strong>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:12.5px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
             <span>Discount (₹):</span>
-            <input type="number" id="mSaleDiscount" value="0" style="width:80px; padding:2px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+            <input type="number" id="mSaleDiscount" value="0" style="width:90px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
           </div>
-          <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#0f172a; border-top:1px solid #e2e8f0; padding-top:4px;">
-            <span>Bill Total:</span>
+          <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:800; color:#0f172a; border-top:1px solid #e2e8f0; padding-top:6px;">
+            <span>Today's Net Bill:</span>
             <span style="color:#059669" id="mSaleNetTotal">₹0</span>
+          </div>
+        </div>
+
+        <!-- Right: Continuous Ledger (Previous Balance + Cash Received + Total Due) -->
+        <div style="background:#ffffff; padding:14px; border-radius:10px; border:2px solid #10b981;">
+          <div style="font-weight:700; font-size:12px; color:#065f46; text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between;">
+            <span><i class="fas fa-book-bookmark"></i> Running Ledger & Total Due</span>
+            <span class="badge badge-green">Slip #4 Format</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
+            <span>(+) Previous Balance:</span>
+            <input type="number" id="mSalePrevBal" value="0" style="width:110px; padding:3px 6px; text-align:right; font-weight:700;" oninput="computeSaleBillTotals()"/>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; color:#0f172a; margin-bottom:6px; border-top:1px dashed #cbd5e1; padding-top:4px;">
+            <span>Total Balance Due:</span>
+            <span id="mSaleTotalDue">₹0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
+            <span>(-) Cash Received Today:</span>
+            <input type="number" id="mSaleCashPaid" value="0" style="width:110px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#047857; border-top:1px solid #10b981; padding-top:6px;">
+            <span>Net Closing Balance:</span>
+            <span id="mSaleClosingBal">₹0</span>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('saleModal')">Cancel</button>
-      <button class="btn btn-green" onclick="saveMorningSale()"><i class="fas fa-print"></i> Save & Print Bill</button>
+      <button class="btn btn-green" onclick="saveMorningSale()"><i class="fas fa-print"></i> Save & Print A4 Bill</button>
     </div>
   </div>
 </div>
@@ -2764,13 +3010,13 @@ body {
 <div class="modal-backdrop" id="patiyaModal">
   <div class="modal-window modal-lg">
     <div class="modal-top-bar">
-      <span class="modal-headline"><i class="fas fa-calculator" style="color:#0084ff"></i> Dealer Daily Settlement (Patiya)</span>
+      <span class="modal-headline"><i class="fas fa-calculator" style="color:#0084ff"></i> Dealer Consignment Settlement (Patiya)</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('patiyaModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
       <div class="three-col-grid" style="align-items:flex-end;">
         <div class="input-block autocomplete-anchor">
-          <label>Select Dealer *</label>
+          <label>Select Dealer / Supplier *</label>
           <input type="text" id="mPatDealer" placeholder="Select dealer name" oninput="searchPatiyaDealer(this.value)"/>
           <div class="autocomplete-flyout" id="mPatDealerDropdown"></div>
         </div>
@@ -2780,16 +3026,31 @@ body {
         </div>
         <div class="input-block">
           <button class="btn btn-primary" style="width:100%; height:35px; justify-content:center;" onclick="calculateDealerPatiya()">
-            <i class="fas fa-sync"></i> Fetch Sold Fish
+            <i class="fas fa-sync"></i> Fetch Consignment Sales
           </button>
         </div>
       </div>
 
       <div id="patiyaCalcSection" style="display:none; margin-top:12px;">
+        <!-- Arrival Lot Badge & Blended Average Header -->
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; background:#e0f2fe; border:1px solid #bae6fd; border-radius:8px; padding:8px 14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-truck-ramp-box" style="color:#0284c7;"></i>
+            <span style="font-weight:700; font-size:12.5px; color:#0369a1;">Arrival Consignment Lot:</span>
+            <input type="number" id="mPatArrivalCrates" value="0" style="width:80px; padding:2px 6px; font-weight:700; text-align:right;" oninput="recalculatePatiya()"/>
+            <span style="font-size:12px; color:#0369a1; font-weight:600;">Crates (P)</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="badge badge-purple" id="mPatBlendedAvgBadge" style="font-size:12px;">Blended Avg: @ ₹0 / Box</span>
+            <span class="badge badge-green" id="patMarginBadge">Broker Margin: +₹0</span>
+          </div>
+        </div>
+
+        <!-- Section 1: Sales breakdown -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-weight:700; font-size:12.5px;">1. Fish Sold & Overwrite Rate (Broking Rate Margin)</span>
-            <span class="badge badge-green" id="patMarginBadge">Margin: +₹0</span>
+            <span style="font-weight:700; font-size:12.5px;">1. Fish Sold (Sub-lots & Rates)</span>
+            <button class="btn btn-outline btn-sm" onclick="addPatiyaItemLine()"><i class="fas fa-plus"></i> Add Fish Lot</button>
           </div>
           <div class="table-scroller">
             <table class="data-grid">
@@ -2797,11 +3058,10 @@ body {
                 <tr>
                   <th>Variety</th>
                   <th class="num">Sold Qty</th>
-                  <th class="num">Actual Realized</th>
-                  <th class="num">Avg Rate</th>
-                  <th class="num" style="background:#fffbeb; color:#b45309;">Reported Rate (₹)</th>
-                  <th class="num">Reported Gross</th>
-                  <th class="num">Broking Margin</th>
+                  <th class="num">Unit</th>
+                  <th class="num" style="background:#fffbeb; color:#b45309;">Settled Rate (₹)</th>
+                  <th class="num">Gross Total (₹)</th>
+                  <th style="width:30px;"></th>
                 </tr>
               </thead>
               <tbody id="patItemsTbody"></tbody>
@@ -2809,59 +3069,103 @@ body {
           </div>
         </div>
 
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-weight:700; font-size:12.5px;">2. Deduct Expenses (Lorry Bhada, Ice, Coolie labor)</span>
-            <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseLine()"><i class="fas fa-plus"></i> Add Expense</button>
-          </div>
-          <table class="data-grid" style="max-width:500px;">
-            <thead>
-              <tr>
-                <th>Expense Head</th>
-                <th class="num" style="width:140px;">Amount (₹)</th>
-                <th style="width:30px;"></th>
-              </tr>
-            </thead>
-            <tbody id="patExpenseTbody"></tbody>
-          </table>
-        </div>
-
-        <div class="two-col-grid">
+        <!-- Section 2: Deductions & Adjustments -->
+        <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:12px; margin-bottom:12px;">
+          <!-- Expenses table -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px;">
-            <span style="font-weight:700; font-size:12.5px; display:block; margin-bottom:8px;">3. Broker Commission</span>
-            <div class="two-col-grid">
-              <div class="input-block">
-                <label>Type</label>
-                <select id="mPatCommType" onchange="recalculatePatiya()">
-                  <option value="percent">Percentage (%)</option>
-                  <option value="flat_per_crate">Flat per Box (₹)</option>
-                  <option value="fixed">Fixed Lump Sum (₹)</option>
-                </select>
-              </div>
-              <div class="input-block">
-                <label>Value</label>
-                <input type="number" id="mPatCommVal" value="5" oninput="recalculatePatiya()"/>
-              </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:700; font-size:12.5px;">2. Deduct Expenses (Lorry/MEN, Ice/ML)</span>
+              <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseLine()"><i class="fas fa-plus"></i> Add</button>
             </div>
-            <div style="font-size:12.5px; color:#475569;">
-              Commission Deducted: <strong id="mPatCommDeduction">₹0</strong>
-            </div>
+            <table class="data-grid">
+              <thead>
+                <tr>
+                  <th>Expense Head</th>
+                  <th class="num" style="width:120px;">Amount (₹)</th>
+                  <th style="width:24px;"></th>
+                </tr>
+              </thead>
+              <tbody id="patExpenseTbody"></tbody>
+            </table>
           </div>
 
-          <div style="background:#ffffff; border:2px solid #0084ff; border-radius:12px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+          <!-- Commission & Adjustments -->
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
-              <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">
-                Net Amount Payable Credited to Dealer
+              <span style="font-weight:700; font-size:12.5px; display:block; margin-bottom:8px;">3. Commission & Adjustments</span>
+              <div class="two-col-grid" style="margin-bottom:8px;">
+                <div class="input-block">
+                  <label>Commission Type</label>
+                  <select id="mPatCommType" onchange="recalculatePatiya()">
+                    <option value="percent">Percentage (%)</option>
+                    <option value="flat_per_crate">Flat / Box (₹)</option>
+                    <option value="fixed">Fixed Lump Sum (₹)</option>
+                  </select>
+                </div>
+                <div class="input-block">
+                  <label>Comm. Value</label>
+                  <input type="number" id="mPatCommVal" value="5" oninput="recalculatePatiya()"/>
+                </div>
               </div>
-              <div style="font-size:26px; font-weight:800; color:#0084ff; margin-top:2px;" id="mPatNetPayable">
-                ₹0
+              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+                <span>Commission Deducted:</span>
+                <strong id="mPatCommDeduction" style="color:#d97706;">-₹0</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; border-top:1px dashed #cbd5e1; padding-top:6px;">
+                <span>Rounding / Adjustment (+/- ₹):</span>
+                <input type="number" id="mPatAdjustments" value="0" style="width:90px; padding:2px 6px; text-align:right;" oninput="recalculatePatiya()" placeholder="+/- 0"/>
               </div>
             </div>
-            <div style="border-top:1px solid #f1f5f9; padding-top:6px; font-size:11.5px; color:#64748b;">
-              <i class="fas fa-boxes-stacked"></i> Unsold Crates Carried Forward: <strong id="mPatUnsoldCrates">0</strong>
+            <div style="background:#f1f5f9; padding:8px 10px; border-radius:6px; font-size:12.5px; display:flex; justify-content:space-between; margin-top:8px;">
+              <span>Net Consignment Sale:</span>
+              <strong id="mPatConsignmentNet" style="color:#0f172a;">₹0</strong>
             </div>
           </div>
         </div>
+
+        <!-- Section 3: Continuous Running Ledger & Driver Cash Payment -->
+        <div style="background:#ffffff; border:2px solid #0084ff; border-radius:12px; padding:14px; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-weight:800; font-size:13px; color:#0084ff; text-transform:uppercase;">
+              <i class="fas fa-book-bookmark"></i> 4. Continuous Running Ledger & Driver Payout (Slips #1 & #2 Format)
+            </span>
+            <span style="font-size:11.5px; color:#64748b;">
+              <i class="fas fa-boxes-stacked"></i> Unsold Left: <strong id="mPatUnsoldCrates">0</strong>
+            </span>
+          </div>
+          
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:10px;">
+            <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+              <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">(+) Previous Balance</label>
+              <input type="number" id="mPatPrevBal" value="0" style="width:100%; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+              <small style="font-size:10.5px; color:#64748b;">Brought forward from last day</small>
+            </div>
+
+            <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
+              <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Total Balance Due</label>
+              <div style="font-size:18px; font-weight:800; color:#0f172a; margin-top:4px;" id="mPatTotalDue">₹0</div>
+              <small style="font-size:10.5px; color:#64748b;">Consignment Net + Previous Bal</small>
+            </div>
+
+            <div style="background:#fef2f2; padding:10px; border-radius:8px; border:1px solid #fecaca;">
+              <label style="font-size:11.5px; font-weight:700; color:#991b1b; display:block; margin-bottom:4px;">(-) Cash Paid to Driver / Party</label>
+              <input type="number" id="mPatCashPaid" value="0" style="width:100%; text-align:right; font-weight:700; color:#dc2626;" oninput="recalculatePatiya()"/>
+              <small style="font-size:10.5px; color:#991b1b;">Paid on the spot to lorry driver</small>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:12px; align-items:center; border-top:1px solid #e2e8f0; padding-top:10px;">
+            <div>
+              <label style="font-size:11.5px; font-weight:600; color:#334155; display:block; margin-bottom:3px;">Driver / Payee Notes (DRL)</label>
+              <input type="text" id="mPatCashPayee" placeholder="e.g. Cash Pay to DRL (Driver) / Me / JoJo" style="width:100%; font-size:12px;"/>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Net Closing Balance Carried Forward</div>
+              <div style="font-size:24px; font-weight:900; color:#0084ff;" id="mPatClosingBal">₹0</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
     <div class="modal-bottom-actions">
@@ -3136,7 +3440,31 @@ body {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATE & APP INITIALIZATION
 // ─────────────────────────────────────────────────────────────────────────────
-let appState = {
+function getTodayIsoDate() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function formatDisplayDate(isoStr) {
+  if (!isoStr) return '';
+  const parts = isoStr.split('-').map(Number);
+  if (parts.length !== 3) return isoStr;
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  if (isNaN(d.getTime())) return isoStr;
+  return d.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function applyMaxDateRestrictions() {
+  const today = getTodayIsoDate();
+  document.querySelectorAll('input[type="date"]').forEach(inp => {
+    inp.max = today;
+  });
+}
+
+const appState = {
   currentView: 'dashboard',
   user: { name: 'M S Bhathrudeen', role: 'Admin' },
   contacts: [],
@@ -3150,7 +3478,8 @@ let appState = {
   statementFilter: 'all',
   directoryFilter: 'all',
   activityFilter: 'all',
-  selectedDate: '2026-10-04'
+  selectedDate: getTodayIsoDate(),
+  showAllHistory: false
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -3159,13 +3488,44 @@ document.addEventListener('DOMContentLoaded', () => {
     item.addEventListener('click', () => switchTo(item.dataset.view));
   });
 
-  // Ctrl+K keybinding
+  // Global Escape key & Ctrl+K keybindings
   document.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       openGlobalSearch();
     } else if (e.key === 'Escape') {
-      closeModal('searchModal');
+      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // Clicking outside modal window on backdrop closes it
+  document.addEventListener('click', e => {
+    if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
+      e.target.classList.remove('open');
+    }
+  });
+
+  // Restrict all date pickers so future dates cannot be selected
+  applyMaxDateRestrictions();
+  const enforceMaxDate = (el) => {
+    if (el && el.type === 'date') {
+      const today = getTodayIsoDate();
+      if (el.value && el.value > today) {
+        showToast('Future dates cannot be selected. Date reset to today.', 'error');
+        el.value = today;
+        if (el.id === 'hiddenDateSelector') {
+          onTradeDateChanged(today);
+        }
+      }
+    }
+  };
+  document.addEventListener('change', e => enforceMaxDate(e.target));
+  document.addEventListener('input', e => {
+    if (e.target && e.target.type === 'date') {
+      const today = getTodayIsoDate();
+      if (e.target.value && e.target.value > today) {
+        e.target.value = today;
+      }
     }
   });
 
@@ -3174,6 +3534,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function initApp() {
+  applyMaxDateRestrictions();
+  updateDisplayDatePill();
   await Promise.all([
     loadContacts(),
     loadConsignments(),
@@ -3187,6 +3549,7 @@ async function initApp() {
   updateDashboardMetrics();
   renderActivityTimeline();
   renderFishStockCards();
+  initReportControls();
 }
 
 function switchTo(viewId) {
@@ -3218,6 +3581,8 @@ function switchTo(viewId) {
     renderContactsList();
   } else if (viewId === 'payments') {
     renderPaymentsList();
+  } else if (viewId === 'reports') {
+    initReportControls();
   }
 }
 
@@ -3276,48 +3641,90 @@ async function loadReports() {
 function updateMoneyCardBalances() {
   let rec = 0, pay = 0, recCount = 0, payCount = 0;
   (appState.contacts || []).forEach(c => {
-    if (c.receivableBalance > 0) { rec += c.receivableBalance; recCount++; }
-    if (c.payableBalance > 0) { pay += c.payableBalance; payCount++; }
+    const r = Number(c.receivableBalance) || 0;
+    const p = Number(c.payableBalance) || 0;
+    if (r > 0) { rec += r; recCount++; }
+    if (p > 0) { pay += p; payCount++; }
   });
 
-  const bRec = document.getElementById('boxReceivables'); if (bRec) bRec.textContent = `₹${(rec || 321400).toLocaleString('en-IN')}`;
-  const bRecC = document.getElementById('boxReceivablesCount'); if (bRecC) bRecC.textContent = `${recCount || 5} dealers`;
+  const bRec = document.getElementById('boxReceivables');
+  if (bRec) bRec.textContent = `₹${rec.toLocaleString('en-IN')}`;
+  const bRecC = document.getElementById('boxReceivablesCount');
+  if (bRecC) bRecC.textContent = `${recCount} buyer${recCount === 1 ? '' : 's'}`;
 
-  const bPay = document.getElementById('boxPayables'); if (bPay) bPay.textContent = `₹${(pay || 284600).toLocaleString('en-IN')}`;
-  const bPayC = document.getElementById('boxPayablesCount'); if (bPayC) bPayC.textContent = `${payCount || 3} dealers`;
+  const bPay = document.getElementById('boxPayables');
+  if (bPay) bPay.textContent = `₹${pay.toLocaleString('en-IN')}`;
+  const bPayC = document.getElementById('boxPayablesCount');
+  if (bPayC) bPayC.textContent = `${payCount} dealer${payCount === 1 ? '' : 's'}`;
 
-  const net = (rec || 321400) - (pay || 284600);
-  const bNet = document.getElementById('boxNetPosition'); if (bNet) bNet.innerHTML = `₹${Math.abs(net).toLocaleString('en-IN')} <span style="font-size:13px; color:#10b981;">↑</span>`;
+  const net = rec - pay;
+  const bNet = document.getElementById('boxNetPosition');
+  if (bNet) bNet.textContent = `₹${Math.abs(net).toLocaleString('en-IN')}`;
+  const bArrow = document.getElementById('boxNetArrow');
+  if (bArrow) {
+    bArrow.textContent = net >= 0 ? '↑' : '↓';
+    bArrow.style.color = net >= 0 ? '#10b981' : '#ef4444';
+  }
+  const bNetText = document.getElementById('boxNetStatusText');
+  const pathEl = document.getElementById('netPosSvgPath');
+  if (bNetText) {
+    if (net > 0) {
+      bNetText.textContent = 'Net Market Surplus';
+      bNetText.style.color = '#059669';
+      if (pathEl) pathEl.setAttribute('stroke', '#10b981');
+    } else if (net < 0) {
+      bNetText.textContent = 'Net Payable Deficit';
+      bNetText.style.color = '#dc2626';
+      if (pathEl) pathEl.setAttribute('stroke', '#ef4444');
+    } else {
+      bNetText.textContent = 'Balanced Position';
+      bNetText.style.color = '#64748b';
+      if (pathEl) pathEl.setAttribute('stroke', '#94a3b8');
+    }
+  }
 }
 
 function updateDashboardMetrics() {
-  // 1. Fish In (Today)
+  const targetDate = appState.selectedDate || getTodayIsoDate();
+  const isToday = targetDate === getTodayIsoDate();
+
+  // Dynamic flow titles
+  const tIn = document.getElementById('titleFishIn');
+  if (tIn) tIn.innerHTML = `FISH IN <span>(${isToday ? 'Today' : targetDate})</span>`;
+  const tSold = document.getElementById('titleFishSold');
+  if (tSold) tSold.innerHTML = `FISH SOLD <span>(${isToday ? 'Today' : targetDate})</span>`;
+  const tComm = document.getElementById('titleCommission');
+  if (tComm) tComm.innerHTML = `COMMISSION <span>(${isToday ? 'Today' : targetDate})</span>`;
+
+  // 1. Fish In (Today / Selected Date)
   let fishInKg = 0;
-  (appState.consignments || []).forEach(c => {
+  const arrivalsForDate = (appState.consignments || []).filter(c => c.date === targetDate);
+  arrivalsForDate.forEach(c => {
     (c.items || []).forEach(it => {
       fishInKg += (Number(it.weightKg) || 0);
     });
   });
-  const arrivalsCount = (appState.consignments || []).length;
+  const arrivalsCount = arrivalsForDate.length;
   const elFishIn = document.getElementById('valFishInKg');
   if (elFishIn) elFishIn.textContent = `${fishInKg.toLocaleString('en-IN')} KG`;
   const elArrCount = document.getElementById('subFishInArrivals');
-  if (elArrCount) elArrCount.textContent = `${arrivalsCount} arrivals`;
+  if (elArrCount) elArrCount.textContent = `${arrivalsCount} arrival${arrivalsCount === 1 ? '' : 's'}`;
 
-  // 2. Fish Sold (Today)
+  // 2. Fish Sold (Today / Selected Date)
   let fishSoldKg = 0;
-  (appState.sales || []).forEach(s => {
+  const salesForDate = (appState.sales || []).filter(s => s.date === targetDate);
+  salesForDate.forEach(s => {
     (s.lines || []).forEach(l => {
       fishSoldKg += (Number(l.qty) || 0);
     });
   });
-  const salesCount = (appState.sales || []).length;
+  const salesCount = salesForDate.length;
   const elFishSold = document.getElementById('valFishSoldKg');
   if (elFishSold) elFishSold.textContent = `${fishSoldKg.toLocaleString('en-IN')} KG`;
   const elSalesCount = document.getElementById('subFishSoldSales');
-  if (elSalesCount) elSalesCount.textContent = `${salesCount} sales`;
+  if (elSalesCount) elSalesCount.textContent = `${salesCount} sale${salesCount === 1 ? '' : 's'}`;
 
-  // 3. In Stock (Now)
+  // 3. In Stock (Now) - Physical godown stock remaining until sold
   let inStockKg = 0;
   let inStockLots = 0;
   (appState.consignments || []).forEach(c => {
@@ -3337,8 +3744,13 @@ function updateDashboardMetrics() {
   const elHeaderStock = document.getElementById('headerCurrentStock');
   if (elHeaderStock) elHeaderStock.textContent = `Current Stock (${inStockKg.toLocaleString('en-IN')} KG)`;
 
-  // 4. Commission (Today)
-  const comm = appState.reports?.totalBrokerCommission || 38400;
+  // 4. Commission (Today / Selected Date)
+  const settlementsForDate = (appState.settlements || []).filter(st => st.date === targetDate);
+  let comm = settlementsForDate.reduce((sum, st) => sum + (Number(st.commissionAmount) || 0), 0);
+  if (comm === 0 && salesForDate.length > 0) {
+    const dayTurnover = salesForDate.reduce((sum, sl) => sum + (Number(sl.total) || 0), 0);
+    comm = Math.round(dayTurnover * 0.05);
+  }
   const elComm = document.getElementById('valCommission');
   if (elComm) elComm.textContent = `₹${comm.toLocaleString('en-IN')}`;
 }
@@ -3376,10 +3788,29 @@ function renderActivityTimeline() {
   const container = document.getElementById('activityTimelineStream');
   if (!container) return;
 
+  const targetDate = appState.selectedDate || getTodayIsoDate();
+  const isToday = targetDate === getTodayIsoDate();
+
+  // Update Section Header Title, Subtitle, and View All link
+  const titleEl = document.getElementById('headingActivityTitle');
+  const subEl = document.getElementById('headingActivitySub');
+  const toggleLink = document.getElementById('linkTimelineToggle');
+
+  if (appState.showAllHistory) {
+    if (titleEl) titleEl.textContent = 'Recent Activity (All History)';
+    if (subEl) subEl.textContent = 'Showing all past and recent trade transactions';
+    if (toggleLink) toggleLink.innerHTML = `Show ${isToday ? 'Today' : 'Date'} Only <i class="fa-solid fa-arrow-left"></i>`;
+  } else {
+    if (titleEl) titleEl.textContent = isToday ? "Today's Activity" : `Activity (${formatDisplayDate(targetDate)})`;
+    if (subEl) subEl.textContent = isToday ? 'Live updates of arrivals, sales and payments' : `Transactions recorded on ${formatDisplayDate(targetDate)}`;
+    if (toggleLink) toggleLink.innerHTML = `View All <i class="fa-solid fa-arrow-right"></i>`;
+  }
+
   const entries = [];
 
   // Consignments (Fish In)
   (appState.consignments || []).forEach(c => {
+    const cDate = c.date || (c.created ? new Date(c.created).toISOString().split('T')[0] : '');
     const weightKg = (c.items || []).reduce((s, it) => s + (Number(it.weightKg) || 0), 0);
     const totalAmt = (c.items || []).reduce((s, it) => s + ((Number(it.weightKg) || 0) * (Number(it.rateExpected || it.rateExpectation) || 0)), 0);
     const avgRate = weightKg > 0 && totalAmt > 0 ? Math.round(totalAmt / weightKg) : (c.items && c.items[0] && (c.items[0].rateExpected || c.items[0].rateExpectation) || 0);
@@ -3390,6 +3821,7 @@ function renderActivityTimeline() {
     const timestamp = c.created || (c.date ? new Date(`${c.date} ${c.time || '10:00 AM'}`).getTime() : Date.now());
 
     entries.push({
+      date: cDate,
       time,
       timestamp,
       type: 'fish-in',
@@ -3407,6 +3839,7 @@ function renderActivityTimeline() {
 
   // Sales (Fish Sold)
   (appState.sales || []).forEach(s => {
+    const sDate = s.date || (s.created ? new Date(s.created).toISOString().split('T')[0] : '');
     const weightKg = (s.lines || []).reduce((acc, l) => acc + (Number(l.qty) || 0), 0);
     const avgRate = weightKg > 0 && s.total > 0 ? Math.round(s.total / weightKg) : ((s.lines && s.lines[0]?.rate) || 0);
     const varietyList = (s.lines || []).map(l => l.variety).filter(Boolean);
@@ -3415,6 +3848,7 @@ function renderActivityTimeline() {
     const timestamp = s.created || (s.date ? new Date(`${s.date} ${s.time || '10:00 AM'}`).getTime() : Date.now());
 
     entries.push({
+      date: sDate,
       time,
       timestamp,
       type: 'fish-sold',
@@ -3432,11 +3866,13 @@ function renderActivityTimeline() {
 
   // Payments
   (appState.payments || []).forEach(p => {
+    const pDate = p.date || (p.created ? new Date(p.created).toISOString().split('T')[0] : '');
     const time = formatTimelineTime(p.time, p.created);
     const timestamp = p.created || (p.date ? new Date(`${p.date} ${p.time || '10:00 AM'}`).getTime() : Date.now());
     const isOutflow = p.type === 'DEALER_PAYMENT';
 
     entries.push({
+      date: pDate,
       time,
       timestamp,
       type: 'payment',
@@ -3456,31 +3892,58 @@ function renderActivityTimeline() {
   entries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
   let filtered = entries;
+
+  // Filter by target date if not showing all history
+  if (!appState.showAllHistory) {
+    filtered = filtered.filter(e => e.date === targetDate);
+  }
+
+  // Filter by tab
   if (appState.activityFilter !== 'all') {
-    filtered = entries.filter(e => e.type === appState.activityFilter);
+    filtered = filtered.filter(e => e.type === appState.activityFilter);
   }
 
   if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:32px; color:#64748b; font-size:12.5px;">No activity recorded for this filter today.</div>';
+    if (!appState.showAllHistory) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:36px 20px; color:#64748b; font-size:13px;">
+          <i class="fa-regular fa-calendar-xmark" style="font-size:26px; margin-bottom:10px; display:block; color:#94a3b8;"></i>
+          <div>No transactions recorded for <strong>${formatDisplayDate(targetDate)}</strong>.</div>
+          <div style="font-size:11.5px; color:#94a3b8; margin-top:6px;">
+            Use <a href="javascript:void(0)" onclick="openArrivalModal()" style="color:#0084ff; font-weight:600;">+ Record Fish In</a> or 
+            <a href="javascript:void(0)" onclick="openSaleModal()" style="color:#10b981; font-weight:600;">+ Record Fish Sold</a> to record today's trading, 
+            or <a href="javascript:void(0)" onclick="toggleTimelineViewAll()" style="color:#64748b; font-weight:600; text-decoration:underline;">view all history</a>.
+          </div>
+        </div>
+      `;
+    } else {
+      container.innerHTML = '<div style="text-align:center; padding:32px; color:#64748b; font-size:12.5px;">No activity found for this filter.</div>';
+    }
     window._timelineEntries = [];
     return;
   }
 
-  container.innerHTML = filtered.map((e, idx) => `
-    <div class="timeline-entry" onclick="window._timelineEntries[${idx}].onClick()">
-      <div class="timeline-node ${e.nodeClass}"></div>
-      <div class="timeline-timestamp">${e.time}</div>
-      <div class="timeline-tag ${e.type}">${e.tag}</div>
-      <div class="timeline-party-desc">
-        <div class="timeline-party-name">${e.party}</div>
-        <div class="timeline-fish-type">${e.details}</div>
+  container.innerHTML = filtered.map((e, idx) => {
+    const timeDisplay = appState.showAllHistory && e.date && e.date !== targetDate
+      ? `<span style="font-size:9.5px; color:#64748b; display:block;">${e.date.slice(5)}</span>${e.time}`
+      : e.time;
+
+    return `
+      <div class="timeline-entry" onclick="window._timelineEntries[${idx}].onClick()">
+        <div class="timeline-node ${e.nodeClass}"></div>
+        <div class="timeline-timestamp">${timeDisplay}</div>
+        <div class="timeline-tag ${e.type}">${e.tag}</div>
+        <div class="timeline-party-desc">
+          <div class="timeline-party-name">${e.party}</div>
+          <div class="timeline-fish-type">${e.details}</div>
+        </div>
+        <div class="timeline-weight">${e.weight}</div>
+        <div class="timeline-rate">${e.rate}</div>
+        <div class="timeline-amount ${e.isRed ? 'outflow-red' : ''}">${e.amount}</div>
+        <i class="fas fa-chevron-right timeline-arrow"></i>
       </div>
-      <div class="timeline-weight">${e.weight}</div>
-      <div class="timeline-rate">${e.rate}</div>
-      <div class="timeline-amount ${e.isRed ? 'outflow-red' : ''}">${e.amount}</div>
-      <i class="fas fa-chevron-right timeline-arrow"></i>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   window._timelineEntries = filtered;
 }
@@ -3543,6 +4006,7 @@ function renderFishStockCards() {
     return {
       title,
       sub,
+      fullVariety: v.variety,
       kg: `${v.kg.toLocaleString('en-IN')} KG`,
       lots: `${v.count} lot${v.count === 1 ? '' : 's'} (${v.crates}c)`,
       fill,
@@ -3552,6 +4016,9 @@ function renderFishStockCards() {
 
   grid.innerHTML = fishList.map(f => `
     <div class="fish-crate-item" onclick="switchTo('inventory')">
+      <button class="fish-stock-del-btn" onclick="deleteStockVariety('${f.fullVariety.replace(/'/g, "\\'")}', event)" title="Delete ${f.title} stock">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
       <div class="fish-name-label">${f.title}</div>
       ${f.sub ? `<div class="fish-sub-label">${f.sub}</div>` : '<div class="fish-sub-label" style="visibility:hidden">-</div>'}
       <div class="fish-crate-svg-box">${CRATE_SVGS[f.color] || CRATE_SVGS.blue}</div>
@@ -3601,9 +4068,10 @@ function renderArrivalsList() {
   }
 
   tbody.innerHTML = filtered.map(c => {
-    const total = c.items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
-    const left = c.items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
-    const desc = c.items.map(it => `${it.crates}c ${it.variety}`).join(', ');
+    const items = Array.isArray(c.items) ? c.items : [];
+    const total = items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
+    const left = items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
+    const desc = items.map(it => `${it.crates}c ${it.variety}`).join(', ');
 
     return `
       <tr>
@@ -3619,9 +4087,11 @@ function renderArrivalsList() {
           ${left} / ${total}
         </td>
         <td><span class="badge ${left > 0 ? 'badge-amber' : 'badge-green'}">${left > 0 ? 'In Godown' : 'Sold Out'}</span></td>
-        <td class="num">
-          <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <td class="table-action-cell">
+          <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
         </td>
       </tr>
     `;
@@ -3629,7 +4099,12 @@ function renderArrivalsList() {
 }
 
 function openArrivalModal() {
-  document.getElementById('mArrDate').value = '2026-10-04';
+  const today = getTodayIsoDate();
+  const arrDateInp = document.getElementById('mArrDate');
+  if (arrDateInp) {
+    arrDateInp.max = today;
+    arrDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mArrDealer').value = '';
   document.getElementById('mArrVehicle').value = '';
   document.getElementById('mArrLorryBhada').value = '0';
@@ -3666,6 +4141,8 @@ function searchDealerInward(q) {
 async function saveInwardArrival() {
   const dealerName = document.getElementById('mArrDealer').value.trim();
   const date = document.getElementById('mArrDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Arrival date cannot be in the future', 'error');
   const vehicleNo = document.getElementById('mArrVehicle').value.trim();
   const lorryBhada = Number(document.getElementById('mArrLorryBhada').value) || 0;
   const lorryBhadaMode = document.getElementById('mArrLorryMode').value;
@@ -3735,7 +4212,7 @@ function printArrivalGatepass(id) {
   doc.setFont('helvetica', 'bold');
   doc.text(`Dealer (Consignor): ${cons.dealerName}`, 14, 40);
 
-  const tableData = cons.items.map(it => [it.variety, `${it.crates} Crates`, it.weightKg ? `${it.weightKg} Kg` : '-', it.notes || '-']);
+  const tableData = (Array.isArray(cons.items) ? cons.items : []).map(it => [it.variety, `${it.crates} Crates`, it.weightKg ? `${it.weightKg} Kg` : '-', it.notes || '-']);
   doc.autoTable({
     startY: 46,
     head: [['Fish Variety', 'Crates Received', 'Weight (Kg)', 'Remarks']],
@@ -3772,31 +4249,35 @@ function renderSalesList() {
   if (!tbody) return;
   const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
   const filtered = appState.sales.filter(s => 
-    s.buyerName.toLowerCase().includes(q) || s.billNo.toLowerCase().includes(q)
+    (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
   );
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(s => {
-    const items = s.lines.map(l => `${l.qty} ${l.unit} ${l.variety} @ ₹${l.rate}`).join(', ');
-    const dealers = [...new Set(s.lines.map(l => l.dealerName).filter(Boolean))].join(', ');
+    const pkgBadge = s.totalBoxes ? `<span class="badge badge-purple">P - ${s.totalBoxes}</span>` : '-';
+    const prevBal = Number(s.previousBalance) || 0;
+    const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (s.total + prevBal);
 
     return `
       <tr>
         <td><strong style="font-family:var(--font-mono)">${s.billNo}</strong></td>
         <td>${s.date} <small style="color:#64748b;">${s.time || ''}</small></td>
         <td><strong>${s.buyerName}</strong></td>
-        <td><span class="badge badge-blue">${dealers || 'Market Lot'}</span></td>
-        <td>${items}</td>
+        <td>${pkgBadge}</td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700;">₹${s.total.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); color:#64748b;">+₹${prevBal.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); font-weight:800; color:#0f172a;">₹${totalDue.toLocaleString('en-IN')}</td>
         <td><span class="badge ${s.paymentType === 'Cash' ? 'badge-green' : 'badge-amber'}">${s.paymentType}</span></td>
-        <td class="num">
-          <button class="btn btn-outline btn-sm" onclick="downloadA4SalesBill(${s.id})" title="Print Bill"><i class="fas fa-print"></i></button>
-          <button class="btn btn-wa btn-sm" onclick="sendSaleWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="deleteSaleBill(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <td class="table-action-cell">
+          <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="downloadA4SalesBill(${s.id})" title="Print A4 Bill"><i class="fas fa-print"></i></button>
+            <button class="btn btn-wa btn-sm" onclick="sendSaleWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSaleBill(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
         </td>
       </tr>
     `;
@@ -3826,11 +4307,18 @@ function setSalesSubTab(tab) {
 }
 
 function openSaleModal() {
-  document.getElementById('mSaleDate').value = '2026-10-04';
+  const today = getTodayIsoDate();
+  const saleDateInp = document.getElementById('mSaleDate');
+  if (saleDateInp) {
+    saleDateInp.max = today;
+    saleDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mSaleBuyer').value = '';
   document.getElementById('mSaleBuyerInfo').textContent = '';
   document.getElementById('mSalePaymentTerms').value = 'Credit';
   document.getElementById('mSaleDiscount').value = '0';
+  document.getElementById('mSalePrevBal').value = '0';
+  document.getElementById('mSaleCashPaid').value = '0';
   document.getElementById('mSaleCreditWarning').style.display = 'none';
   document.getElementById('mSaleBypassBox').checked = false;
   document.getElementById('saleLinesTbody').innerHTML = '';
@@ -3843,13 +4331,13 @@ function addSaleLine() {
   const tbody = document.getElementById('saleLinesTbody');
   const tr = document.createElement('tr');
 
-  let stockOptions = '<option value="">-- Select Dealer Consignment Stock --</option>';
+  let stockOptions = '<option value="">-- Select Consignment Stock --</option>';
   for (const c of appState.consignments) {
-    for (const it of c.items) {
+    for (const it of (c.items || [])) {
       if ((it.unsoldCrates > 0) || (it.unsoldWeightKg > 0)) {
         stockOptions += `
-          <option value="${c.id}|${it.variety}|${c.dealerId}|${c.dealerName}" data-crates="${it.unsoldCrates}">
-            ${it.variety} (${c.dealerName} - ${it.unsoldCrates} crates in stock)
+          <option value="${c.id}|${it.variety}|${c.dealerId}|${c.dealerName}" data-crates="${it.unsoldCrates}" data-kg="${it.unsoldWeightKg}">
+            ${it.variety} (${c.dealerName} - ${it.unsoldCrates} crates / ${it.unsoldWeightKg} kg)
           </option>
         `;
       }
@@ -3858,41 +4346,91 @@ function addSaleLine() {
 
   tr.innerHTML = `
     <td>
-      <select class="lineStockPicker" onchange="computeSaleBillTotals()">
+      <select class="lineStockPicker" onchange="onSaleStockSelected(this)">
         ${stockOptions}
       </select>
     </td>
-    <td>
-      <select class="lineUnitPicker" onchange="computeSaleBillTotals()">
-        <option value="Kg">Kg</option>
-        <option value="Crate">Crate</option>
-      </select>
+    <td class="num">
+      <input type="number" class="lineCrates" placeholder="Box" min="0" value="3" oninput="onSaleLineCrateChange(this)" style="width:65px; text-align:right; font-weight:700;"/>
     </td>
-    <td class="num"><input type="number" class="lineQty" value="45" oninput="computeSaleBillTotals()" style="text-align:right;"/></td>
-    <td class="num"><input type="number" class="lineRate" value="560" oninput="computeSaleBillTotals()" style="text-align:right;"/></td>
-    <td class="num" style="font-family:var(--font-mono); font-weight:700;"><span class="lineRowSum">₹25,200</span></td>
-    <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+    <td class="num">
+      <input type="number" class="lineKgPerBox" placeholder="Kg/box" min="0" value="50" oninput="onSaleLineCrateChange(this)" style="width:65px; text-align:right;"/>
+    </td>
+    <td class="num">
+      <input type="number" class="lineQty" placeholder="Total kg" value="150" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
+    </td>
+    <td class="num">
+      <input type="number" class="lineRate" placeholder="Rate" value="175" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
+    </td>
+    <td class="num" style="font-family:var(--font-mono); font-weight:700;">
+      <span class="lineRowSum">₹26,250</span>
+    </td>
+    <td class="num">
+      <button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()"><i class="fas fa-times" style="color:#ef4444"></i></button>
+    </td>
   `;
   tbody.appendChild(tr);
+  computeSaleBillTotals();
+}
+
+function onSaleStockSelected(selectEl) {
+  computeSaleBillTotals();
+}
+
+function onSaleLineCrateChange(inputEl) {
+  const tr = inputEl.closest('tr');
+  const crates = Number(tr.querySelector('.lineCrates')?.value) || 0;
+  const kgPerBox = Number(tr.querySelector('.lineKgPerBox')?.value) || 0;
+  const qtyInp = tr.querySelector('.lineQty');
+  if (crates > 0 && kgPerBox > 0 && qtyInp) {
+    qtyInp.value = crates * kgPerBox;
+  }
   computeSaleBillTotals();
 }
 
 function computeSaleBillTotals() {
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   let subtotal = 0;
+  let totalBoxes = 0;
+  let totalWeight = 0;
+
   rows.forEach(r => {
-    const qty = Number(r.querySelector('.lineQty')?.value) || 0;
+    const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+    const kgPerBox = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
+    let qty = Number(r.querySelector('.lineQty')?.value) || 0;
+    if (crates > 0 && kgPerBox > 0 && (!qty || qty === crates)) {
+      qty = crates * kgPerBox;
+      if (r.querySelector('.lineQty')) r.querySelector('.lineQty').value = qty;
+    }
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-    const total = qty * rate;
+    const total = qty > 0 ? (qty * rate) : (crates * rate);
+
     const span = r.querySelector('.lineRowSum');
     if (span) span.textContent = `₹${total.toLocaleString('en-IN')}`;
+
+    totalBoxes += crates;
+    totalWeight += qty;
     subtotal += total;
   });
 
+  const badgeBoxes = document.getElementById('mSaleBoxCountBadge');
+  if (badgeBoxes) badgeBoxes.innerHTML = `<i class="fas fa-boxes-stacked"></i> P - ${totalBoxes} Boxes`;
+  const badgeWeight = document.getElementById('mSaleWeightBadge');
+  if (badgeWeight) badgeWeight.innerHTML = `<i class="fas fa-scale-balanced"></i> ${totalWeight} KG`;
+
   const disc = Number(document.getElementById('mSaleDiscount').value) || 0;
-  const net = Math.max(0, subtotal - disc);
+  const todayNet = Math.max(0, subtotal - disc);
+
+  const prevBal = Number(document.getElementById('mSalePrevBal').value) || 0;
+  const totalDue = todayNet + prevBal;
+
+  const cashPaid = Number(document.getElementById('mSaleCashPaid').value) || 0;
+  const closingBal = totalDue - cashPaid;
+
   document.getElementById('mSaleSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-  document.getElementById('mSaleNetTotal').textContent = `₹${net.toLocaleString('en-IN')}`;
+  document.getElementById('mSaleNetTotal').textContent = `₹${todayNet.toLocaleString('en-IN')}`;
+  document.getElementById('mSaleTotalDue').textContent = `₹${totalDue.toLocaleString('en-IN')}`;
+  document.getElementById('mSaleClosingBal').textContent = `₹${closingBal.toLocaleString('en-IN')}`;
 }
 
 function searchSaleBuyer(q) {
@@ -3901,11 +4439,18 @@ function searchSaleBuyer(q) {
   const matches = appState.contacts.filter(c => c.isBuyer && c.name.toLowerCase().includes(q.toLowerCase()));
   if (matches.length === 0) { list.style.display = 'none'; return; }
   list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="document.getElementById('mSaleBuyer').value='${m.name}'; document.getElementById('mSaleBuyerDropdown').style.display='none'; checkBuyerCreditStatus();">
+    <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name}')">
       ${m.name} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
+      <span style="font-size:11px; color:#64748b; float:right;">Due: ₹${(m.receivableBalance || 0).toLocaleString('en-IN')}</span>
     </div>
   `).join('');
   list.style.display = 'block';
+}
+
+function selectSaleBuyer(name) {
+  document.getElementById('mSaleBuyer').value = name;
+  document.getElementById('mSaleBuyerDropdown').style.display = 'none';
+  checkBuyerCreditStatus();
 }
 
 function checkBuyerCreditStatus() {
@@ -3914,18 +4459,25 @@ function checkBuyerCreditStatus() {
   const infoEl = document.getElementById('mSaleBuyerInfo');
   const warnBox = document.getElementById('mSaleCreditWarning');
   const warnText = document.getElementById('mSaleCreditWarningText');
+  const prevBalInp = document.getElementById('mSalePrevBal');
 
   if (!contact) {
     infoEl.textContent = 'New contact will be created';
     warnBox.style.display = 'none';
+    if (prevBalInp) prevBalInp.value = 0;
+    computeSaleBillTotals();
     return;
   }
 
-  infoEl.textContent = `Current Due: ₹${(contact.receivableBalance || 0).toLocaleString('en-IN')} | Credit Limit: ₹${(contact.creditLimit || 0).toLocaleString('en-IN')}`;
+  const prevDue = contact.receivableBalance || 0;
+  if (prevBalInp) prevBalInp.value = prevDue;
+  computeSaleBillTotals();
+
+  infoEl.textContent = `Previous Due: ₹${prevDue.toLocaleString('en-IN')} | Credit Limit: ₹${(contact.creditLimit || 0).toLocaleString('en-IN')}`;
 
   if (contact.isOverdue) {
     warnBox.style.display = 'block';
-    warnText.textContent = `Party is overdue by ${contact.daysOverdue} days! Outstanding balance: ₹${(contact.receivableBalance || 0).toLocaleString('en-IN')}.`;
+    warnText.textContent = `Party is overdue by ${contact.daysOverdue} days! Outstanding balance: ₹${prevDue.toLocaleString('en-IN')}.`;
     return;
   }
   warnBox.style.display = 'none';
@@ -3934,34 +4486,74 @@ function checkBuyerCreditStatus() {
 async function saveMorningSale() {
   const buyerName = document.getElementById('mSaleBuyer').value.trim();
   const date = document.getElementById('mSaleDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Sale date cannot be in the future', 'error');
   const paymentType = document.getElementById('mSalePaymentTerms').value;
   const discount = Number(document.getElementById('mSaleDiscount').value) || 0;
+  const previousBalance = Number(document.getElementById('mSalePrevBal').value) || 0;
+  const amountPaid = Number(document.getElementById('mSaleCashPaid').value) || 0;
   const bypass = document.getElementById('mSaleBypassBox').checked;
 
   if (!buyerName) return showToast('Buyer name is required', 'error');
 
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   const lines = [];
+  let totalBoxes = 0;
+
   rows.forEach(r => {
-    const val = r.querySelector('.lineStockPicker').value;
-    const unit = r.querySelector('.lineUnitPicker').value;
-    const qty = Number(r.querySelector('.lineQty').value) || 0;
-    const rate = Number(r.querySelector('.lineRate').value) || 0;
-    if (val && qty > 0) {
+    const val = r.querySelector('.lineStockPicker')?.value;
+    const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+    const kgPerCrate = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
+    let qty = Number(r.querySelector('.lineQty')?.value) || 0;
+    if (crates > 0 && kgPerCrate > 0 && (!qty || qty === crates)) {
+      qty = crates * kgPerCrate;
+    }
+    const rate = Number(r.querySelector('.lineRate')?.value) || 0;
+    const amount = qty > 0 ? (qty * rate) : (crates * rate);
+
+    if (val && (qty > 0 || crates > 0)) {
       const [consignmentId, variety, dealerId, dealerName] = val.split('|');
-      lines.push({ consignmentId: Number(consignmentId), variety, dealerId: Number(dealerId), dealerName, unit, qty, rate, amount: qty * rate });
+      lines.push({
+        consignmentId: Number(consignmentId),
+        variety,
+        dealerId: Number(dealerId),
+        dealerName,
+        unit: 'Kg',
+        crates,
+        kgPerCrate,
+        qty,
+        rate,
+        amount
+      });
+      totalBoxes += crates;
     }
   });
 
   if (lines.length === 0) return showToast('Please select dealer stock and enter quantity', 'error');
   const subtotal = lines.reduce((s, l) => s + l.amount, 0);
   const total = Math.max(0, subtotal - discount);
+  const totalBalanceDue = total + previousBalance;
+  const closingBalance = totalBalanceDue - amountPaid;
 
   try {
     const res = await fetch('/api/sales', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ buyerName, date, paymentType, lines, subtotal, discount, total, bypassCreditCheck: bypass })
+      body: JSON.stringify({
+        buyerName,
+        date,
+        paymentType,
+        totalBoxes,
+        lines,
+        subtotal,
+        discount,
+        total,
+        previousBalance,
+        totalBalanceDue,
+        amountPaid,
+        closingBalance,
+        bypassCreditCheck: bypass
+      })
     });
     const data = await res.json();
     if (res.ok) {
@@ -3996,41 +4588,103 @@ function downloadA4SalesBill(saleId) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
 
+  // Header Branding
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
+  doc.setFontSize(22);
+  doc.setTextColor(15, 23, 42);
   doc.text('Al Haseena Exports', 14, 20);
+  
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
   doc.text('Fish Commission Agent & Wholesale Broking', 14, 26);
-  doc.text(`Tax Invoice / Bill #: ${sale.billNo}`, 14, 31);
-  doc.text(`Date: ${sale.date} ${sale.time || ''}`, 145, 20);
-  doc.text(`Payment: ${sale.paymentType}`, 145, 26);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Billed To: ${sale.buyerName}`, 14, 40);
+  doc.text('Harbour Wharf, Fish Market Yard | Phone: +91 98400 12345', 14, 31);
 
-  const tableData = sale.lines.map((l, i) => [
+  // Invoice Meta
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(5, 150, 105);
+  doc.text('WHOLESALE SALES BILL', 135, 18);
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Bill No: ${sale.billNo}`, 135, 24);
+  doc.text(`Date: ${sale.date} ${sale.time || ''}`, 135, 29);
+  doc.text(`Terms: ${sale.paymentType}`, 135, 34);
+
+  // Billed To & Package Bar
+  doc.setFillColor(241, 245, 249);
+  doc.rect(14, 38, 182, 12, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text(`Billed To: ${sale.buyerName}`, 18, 46);
+  doc.setTextColor(109, 40, 217);
+  doc.text(`Packages: P - ${sale.totalBoxes || 0} Boxes`, 135, 46);
+  doc.setTextColor(15, 23, 42);
+
+  // Table items
+  const lines = Array.isArray(sale.lines) ? sale.lines : [];
+  const tableData = lines.map((l, i) => [
     i + 1,
     l.variety,
     l.dealerName ? `From ${l.dealerName}` : 'Market Lot',
-    `${l.qty} ${l.unit}`,
+    l.crates ? `${l.crates} Box` : '-',
+    l.kgPerCrate ? `${l.kgPerCrate} KG` : '-',
+    `${l.qty} ${l.unit || 'Kg'}`,
     `Rs. ${l.rate}`,
     `Rs. ${l.amount.toLocaleString('en-IN')}`
   ]);
 
   doc.autoTable({
-    startY: 46,
-    head: [['#', 'Item Variety', 'Dealer Source', 'Quantity', 'Rate', 'Amount']],
+    startY: 54,
+    head: [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Kg / Box', 'Total Qty', 'Rate (Rs.)', 'Amount (Rs.)']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [5, 150, 105] },
-    columnStyles: { 4: { halign: 'right' }, 5: { halign: 'right' } }
+    columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } }
   });
 
   const finalY = doc.lastAutoTable.finalY + 8;
-  doc.setFontSize(11);
-  doc.text(`Subtotal: Rs. ${sale.subtotal.toLocaleString('en-IN')}`, 140, finalY);
+  const prevBal = Number(sale.previousBalance) || 0;
+  const totalDue = Number(sale.totalBalanceDue) !== undefined ? Number(sale.totalBalanceDue) : (sale.total + prevBal);
+  const paid = Number(sale.amountPaid) || 0;
+  const closingBal = Number(sale.closingBalance) !== undefined ? Number(sale.closingBalance) : (totalDue - paid);
+
+  // Ledger Summary Box on right
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(110, finalY, 86, 44, 2, 2, 'F');
+  doc.rect(110, finalY, 86, 44, 'S');
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`Today's Goods Bill:`, 114, finalY + 7);
+  doc.text(`Rs. ${sale.total.toLocaleString('en-IN')}`, 190, finalY + 7, { align: 'right' });
+
+  doc.text(`(+) Previous Balance:`, 114, finalY + 14);
+  doc.text(`Rs. ${prevBal.toLocaleString('en-IN')}`, 190, finalY + 14, { align: 'right' });
+
   doc.setFont('helvetica', 'bold');
-  doc.text(`Total Payable: Rs. ${sale.total.toLocaleString('en-IN')}`, 140, finalY + 8);
+  doc.text(`Total Balance Due:`, 114, finalY + 21);
+  doc.text(`Rs. ${totalDue.toLocaleString('en-IN')}`, 190, finalY + 21, { align: 'right' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.text(`(-) Cash Received:`, 114, finalY + 28);
+  doc.text(`Rs. ${paid.toLocaleString('en-IN')}`, 190, finalY + 28, { align: 'right' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(5, 150, 105);
+  doc.text(`NET OUTSTANDING DUE:`, 114, finalY + 37);
+  doc.text(`Rs. ${closingBal.toLocaleString('en-IN')}`, 190, finalY + 37, { align: 'right' });
+
+  // Signatures
+  doc.setTextColor(71, 85, 105);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Receiver Signature', 20, finalY + 35);
+  doc.text('Authorized Signatory', 60, finalY + 35);
+
   doc.save(`Bill_${sale.billNo}.pdf`);
 }
 
@@ -4039,8 +4693,27 @@ function sendSaleWhatsApp(saleId) {
   if (!sale) return;
   const buyer = appState.contacts.find(c => c.name.toLowerCase() === sale.buyerName.toLowerCase());
   const phone = (buyer?.phone || '').replace(/[^0-9]/g, '');
-  const linesText = sale.lines.map(l => `${l.qty} ${l.unit} ${l.variety} @ Rs.${l.rate} = Rs.${l.amount}`).join('%0A');
-  const msg = `*Al Haseena Exports - Bill #${sale.billNo}*%0ADate: ${sale.date}%0ABuyer: ${sale.buyerName}%0A----------------------%0A${linesText}%0A----------------------%0A*Total: Rs.${sale.total.toLocaleString('en-IN')}* (${sale.paymentType})%0AThank you!`;
+  const lines = Array.isArray(sale.lines) ? sale.lines : [];
+  const linesText = lines.map(l => {
+    const boxInfo = l.crates ? `${l.crates} Box x ${l.kgPerCrate}kg = ` : '';
+    return `• ${boxInfo}${l.qty} ${l.unit} ${l.variety} @ Rs.${l.rate} = Rs.${l.amount.toLocaleString('en-IN')}`;
+  }).join('%0A');
+
+  const prevBal = Number(sale.previousBalance) || 0;
+  const totalDue = Number(sale.totalBalanceDue) !== undefined ? Number(sale.totalBalanceDue) : (sale.total + prevBal);
+
+  const msg = `*Al Haseena Exports - Wholesale Bill #${sale.billNo}*%0A` +
+    `Date: ${sale.date}%0A` +
+    `Buyer: ${sale.buyerName}%0A` +
+    `Packages: *P - ${sale.totalBoxes || 0} Boxes*%0A` +
+    `--------------------------------%0A` +
+    `${linesText}%0A` +
+    `--------------------------------%0A` +
+    `Today's Bill: Rs.${sale.total.toLocaleString('en-IN')}%0A` +
+    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}%0A` +
+    `*TOTAL DUE: Rs.${totalDue.toLocaleString('en-IN')}*%0A` +
+    `--------------------------------%0A` +
+    `Thank you for your business!`;
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 }
 
@@ -4063,36 +4736,52 @@ function renderPatiyaList() {
   const tbody = document.getElementById('patiyaListTbody');
   if (!tbody) return;
   const q = (document.getElementById('filterPatiyaInput')?.value || '').toLowerCase();
-  const filtered = appState.settlements.filter(s => s.dealerName.toLowerCase().includes(q) || s.settlementNo.toLowerCase().includes(q));
+  const filtered = appState.settlements.filter(s => (s.dealerName || '').toLowerCase().includes(q) || (s.settlementNo || '').toLowerCase().includes(q));
 
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:32px; color:#64748b;">No Patiya bills found.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = filtered.map(s => `
-    <tr>
-      <td><strong style="font-family:var(--font-mono)">${s.settlementNo}</strong></td>
-      <td>${s.date}</td>
-      <td><strong>${s.dealerName}</strong></td>
-      <td class="num">${s.totalQtySold}</td>
-      <td class="num" style="font-family:var(--font-mono)">₹${s.totalReportedGross.toLocaleString('en-IN')}</td>
-      <td class="num" style="font-family:var(--font-mono); color:#059669;">+₹${s.totalBrokingProfit.toLocaleString('en-IN')}</td>
-      <td class="num" style="font-family:var(--font-mono); color:#dc2626;">-₹${s.totalExpenses.toLocaleString('en-IN')}</td>
-      <td class="num" style="font-family:var(--font-mono); color:#d97706;">-₹${s.commissionAmount.toLocaleString('en-IN')}</td>
-      <td class="num" style="font-family:var(--font-mono); font-weight:700; color:#0084ff;">₹${s.netPayableToDealer.toLocaleString('en-IN')}</td>
-      <td class="num">${s.unsoldCratesCarriedForward} crates</td>
-      <td class="num">
-        <button class="btn btn-outline btn-sm" onclick="downloadA4Patiya(${s.id})"><i class="fas fa-print"></i></button>
-        <button class="btn btn-wa btn-sm" onclick="sendPatiyaWhatsApp(${s.id})"><i class="fab fa-whatsapp"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})"><i class="fas fa-trash"></i></button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filtered.map(s => {
+    const arrLot = s.arrivalCrates ? `ARR. ${s.arrivalCrates} (P)` : `${s.totalQtySold} (P)`;
+    const totalDeductions = (Number(s.totalExpenses) || 0) + (Number(s.commissionAmount) || 0);
+    const netSale = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+    const prevBal = Number(s.previousBalance) || 0;
+    const cashPaid = Number(s.cashPaidToday) || 0;
+    const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (netSale + prevBal - cashPaid);
+
+    return `
+      <tr>
+        <td><strong style="font-family:var(--font-mono)">${s.settlementNo}</strong></td>
+        <td>${s.date}</td>
+        <td><strong>${s.dealerName}</strong></td>
+        <td class="num"><span class="badge badge-blue">${arrLot}</span></td>
+        <td class="num" style="font-family:var(--font-mono)">₹${s.totalReportedGross.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); color:#dc2626;">-₹${totalDeductions.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); font-weight:700; color:#059669;">₹${netSale.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); color:#64748b;">+₹${prevBal.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); color:#dc2626;">-₹${cashPaid.toLocaleString('en-IN')}</td>
+        <td class="num" style="font-family:var(--font-mono); font-weight:800; color:#0084ff;">₹${closingBal.toLocaleString('en-IN')}</td>
+        <td class="table-action-cell">
+          <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="downloadA4Patiya(${s.id})" title="Print A4 Patiya"><i class="fas fa-print"></i></button>
+            <button class="btn btn-wa btn-sm" onclick="sendPatiyaWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function openPatiyaModal() {
-  document.getElementById('mPatDate').value = '2026-10-04';
+  const today = getTodayIsoDate();
+  const patDateInp = document.getElementById('mPatDate');
+  if (patDateInp) {
+    patDateInp.max = today;
+    patDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mPatDealer').value = '';
   document.getElementById('patiyaCalcSection').style.display = 'none';
   document.getElementById('savePatiyaBtn').style.display = 'none';
@@ -4143,21 +4832,27 @@ async function calculateDealerPatiya() {
 function renderPatiyaView() {
   if (!curPatiyaData) return;
   const tbody = document.getElementById('patItemsTbody');
-  
-  if (curPatiyaData.items.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:18px; color:#64748b;">No active sales for this dealer on this date.</td></tr>';
+
+  document.getElementById('mPatArrivalCrates').value = curPatiyaData.arrivalCratesToday || 0;
+  document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance || 0;
+  document.getElementById('mPatCashPaid').value = 0;
+  document.getElementById('mPatAdjustments').value = 0;
+  document.getElementById('mPatCashPayee').value = 'Cash Paid to DRL (Driver)';
+
+  const patItems = Array.isArray(curPatiyaData.items) ? curPatiyaData.items : [];
+  if (patItems.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:18px; color:#64748b;">No active sales for this dealer on this date. Click "+ Add Fish Lot" to enter manually.</td></tr>';
   } else {
-    tbody.innerHTML = curPatiyaData.items.map((it, idx) => `
+    tbody.innerHTML = patItems.map((it, idx) => `
       <tr>
-        <td><strong>${it.variety}</strong></td>
-        <td class="num">${it.qtySold} ${it.unit}</td>
-        <td class="num" style="font-family:var(--font-mono)">₹${it.realizedRevenue.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#64748b;">₹${it.systemAvgRate}</td>
+        <td><input type="text" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:130px;"/></td>
+        <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" style="width:70px; text-align:right;" oninput="onPatiyaLineChange(${idx})"/></td>
+        <td class="num"><span style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
         <td class="num" style="background:#fffbeb;">
-          <input type="number" value="${it.reportedRate}" style="width:80px; text-align:right; font-weight:700;" oninput="onPatiyaRateChange(${idx}, this.value)"/>
+          <input type="number" value="${it.reportedRate}" class="patItemRate" style="width:80px; text-align:right; font-weight:700;" oninput="onPatiyaLineChange(${idx})"/>
         </td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700;" id="pRepGross_${idx}">₹${it.reportedGross.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#059669; font-weight:700;" id="pProfit_${idx}">+₹${it.brokingProfit.toLocaleString('en-IN')}</td>
+        <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
       </tr>
     `).join('');
   }
@@ -4165,14 +4860,14 @@ function renderPatiyaView() {
   const exp = document.getElementById('patExpenseTbody');
   exp.innerHTML = `
     <tr>
-      <td><input type="text" class="expLabel" value="Transport / Lorry Bhada"/></td>
-      <td class="num"><input type="number" class="expCost" value="1500" oninput="recalculatePatiya()" style="text-align:right;"/></td>
-      <td></td>
+      <td><input type="text" class="expLabel" value="Transport / Lorry Bhada (MEN)"/></td>
+      <td class="num"><input type="number" class="expCost" value="4320" oninput="recalculatePatiya()" style="text-align:right;"/></td>
+      <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
     <tr>
-      <td><input type="text" class="expLabel" value="Ice & Coolie Labor"/></td>
-      <td class="num"><input type="number" class="expCost" value="1200" oninput="recalculatePatiya()" style="text-align:right;"/></td>
-      <td></td>
+      <td><input type="text" class="expLabel" value="Ice & Coolie Labor (ML)"/></td>
+      <td class="num"><input type="number" class="expCost" value="1000" oninput="recalculatePatiya()" style="text-align:right;"/></td>
+      <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
   `;
 
@@ -4182,21 +4877,27 @@ function renderPatiyaView() {
   recalculatePatiya();
 }
 
-function onPatiyaRateChange(idx, val) {
-  if (!curPatiyaData || !curPatiyaData.items[idx]) return;
-  const it = curPatiyaData.items[idx];
-  const rate = Number(val) || 0;
-  it.reportedRate = rate;
-  it.reportedGross = it.qtySold * rate;
-  it.brokingProfit = it.realizedRevenue - it.reportedGross;
-
-  document.getElementById(`pRepGross_${idx}`).textContent = `₹${it.reportedGross.toLocaleString('en-IN')}`;
-  document.getElementById(`pProfit_${idx}`).textContent = `+₹${it.brokingProfit.toLocaleString('en-IN')}`;
+function addPatiyaItemLine() {
+  const tbody = document.getElementById('patItemsTbody');
+  const tr = document.createElement('tr');
+  const idx = tbody.querySelectorAll('tr').length;
+  tr.innerHTML = `
+    <td><input type="text" placeholder="Fish Variety" class="patItemVariety" style="font-weight:700; width:130px;" value="Fish"/></td>
+    <td class="num"><input type="number" value="50" class="patItemQty" style="width:70px; text-align:right;" oninput="recalculatePatiya()"/></td>
+    <td class="num"><span style="font-size:12px; color:#64748b;">Crate</span></td>
+    <td class="num" style="background:#fffbeb;">
+      <input type="number" value="2000" class="patItemRate" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+    </td>
+    <td class="num" style="font-family:var(--font-mono); font-weight:700;" id="pRepGross_${idx}">₹1,00,000</td>
+    <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+  `;
+  tbody.appendChild(tr);
   recalculatePatiya();
 }
 
 function addPatiyaExpenseLine() {
   const tbody = document.getElementById('patExpenseTbody');
+  if (!tbody) return;
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" class="expLabel" placeholder="e.g. Storage / Box charges"/></td>
@@ -4204,15 +4905,31 @@ function addPatiyaExpenseLine() {
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
   tbody.appendChild(tr);
+  recalculatePatiya();
+}
+
+function onPatiyaLineChange(idx) {
+  recalculatePatiya();
 }
 
 function recalculatePatiya() {
-  if (!curPatiyaData) return;
-  const gross = curPatiyaData.items.reduce((s, it) => s + (it.reportedGross || 0), 0);
-  const margin = curPatiyaData.items.reduce((s, it) => s + (it.brokingProfit || 0), 0);
-  const qty = curPatiyaData.items.reduce((s, it) => s + (it.qtySold || 0), 0);
+  const itemRows = document.querySelectorAll('#patItemsTbody tr');
+  let gross = 0;
+  let totalSold = 0;
 
-  document.getElementById('patMarginBadge').textContent = `Margin: +₹${margin.toLocaleString('en-IN')}`;
+  itemRows.forEach((r, idx) => {
+    const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
+    const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
+    const lineGross = qty * rate;
+    const grossEl = r.querySelector(`#pRepGross_${idx}`) || r.querySelector('td:nth-child(5)');
+    if (grossEl) grossEl.textContent = `₹${lineGross.toLocaleString('en-IN')}`;
+    gross += lineGross;
+    totalSold += qty;
+  });
+
+  const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
+  const avgBadge = document.getElementById('mPatBlendedAvgBadge');
+  if (avgBadge) avgBadge.textContent = `Blended Avg: @ ₹${avgRate.toLocaleString('en-IN')} / Box`;
 
   let exp = 0;
   document.querySelectorAll('#patExpenseTbody tr').forEach(r => {
@@ -4221,22 +4938,58 @@ function recalculatePatiya() {
 
   const commType = document.getElementById('mPatCommType').value;
   const commVal = Number(document.getElementById('mPatCommVal').value) || 0;
-  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(qty * commVal) : commVal);
+  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(totalSold * commVal) : commVal);
+  document.getElementById('mPatCommDeduction').textContent = `-₹${commAmt.toLocaleString('en-IN')}`;
 
-  document.getElementById('mPatCommDeduction').textContent = `₹${commAmt.toLocaleString('en-IN')}`;
-  const net = Math.max(0, gross - exp - commAmt);
-  document.getElementById('mPatNetPayable').textContent = `₹${net.toLocaleString('en-IN')}`;
+  const adj = Number(document.getElementById('mPatAdjustments').value) || 0;
+  const netConsignment = Math.max(0, gross - exp - commAmt + adj);
+  document.getElementById('mPatConsignmentNet').textContent = `₹${netConsignment.toLocaleString('en-IN')}`;
+
+  const prevBal = Number(document.getElementById('mPatPrevBal').value) || 0;
+  const totalDue = netConsignment + prevBal;
+  document.getElementById('mPatTotalDue').textContent = `₹${totalDue.toLocaleString('en-IN')}`;
+
+  const cashPaid = Number(document.getElementById('mPatCashPaid').value) || 0;
+  const closingBal = totalDue - cashPaid;
+  document.getElementById('mPatClosingBal').textContent = `₹${closingBal.toLocaleString('en-IN')}`;
 }
 
 async function saveFinalizedPatiya() {
   if (!curPatiyaData) return;
   const dealer = curPatiyaData.dealer;
   const date = document.getElementById('mPatDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Settlement date cannot be in the future', 'error');
 
-  const gross = curPatiyaData.items.reduce((s, it) => s + (it.reportedGross || 0), 0);
-  const profit = curPatiyaData.items.reduce((s, it) => s + (it.brokingProfit || 0), 0);
-  const qty = curPatiyaData.items.reduce((s, it) => s + (it.qtySold || 0), 0);
-  const realized = curPatiyaData.items.reduce((s, it) => s + (it.realizedRevenue || 0), 0);
+  const itemRows = document.querySelectorAll('#patItemsTbody tr');
+  const items = [];
+  let gross = 0;
+  let totalSold = 0;
+
+  itemRows.forEach(r => {
+    const variety = r.querySelector('.patItemVariety')?.value.trim() || 'Fish';
+    const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
+    const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
+    const lineGross = qty * rate;
+    if (qty > 0) {
+      items.push({
+        variety,
+        unit: 'Crate',
+        qtySold: qty,
+        reportedRate: rate,
+        reportedGross: lineGross,
+        realizedRevenue: lineGross,
+        brokingProfit: 0
+      });
+      gross += lineGross;
+      totalSold += qty;
+    }
+  });
+
+  if (items.length === 0) return showToast('Please enter at least one fish lot item', 'error');
+
+  const arrivalCrates = Number(document.getElementById('mPatArrivalCrates').value) || totalSold;
+  const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
 
   const expenses = [];
   document.querySelectorAll('#patExpenseTbody tr').forEach(r => {
@@ -4248,8 +5001,16 @@ async function saveFinalizedPatiya() {
 
   const commType = document.getElementById('mPatCommType').value;
   const commVal = Number(document.getElementById('mPatCommVal').value) || 0;
-  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(qty * commVal) : commVal);
-  const netPayable = Math.max(0, gross - totalExp - commAmt);
+  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(totalSold * commVal) : commVal);
+
+  const adj = Number(document.getElementById('mPatAdjustments').value) || 0;
+  const netConsignment = Math.max(0, gross - totalExp - commAmt + adj);
+
+  const previousBalance = Number(document.getElementById('mPatPrevBal').value) || 0;
+  const totalBalanceDue = netConsignment + previousBalance;
+  const cashPaidToday = Number(document.getElementById('mPatCashPaid').value) || 0;
+  const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || 'Paid to Driver on Patiya';
+  const closingBalance = totalBalanceDue - cashPaidToday;
 
   try {
     const res = await fetch('/api/settlements', {
@@ -4259,17 +5020,26 @@ async function saveFinalizedPatiya() {
         dealerId: dealer.id,
         dealerName: dealer.name,
         date,
-        items: curPatiyaData.items,
-        totalQtySold: qty,
-        totalRealizedRevenue: realized,
+        arrivalCrates,
+        items,
+        totalQtySold: totalSold,
+        totalRealizedRevenue: gross,
         totalReportedGross: gross,
-        totalBrokingProfit: profit,
+        totalBrokingProfit: 0,
+        averageRate: avgRate,
         expenses,
         totalExpenses: totalExp,
         commissionType: commType,
         commissionRate: commVal,
         commissionAmount: commAmt,
-        netPayableToDealer: netPayable,
+        adjustments: adj,
+        netConsignmentAmount: netConsignment,
+        netPayableToDealer: netConsignment,
+        previousBalance,
+        totalBalanceDue,
+        cashPaidToday,
+        cashPaidPayee,
+        closingBalance,
         unsoldCratesCarriedForward: curPatiyaData.unsoldCratesRemaining || 0
       })
     });
@@ -4277,7 +5047,7 @@ async function saveFinalizedPatiya() {
     if (res.ok) {
       showToast('Patiya finalized & credited!', 'success');
       closeModal('patiyaModal');
-      await Promise.all([loadSettlements(), loadContacts(), loadReports()]);
+      await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadReports()]);
       downloadA4Patiya(saved.id);
     } else {
       showToast(saved.error || 'Failed to finalize', 'error');
@@ -4293,7 +5063,7 @@ async function deletePatiyaSettlement(id) {
     const res = await fetch(`/api/settlements/${id}`, { method: 'DELETE' });
     if (res.ok) {
       showToast('Patiya deleted', 'success');
-      await Promise.all([loadSettlements(), loadContacts(), loadReports()]);
+      await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadReports()]);
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
@@ -4306,32 +5076,140 @@ function downloadA4Patiya(id) {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
 
+  // Header Branding
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
+  doc.setFontSize(22);
+  doc.setTextColor(15, 23, 42);
   doc.text('Al Haseena Exports', 14, 20);
+
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text('Commission Agent & Wholesale Fish Broking', 14, 26);
-  doc.text(`Dealer Daily Settlement (Patiya) #: ${s.settlementNo}`, 14, 31);
-  doc.text(`Date: ${s.date}`, 150, 20);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Dealer: ${s.dealerName}`, 14, 40);
+  doc.setTextColor(71, 85, 105);
+  doc.text('Fish Commission Agent & Wholesale Broking', 14, 26);
+  doc.text('Harbour Wharf, Fish Market Yard | Phone: +91 98400 12345', 14, 31);
 
-  const tableData = s.items.map(it => [it.variety, `${it.qtySold} ${it.unit}`, `Rs. ${it.reportedRate}`, `Rs. ${it.reportedGross.toLocaleString('en-IN')}`]);
+  // Meta
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(0, 132, 255);
+  doc.text('DEALER CONSIGNMENT SETTLEMENT', 110, 18);
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Patiya #: ${s.settlementNo}`, 110, 24);
+  doc.text(`Date: ${s.date}`, 110, 29);
+
+  // Dealer & Arrival Lot Banner
+  doc.setFillColor(224, 242, 254);
+  doc.rect(14, 36, 182, 12, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text(`Dealer: ${s.dealerName}`, 18, 44);
+  doc.setTextColor(2, 132, 199);
+  doc.text(`Arrival Consignment Lot: ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)`, 110, 44);
+  doc.setTextColor(15, 23, 42);
+
+  // Items Sold Table
+  const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
+    variety: 'Consignment Lot',
+    qtySold: s.totalQtySold || 0,
+    unit: 'Crate',
+    reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
+    reportedGross: s.totalReportedGross || 0
+  }];
+  const tableData = items.map((it, idx) => [
+    idx + 1,
+    it.variety,
+    `${it.qtySold} ${it.unit || 'Crate'}`,
+    `Rs. ${it.reportedRate}`,
+    `Rs. ${(it.reportedGross || 0).toLocaleString('en-IN')}`
+  ]);
+
   doc.autoTable({
-    startY: 46,
-    head: [['Fish Variety', 'Quantity Sold', 'Settled Rate / Unit', 'Gross Amount']],
+    startY: 52,
+    head: [['#', 'Fish Variety', 'Quantity Sold', 'Settled Rate / Box', 'Gross Total (Rs.)']],
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [0, 132, 255] }
+    headStyles: { fillColor: [0, 132, 255] },
+    columnStyles: { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' } }
   });
 
   const finalY = doc.lastAutoTable.finalY + 8;
-  doc.text(`Reported Gross Sales: Rs. ${s.totalReportedGross.toLocaleString('en-IN')}`, 130, finalY);
-  doc.text(`Less Deductions: Rs. ${s.totalExpenses.toLocaleString('en-IN')}`, 130, finalY + 6);
-  doc.text(`Less Commission: Rs. ${s.commissionAmount.toLocaleString('en-IN')}`, 130, finalY + 12);
+  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+  const prevBal = Number(s.previousBalance) || 0;
+  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const cashPaid = Number(s.cashPaidToday) || 0;
+  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+
+  // Left Box: Deductions & Expenses Breakdown
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(14, finalY, 86, 52, 2, 2, 'F');
+  doc.rect(14, finalY, 86, 52, 'S');
+
   doc.setFont('helvetica', 'bold');
-  doc.text(`NET PAYABLE TO DEALER: Rs. ${s.netPayableToDealer.toLocaleString('en-IN')}`, 14, finalY + 22);
+  doc.setFontSize(10);
+  doc.text('Deductions & Commission:', 18, finalY + 7);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  let curExpY = finalY + 14;
+  (s.expenses || []).forEach(e => {
+    doc.text(`• ${e.name}:`, 18, curExpY);
+    doc.text(`-Rs. ${e.amount.toLocaleString('en-IN')}`, 94, curExpY, { align: 'right' });
+    curExpY += 6;
+  });
+  doc.text(`• Broker Commission (${s.commissionRate || 5}%):`, 18, curExpY);
+  doc.text(`-Rs. ${(s.commissionAmount || 0).toLocaleString('en-IN')}`, 94, curExpY, { align: 'right' });
+  curExpY += 6;
+  if (s.adjustments) {
+    doc.text(`• Adjustments:`, 18, curExpY);
+    doc.text(`Rs. ${s.adjustments.toLocaleString('en-IN')}`, 94, curExpY, { align: 'right' });
+    curExpY += 6;
+  }
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Net Consignment Proceed:`, 18, finalY + 47);
+  doc.text(`Rs. ${netProceed.toLocaleString('en-IN')}`, 94, finalY + 47, { align: 'right' });
+
+  // Right Box: Continuous Running Ledger (Slips #1 & #2 Structure)
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(110, finalY, 86, 52, 2, 2, 'F');
+  doc.rect(110, finalY, 86, 52, 'S');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.text('Continuous Running Balance:', 114, finalY + 7);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.text(`Consignment Net:`, 114, finalY + 15);
+  doc.text(`Rs. ${netProceed.toLocaleString('en-IN')}`, 190, finalY + 15, { align: 'right' });
+
+  doc.text(`(+) Previous Balance:`, 114, finalY + 22);
+  doc.text(`Rs. ${prevBal.toLocaleString('en-IN')}`, 190, finalY + 22, { align: 'right' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total Balance Due:`, 114, finalY + 29);
+  doc.text(`Rs. ${totalDue.toLocaleString('en-IN')}`, 190, finalY + 29, { align: 'right' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(220, 38, 38);
+  doc.text(`(-) Cash Paid (${s.cashPaidPayee || 'DRL'}):`, 114, finalY + 36);
+  doc.text(`-Rs. ${cashPaid.toLocaleString('en-IN')}`, 190, finalY + 36, { align: 'right' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(0, 132, 255);
+  doc.text(`NET CLOSING BALANCE:`, 114, finalY + 46);
+  doc.text(`Rs. ${closingBal.toLocaleString('en-IN')}`, 190, finalY + 46, { align: 'right' });
+
+  // Signatures
+  doc.setTextColor(71, 85, 105);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Dealer Signature', 24, finalY + 62);
+  doc.text('Driver / Lorry (DRL)', 80, finalY + 62);
+  doc.text('For Al Haseena Exports', 145, finalY + 62);
 
   doc.save(`Patiya_${s.settlementNo}.pdf`);
 }
@@ -4341,7 +5219,39 @@ function sendPatiyaWhatsApp(id) {
   if (!s) return;
   const dealer = appState.contacts.find(c => c.name.toLowerCase() === s.dealerName.toLowerCase());
   const phone = (dealer?.phone || '').replace(/[^0-9]/g, '');
-  const msg = `*Al Haseena Exports - Patiya Settlement* #${s.settlementNo}%0ADate: ${s.date}%0ADealer: ${s.dealerName}%0A----------------------%0AGross Sales: Rs.${s.totalReportedGross.toLocaleString('en-IN')}%0AExpenses Deducted: -Rs.${s.totalExpenses.toLocaleString('en-IN')}%0ABroker Commission: -Rs.${s.commissionAmount.toLocaleString('en-IN')}%0A----------------------%0A*Net Credited: Rs.${s.netPayableToDealer.toLocaleString('en-IN')}*%0AThank you!`;
+
+  const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
+    variety: 'Consignment Lot',
+    qtySold: s.totalQtySold || 0,
+    unit: 'Crate',
+    reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
+    reportedGross: s.totalReportedGross || 0
+  }];
+  const itemsText = items.map(it => `• ${it.qtySold} ${it.unit || 'Crate'} ${it.variety} @ Rs.${it.reportedRate} = Rs.${(it.reportedGross || 0).toLocaleString('en-IN')}`).join('%0A');
+  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+  const prevBal = Number(s.previousBalance) || 0;
+  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const cashPaid = Number(s.cashPaidToday) || 0;
+  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+
+  const msg = `*Al Haseena Exports - Patiya Settlement #${s.settlementNo}*%0A` +
+    `Date: ${s.date}%0A` +
+    `Dealer: ${s.dealerName}%0A` +
+    `Arrival Lot: *ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)*%0A` +
+    `--------------------------------%0A` +
+    `${itemsText}%0A` +
+    `--------------------------------%0A` +
+    `Gross Sales: Rs.${s.totalReportedGross.toLocaleString('en-IN')}%0A` +
+    `Less Expenses: -Rs.${s.totalExpenses.toLocaleString('en-IN')}%0A` +
+    `Less Commission: -Rs.${s.commissionAmount.toLocaleString('en-IN')}%0A` +
+    `*Net Consignment Proceed: Rs.${netProceed.toLocaleString('en-IN')}*%0A` +
+    `--------------------------------%0A` +
+    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}%0A` +
+    `Total Balance Due: Rs.${totalDue.toLocaleString('en-IN')}%0A` +
+    `(-) Cash Paid to Driver (${s.cashPaidPayee || 'DRL'}): -Rs.${cashPaid.toLocaleString('en-IN')}%0A` +
+    `*NET CLOSING BALANCE: Rs.${closingBal.toLocaleString('en-IN')}*%0A` +
+    `--------------------------------%0A` +
+    `Thank you!`;
   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 }
 
@@ -4399,10 +5309,12 @@ function renderContactsList() {
           ${c.netBalance >= 0 ? `We Pay ₹${c.netBalance.toLocaleString('en-IN')}` : `They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
         </td>
         <td>${c.isOverdue ? `<span class="badge badge-red"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>` : '<span class="badge badge-green">Clear</span>'}</td>
-        <td class="num">
-          <button class="btn btn-outline btn-sm" onclick="openStatementModal(${c.id})" title="Passbook"><i class="fas fa-book-open"></i></button>
-          ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
-          <button class="btn btn-ghost btn-sm" onclick="editPartyAccount(${c.id})"><i class="fas fa-pen"></i></button>
+        <td class="table-action-cell">
+          <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="openStatementModal(${c.id})" title="Passbook"><i class="fas fa-book-open"></i></button>
+            ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
+            <button class="btn btn-ghost btn-sm" onclick="editPartyAccount(${c.id})" title="Edit"><i class="fas fa-pen"></i></button>
+          </div>
         </td>
       </tr>
     `;
@@ -4611,8 +5523,10 @@ function renderPaymentsList() {
         </td>
         <td>${p.paymentMode} ${p.referenceNo ? `<small>(${p.referenceNo})</small>` : ''}</td>
         <td>${p.notes || '-'}</td>
-        <td class="num">
-          <button class="btn btn-danger btn-sm" onclick="deletePaymentEntry(${p.id})"><i class="fas fa-trash"></i></button>
+        <td class="table-action-cell">
+          <div class="table-actions-group">
+            <button class="btn btn-danger btn-sm" onclick="deletePaymentEntry(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
         </td>
       </tr>
     `;
@@ -4640,8 +5554,13 @@ function setPaymentsSubTab(tab) {
 }
 
 function openPaymentModal(type) {
+  const today = getTodayIsoDate();
   document.getElementById('mPayType').value = type;
-  document.getElementById('mPayDate').value = '2026-10-04';
+  const payDateInp = document.getElementById('mPayDate');
+  if (payDateInp) {
+    payDateInp.max = today;
+    payDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mPayContactName').value = '';
   document.getElementById('mPayAmount').value = '';
   document.getElementById('mPayDiscount').value = '0';
@@ -4686,6 +5605,8 @@ async function savePaymentEntry() {
   const contactName = document.getElementById('mPayContactName').value.trim();
   const contactId = Number(document.getElementById('mPayContactName').dataset.contactId) || undefined;
   const date = document.getElementById('mPayDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Payment date cannot be in the future', 'error');
   const paymentMode = document.getElementById('mPayMode').value;
   const amount = Number(document.getElementById('mPayAmount').value) || 0;
   const settlementDiscount = Number(document.getElementById('mPayDiscount').value) || 0;
@@ -4731,7 +5652,12 @@ async function deletePaymentEntry(id) {
 // 8. CONTRA OFFSET & DAYBOOK
 // ─────────────────────────────────────────────────────────────────────────────
 function openContraModal() {
-  document.getElementById('mContraDate').value = '2026-10-04';
+  const today = getTodayIsoDate();
+  const contraDateInp = document.getElementById('mContraDate');
+  if (contraDateInp) {
+    contraDateInp.max = today;
+    contraDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mContraPartyName').value = '';
   document.getElementById('mContraAmount').value = '';
   document.getElementById('mContraBalanceDetails').style.display = 'none';
@@ -4768,6 +5694,8 @@ async function saveContraAdjustment() {
   const contactId = Number(document.getElementById('mContraPartyName').dataset.contactId);
   const amount = Number(document.getElementById('mContraAmount').value) || 0;
   const date = document.getElementById('mContraDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Contra date cannot be in the future', 'error');
 
   if (!contactName || !contactId) return showToast('Please select a 2-in-1 party', 'error');
   if (amount <= 0) return showToast('Enter an adjustment amount', 'error');
@@ -4792,7 +5720,19 @@ async function saveContraAdjustment() {
 }
 
 async function loadDaybook() {
-  const date = document.getElementById('daybookDatePicker')?.value || '2026-10-04';
+  const today = getTodayIsoDate();
+  const dbPicker = document.getElementById('daybookDatePicker');
+  if (dbPicker) {
+    dbPicker.max = today;
+    if (!dbPicker.value) {
+      dbPicker.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+    }
+    if (dbPicker.value > today) {
+      dbPicker.value = today;
+      showToast('Future dates cannot be selected for Daybook.', 'error');
+    }
+  }
+  const date = dbPicker?.value || ((appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today);
   try {
     const res = await fetch(`/api/daybook?date=${date}`);
     const data = await res.json();
@@ -4824,7 +5764,12 @@ async function loadDaybook() {
 }
 
 function openManualDaybookModal() {
-  document.getElementById('mDayDate').value = '2026-10-04';
+  const today = getTodayIsoDate();
+  const dayDateInp = document.getElementById('mDayDate');
+  if (dayDateInp) {
+    dayDateInp.max = today;
+    dayDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
+  }
   document.getElementById('mDayDesc').value = '';
   document.getElementById('mDayAmount').value = '';
   document.getElementById('manualDaybookModal').classList.add('open');
@@ -4832,6 +5777,8 @@ function openManualDaybookModal() {
 
 async function saveDaybookItem() {
   const date = document.getElementById('mDayDate').value;
+  const today = getTodayIsoDate();
+  if (date > today) return showToast('Daybook date cannot be in the future', 'error');
   const type = document.getElementById('mDayType').value;
   const description = document.getElementById('mDayDesc').value.trim();
   const amount = Number(document.getElementById('mDayAmount').value) || 0;
@@ -4889,10 +5836,15 @@ function renderGodownStockList() {
     return `
       <div class="data-table-box">
         <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-fish" style="color:#0084ff;"></i> ${item.variety}</span>
-          <span class="badge badge-blue" style="font-size:11.5px; padding:3px 9px;">
-            Total: ${item.totalCrates} Crates ${item.totalKg ? `(${item.totalKg} KG)` : ''}
-          </span>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-weight:700;"><i class="fas fa-fish" style="color:#0084ff;"></i> ${item.variety}</span>
+            <span class="badge badge-blue" style="font-size:11.5px; padding:3px 9px;">
+              Total: ${item.totalCrates} Crates ${item.totalKg ? `(${item.totalKg} KG)` : ''}
+            </span>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteStockVariety('${item.variety.replace(/'/g, "\\'")}')" title="Delete and write off stock">
+            <i class="fas fa-trash"></i> Delete Stock
+          </button>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
@@ -4911,6 +5863,29 @@ function renderGodownStockList() {
       </div>
     `;
   }).join('');
+}
+
+async function deleteStockVariety(variety, event) {
+  if (event) event.stopPropagation();
+  if (!confirm(`Are you sure you want to delete and write off all remaining ${variety} stock from godown inventory?`)) {
+    return;
+  }
+  try {
+    const res = await fetch(`/api/inventory?variety=${encodeURIComponent(variety)}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast(`Stock for ${variety} deleted from inventory`, 'success');
+      await Promise.all([loadConsignments(), loadStockBoard()]);
+      updateDashboardMetrics();
+      renderFishStockCards();
+    } else {
+      showToast(data.error || 'Failed to delete stock', 'error');
+    }
+  } catch (err) {
+    showToast('Error deleting stock: ' + err.message, 'error');
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -5015,13 +5990,70 @@ function handleCtrlKSearch(q) {
   window._ctrlMatches = matches;
 }
 
-function openDatePrompt() {
-  const d = prompt('Select trade date (YYYY-MM-DD):', appState.selectedDate);
-  if (d) {
-    appState.selectedDate = d;
-    document.getElementById('displayDatePill').textContent = d;
-    loadDaybook();
+function updateDisplayDatePill() {
+  const today = getTodayIsoDate();
+  if (appState.selectedDate > today) {
+    appState.selectedDate = today;
   }
+  const el = document.getElementById('displayDatePill');
+  if (el) el.textContent = formatDisplayDate(appState.selectedDate);
+  const hid = document.getElementById('hiddenDateSelector');
+  if (hid) {
+    hid.max = today;
+    hid.value = appState.selectedDate;
+  }
+}
+
+function triggerDateSelector() {
+  const today = getTodayIsoDate();
+  const inp = document.getElementById('hiddenDateSelector');
+  if (inp) {
+    inp.max = today;
+    if (inp.value > today) inp.value = today;
+  }
+  if (inp && inp.showPicker) {
+    try {
+      inp.showPicker();
+      return;
+    } catch (e) {}
+  }
+  openDatePrompt();
+}
+
+function onTradeDateChanged(val) {
+  if (!val) return;
+  const today = getTodayIsoDate();
+  if (val > today) {
+    showToast('Future dates cannot be selected. Date reset to today.', 'error');
+    val = today;
+  }
+  appState.selectedDate = val;
+  updateDisplayDatePill();
+  const dbPicker = document.getElementById('daybookDatePicker');
+  if (dbPicker) {
+    dbPicker.max = today;
+    dbPicker.value = val;
+  }
+  updateDashboardMetrics();
+  renderActivityTimeline();
+  loadDaybook();
+}
+
+function openDatePrompt() {
+  const today = getTodayIsoDate();
+  const d = prompt(`Select trade date (YYYY-MM-DD up to ${today}):`, appState.selectedDate || today);
+  if (d) {
+    if (d > today) {
+      showToast('Future dates cannot be selected. Please pick today or an earlier date.', 'error');
+      return;
+    }
+    onTradeDateChanged(d);
+  }
+}
+
+function toggleTimelineViewAll() {
+  appState.showAllHistory = !appState.showAllHistory;
+  renderActivityTimeline();
 }
 
 function scrollToAttention() {
@@ -5049,7 +6081,7 @@ function downloadFinancialSummaryPDF() {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('Fish Commission Brokerage Financial Report', 14, 26);
-  doc.text(`Date: 2026-10-04`, 150, 20);
+  doc.text(`Date: ${appState.selectedDate || getTodayIsoDate()}`, 150, 20);
 
   const summaryData = [
     ['Gross Consignment Turnover', `Rs. ${(d.totalGrossConsignmentSales || 0).toLocaleString('en-IN')}`],
@@ -5069,6 +6101,299 @@ function downloadFinancialSummaryPDF() {
   });
 
   doc.save('Brokerage_Financial_Report.pdf');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 11. CUSTOM REPORT GENERATOR & EXPORTER
+// ─────────────────────────────────────────────────────────────────────────────
+function initReportControls() {
+  const today = getTodayIsoDate();
+  const fromEl = document.getElementById('reportFromDate');
+  const toEl = document.getElementById('reportToDate');
+  if (fromEl) fromEl.max = today;
+  if (toEl) toEl.max = today;
+  onReportPresetChanged('last7');
+}
+
+function onReportPresetChanged(preset) {
+  const today = getTodayIsoDate();
+  const fromEl = document.getElementById('reportFromDate');
+  const toEl = document.getElementById('reportToDate');
+  if (!fromEl || !toEl) return;
+
+  toEl.value = today;
+
+  if (preset === 'today') {
+    fromEl.value = today;
+  } else if (preset === 'last7') {
+    const d = new Date();
+    d.setDate(d.getDate() - 6);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    fromEl.value = `${d.getFullYear()}-${m}-${day}`;
+  } else if (preset === 'last30') {
+    const d = new Date();
+    d.setDate(d.getDate() - 29);
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    fromEl.value = `${d.getFullYear()}-${m}-${day}`;
+  } else if (preset === 'all') {
+    fromEl.value = '2026-01-01';
+  }
+  onCustomReportFilterChanged();
+}
+
+function getFilteredReportData() {
+  const from = document.getElementById('reportFromDate')?.value || '2020-01-01';
+  const to = document.getElementById('reportToDate')?.value || getTodayIsoDate();
+  const scope = document.getElementById('reportCategoryScope')?.value || 'all';
+
+  const rows = [];
+
+  // 1. Purchases (Inward Arrivals)
+  if (scope === 'all' || scope === 'purchases') {
+    (appState.consignments || []).forEach(c => {
+      if (c.date >= from && c.date <= to) {
+        const totalKg = (c.items || []).reduce((s, it) => s + (Number(it.weightKg) || 0), 0);
+        const crates = (c.items || []).reduce((s, it) => s + (Number(it.crates) || 0), 0);
+        const desc = (c.items || []).map(it => `${it.crates}c ${it.variety}`).join(', ');
+        rows.push({
+          date: c.date,
+          type: 'Purchase',
+          typeBadge: 'badge-blue',
+          refNo: c.consignmentNo,
+          partyName: c.dealerName,
+          details: desc || 'Fish Arrival',
+          weightKg: totalKg,
+          crates: crates,
+          amount: c.lorryBhada || 0,
+          amountLabel: c.lorryBhada ? `₹${c.lorryBhada.toLocaleString('en-IN')} (Bhada)` : '-'
+        });
+      }
+    });
+  }
+
+  // 2. Sales Bills
+  if (scope === 'all' || scope === 'sales') {
+    (appState.sales || []).forEach(s => {
+      if (s.date >= from && s.date <= to) {
+        const totalKg = (s.lines || []).reduce((sum, l) => sum + (Number(l.qty) || 0), 0);
+        const desc = (s.lines || []).map(l => `${l.qty} ${l.unit} ${l.variety}`).join(', ');
+        rows.push({
+          date: s.date,
+          type: 'Sale',
+          typeBadge: 'badge-green',
+          refNo: s.billNo,
+          partyName: s.buyerName,
+          details: desc,
+          weightKg: totalKg,
+          commission: s.brokerCommission || Math.round((s.total || 0) * 0.05),
+          amount: s.total || 0,
+          amountLabel: `₹${(s.total || 0).toLocaleString('en-IN')}`
+        });
+      }
+    });
+  }
+
+  // 3. Payments
+  if (scope === 'all' || scope === 'payments') {
+    (appState.payments || []).forEach(p => {
+      if (p.date >= from && p.date <= to) {
+        const isDealer = p.type === 'DEALER_PAYMENT';
+        rows.push({
+          date: p.date,
+          type: isDealer ? 'Payment Out' : 'Payment In',
+          typeBadge: isDealer ? 'badge-amber' : 'badge-green',
+          refNo: p.paymentNo,
+          partyName: p.contactName,
+          details: `${p.paymentMode} ${p.referenceNo ? `(${p.referenceNo})` : ''} · ${p.notes || ''}`.trim(),
+          weightKg: 0,
+          amount: p.amount || 0,
+          amountLabel: `${isDealer ? '- ' : '+ '}₹${(p.amount || 0).toLocaleString('en-IN')}`
+        });
+      }
+    });
+  }
+
+  rows.sort((a, b) => b.date.localeCompare(a.date));
+  return { rows, from, to, scope };
+}
+
+function onCustomReportFilterChanged() {
+  const { rows, from, to, scope } = getFilteredReportData();
+
+  const countEl = document.getElementById('repFilteredCount');
+  if (countEl) countEl.textContent = `${rows.length} txns`;
+
+  let totalVol = 0;
+  let totalComm = 0;
+  rows.forEach(r => {
+    if (r.type === 'Sale') {
+      totalVol += (r.amount || 0);
+      totalComm += (r.commission || 0);
+    } else if (r.type === 'Purchase') {
+      totalVol += (r.amount || 0);
+    } else if (r.type.startsWith('Payment')) {
+      totalVol += (r.amount || 0);
+    }
+  });
+
+  const volEl = document.getElementById('repFilteredVolume');
+  if (volEl) volEl.textContent = `₹${totalVol.toLocaleString('en-IN')}`;
+
+  const commEl = document.getElementById('repFilteredCommission');
+  if (commEl) commEl.textContent = `₹${totalComm.toLocaleString('en-IN')}`;
+
+  const badgeEl = document.getElementById('repPreviewScopeBadge');
+  const scopeNames = { all: 'All Transactions', purchases: 'Purchases Only', sales: 'Sales Only', payments: 'Payments Only' };
+  if (badgeEl) badgeEl.textContent = `${from} to ${to} · ${scopeNames[scope] || scope}`;
+
+  const tbody = document.getElementById('reportPreviewTbody');
+  if (!tbody) return;
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No transactions match the selected date range and filter.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.slice(0, 50).map(r => `
+    <tr>
+      <td>${r.date}</td>
+      <td><span class="badge ${r.typeBadge}">${r.type}</span></td>
+      <td><strong style="font-family:var(--font-mono);">${r.refNo}</strong></td>
+      <td><strong>${r.partyName}</strong></td>
+      <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.details}">${r.details}</td>
+      <td class="num">${r.weightKg > 0 ? r.weightKg + ' KG' : '-'}</td>
+      <td class="num" style="font-family:var(--font-mono); font-weight:700;">${r.amountLabel}</td>
+    </tr>
+  `).join('');
+}
+
+function downloadCustomReport(format) {
+  const { rows, from, to, scope } = getFilteredReportData();
+  if (rows.length === 0) {
+    return showToast('No records found for the selected period and scope.', 'error');
+  }
+
+  const scopeTitles = {
+    all: 'Complete Trading & Financial Audit',
+    purchases: 'Fish Purchases & Inward Consignments',
+    sales: 'Morning Market Sales Bills',
+    payments: 'Party Payments & Settlements'
+  };
+
+  const title = scopeTitles[scope] || 'Trading Report';
+
+  if (format === 'csv') {
+    const csvRows = [
+      ['Al Haseena Exports - Fish Commission Agent'],
+      [`Report: ${title}`],
+      [`Period: ${from} to ${to}`],
+      [`Generated: ${getTodayIsoDate()}`],
+      [],
+      ['Date', 'Type', 'Reference #', 'Party Name', 'Details / Varieties', 'Weight (Kg)', 'Amount (Rs)']
+    ];
+
+    rows.forEach(r => {
+      csvRows.push([
+        r.date,
+        r.type,
+        r.refNo,
+        `"${(r.partyName || '').replace(/"/g, '""')}"`,
+        `"${(r.details || '').replace(/"/g, '""')}"`,
+        r.weightKg || 0,
+        r.amount || 0
+      ]);
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(e => e.join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Al_Haseena_${scope}_${from}_to_${to}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast('CSV Report downloaded successfully!', 'success');
+    return;
+  }
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text('Al Haseena Exports', 14, 18);
+
+    doc.setFontSize(9.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('Commission Fish Agent & Mandi Broker · Kasimedu Fishing Harbor, Chennai', 14, 23);
+    doc.setTextColor(15, 23, 42);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(title, 14, 32);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text(`Period: ${from} to ${to}   |   Scope: ${scope.toUpperCase()}   |   Generated: ${getTodayIsoDate()}`, 14, 37);
+
+    let totalKg = 0, totalAmt = 0;
+    rows.forEach(r => {
+      totalKg += (r.weightKg || 0);
+      totalAmt += (r.amount || 0);
+    });
+
+    doc.autoTable({
+      startY: 42,
+      head: [['Total Entries', 'Total Fish Weight', 'Total Value / Turnover', 'Report Scope']],
+      body: [[
+        `${rows.length} transactions`,
+        totalKg > 0 ? `${totalKg.toLocaleString('en-IN')} KG` : 'N/A',
+        `Rs. ${totalAmt.toLocaleString('en-IN')}`,
+        scope.toUpperCase()
+      ]],
+      theme: 'plain',
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [241, 245, 249], textColor: [71, 85, 105], fontStyle: 'bold' }
+    });
+
+    const tableData = rows.map(r => [
+      r.date,
+      r.type,
+      r.refNo,
+      r.partyName,
+      r.details,
+      r.weightKg > 0 ? `${r.weightKg} Kg` : '-',
+      `Rs. ${(r.amount || 0).toLocaleString('en-IN')}`
+    ]);
+
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 6,
+      head: [['Date', 'Type', 'Ref #', 'Party', 'Details', 'Qty', 'Amount']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 2.5 },
+      headStyles: { fillColor: [0, 132, 255], textColor: [255, 255, 255] },
+      columnStyles: {
+        0: { cellWidth: 20 },
+        1: { cellWidth: 22 },
+        2: { cellWidth: 24 },
+        3: { cellWidth: 32 },
+        4: { cellWidth: 44 },
+        5: { cellWidth: 18, halign: 'right' },
+        6: { cellWidth: 26, halign: 'right' }
+      }
+    });
+
+    doc.save(`Al_Haseena_${scope}_${from}_to_${to}.pdf`);
+    showToast('PDF Report downloaded successfully!', 'success');
+  } catch (err) {
+    console.error('PDF generation error:', err);
+    showToast('Failed to generate PDF: ' + err.message, 'error');
+  }
 }
 </script>
 </body>
