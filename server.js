@@ -361,6 +361,46 @@ function normalizeConsignment(data) {
 
 function normalizeSale(data) {
   const now = Date.now();
+  const subtotal = Number(data.subtotal) || 0;
+  const discount = Number(data.discount) || 0;
+  const total = Number(data.total) !== undefined ? Number(data.total) : Math.max(0, subtotal - discount);
+  const prevBal = Number(data.previousBalance) || 0;
+  const totalDue = Number(data.totalBalanceDue) !== undefined ? Number(data.totalBalanceDue) : (total + prevBal);
+  const paid = Number(data.amountPaid) || 0;
+  const closingBal = Number(data.closingBalance) !== undefined ? Number(data.closingBalance) : (totalDue - paid);
+
+  let totalBoxes = Number(data.totalBoxes) || 0;
+  const lines = Array.isArray(data.lines)
+    ? data.lines.map((l, idx) => {
+        const crates = Number(l.crates) || 0;
+        const kgPerCrate = Number(l.kgPerCrate) || 0;
+        let qty = Number(l.qty) || 0;
+        if (crates > 0 && kgPerCrate > 0 && (!qty || qty === crates)) {
+          qty = crates * kgPerCrate;
+        }
+        const rate = Number(l.rate) || 0;
+        const amount = Number(l.amount) !== undefined ? Number(l.amount) : (qty > 0 ? qty * rate : crates * rate);
+        return {
+          id: Number(l.id) || idx + 1,
+          consignmentId: Number(l.consignmentId) || null,
+          consignmentNo: String(l.consignmentNo || ''),
+          dealerId: Number(l.dealerId) || null,
+          dealerName: String(l.dealerName || ''),
+          variety: String(l.variety || '').trim(),
+          unit: l.unit === 'Crate' ? 'Crate' : 'Kg',
+          crates,
+          kgPerCrate,
+          qty,
+          rate,
+          amount
+        };
+      })
+    : [];
+
+  if (!totalBoxes && lines.length > 0) {
+    totalBoxes = lines.reduce((sum, l) => sum + (Number(l.crates) || (l.unit === 'Crate' ? Number(l.qty) : 0)), 0);
+  }
+
   return {
     id: Number(data.id) || now,
     billNo: String(data.billNo || `SAL-${now}`).trim(),
@@ -371,24 +411,15 @@ function normalizeSale(data) {
     buyerPhone: String(data.buyerPhone || '').trim(),
     paymentType: data.paymentType === 'Credit' ? 'Credit' : 'Cash',
     paymentMode: data.paymentMode || 'Cash', // 'Cash', 'UPI', 'Bank'
-    lines: Array.isArray(data.lines)
-      ? data.lines.map((l, idx) => ({
-          id: Number(l.id) || idx + 1,
-          consignmentId: Number(l.consignmentId) || null,
-          consignmentNo: String(l.consignmentNo || ''),
-          dealerId: Number(l.dealerId) || null,
-          dealerName: String(l.dealerName || ''),
-          variety: String(l.variety || '').trim(),
-          unit: l.unit === 'Kg' ? 'Kg' : 'Crate',
-          qty: Number(l.qty) || 0, // crates or kg
-          rate: Number(l.rate) || 0,
-          amount: Number(l.amount) || (Number(l.qty) || 0) * (Number(l.rate) || 0)
-        }))
-      : [],
-    subtotal: Number(data.subtotal) || 0,
-    discount: Number(data.discount) || 0,
-    total: Number(data.total) || 0,
-    amountPaid: Number(data.amountPaid) || 0,
+    totalBoxes,
+    lines,
+    subtotal,
+    discount,
+    total,
+    previousBalance: prevBal,
+    totalBalanceDue: totalDue,
+    amountPaid: paid,
+    closingBalance: closingBal,
     notes: String(data.notes || ''),
     isBadDebt: !!data.isBadDebt,
     created: Number(data.created) || now,
@@ -398,32 +429,48 @@ function normalizeSale(data) {
 
 function normalizeSettlement(data) {
   const now = Date.now();
+  const gross = Number(data.totalReportedGross) || 0;
+  const totalExp = Number(data.totalExpenses) || 0;
+  const commAmt = Number(data.commissionAmount) || 0;
+  const adj = Number(data.adjustments) || 0;
+  const netProceed = Math.max(0, gross - totalExp - commAmt + adj);
+  const prevBal = Number(data.previousBalance) || 0;
+  const totalBal = Number(data.totalBalanceDue) !== undefined ? Number(data.totalBalanceDue) : (netProceed + prevBal);
+  const cashPaid = Number(data.cashPaidToday) || 0;
+  const closingBal = Number(data.closingBalance) !== undefined ? Number(data.closingBalance) : (totalBal - cashPaid);
+
+  const items = Array.isArray(data.items)
+    ? data.items.map((it, idx) => ({
+        id: Number(it.id) || idx + 1,
+        consignmentId: Number(it.consignmentId) || null,
+        consignmentNo: String(it.consignmentNo || ''),
+        variety: String(it.variety || ''),
+        unit: it.unit || 'Crate',
+        qtySold: Number(it.qtySold) || 0,
+        realizedRevenue: Number(it.realizedRevenue) || 0,
+        systemAvgRate: Number(it.systemAvgRate) || 0,
+        reportedRate: Number(it.reportedRate !== undefined ? it.reportedRate : it.systemAvgRate) || 0,
+        reportedGross: Number(it.reportedGross) !== undefined ? Number(it.reportedGross) : (Number(it.qtySold) || 0) * (Number(it.reportedRate) || 0),
+        brokingProfit: Number(it.brokingProfit) !== undefined ? Number(it.brokingProfit) : ((Number(it.realizedRevenue) || 0) - (Number(it.reportedGross) || 0))
+      }))
+    : [];
+
+  const totalQtySold = Number(data.totalQtySold) || items.reduce((s, it) => s + (it.qtySold || 0), 0);
+  const avgRate = Number(data.averageRate) || (totalQtySold > 0 ? Math.round(gross / totalQtySold) : 0);
+
   return {
     id: Number(data.id) || now,
     settlementNo: String(data.settlementNo || `SET-${now}`).trim(),
     date: data.date || new Date().toISOString().split('T')[0],
     dealerId: Number(data.dealerId) || 0,
     dealerName: String(data.dealerName || '').trim(),
-    // Summary of goods sold for this dealer
-    items: Array.isArray(data.items)
-      ? data.items.map((it, idx) => ({
-          id: Number(it.id) || idx + 1,
-          consignmentId: Number(it.consignmentId) || null,
-          consignmentNo: String(it.consignmentNo || ''),
-          variety: String(it.variety || ''),
-          unit: it.unit || 'Crate',
-          qtySold: Number(it.qtySold) || 0,
-          realizedRevenue: Number(it.realizedRevenue) || 0,
-          systemAvgRate: Number(it.systemAvgRate) || 0,
-          reportedRate: Number(it.reportedRate !== undefined ? it.reportedRate : it.systemAvgRate) || 0,
-          reportedGross: Number(it.reportedGross) || (Number(it.qtySold) || 0) * (Number(it.reportedRate) || 0),
-          brokingProfit: Number(it.brokingProfit) || (Number(it.realizedRevenue) || 0) - (Number(it.reportedGross) || 0)
-        }))
-      : [],
-    totalQtySold: Number(data.totalQtySold) || 0,
+    arrivalCrates: Number(data.arrivalCrates) || 0,
+    items,
+    totalQtySold,
     totalRealizedRevenue: Number(data.totalRealizedRevenue) || 0,
-    totalReportedGross: Number(data.totalReportedGross) || 0,
+    totalReportedGross: gross,
     totalBrokingProfit: Number(data.totalBrokingProfit) || 0,
+    averageRate: avgRate,
     
     // Dynamic line-item expenses (Transport, Ice, Coolie, Storage, Lorry Bhada, etc.)
     expenses: Array.isArray(data.expenses)
@@ -433,15 +480,27 @@ function normalizeSettlement(data) {
           amount: Number(e.amount) || 0
         }))
       : [],
-    totalExpenses: Number(data.totalExpenses) || 0,
+    totalExpenses: totalExp,
 
     // Commission structure
     commissionType: data.commissionType || 'percent', // 'percent' or 'flat_per_crate' or 'fixed'
     commissionRate: Number(data.commissionRate) || 5,
-    commissionAmount: Number(data.commissionAmount) || 0,
+    commissionAmount: commAmt,
 
-    // Net amount credited to dealer
-    netPayableToDealer: Number(data.netPayableToDealer) || 0,
+    // Adjustments (+ / -) e.g. + 1170
+    adjustments: adj,
+
+    // Consignment Net Proceed
+    netConsignmentAmount: netProceed,
+    netPayableToDealer: netProceed,
+
+    // Continuous Ledger Details
+    previousBalance: prevBal,
+    totalBalanceDue: totalBal,
+    cashPaidToday: cashPaid,
+    cashPaidPayee: String(data.cashPaidPayee || '').trim(), // e.g. 'Cash Paid to DRL (Driver) / Me / JoJo'
+    closingBalance: closingBal,
+
     unsoldCratesCarriedForward: Number(data.unsoldCratesCarriedForward) || 0,
     notes: String(data.notes || ''),
     created: Number(data.created) || now,
@@ -723,13 +782,14 @@ async function getContactFullStatement(contactId, mode = 'all') {
   if (mode === 'all' || mode === 'sales_only') {
     const consignments = await database.collection('consignments').find({ dealerId: cId }).toArray();
     for (const c of consignments) {
-      const totalCrates = c.items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
+      const items = Array.isArray(c.items) ? c.items : [];
+      const totalCrates = items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
       rows.push({
         id: `CON-${c.id}`,
         date: c.date,
         type: 'CONSIGNMENT_INWARD',
         ref: c.consignmentNo,
-        description: `Inward Consignment: ${totalCrates} crates (Veh: ${c.vehicleNo})`,
+        description: `Inward Consignment: ${totalCrates} crates (Veh: ${c.vehicleNo || 'N/A'})`,
         crates: totalCrates,
         rate: '-',
         debit: 0,
@@ -741,18 +801,21 @@ async function getContactFullStatement(contactId, mode = 'all') {
     // Settlements (Patiya) - Credits Dealer
     const settlements = await database.collection('settlements').find({ dealerId: cId }).toArray();
     for (const s of settlements) {
+      const items = Array.isArray(s.items) ? s.items : [];
+      const repRate = (items[0] && items[0].reportedRate) || (s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0);
+      const netCredit = Number(s.netPayableToDealer) || Number(s.netConsignmentAmount) || 0;
       rows.push({
         id: `SET-${s.id}`,
         date: s.date,
         type: 'SETTLEMENT_PATIYA',
         ref: s.settlementNo,
-        description: `Patiya: ${s.totalQtySold} crates sold @ ₹${s.items[0]?.reportedRate || '-'} (Gross: ₹${s.totalReportedGross} - Exp: ₹${s.totalExpenses} - Comm: ₹${s.commissionAmount})`,
-        crates: s.totalQtySold,
-        rate: s.items[0]?.reportedRate || 0,
+        description: `Patiya: ${s.totalQtySold || 0} crates sold @ ₹${repRate || '-'} (Gross: ₹${s.totalReportedGross || 0} - Exp: ₹${s.totalExpenses || 0} - Comm: ₹${s.commissionAmount || 0})`,
+        crates: s.totalQtySold || 0,
+        rate: repRate || 0,
         debit: 0,
-        credit: Number(s.netPayableToDealer),
-        brokingProfit: s.totalBrokingProfit,
-        notes: `Unsold carried forward: ${s.unsoldCratesCarriedForward} crates`
+        credit: netCredit,
+        brokingProfit: s.totalBrokingProfit || 0,
+        notes: `Unsold carried forward: ${s.unsoldCratesCarriedForward || 0} crates`
       });
     }
   }
@@ -761,19 +824,20 @@ async function getContactFullStatement(contactId, mode = 'all') {
   if (mode === 'all' || mode === 'purchases_only') {
     const sales = await database.collection('sales').find({ buyerId: cId }).toArray();
     for (const s of sales) {
+      const lines = Array.isArray(s.lines) ? s.lines : [];
       const isBad = !!s.isBadDebt;
       rows.push({
         id: `SAL-${s.id}`,
         date: s.date,
         type: 'GOODS_PURCHASED',
         ref: s.billNo,
-        description: `Fish Bought: ${s.lines.map(l => `${l.qty} ${l.unit} ${l.variety}`).join(', ')}`,
-        crates: s.lines.reduce((acc, l) => acc + (l.unit === 'Crate' ? l.qty : 0), 0),
-        rate: s.lines[0]?.rate || 0,
-        debit: Number(s.total),
+        description: `Fish Bought: ${lines.map(l => `${l.qty} ${l.unit} ${l.variety}`).join(', ') || 'Fish'}`,
+        crates: lines.reduce((acc, l) => acc + (l.unit === 'Crate' ? l.qty : 0), 0),
+        rate: lines[0]?.rate || 0,
+        debit: Number(s.total) || 0,
         credit: 0,
         isBadDebt: isBad,
-        notes: isBad ? 'MARKED AS BAD DEBT (Loss absorbed by broker)' : s.paymentType
+        notes: isBad ? 'MARKED AS BAD DEBT (Loss absorbed by broker)' : (s.paymentType || '')
       });
     }
   }
@@ -1119,12 +1183,14 @@ const server = http.createServer(async (req, res) => {
           if (oldLine.consignmentId) {
             const cons = await database.collection('consignments').findOne({ id: oldLine.consignmentId });
             if (cons) {
+              const lineCrates = Number(oldLine.crates) > 0 ? Number(oldLine.crates) : (oldLine.unit === 'Crate' ? Number(oldLine.qty) : 0);
+              const lineKg = oldLine.unit === 'Kg' ? Number(oldLine.qty) : (Number(oldLine.crates) > 0 && Number(oldLine.kgPerCrate) > 0 ? Number(oldLine.crates) * Number(oldLine.kgPerCrate) : 0);
               const updatedItems = cons.items.map(it => {
                 if (it.variety === oldLine.variety) {
                   return {
                     ...it,
-                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + (oldLine.unit === 'Crate' ? oldLine.qty : 0)),
-                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + (oldLine.unit === 'Kg' ? oldLine.qty : 0))
+                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + lineCrates),
+                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + lineKg)
                   };
                 }
                 return it;
@@ -1140,12 +1206,14 @@ const server = http.createServer(async (req, res) => {
         if (line.consignmentId) {
           const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
           if (cons) {
+            const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : (line.unit === 'Crate' ? Number(line.qty) : 0);
+            const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
             const updatedItems = cons.items.map(it => {
               if (it.variety === line.variety) {
                 return {
                   ...it,
-                  unsoldCrates: Math.max(0, (it.unsoldCrates || 0) - (line.unit === 'Crate' ? line.qty : 0)),
-                  unsoldWeightKg: Math.max(0, (it.unsoldWeightKg || 0) - (line.unit === 'Kg' ? line.qty : 0))
+                  unsoldCrates: Math.max(0, (it.unsoldCrates || 0) - lineCrates),
+                  unsoldWeightKg: Math.max(0, (it.unsoldWeightKg || 0) - lineKg)
                 };
               }
               return it;
@@ -1173,12 +1241,14 @@ const server = http.createServer(async (req, res) => {
           if (line.consignmentId) {
             const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
             if (cons) {
+              const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : (line.unit === 'Crate' ? Number(line.qty) : 0);
+              const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
               const updatedItems = cons.items.map(it => {
                 if (it.variety === line.variety) {
                   return {
                     ...it,
-                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + (line.unit === 'Crate' ? line.qty : 0)),
-                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + (line.unit === 'Kg' ? line.qty : 0))
+                    unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + lineCrates),
+                    unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + lineKg)
                   };
                 }
                 return it;
@@ -1224,7 +1294,6 @@ const server = http.createServer(async (req, res) => {
       const matchingLines = [];
 
       for (const s of allSales) {
-        // filter by date if provided, or take all unsettled
         if (body.date && s.date !== body.date) continue;
         for (const line of s.lines) {
           if (line.dealerId === dealerId || (line.dealerName && line.dealerName.toLowerCase() === dealer.name.toLowerCase())) {
@@ -1243,26 +1312,28 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
-      // Group by variety
-      const varietyGroups = {};
+      // Group by variety + rate so different rates (e.g. 70 @ 3000, 26 @ 2500) appear cleanly as sub-lots
+      const varietyRateGroups = {};
       for (const l of matchingLines) {
         const v = l.variety || 'Fish';
-        if (!varietyGroups[v]) {
-          varietyGroups[v] = {
+        const r = Number(l.rate) || 0;
+        const u = l.unit || 'Crate';
+        const key = `${v}___${r}___${u}`;
+        if (!varietyRateGroups[key]) {
+          varietyRateGroups[key] = {
             variety: v,
-            unit: l.unit,
+            unit: u,
+            rate: r,
             consignmentId: l.consignmentId,
             qtySold: 0,
             realizedRevenue: 0
           };
         }
-        varietyGroups[v].qtySold += Number(l.qty) || 0;
-        varietyGroups[v].realizedRevenue += Number(l.amount) || 0;
+        varietyRateGroups[key].qtySold += Number(l.qty) || 0;
+        varietyRateGroups[key].realizedRevenue += Number(l.amount) || 0;
       }
 
-      const items = Object.values(varietyGroups).map((g, idx) => {
-        const avg = g.qtySold > 0 ? g.realizedRevenue / g.qtySold : 0;
-        const roundedAvg = Math.floor(avg * 100) / 100;
+      const items = Object.values(varietyRateGroups).map((g, idx) => {
         return {
           id: idx + 1,
           consignmentId: g.consignmentId,
@@ -1270,21 +1341,33 @@ const server = http.createServer(async (req, res) => {
           unit: g.unit,
           qtySold: g.qtySold,
           realizedRevenue: g.realizedRevenue,
-          systemAvgRate: roundedAvg,
-          reportedRate: Math.floor(roundedAvg), // Default suggestion (e.g. 116.66 -> 116 or 115)
-          reportedGross: (g.qtySold * Math.floor(roundedAvg)),
-          brokingProfit: g.realizedRevenue - (g.qtySold * Math.floor(roundedAvg))
+          systemAvgRate: g.rate,
+          reportedRate: g.rate,
+          reportedGross: g.realizedRevenue,
+          brokingProfit: 0
         };
       });
 
-      // Find unsold crates for this dealer
+      // Find arrival crates and unsold crates for this dealer
       const consignments = await database.collection('consignments').find({ dealerId }).toArray();
+      let arrivalCratesToday = 0;
       let unsoldCrates = 0;
       for (const c of consignments) {
+        const isMatchDate = !date || c.date === date;
         for (const it of c.items) {
+          if (isMatchDate) {
+            arrivalCratesToday += Number(it.crates) || 0;
+          }
           unsoldCrates += Number(it.unsoldCrates) || 0;
         }
       }
+      if (!arrivalCratesToday) {
+        arrivalCratesToday = items.reduce((s, it) => s + (it.unit === 'Crate' ? it.qtySold : 0), 0);
+      }
+
+      // Financials / Previous Balance
+      const fin = await getContactFinancials(dealerId);
+      const previousBalance = fin.payableBalance || 0;
 
       return sendJson(res, {
         dealer,
@@ -1292,7 +1375,9 @@ const server = http.createServer(async (req, res) => {
         items,
         defaultCommissionType: dealer.defaultCommissionType || 'percent',
         defaultCommissionVal: dealer.defaultCommissionVal || 5,
-        unsoldCratesRemaining: unsoldCrates
+        arrivalCratesToday,
+        unsoldCratesRemaining: unsoldCrates,
+        previousBalance
       });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
@@ -1307,6 +1392,34 @@ const server = http.createServer(async (req, res) => {
 
       const database = await connectDb();
       await database.collection('settlements').replaceOne({ id: settlement.id }, settlement, { upsert: true });
+
+      // Automatically sync on-the-spot driver cash payment to Payments collection
+      if (settlement.cashPaidToday > 0) {
+        const paymentId = Number(`88${settlement.id}`.slice(0, 14)) || Date.now();
+        await database.collection('payments').replaceOne(
+          { linkedSettlementId: settlement.id },
+          {
+            id: paymentId,
+            paymentNo: `PAY-SET-${settlement.settlementNo || settlement.id}`,
+            date: settlement.date,
+            contactId: settlement.dealerId,
+            contactName: settlement.dealerName,
+            type: 'DEALER_PAYMENT',
+            amount: settlement.cashPaidToday,
+            settlementDiscount: 0,
+            paymentMode: 'Cash',
+            referenceNo: settlement.cashPaidPayee || 'Cash to Driver on Patiya',
+            linkedSettlementId: settlement.id,
+            notes: `Patiya #${settlement.settlementNo} on-the-spot payout: ${settlement.cashPaidPayee || 'Cash to Driver'}`,
+            created: settlement.created || Date.now(),
+            updated: Date.now()
+          },
+          { upsert: true }
+        );
+      } else {
+        await database.collection('payments').deleteMany({ linkedSettlementId: settlement.id });
+      }
+
       return sendJson(res, settlement);
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
@@ -1318,6 +1431,7 @@ const server = http.createServer(async (req, res) => {
       const id = Number(pathname.split('/').pop());
       const database = await connectDb();
       await database.collection('settlements').deleteOne({ id });
+      await database.collection('payments').deleteMany({ linkedSettlementId: id });
       return sendJson(res, { ok: true });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
@@ -1374,6 +1488,40 @@ const server = http.createServer(async (req, res) => {
     try {
       const stock = await getLiveStockSummary();
       return sendJson(res, stock);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname === '/api/inventory') {
+    try {
+      const variety = searchParams.get('variety');
+      if (!variety) return sendJson(res, { error: 'Variety parameter is required' }, 400);
+
+      const database = await connectDb();
+      const consignments = await database.collection('consignments').find({}).toArray();
+      let updatedCount = 0;
+
+      for (const c of consignments) {
+        let changed = false;
+        if (c.items && Array.isArray(c.items)) {
+          for (const it of c.items) {
+            const v = (it.variety || '').trim().toLowerCase();
+            const target = variety.trim().toLowerCase();
+            if (v === target || v.startsWith(target) || target.startsWith(v)) {
+              it.unsoldCrates = 0;
+              it.unsoldWeightKg = 0;
+              changed = true;
+            }
+          }
+        }
+        if (changed) {
+          await database.collection('consignments').replaceOne({ id: c.id }, c);
+          updatedCount++;
+        }
+      }
+
+      return sendJson(res, { ok: true, variety, updatedConsignments: updatedCount });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
