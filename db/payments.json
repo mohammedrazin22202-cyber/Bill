@@ -30,5 +30,21 @@
     "notes": "",
     "created": 1791358201230,
     "updated": 1791358201230
+  },
+  {
+    "id": 88179137744335,
+    "paymentNo": "PAY-SET-SET-1791377443358",
+    "date": "2026-10-07",
+    "contactId": 1791185874468,
+    "contactName": "mg",
+    "type": "DEALER_PAYMENT",
+    "amount": 10000,
+    "settlementDiscount": 0,
+    "paymentMode": "Cash",
+    "referenceNo": "Cash Paid to DRL (Driver)",
+    "linkedSettlementId": 1791377443358,
+    "notes": "Patiya #SET-1791377443358 on-the-spot payout: Cash Paid to DRL (Driver)",
+    "created": 1791377443358,
+    "updated": 1791377443375
   }
 ]

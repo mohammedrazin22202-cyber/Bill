@@ -71,5 +71,87 @@
     "commissionAmount": 5000,
     "netPayableToDealer": 93620,
     "unsoldCratesCarriedForward": 5
+  },
+  {
+    "id": 1791377443358,
+    "settlementNo": "SET-1791377443358",
+    "date": "2026-10-07",
+    "dealerId": 1791185874468,
+    "dealerName": "mg",
+    "arrivalCrates": 200,
+    "items": [
+      {
+        "id": 1,
+        "consignmentId": null,
+        "consignmentNo": "",
+        "variety": "Vanjaram (Seer Fish)",
+        "unit": "Crate",
+        "qtySold": 100,
+        "realizedRevenue": 0,
+        "systemAvgRate": 0,
+        "reportedRate": 1000,
+        "reportedGross": 100000,
+        "brokingProfit": null
+      },
+      {
+        "id": 2,
+        "consignmentId": null,
+        "consignmentNo": "",
+        "variety": "Vanjaram (Seer Fish)",
+        "unit": "Crate",
+        "qtySold": 50,
+        "realizedRevenue": 0,
+        "systemAvgRate": 0,
+        "reportedRate": 1200,
+        "reportedGross": 60000,
+        "brokingProfit": null
+      },
+      {
+        "id": 3,
+        "consignmentId": null,
+        "consignmentNo": "",
+        "variety": "Vanjaram (Seer Fish)",
+        "unit": "Crate",
+        "qtySold": 50,
+        "realizedRevenue": 0,
+        "systemAvgRate": 0,
+        "reportedRate": 900,
+        "reportedGross": 45000,
+        "brokingProfit": null
+      }
+    ],
+    "totalQtySold": 200,
+    "totalRealizedRevenue": 0,
+    "totalReportedGross": 205000,
+    "totalBrokingProfit": 0,
+    "averageRate": 1025,
+    "expenses": [
+      {
+        "id": 1,
+        "name": "Transport / Lorry Bhada (MEN)",
+        "amount": 4320
+      },
+      {
+        "id": 2,
+        "name": "Ice & Coolie Labor (ML)",
+        "amount": 1000
+      }
+    ],
+    "totalExpenses": 5320,
+    "commissionType": "percent",
+    "commissionRate": 5,
+    "commissionAmount": 10250,
+    "adjustments": 0,
+    "netConsignmentAmount": 189430,
+    "netPayableToDealer": 189430,
+    "previousBalance": 0,
+    "totalBalanceDue": 189430,
+    "cashPaidToday": 10000,
+    "cashPaidPayee": "Cash Paid to DRL (Driver)",
+    "closingBalance": 179430,
+    "unsoldCratesCarriedForward": 0,
+    "notes": "",
+    "created": 1791377443358,
+    "updated": 1791377443358
   }
 ]

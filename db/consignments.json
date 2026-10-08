@@ -39,7 +39,7 @@
         "crates": 5,
         "weightKg": 210,
         "unsoldCrates": 0,
-        "unsoldWeightKg": 210,
+        "unsoldWeightKg": 0,
         "rateExpected": 450,
         "notes": "Fresh iced small crate lot"
       }
@@ -147,7 +147,7 @@
         "crates": 5,
         "weightKg": 100,
         "unsoldCrates": 0,
-        "unsoldWeightKg": 100,
+        "unsoldWeightKg": 0,
         "rateExpectation": 0,
         "notes": ""
       }
@@ -174,16 +174,16 @@
         "variety": "Vanjaram (Seer Fish)",
         "crates": 4,
         "weightKg": 0,
-        "unsoldCrates": 4,
+        "unsoldCrates": 0,
         "unsoldWeightKg": 0,
         "rateExpectation": 0,
         "notes": ""
       }
     ],
-    "status": "Active",
+    "status": "Settled",
     "notes": "",
     "created": 1791185874463,
-    "updated": 1791185874463
+    "updated": 1791377443371
   },
   {
     "id": 1791349905262,
@@ -230,16 +230,16 @@
         "variety": "Vanjaram (Seer Fish)",
         "crates": 200,
         "weightKg": 0,
-        "unsoldCrates": 200,
+        "unsoldCrates": 0,
         "unsoldWeightKg": 0,
         "rateExpectation": 0,
         "notes": ""
       }
     ],
-    "status": "Active",
+    "status": "Settled",
     "notes": "",
     "created": 1791355711156,
-    "updated": 1791355711156
+    "updated": 1791377489599
   },
   {
     "id": 1791357114679,
