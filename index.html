@@ -651,8 +651,8 @@ input[type="text"].global-search-input:focus {
 .action-cards-grid {
   margin: 14px 20px 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .quick-action-card {
@@ -704,6 +704,16 @@ input[type="text"].global-search-input:focus {
   box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
 }
 
+.quick-action-card.theme-purple {
+  background: #faf5ff;
+  border-color: #eedeff;
+}
+.quick-action-card.theme-purple:hover {
+  background: #f3e8ff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.12);
+}
+
 .quick-action-card.theme-amber {
   background: #fff8eb;
   border-color: #fee9c5;
@@ -739,6 +749,10 @@ input[type="text"].global-search-input:focus {
   background: #d1fae5;
   color: #059669;
 }
+.quick-action-card.theme-purple .action-icon-circle {
+  background: #ede9fe;
+  color: #7c3aed;
+}
 .quick-action-card.theme-amber .action-icon-circle {
   background: #ffedd5;
   color: #d97706;
@@ -751,6 +765,7 @@ input[type="text"].global-search-input:focus {
 }
 .quick-action-card.theme-blue .action-main-title { color: #0369a1; }
 .quick-action-card.theme-green .action-main-title { color: #065f46; }
+.quick-action-card.theme-purple .action-main-title { color: #6d28d9; }
 .quick-action-card.theme-amber .action-main-title { color: #9a3412; }
 
 .action-sub-text {
@@ -774,6 +789,7 @@ input[type="text"].global-search-input:focus {
 
 .quick-action-card.theme-blue .action-arrow-bubble { color: #0084ff; }
 .quick-action-card.theme-green .action-arrow-bubble { color: #059669; }
+.quick-action-card.theme-purple .action-arrow-bubble { color: #7c3aed; }
 .quick-action-card.theme-amber .action-arrow-bubble { color: #d97706; }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1630,6 +1646,10 @@ input[type="text"].global-search-input:focus {
 .btn-primary:hover { background: #0266c8; }
 .btn-green { background: #059669; color: #ffffff; }
 .btn-green:hover { background: #047857; }
+.btn-purple { background: #7c3aed; color: #ffffff; }
+.btn-purple:hover { background: #6d28d9; }
+.btn-amber { background: #d97706; color: #ffffff; }
+.btn-amber:hover { background: #b45309; }
 .btn-outline { background: #ffffff; border-color: #cbd5e1; color: #334155; }
 .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
 .btn-ghost { background: transparent; color: #64748b; }
@@ -1643,7 +1663,7 @@ input[type="text"].global-search-input:focus {
 .table-action-cell {
   white-space: nowrap !important;
   text-align: right !important;
-  min-width: 115px;
+  min-width: 145px;
 }
 .table-actions-group {
   display: inline-flex !important;
@@ -1658,9 +1678,46 @@ input[type="text"].global-search-input:focus {
   margin: 0 !important;
 }
 th.num:last-child {
-  min-width: 115px !important;
+  min-width: 145px !important;
   text-align: right !important;
   white-space: nowrap !important;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #viewBillModal.open, #viewBillModal.open #viewBillContent, #viewBillModal.open #viewBillContent * {
+    visibility: visible;
+  }
+  #viewBillModal.open {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+  }
+  #viewBillModal.open .modal-window {
+    box-shadow: none !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  #viewBillModal.open .modal-top-bar,
+  #viewBillModal.open .modal-bottom-actions {
+    display: none !important;
+  }
+  #viewBillModal.open .modal-scroll-body {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  #viewBillContent {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
 }
 
 .badge {
@@ -1832,6 +1889,10 @@ th.num:last-child {
   cursor: pointer;
 }
 .ctrl-k-item:hover { background: #f1f5f9; }
+
+@media(max-width: 1200px) {
+  .action-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 @media(max-width: 950px) {
   .dashboard-content-columns { grid-template-columns: 1fr; }
@@ -2141,7 +2202,22 @@ th.num:last-child {
           </div>
           <div>
             <div class="action-main-title">+ Record Fish Sold</div>
-            <div class="action-sub-text">Sell to dealer</div>
+            <div class="action-sub-text">Sell to buyers</div>
+          </div>
+        </div>
+        <div class="action-arrow-bubble">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+      </div>
+
+      <div class="quick-action-card theme-purple" onclick="openPatiyaModal()">
+        <div class="action-card-left">
+          <div class="action-icon-circle">
+            <i class="fa-solid fa-calculator"></i>
+          </div>
+          <div>
+            <div class="action-main-title">Settle Dealer (Patiya)</div>
+            <div class="action-sub-text">Bill crates & calculate total owed</div>
           </div>
         </div>
         <div class="action-arrow-bubble">
@@ -2152,11 +2228,11 @@ th.num:last-child {
       <div class="quick-action-card theme-amber" onclick="openPaymentModal('DEALER_PAYMENT')">
         <div class="action-card-left">
           <div class="action-icon-circle">
-            <i class="fa-solid fa-wallet"></i>
+            <i class="fa-solid fa-hand-holding-dollar"></i>
           </div>
           <div>
-            <div class="action-main-title">Make Payment</div>
-            <div class="action-sub-text">Settle with dealer</div>
+            <div class="action-main-title">Pay Dealer</div>
+            <div class="action-sub-text">Pay money to reduce balance</div>
           </div>
         </div>
         <div class="action-arrow-bubble">
@@ -2364,25 +2440,25 @@ th.num:last-child {
         <h1 class="view-heading-title">Fish In (Arrivals)</h1>
         <div style="font-size:12px; color:#64748b;">Consignments received from boat owners and dealers</div>
       </div>
-      <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Record Fish In</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-green" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer (Patiya)</button>
+        <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Record Fish In</button>
+      </div>
     </div>
 
     <div class="view-body-content">
       <div class="data-table-box">
         <div class="table-filter-bar">
           <span style="font-weight:700;"><i class="fas fa-truck-ramp-box" style="color:#0084ff;"></i> Inward Arrivals History</span>
-          <input type="text" id="filterArrivalsInput" placeholder="Search dealer, vehicle no..." style="width:240px;" oninput="renderArrivalsList()"/>
+          <input type="text" id="filterArrivalsInput" placeholder="Search dealer, fish variety..." style="width:240px;" oninput="renderArrivalsList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
-                <th>Ref #</th>
-                <th>Date / Time</th>
+                <th>Date</th>
                 <th>Dealer</th>
-                <th>Vehicle No</th>
                 <th>Fish Varieties</th>
-                <th class="num">Lorry Bhada</th>
                 <th class="num">Stock Left</th>
                 <th>Status</th>
                 <th class="num">Actions</th>
@@ -2417,19 +2493,15 @@ th.num:last-child {
       <div id="subViewSalesBills" class="data-table-box">
         <div class="table-filter-bar">
           <span style="font-weight:700;"><i class="fas fa-cart-shopping" style="color:#10b981;"></i> Sales Invoices</span>
-          <input type="text" id="filterSalesInput" placeholder="Search buyer, bill no..." style="width:240px;" oninput="renderSalesList()"/>
+          <input type="text" id="filterSalesInput" placeholder="Search buyer..." style="width:240px;" oninput="renderSalesList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
-                <th>Bill #</th>
-                <th>Date / Time</th>
+                <th>Date</th>
                 <th>Buyer</th>
-                <th>Packages</th>
                 <th class="num">Today's Bill</th>
-                <th class="num">Prev Bal</th>
-                <th class="num">Total Due</th>
                 <th>Payment</th>
                 <th class="num">Actions</th>
               </tr>
@@ -2442,26 +2514,21 @@ th.num:last-child {
       <!-- Sub-view: Patiya -->
       <div id="subViewSalesPatiya" class="data-table-box" style="display:none;">
         <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#0084ff;"></i> Finalized Dealer Bills (Patiya)</span>
+          <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills (Patiya)</span>
           <div style="display:flex; gap:8px;">
             <input type="text" id="filterPatiyaInput" placeholder="Search dealer..." style="width:200px;" oninput="renderPatiyaList()"/>
-            <button class="btn btn-primary btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Make Dealer Bill</button>
+            <button class="btn btn-outline btn-sm" id="btnToggleAllPatiya" onclick="toggleAllPatiyaBreakdowns()"><i class="fas fa-eye"></i> Show All Breakdown</button>
+            <button class="btn btn-purple btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer (Patiya)</button>
           </div>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
-                <th>Patiya #</th>
                 <th>Date</th>
                 <th>Dealer</th>
-                <th class="num">Arrival Lot</th>
-                <th class="num">Gross</th>
-                <th class="num">Deductions</th>
-                <th class="num">Net Sale</th>
-                <th class="num">Prev Bal</th>
-                <th class="num">Cash Paid</th>
-                <th class="num">Closing Bal</th>
+                <th>Breakdown</th>
+                <th class="num">Amount We Owe (Closing Bal)</th>
                 <th class="num">Actions</th>
               </tr>
             </thead>
@@ -2547,7 +2614,8 @@ th.num:last-child {
         </div>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary" onclick="openPaymentModal('DEALER_PAYMENT')"><i class="fas fa-hand-holding-dollar"></i> Pay Dealer</button>
+        <button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer (Patiya)</button>
+        <button class="btn btn-amber" onclick="openPaymentModal('DEALER_PAYMENT')"><i class="fas fa-hand-holding-dollar"></i> Pay Dealer</button>
         <button class="btn btn-green" onclick="openPaymentModal('BUYER_COLLECTION')"><i class="fas fa-sack-dollar"></i> Collect Buyer</button>
         <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-arrows-split-up-and-left"></i> Contra Offset</button>
       </div>
@@ -2826,47 +2894,20 @@ th.num:last-child {
       <button class="btn btn-ghost btn-sm" onclick="closeModal('arrivalModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
-      <div class="three-col-grid">
+      <div class="two-col-grid" style="margin-bottom:18px;">
         <div class="input-block">
-          <label>Arrival Date</label>
+          <label>Date</label>
           <input type="date" id="mArrDate"/>
         </div>
         <div class="input-block autocomplete-anchor">
-          <label>Dealer Name (Sender) *</label>
-          <input type="text" id="mArrDealer" placeholder="Type dealer name" oninput="searchDealerInward(this.value)"/>
+          <label>Name *</label>
+          <input type="text" id="mArrDealer" placeholder="Type name" oninput="searchDealerInward(this.value)"/>
           <div class="autocomplete-flyout" id="mArrDealerDropdown"></div>
-        </div>
-        <div class="input-block">
-          <label>Vehicle / Lorry No</label>
-          <input type="text" id="mArrVehicle" placeholder="e.g. TN-04-E-4892"/>
-        </div>
-      </div>
-
-      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px; margin-bottom:14px;">
-        <div style="font-size:12px; font-weight:700; color:#0369a1; margin-bottom:6px;">
-          <i class="fas fa-truck"></i> Advance Lorry Bhada (Cash Paid to Driver on Arrival)
-        </div>
-        <div class="three-col-grid">
-          <div class="input-block" style="margin-bottom:0;">
-            <label>Amount (₹)</label>
-            <input type="number" id="mArrLorryBhada" value="0"/>
-          </div>
-          <div class="input-block" style="margin-bottom:0;">
-            <label>Channel</label>
-            <select id="mArrLorryMode">
-              <option value="Cash">Cash (from drawer)</option>
-              <option value="Bank">Bank Transfer / UPI</option>
-            </select>
-          </div>
-          <div class="input-block" style="margin-bottom:0;">
-            <label>Driver Remarks</label>
-            <input type="text" id="mArrDriverNotes" placeholder="Driver contact / notes"/>
-          </div>
         </div>
       </div>
 
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <span style="font-weight:700; font-size:12.5px;">Fish Varieties & Crates</span>
+        <span style="font-weight:700; font-size:12.5px;">Crates & Fish Varieties</span>
         <button class="btn btn-outline btn-sm" onclick="addInwardRow()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
@@ -2874,11 +2915,9 @@ th.num:last-child {
         <table class="data-grid" id="inwardItemsTable">
           <thead>
             <tr>
+              <th style="width:140px;">Crate</th>
               <th>Fish Variety</th>
-              <th class="num">Crates Count</th>
-              <th class="num">Weight (Kg) [Optional]</th>
-              <th>Quality Notes</th>
-              <th class="num"></th>
+              <th class="num" style="width:40px;"></th>
             </tr>
           </thead>
           <tbody id="inwardItemsTbody"></tbody>
@@ -2902,17 +2941,17 @@ th.num:last-child {
     <div class="modal-scroll-body">
       <div class="three-col-grid">
         <div class="input-block autocomplete-anchor">
-          <label>Buyer Name *</label>
-          <input type="text" id="mSaleBuyer" placeholder="Select buyer" oninput="searchSaleBuyer(this.value)"/>
+          <label>Name *</label>
+          <input type="text" id="mSaleBuyer" placeholder="Type name" oninput="searchSaleBuyer(this.value)"/>
           <div class="autocomplete-flyout" id="mSaleBuyerDropdown"></div>
           <small id="mSaleBuyerInfo" style="font-size:11px; color:#64748b; margin-top:2px;"></small>
         </div>
         <div class="input-block">
-          <label>Bill Date</label>
+          <label>Date</label>
           <input type="date" id="mSaleDate"/>
         </div>
         <div class="input-block">
-          <label>Terms</label>
+          <label>Mode</label>
           <select id="mSalePaymentTerms" onchange="checkBuyerCreditStatus()">
             <option value="Credit">Credit Sale (Pay Later)</option>
             <option value="Cash">Cash Sale (Paid Now)</option>
@@ -2931,7 +2970,6 @@ th.num:last-child {
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-weight:700; font-size:12.5px;">Items Sold</span>
           <span class="badge badge-purple" id="mSaleBoxCountBadge" style="font-size:11.5px;"><i class="fas fa-boxes-stacked"></i> P - 0 Boxes</span>
-          <span class="badge badge-blue" id="mSaleWeightBadge" style="font-size:11.5px;"><i class="fas fa-scale-balanced"></i> 0 KG</span>
         </div>
         <button class="btn btn-outline btn-sm" onclick="addSaleLine()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
@@ -2940,68 +2978,71 @@ th.num:last-child {
         <table class="data-grid" id="saleLinesGrid">
           <thead>
             <tr>
-              <th style="width:28%">Dealer Stock / Variety</th>
-              <th style="width:11%" class="num">Boxes (P)</th>
-              <th style="width:13%" class="num">Kg / Box</th>
-              <th style="width:14%" class="num">Total Qty (Kg)</th>
-              <th style="width:14%" class="num">Rate (₹)</th>
-              <th style="width:15%" class="num">Amount (₹)</th>
-              <th style="width:5%"></th>
+              <th style="width:44%">Dealer Stock / Variety</th>
+              <th style="width:16%" class="num">Boxes (P)</th>
+              <th style="width:16%" class="num">Rate (₹)</th>
+              <th style="width:18%" class="num">Amount (₹)</th>
+              <th style="width:6%"></th>
             </tr>
           </thead>
           <tbody id="saleLinesTbody"></tbody>
         </table>
       </div>
 
-      <!-- Financials & Running Ledger Breakdown -->
-      <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:16px; margin-top:16px;">
-        <!-- Left: Today's Items Subtotal -->
-        <div style="background:#f8fafc; padding:14px; border-radius:10px; border:1px solid #e2e8f0;">
-          <div style="font-weight:700; font-size:12px; color:#475569; text-transform:uppercase; margin-bottom:10px;">
-            <i class="fas fa-file-invoice"></i> Today's Invoice
-          </div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12.5px;">
-            <span>Goods Subtotal:</span>
-            <strong id="mSaleSubtotal">₹0</strong>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
-            <span>Discount (₹):</span>
-            <input type="number" id="mSaleDiscount" value="0" style="width:90px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:800; color:#0f172a; border-top:1px solid #e2e8f0; padding-top:6px;">
-            <span>Today's Net Bill:</span>
-            <span style="color:#059669" id="mSaleNetTotal">₹0</span>
-          </div>
-        </div>
-
-        <!-- Right: Continuous Ledger (Previous Balance + Cash Received + Total Due) -->
-        <div style="background:#ffffff; padding:14px; border-radius:10px; border:2px solid #10b981;">
-          <div style="font-weight:700; font-size:12px; color:#065f46; text-transform:uppercase; margin-bottom:10px; display:flex; justify-content:space-between;">
-            <span><i class="fas fa-book-bookmark"></i> Running Ledger & Total Due</span>
+      <!-- Combined: Invoice & Running Ledger in Single Column (Centered & Wider) -->
+      <div style="display:flex; justify-content:center; margin-top:16px;">
+        <div style="width:100%; max-width:560px; background:#ffffff; border:1.5px solid #10b981; border-radius:10px; padding:16px 22px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+            <span style="font-weight:700; font-size:12.5px; color:#065f46; text-transform:uppercase;">
+              <i class="fas fa-calculator" style="color:#10b981;"></i> Invoice & Running Ledger
+            </span>
             <span class="badge badge-green">Slip #4 Format</span>
           </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
-            <span>(+) Previous Balance:</span>
-            <input type="number" id="mSalePrevBal" value="0" style="width:110px; padding:3px 6px; text-align:right; font-weight:700;" oninput="computeSaleBillTotals()"/>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:13.5px; font-weight:700; color:#0f172a; margin-bottom:6px; border-top:1px dashed #cbd5e1; padding-top:4px;">
-            <span>Total Balance Due:</span>
-            <span id="mSaleTotalDue">₹0</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:12.5px;">
-            <span>(-) Cash Received Today:</span>
-            <input type="number" id="mSaleCashPaid" value="0" style="width:110px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
-          </div>
-          <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:800; color:#047857; border-top:1px solid #10b981; padding-top:6px;">
-            <span>Net Closing Balance:</span>
-            <span id="mSaleClosingBal">₹0</span>
+
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
+              <span>Goods Subtotal:</span>
+              <strong id="mSaleSubtotal">₹0</strong>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
+              <span>(-) Discount (₹):</span>
+              <input type="number" id="mSaleDiscount" value="0" style="width:100px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; font-weight:800; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:5px;">
+              <span>Today's Net Bill:</span>
+              <span style="color:#059669;" id="mSaleNetTotal">₹0</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; margin-top:3px;">
+              <span>(+) Previous Balance:</span>
+              <input type="number" id="mSalePrevBal" value="0" style="width:110px; padding:3px 6px; text-align:right; font-weight:700;" oninput="computeSaleBillTotals()"/>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:5px;">
+              <span>Total Balance Due:</span>
+              <span id="mSaleTotalDue">₹0</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
+              <span>(-) Cash Received Today:</span>
+              <input type="number" id="mSaleCashPaid" value="0" style="width:110px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:16px; font-weight:800; color:#047857; border-top:1.5px solid #10b981; padding-top:6px; margin-top:2px;">
+              <span>Net Closing Balance:</span>
+              <span id="mSaleClosingBal">₹0</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('saleModal')">Cancel</button>
-      <button class="btn btn-green" onclick="saveMorningSale()"><i class="fas fa-print"></i> Save & Print A4 Bill</button>
+      <button class="btn btn-wa" onclick="saveMorningSale('whatsapp')"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
+      <button class="btn btn-green" onclick="saveMorningSale('print')"><i class="fas fa-print"></i> Print</button>
+      <button class="btn btn-primary" onclick="saveMorningSale('save')"><i class="fas fa-check"></i> Save</button>
     </div>
   </div>
 </div>
@@ -3017,7 +3058,7 @@ th.num:last-child {
       <div class="three-col-grid" style="align-items:flex-end;">
         <div class="input-block autocomplete-anchor">
           <label>Select Dealer / Supplier *</label>
-          <input type="text" id="mPatDealer" placeholder="Select dealer name" oninput="searchPatiyaDealer(this.value)"/>
+          <input type="text" id="mPatDealer" placeholder="Click or type dealer name..." onfocus="searchPatiyaDealer(this.value)" oninput="searchPatiyaDealer(this.value)"/>
           <div class="autocomplete-flyout" id="mPatDealerDropdown"></div>
         </div>
         <div class="input-block">
@@ -3032,67 +3073,93 @@ th.num:last-child {
       </div>
 
       <div id="patiyaCalcSection" style="display:none; margin-top:12px;">
-        <!-- Arrival Lot Badge & Blended Average Header -->
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; background:#e0f2fe; border:1px solid #bae6fd; border-radius:8px; padding:8px 14px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <i class="fas fa-truck-ramp-box" style="color:#0284c7;"></i>
-            <span style="font-weight:700; font-size:12.5px; color:#0369a1;">Arrival Consignment Lot:</span>
-            <input type="number" id="mPatArrivalCrates" value="0" style="width:80px; padding:2px 6px; font-weight:700; text-align:right;" oninput="recalculatePatiya()"/>
-            <span style="font-size:12px; color:#0369a1; font-weight:600;">Crates (P)</span>
+        <!-- Received Consignments Accounting Header Card -->
+        <div id="mPatReceivedCard" style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:10px; padding:12px 16px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #e0f2fe; padding-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <i class="fas fa-boxes-packing" style="color:#0284c7; font-size:18px;"></i>
+              <div>
+                <span style="font-weight:800; font-size:13px; color:#0369a1; text-transform:uppercase; letter-spacing:0.4px;">
+                  Consignments Received (You Owe Him Money For):
+                </span>
+                <div style="font-size:11.5px; color:#475569;" id="mPatReceivedSubtext">
+                  Items received to be billed & settled:
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="badge badge-blue" id="mPatTotalArrivalBadge" style="font-size:12px; font-weight:700;">Total: 0 Crates</span>
+              <input type="hidden" id="mPatArrivalCrates" value="0"/>
+              <span class="badge badge-purple" id="mPatBlendedAvgBadge" style="font-size:12px;">Blended Avg: @ ₹0 / Box</span>
+            </div>
           </div>
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="badge badge-purple" id="mPatBlendedAvgBadge" style="font-size:12px;">Blended Avg: @ ₹0 / Box</span>
-            <span class="badge badge-green" id="patMarginBadge">Broker Margin: +₹0</span>
-          </div>
+
+          <!-- Dynamic Variety Received Pills List -->
+          <div id="mPatReceivedVarietiesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
         </div>
 
-        <!-- Section 1: Sales breakdown -->
+        <!-- Section 1: Fish Sold (Sub-lots & Rates per Crate) -->
         <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:12px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span style="font-weight:700; font-size:12.5px;">1. Fish Sold (Sub-lots & Rates)</span>
-            <button class="btn btn-outline btn-sm" onclick="addPatiyaItemLine()"><i class="fas fa-plus"></i> Add Fish Lot</button>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-weight:800; font-size:13px; color:#0f172a;"><i class="fas fa-list-check" style="color:#0084ff;"></i> 1. Bill Fish Sold (Sub-lots & Rates per Crate)</span>
+              <span class="badge badge-blue" id="mPatAccountingStatusBadge" style="font-size:11.5px;">0 / 0 Crates Accounted</span>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="addPatiyaItemLine()"><i class="fas fa-plus"></i> Add Sub-Lot</button>
           </div>
           <div class="table-scroller">
             <table class="data-grid">
               <thead>
                 <tr>
-                  <th>Variety</th>
-                  <th class="num">Sold Qty</th>
-                  <th class="num">Unit</th>
-                  <th class="num" style="background:#fffbeb; color:#b45309;">Settled Rate (₹)</th>
-                  <th class="num">Gross Total (₹)</th>
-                  <th style="width:30px;"></th>
+                  <th style="min-width:170px;">Fish Variety</th>
+                  <th class="num" style="width:110px;">Crates Sold</th>
+                  <th class="num" style="width:80px;">Unit</th>
+                  <th class="num" style="width:130px; background:#fffbeb; color:#b45309;">Rate / Crate (₹)</th>
+                  <th class="num" style="width:140px;">Gross Total (₹)</th>
+                  <th style="width:36px;"></th>
                 </tr>
               </thead>
               <tbody id="patItemsTbody"></tbody>
             </table>
           </div>
+          <datalist id="patVarietyDatalist"></datalist>
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:14px; margin-top:8px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:13px;">
+            <span style="color:#64748b; font-weight:600;">Total Crates Sold: <strong id="mPatTotalSoldCrates" style="color:#0f172a;">0</strong></span>
+            <span style="color:#64748b; font-weight:600;">Gross Sales Total: <strong id="mPatTotalGrossSales" style="color:#059669; font-size:15px; font-family:var(--font-mono);">₹0</strong></span>
+          </div>
         </div>
 
-        <!-- Section 2: Deductions & Adjustments -->
-        <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:12px; margin-bottom:12px;">
-          <!-- Expenses table -->
+        <!-- Section 2 & 3: Deduct Expenses & Commission -->
+        <div style="display:grid; grid-template-columns: 1.15fr 0.85fr; gap:12px; margin-bottom:12px;">
+          <!-- Expenses table (One by One) -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-weight:700; font-size:12.5px;">2. Deduct Expenses (Lorry/MEN, Ice/ML)</span>
-              <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseLine()"><i class="fas fa-plus"></i> Add</button>
+              <div>
+                <span style="font-weight:800; font-size:13px; color:#0f172a;">2. Deduct Expenses (One by One)</span>
+                <div style="font-size:11px; color:#64748b;">Transport (MEN), Ice & Coolie (ML), etc.</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseLine()"><i class="fas fa-plus"></i> Add Expense</button>
             </div>
             <table class="data-grid">
               <thead>
                 <tr>
-                  <th>Expense Head</th>
+                  <th>Expense Head / Description</th>
                   <th class="num" style="width:120px;">Amount (₹)</th>
-                  <th style="width:24px;"></th>
+                  <th style="width:28px;"></th>
                 </tr>
               </thead>
               <tbody id="patExpenseTbody"></tbody>
             </table>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; padding-top:6px; border-top:1px dashed #cbd5e1; font-size:12.5px;">
+              <span style="color:#64748b; font-weight:600;">Total Expenses Deducted:</span>
+              <strong id="mPatTotalExpenses" style="color:#dc2626; font-family:var(--font-mono);">-₹0</strong>
+            </div>
           </div>
 
-          <!-- Commission & Adjustments -->
+          <!-- Commission & Net Consignment Proceeds -->
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
-              <span style="font-weight:700; font-size:12.5px; display:block; margin-bottom:8px;">3. Commission & Adjustments</span>
+              <span style="font-weight:800; font-size:13px; color:#0f172a; display:block; margin-bottom:8px;">3. Deduct Commission & Margin</span>
               <div class="two-col-grid" style="margin-bottom:8px;">
                 <div class="input-block">
                   <label>Commission Type</label>
@@ -3103,65 +3170,80 @@ th.num:last-child {
                   </select>
                 </div>
                 <div class="input-block">
-                  <label>Comm. Value</label>
+                  <label>Comm. Rate / Val</label>
                   <input type="number" id="mPatCommVal" value="5" oninput="recalculatePatiya()"/>
                 </div>
               </div>
-              <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+              <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;">
                 <span>Commission Deducted:</span>
-                <strong id="mPatCommDeduction" style="color:#d97706;">-₹0</strong>
+                <strong id="mPatCommDeduction" style="color:#d97706; font-family:var(--font-mono);">-₹0</strong>
               </div>
-              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; border-top:1px dashed #cbd5e1; padding-top:6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; border-top:1px dashed #cbd5e1; padding-top:6px; margin-bottom:6px;">
                 <span>Rounding / Adjustment (+/- ₹):</span>
                 <input type="number" id="mPatAdjustments" value="0" style="width:90px; padding:2px 6px; text-align:right;" oninput="recalculatePatiya()" placeholder="+/- 0"/>
               </div>
             </div>
-            <div style="background:#f1f5f9; padding:8px 10px; border-radius:6px; font-size:12.5px; display:flex; justify-content:space-between; margin-top:8px;">
-              <span>Net Consignment Sale:</span>
-              <strong id="mPatConsignmentNet" style="color:#0f172a;">₹0</strong>
+            <div style="background:#e0f2fe; border:1px solid #bae6fd; padding:10px 12px; border-radius:8px; font-size:13px; display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+              <span style="font-weight:700; color:#0369a1;">Net Consignment Proceed:</span>
+              <strong id="mPatConsignmentNet" style="color:#0284c7; font-size:16px; font-family:var(--font-mono);">₹0</strong>
             </div>
           </div>
         </div>
 
-        <!-- Section 3: Continuous Running Ledger & Driver Cash Payment -->
-        <div style="background:#ffffff; border:2px solid #0084ff; border-radius:12px; padding:14px; margin-bottom:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:800; font-size:13px; color:#0084ff; text-transform:uppercase;">
-              <i class="fas fa-book-bookmark"></i> 4. Continuous Running Ledger & Driver Payout (Slips #1 & #2 Format)
+        <!-- Section 4: Continuous Running Ledger & Final Amount We Owe Him -->
+        <div style="background:#ffffff; border:2px solid #0084ff; border-radius:12px; padding:16px; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:800; font-size:13.5px; color:#0084ff; text-transform:uppercase; letter-spacing:0.5px;">
+              <i class="fas fa-book-bookmark"></i> 4. Running Ledger & Final Amount We Owe Him
             </span>
-            <span style="font-size:11.5px; color:#64748b;">
-              <i class="fas fa-boxes-stacked"></i> Unsold Left: <strong id="mPatUnsoldCrates">0</strong>
+            <span style="font-size:12px; color:#64748b;">
+              <i class="fas fa-boxes-stacked"></i> Unsold Crates Left: <strong id="mPatUnsoldCrates" style="color:#0f172a;">0</strong>
             </span>
           </div>
           
-          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:10px;">
-            <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
-              <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">(+) Previous Balance</label>
-              <input type="number" id="mPatPrevBal" value="0" style="width:100%; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
-              <small style="font-size:10.5px; color:#64748b;">Brought forward from last day</small>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:12px;">
+            <div style="background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;">
+              <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">(+) Previous Balance Owed</label>
+              <input type="number" id="mPatPrevBal" value="0" style="width:100%; text-align:right; font-weight:700; font-size:14px;" oninput="recalculatePatiya()"/>
+              <small style="font-size:10.5px; color:#64748b;">What you already owed him before today (e.g. ₹100)</small>
             </div>
 
-            <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0;">
-              <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">Total Balance Due</label>
-              <div style="font-size:18px; font-weight:800; color:#0f172a; margin-top:4px;" id="mPatTotalDue">₹0</div>
-              <small style="font-size:10.5px; color:#64748b;">Consignment Net + Previous Bal</small>
+            <div style="background:#f0fdf4; padding:10px 12px; border-radius:8px; border:1px solid #bbf7d0;">
+              <label style="font-size:11.5px; font-weight:700; color:#166534; display:block; margin-bottom:4px;">(+) Today's Consignment Net</label>
+              <div style="font-size:18px; font-weight:800; color:#15803d; margin-top:2px; font-family:var(--font-mono);" id="mPatConsignmentNetSummary">₹0</div>
+              <small style="font-size:10.5px; color:#166534;">Sale Value - Expenses - Comm (e.g. ₹75)</small>
             </div>
 
-            <div style="background:#fef2f2; padding:10px; border-radius:8px; border:1px solid #fecaca;">
-              <label style="font-size:11.5px; font-weight:700; color:#991b1b; display:block; margin-bottom:4px;">(-) Cash Paid to Driver / Party</label>
-              <input type="number" id="mPatCashPaid" value="0" style="width:100%; text-align:right; font-weight:700; color:#dc2626;" oninput="recalculatePatiya()"/>
-              <small style="font-size:10.5px; color:#991b1b;">Paid on the spot to lorry driver</small>
+            <div style="background:#eff6ff; padding:10px 12px; border-radius:8px; border:1px solid #bfdbfe;">
+              <label style="font-size:11.5px; font-weight:700; color:#1e40af; display:block; margin-bottom:4px;">(=) Total Amount We Owe Him</label>
+              <div style="font-size:19px; font-weight:800; color:#1d4ed8; margin-top:2px; font-family:var(--font-mono);" id="mPatTotalDue">₹0</div>
+              <small style="font-size:10.5px; color:#1e40af;">Prev Bal + Today Net (₹100 + ₹75 = ₹175)</small>
             </div>
           </div>
 
-          <div style="display:grid; grid-template-columns: 1.5fr 1fr; gap:12px; align-items:center; border-top:1px solid #e2e8f0; padding-top:10px;">
-            <div>
-              <label style="font-size:11.5px; font-weight:600; color:#334155; display:block; margin-bottom:3px;">Driver / Payee Notes (DRL)</label>
-              <input type="text" id="mPatCashPayee" placeholder="e.g. Cash Pay to DRL (Driver) / Me / JoJo" style="width:100%; font-size:12px;"/>
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="flex:1;">
+              <label style="font-size:11.5px; font-weight:700; color:#991b1b; display:block; margin-bottom:2px;">
+                <i class="fas fa-truck"></i> (-) Spot Cash Paid to Driver / Party (Optional)
+              </label>
+              <input type="text" id="mPatCashPayee" placeholder="e.g. Cash Paid to DRL (Driver)" style="width:100%; font-size:11.5px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" value="Cash Paid to DRL (Driver)"/>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Net Closing Balance Carried Forward</div>
-              <div style="font-size:24px; font-weight:900; color:#0084ff;" id="mPatClosingBal">₹0</div>
+            <div style="width:160px; text-align:right;">
+              <label style="font-size:11px; font-weight:700; color:#991b1b; display:block; margin-bottom:2px;">Cash Given (₹)</label>
+              <input type="number" id="mPatCashPaid" value="0" style="width:100%; text-align:right; font-weight:700; color:#dc2626; font-size:14px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" oninput="recalculatePatiya()"/>
+            </div>
+          </div>
+
+          <!-- PROMINENT FINAL AMOUNT WE OWE HIM DISPLAY -->
+          <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2.5px solid #10b981; border-radius: 12px; padding: 14px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.15);">
+            <div style="font-size: 13px; font-weight: 800; color: #047857; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px;">
+              <i class="fas fa-hand-holding-dollar"></i> FINAL TOTAL AMOUNT WE OWE HIM (Closing Ledger Balance)
+            </div>
+            <div style="font-size: 32px; font-weight: 900; color: #065f46; font-family: var(--font-mono); letter-spacing: -0.5px;" id="mPatClosingBal">
+              ₹0
+            </div>
+            <div style="font-size: 12px; color: #047857; font-weight: 600; margin-top: 2px;" id="mPatClosingBalStatus">
+              Added to dealer ledger. Pay money to reduce balance later via 'Pay Dealer'.
             </div>
           </div>
         </div>
@@ -3170,7 +3252,9 @@ th.num:last-child {
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('patiyaModal')">Cancel</button>
-      <button class="btn btn-primary" id="savePatiyaBtn" style="display:none;" onclick="saveFinalizedPatiya()"><i class="fas fa-check"></i> Finalize Bill & Credit Dealer</button>
+      <button class="btn btn-wa" id="patiyaShareWaBtn" style="display:none;" onclick="saveFinalizedPatiya('whatsapp')"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
+      <button class="btn btn-green" id="patiyaPrintBtn" style="display:none;" onclick="saveFinalizedPatiya('print')"><i class="fas fa-print"></i> Print</button>
+      <button class="btn btn-primary" id="savePatiyaBtn" style="display:none;" onclick="saveFinalizedPatiya('save')"><i class="fas fa-check"></i> Finalize Bill & Credit Dealer</button>
     </div>
   </div>
 </div>
@@ -3233,16 +3317,39 @@ th.num:last-child {
 <div class="modal-backdrop" id="paymentModal">
   <div class="modal-window modal-sm">
     <div class="modal-top-bar">
-      <span class="modal-headline" id="paymentModalTitle"><i class="fas fa-wallet"></i> Record Payment</span>
+      <span class="modal-headline" id="paymentModalTitle"><i class="fas fa-hand-holding-dollar" style="color:#d97706"></i> Pay Dealer</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('paymentModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
       <input type="hidden" id="mPayType"/>
+      <div id="mPayDealerSettlementNotice" style="display:none; background:#faf5ff; border:1.5px solid #d8b4fe; border-radius:10px; padding:10px 12px; margin-bottom:12px; justify-content:space-between; align-items:center;">
+        <div>
+          <strong style="color:#6d28d9; font-size:12px; display:block;"><i class="fas fa-hand-holding-dollar"></i> Paying money to reduce dealer balance</strong>
+          <div style="font-size:11px; color:#475569;">To account for received crates and calculate amount owed, use Patiya Settlement instead.</div>
+        </div>
+        <button type="button" class="btn btn-purple btn-sm" onclick="switchPayToSettlement()" style="white-space:nowrap;"><i class="fas fa-calculator"></i> Settle Crates</button>
+      </div>
       <div class="input-block autocomplete-anchor">
-        <label id="mPayContactLabel">Party Name *</label>
-        <input type="text" id="mPayContactName" placeholder="Select dealer or buyer" oninput="searchPayContact(this.value)"/>
+        <label id="mPayContactLabel">Dealer Name *</label>
+        <input type="text" id="mPayContactName" placeholder="Select dealer or buyer" oninput="searchPayContact(this.value)" onfocus="searchPayContact(this.value)"/>
         <div class="autocomplete-flyout" id="mPayContactDropdown"></div>
         <div id="mPayBalanceInfo" style="font-size:11.5px; margin-top:3px;"></div>
+      </div>
+
+      <!-- Live Balance Impact Box (e.g. ₹175 owed - ₹100 paid = ₹75 remaining) -->
+      <div id="mPayLiveBalanceImpact" style="display:none; background:#f0fdf4; border:1.5px solid #86efac; border-radius:10px; padding:10px 14px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:4px;">
+          <span style="color:#475569;" id="mPayBalanceLabelText">Current Balance We Owe Dealer:</span>
+          <strong id="mPayCurrentOwed" style="color:#0f172a; font-family:var(--font-mono); font-size:13px;">₹0</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-bottom:6px; color:#dc2626;">
+          <span>(-) Payment & Discount (Kasar):</span>
+          <strong id="mPayDeduction" style="font-family:var(--font-mono); font-size:13px;">-₹0</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:800; border-top:1px dashed #86efac; padding-top:6px; color:#065f46;">
+          <span id="mPayRemainingLabelText">(=) New Balance Remaining:</span>
+          <strong id="mPayRemainingOwed" style="font-family:var(--font-mono); font-size:16px;">₹0</strong>
+        </div>
       </div>
 
       <div class="two-col-grid">
@@ -3263,12 +3370,12 @@ th.num:last-child {
 
       <div class="input-block">
         <label>Amount (₹) *</label>
-        <input type="number" id="mPayAmount" placeholder="0"/>
+        <input type="number" id="mPayAmount" placeholder="0" oninput="updatePaymentLiveBalance()"/>
       </div>
 
       <div class="input-block" id="mPayDiscountGroup">
         <label>Settlement Discount / Kasar (₹)</label>
-        <input type="number" id="mPayDiscount" value="0"/>
+        <input type="number" id="mPayDiscount" value="0" oninput="updatePaymentLiveBalance()"/>
         <small style="color:#64748b; font-size:10.5px;">Agreed round-off discount to settle balance</small>
       </div>
 
@@ -3285,7 +3392,7 @@ th.num:last-child {
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('paymentModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="savePaymentEntry()"><i class="fas fa-check"></i> Save Payment</button>
+      <button class="btn btn-primary" id="mPaySubmitBtn" onclick="savePaymentEntry()"><i class="fas fa-check"></i> Pay & Reduce Balance</button>
     </div>
   </div>
 </div>
@@ -3433,6 +3540,35 @@ th.num:last-child {
   </div>
 </div>
 
+<!-- Modal 10: View Bill & Print Preview -->
+<div class="modal-backdrop" id="viewBillModal" onclick="if(event.target===this)closeModal('viewBillModal')">
+  <div class="modal-window modal-lg" style="max-width:840px;">
+    <div class="modal-top-bar" style="background:#f8fafc;">
+      <div>
+        <span class="modal-headline" id="viewBillModalTitle"><i class="fas fa-file-invoice" style="color:var(--primary-blue);"></i> View Invoice</span>
+        <div id="viewBillModalSub" style="font-size:11.5px; color:#64748b; margin-top:2px;">Invoice Details & Print Preview</div>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-outline btn-sm" onclick="printCurrentBillView()" title="Print Directly"><i class="fas fa-print"></i> Print</button>
+        <button class="btn btn-outline btn-sm" onclick="printOrDownloadActiveBill()" title="Download PDF"><i class="fas fa-file-pdf" style="color:#ef4444;"></i> Download PDF</button>
+        <button class="btn btn-wa btn-sm" onclick="whatsAppActiveBill()" title="Share WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('viewBillModal')" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="modal-scroll-body" style="background:#f1f5f9; padding:20px;">
+      <div id="viewBillContent" style="background:#ffffff; border-radius:10px; border:1px solid #e2e8f0; padding:28px 32px; box-shadow:0 4px 16px rgba(15,23,42,0.06);">
+        <!-- Bill Content Injected Here -->
+      </div>
+    </div>
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('viewBillModal')">Close</button>
+      <button class="btn btn-wa" onclick="whatsAppActiveBill()"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
+      <button class="btn btn-primary" onclick="printOrDownloadActiveBill()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+      <button class="btn btn-green" onclick="printCurrentBillView()"><i class="fas fa-print"></i> Print Invoice</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div id="toastBox"></div>
 
@@ -3475,6 +3611,7 @@ const appState = {
   inventory: [],
   reports: {},
   activeStatement: null,
+  activeViewingBill: null,
   statementFilter: 'all',
   directoryFilter: 'all',
   activityFilter: 'all',
@@ -3860,7 +3997,7 @@ function renderActivityTimeline() {
       rate: avgRate > 0 ? `@ ₹${avgRate}/kg` : '',
       amount: `₹${(s.total || 0).toLocaleString('en-IN')}`,
       isRed: false,
-      onClick: () => downloadA4SalesBill(s.id)
+      onClick: () => viewSaleBill(s.id)
     });
   });
 
@@ -3981,8 +4118,9 @@ function renderFishStockCards() {
       if (!varietyMap[v]) {
         varietyMap[v] = { variety: v, kg: 0, crates: 0, count: 0 };
       }
-      const leftKg = it.unsoldWeightKg !== undefined ? Number(it.unsoldWeightKg) : Number(it.weightKg);
       const leftCrates = it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates);
+      let leftKg = it.unsoldWeightKg !== undefined ? Number(it.unsoldWeightKg) : Number(it.weightKg);
+      if (leftCrates <= 0) leftKg = 0;
       if (leftKg > 0 || leftCrates > 0) {
         varietyMap[v].kg += (leftKg || 0);
         varietyMap[v].crates += (leftCrates || 0);
@@ -3991,7 +4129,7 @@ function renderFishStockCards() {
     });
   });
 
-  const varieties = Object.values(varietyMap);
+  const varieties = Object.values(varietyMap).filter(v => v.kg > 0 || v.crates > 0);
   const fishList = varieties.map((v, i) => {
     let title = v.variety;
     let sub = '';
@@ -4059,11 +4197,12 @@ function renderArrivalsList() {
   if (!tbody) return;
   const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
   const filtered = appState.consignments.filter(c => 
-    c.dealerName.toLowerCase().includes(q) || (c.vehicleNo && c.vehicleNo.toLowerCase().includes(q)) || c.consignmentNo.toLowerCase().includes(q)
+    c.dealerName.toLowerCase().includes(q) || 
+    (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
   );
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
     return;
   }
 
@@ -4071,24 +4210,21 @@ function renderArrivalsList() {
     const items = Array.isArray(c.items) ? c.items : [];
     const total = items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
     const left = items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
-    const desc = items.map(it => `${it.crates}c ${it.variety}`).join(', ');
+    const uniqueVarieties = [...new Set(items.map(it => it.variety).filter(Boolean))];
+    const desc = uniqueVarieties.length > 0 ? uniqueVarieties.join(', ') : 'Fish';
 
     return `
       <tr>
-        <td><strong style="font-family:var(--font-mono)">${c.consignmentNo}</strong></td>
-        <td>${c.date} <small style="color:#64748b;">${c.time || ''}</small></td>
+        <td>${c.date}</td>
         <td><strong>${c.dealerName}</strong></td>
-        <td><span class="badge badge-blue">${c.vehicleNo || 'N/A'}</span></td>
         <td>${desc}</td>
-        <td class="num" style="font-family:var(--font-mono); color:${c.lorryBhada > 0 ? '#0084ff' : '#94a3b8'}">
-          ${c.lorryBhada > 0 ? `₹${c.lorryBhada.toLocaleString('en-IN')} (${c.lorryBhadaMode || 'Cash'})` : '₹0'}
-        </td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700; color:${left > 0 ? '#0084ff' : '#059669'}">
           ${left} / ${total}
         </td>
         <td><span class="badge ${left > 0 ? 'badge-amber' : 'badge-green'}">${left > 0 ? 'In Godown' : 'Sold Out'}</span></td>
         <td class="table-action-cell">
           <div class="table-actions-group">
+            <button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer (Patiya)"><i class="fas fa-calculator"></i> Settle</button>
             <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
           </div>
@@ -4098,7 +4234,19 @@ function renderArrivalsList() {
   }).join('');
 }
 
+function settleArrivalDealerById(consignmentId) {
+  const cons = appState.consignments.find(c => c.id == consignmentId);
+  if (!cons) return;
+  openPatiyaModal();
+  const dInp = document.getElementById('mPatDealer');
+  if (dInp) dInp.value = cons.dealerName;
+  const dateInp = document.getElementById('mPatDate');
+  if (dateInp && cons.date) dateInp.value = cons.date;
+  calculateDealerPatiya();
+}
+
 function openArrivalModal() {
+  applyMaxDateRestrictions();
   const today = getTodayIsoDate();
   const arrDateInp = document.getElementById('mArrDate');
   if (arrDateInp) {
@@ -4106,9 +4254,6 @@ function openArrivalModal() {
     arrDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
   document.getElementById('mArrDealer').value = '';
-  document.getElementById('mArrVehicle').value = '';
-  document.getElementById('mArrLorryBhada').value = '0';
-  document.getElementById('mArrDriverNotes').value = '';
   document.getElementById('inwardItemsTbody').innerHTML = '';
   addInwardRow('Vanjaram (Seer Fish)', 3);
   document.getElementById('arrivalModal').classList.add('open');
@@ -4118,10 +4263,8 @@ function addInwardRow(variety = '', crates = '') {
   const tbody = document.getElementById('inwardItemsTbody');
   const tr = document.createElement('tr');
   tr.innerHTML = `
+    <td style="width:140px;"><input type="number" class="rowItemCrates" value="${crates}" placeholder="0" min="1"/></td>
     <td><input type="text" class="rowItemVariety" value="${variety}" placeholder="e.g. Vanjaram / Seer / Sardine"/></td>
-    <td class="num"><input type="number" class="rowItemCrates" value="${crates}" placeholder="0" style="text-align:right;"/></td>
-    <td class="num"><input type="number" class="rowItemKg" placeholder="kg" style="text-align:right;"/></td>
-    <td><input type="text" class="rowItemNotes" placeholder="Quality notes"/></td>
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
   tbody.appendChild(tr);
@@ -4143,21 +4286,15 @@ async function saveInwardArrival() {
   const date = document.getElementById('mArrDate').value;
   const today = getTodayIsoDate();
   if (date > today) return showToast('Arrival date cannot be in the future', 'error');
-  const vehicleNo = document.getElementById('mArrVehicle').value.trim();
-  const lorryBhada = Number(document.getElementById('mArrLorryBhada').value) || 0;
-  const lorryBhadaMode = document.getElementById('mArrLorryMode').value;
-  const driverPhone = document.getElementById('mArrDriverNotes').value.trim();
 
   if (!dealerName) return showToast('Dealer name is required', 'error');
 
   const rows = document.querySelectorAll('#inwardItemsTbody tr');
   const items = [];
   rows.forEach(r => {
-    const variety = r.querySelector('.rowItemVariety').value.trim();
-    const crates = Number(r.querySelector('.rowItemCrates').value) || 0;
-    const weightKg = Number(r.querySelector('.rowItemKg').value) || 0;
-    const notes = r.querySelector('.rowItemNotes').value.trim();
-    if (variety && crates > 0) items.push({ variety, crates, weightKg, notes });
+    const variety = r.querySelector('.rowItemVariety')?.value.trim();
+    const crates = Number(r.querySelector('.rowItemCrates')?.value) || 0;
+    if (variety && crates > 0) items.push({ variety, crates, weightKg: 0, notes: '' });
   });
 
   if (items.length === 0) return showToast('Please add at least one variety with crates', 'error');
@@ -4166,7 +4303,7 @@ async function saveInwardArrival() {
     const res = await fetch('/api/consignments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealerName, date, vehicleNo, lorryBhada, lorryBhadaMode, driverPhone, items })
+      body: JSON.stringify({ dealerName, date, vehicleNo: '', lorryBhada: 0, lorryBhadaMode: 'Cash', driverPhone: '', items })
     });
     if (res.ok) {
       showToast('Arrival saved & stock added!', 'success');
@@ -4208,23 +4345,29 @@ function printArrivalGatepass(id) {
   doc.text('Fish Commission Agent & Wholesale Mandi Broker', 14, 26);
   doc.text(`Gatepass / Inward Receipt: ${cons.consignmentNo}`, 14, 31);
   doc.text(`Date: ${cons.date}`, 150, 20);
-  doc.text(`Vehicle No: ${cons.vehicleNo || 'N/A'}`, 150, 26);
   doc.setFont('helvetica', 'bold');
   doc.text(`Dealer (Consignor): ${cons.dealerName}`, 14, 40);
 
-  const tableData = (Array.isArray(cons.items) ? cons.items : []).map(it => [it.variety, `${it.crates} Crates`, it.weightKg ? `${it.weightKg} Kg` : '-', it.notes || '-']);
+  const tableData = (Array.isArray(cons.items) ? cons.items : []).map((it, idx) => [
+    idx + 1,
+    `${it.crates} Crates`,
+    it.variety
+  ]);
   doc.autoTable({
     startY: 46,
-    head: [['Fish Variety', 'Crates Received', 'Weight (Kg)', 'Remarks']],
+    head: [['#', 'Crates Received', 'Fish Variety']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [0, 132, 255] }
   });
 
-  const finalY = doc.lastAutoTable.finalY + 10;
-  if (cons.lorryBhada > 0) {
-    doc.text(`Advance Lorry Bhada Paid to Driver: Rs. ${cons.lorryBhada.toLocaleString('en-IN')} (${cons.lorryBhadaMode})`, 14, finalY);
-  }
+  const finalY = doc.lastAutoTable.finalY + 14;
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 116, 139);
+  doc.text('Receiver Signature', 24, finalY + 18);
+  doc.text('Authorized Signatory (Al Haseena Exports)', 125, finalY + 18);
+
   doc.save(`Gatepass_${cons.consignmentNo}.pdf`);
 }
 
@@ -4253,27 +4396,22 @@ function renderSalesList() {
   );
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(s => {
-    const pkgBadge = s.totalBoxes ? `<span class="badge badge-purple">P - ${s.totalBoxes}</span>` : '-';
-    const prevBal = Number(s.previousBalance) || 0;
-    const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (s.total + prevBal);
+    const billTotal = Number(s.total) || 0;
 
     return `
       <tr>
-        <td><strong style="font-family:var(--font-mono)">${s.billNo}</strong></td>
-        <td>${s.date} <small style="color:#64748b;">${s.time || ''}</small></td>
-        <td><strong>${s.buyerName}</strong></td>
-        <td>${pkgBadge}</td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:700;">₹${s.total.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#64748b;">+₹${prevBal.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:800; color:#0f172a;">₹${totalDue.toLocaleString('en-IN')}</td>
+        <td>${s.date}</td>
+        <td><strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong></td>
+        <td class="num" style="font-family:var(--font-mono); font-weight:700; font-size:14px; color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</td>
         <td><span class="badge ${s.paymentType === 'Cash' ? 'badge-green' : 'badge-amber'}">${s.paymentType}</span></td>
         <td class="table-action-cell">
           <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="viewSaleBill(${s.id})" title="View Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             <button class="btn btn-outline btn-sm" onclick="downloadA4SalesBill(${s.id})" title="Print A4 Bill"><i class="fas fa-print"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendSaleWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteSaleBill(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
@@ -4302,7 +4440,7 @@ function setSalesSubTab(tab) {
     patiya.style.display = 'block';
     bBills.classList.remove('active');
     bPatiya.classList.add('active');
-    btnHolder.innerHTML = '<button class="btn btn-primary" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Make Dealer Bill</button>';
+    btnHolder.innerHTML = '<button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer (Patiya)</button>';
   }
 }
 
@@ -4334,10 +4472,11 @@ function addSaleLine() {
   let stockOptions = '<option value="">-- Select Consignment Stock --</option>';
   for (const c of appState.consignments) {
     for (const it of (c.items || [])) {
-      if ((it.unsoldCrates > 0) || (it.unsoldWeightKg > 0)) {
+      const left = it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates;
+      if (left > 0) {
         stockOptions += `
-          <option value="${c.id}|${it.variety}|${c.dealerId}|${c.dealerName}" data-crates="${it.unsoldCrates}" data-kg="${it.unsoldWeightKg}">
-            ${it.variety} (${c.dealerName} - ${it.unsoldCrates} crates / ${it.unsoldWeightKg} kg)
+          <option value="${c.id}|${it.variety}|${c.dealerId}|${c.dealerName}" data-crates="${left}">
+            ${it.variety} (${c.dealerName} - ${left} crates)
           </option>
         `;
       }
@@ -4346,24 +4485,18 @@ function addSaleLine() {
 
   tr.innerHTML = `
     <td>
-      <select class="lineStockPicker" onchange="onSaleStockSelected(this)">
+      <select class="lineStockPicker" onchange="computeSaleBillTotals()">
         ${stockOptions}
       </select>
     </td>
     <td class="num">
-      <input type="number" class="lineCrates" placeholder="Box" min="0" value="3" oninput="onSaleLineCrateChange(this)" style="width:65px; text-align:right; font-weight:700;"/>
+      <input type="number" class="lineCrates" placeholder="Box" min="1" value="1" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
     </td>
     <td class="num">
-      <input type="number" class="lineKgPerBox" placeholder="Kg/box" min="0" value="50" oninput="onSaleLineCrateChange(this)" style="width:65px; text-align:right;"/>
-    </td>
-    <td class="num">
-      <input type="number" class="lineQty" placeholder="Total kg" value="150" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
-    </td>
-    <td class="num">
-      <input type="number" class="lineRate" placeholder="Rate" value="175" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
+      <input type="number" class="lineRate" placeholder="Rate" value="0" oninput="computeSaleBillTotals()" style="width:85px; text-align:right; font-weight:700;"/>
     </td>
     <td class="num" style="font-family:var(--font-mono); font-weight:700;">
-      <span class="lineRowSum">₹26,250</span>
+      <span class="lineRowSum">₹0</span>
     </td>
     <td class="num">
       <button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()"><i class="fas fa-times" style="color:#ef4444"></i></button>
@@ -4373,50 +4506,25 @@ function addSaleLine() {
   computeSaleBillTotals();
 }
 
-function onSaleStockSelected(selectEl) {
-  computeSaleBillTotals();
-}
-
-function onSaleLineCrateChange(inputEl) {
-  const tr = inputEl.closest('tr');
-  const crates = Number(tr.querySelector('.lineCrates')?.value) || 0;
-  const kgPerBox = Number(tr.querySelector('.lineKgPerBox')?.value) || 0;
-  const qtyInp = tr.querySelector('.lineQty');
-  if (crates > 0 && kgPerBox > 0 && qtyInp) {
-    qtyInp.value = crates * kgPerBox;
-  }
-  computeSaleBillTotals();
-}
-
 function computeSaleBillTotals() {
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   let subtotal = 0;
   let totalBoxes = 0;
-  let totalWeight = 0;
 
   rows.forEach(r => {
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
-    const kgPerBox = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
-    let qty = Number(r.querySelector('.lineQty')?.value) || 0;
-    if (crates > 0 && kgPerBox > 0 && (!qty || qty === crates)) {
-      qty = crates * kgPerBox;
-      if (r.querySelector('.lineQty')) r.querySelector('.lineQty').value = qty;
-    }
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-    const total = qty > 0 ? (qty * rate) : (crates * rate);
+    const total = crates * rate;
 
     const span = r.querySelector('.lineRowSum');
     if (span) span.textContent = `₹${total.toLocaleString('en-IN')}`;
 
     totalBoxes += crates;
-    totalWeight += qty;
     subtotal += total;
   });
 
   const badgeBoxes = document.getElementById('mSaleBoxCountBadge');
   if (badgeBoxes) badgeBoxes.innerHTML = `<i class="fas fa-boxes-stacked"></i> P - ${totalBoxes} Boxes`;
-  const badgeWeight = document.getElementById('mSaleWeightBadge');
-  if (badgeWeight) badgeWeight.innerHTML = `<i class="fas fa-scale-balanced"></i> ${totalWeight} KG`;
 
   const disc = Number(document.getElementById('mSaleDiscount').value) || 0;
   const todayNet = Math.max(0, subtotal - disc);
@@ -4483,7 +4591,7 @@ function checkBuyerCreditStatus() {
   warnBox.style.display = 'none';
 }
 
-async function saveMorningSale() {
+async function saveMorningSale(action = 'save') {
   const buyerName = document.getElementById('mSaleBuyer').value.trim();
   const date = document.getElementById('mSaleDate').value;
   const today = getTodayIsoDate();
@@ -4494,7 +4602,7 @@ async function saveMorningSale() {
   const amountPaid = Number(document.getElementById('mSaleCashPaid').value) || 0;
   const bypass = document.getElementById('mSaleBypassBox').checked;
 
-  if (!buyerName) return showToast('Buyer name is required', 'error');
+  if (!buyerName) return showToast('Name is required', 'error');
 
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   const lines = [];
@@ -4503,25 +4611,20 @@ async function saveMorningSale() {
   rows.forEach(r => {
     const val = r.querySelector('.lineStockPicker')?.value;
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
-    const kgPerCrate = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
-    let qty = Number(r.querySelector('.lineQty')?.value) || 0;
-    if (crates > 0 && kgPerCrate > 0 && (!qty || qty === crates)) {
-      qty = crates * kgPerCrate;
-    }
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-    const amount = qty > 0 ? (qty * rate) : (crates * rate);
+    const amount = crates * rate;
 
-    if (val && (qty > 0 || crates > 0)) {
+    if (val && crates > 0) {
       const [consignmentId, variety, dealerId, dealerName] = val.split('|');
       lines.push({
         consignmentId: Number(consignmentId),
         variety,
         dealerId: Number(dealerId),
         dealerName,
-        unit: 'Kg',
+        unit: 'Box',
         crates,
-        kgPerCrate,
-        qty,
+        kgPerCrate: 0,
+        qty: crates,
         rate,
         amount
       });
@@ -4560,7 +4663,11 @@ async function saveMorningSale() {
       showToast('Sale bill saved & stock updated!', 'success');
       closeModal('saleModal');
       await Promise.all([loadSales(), loadConsignments(), loadContacts(), loadStockBoard(), loadDaybook(), loadReports()]);
-      downloadA4SalesBill(data.id);
+      if (action === 'print') {
+        downloadA4SalesBill(data.id, data);
+      } else if (action === 'whatsapp') {
+        sendSaleWhatsApp(data.id, data);
+      }
     } else {
       showToast(data.error || 'Failed to save sale', 'error');
     }
@@ -4582,8 +4689,380 @@ async function deleteSaleBill(id) {
   }
 }
 
-function downloadA4SalesBill(saleId) {
-  const sale = appState.sales.find(s => s.id == saleId);
+function viewSaleBill(saleId, fallbackSale) {
+  const sale = (appState.sales && appState.sales.find(s => s.id == saleId)) || fallbackSale;
+  if (!sale) {
+    showToast('Sale bill not found', 'error');
+    return;
+  }
+  appState.activeViewingBill = { type: 'sale', id: sale.id, data: sale };
+
+  const buyer = (appState.contacts || []).find(c => c.name && c.name.toLowerCase() === (sale.buyerName || '').toLowerCase());
+  const phone = sale.buyerPhone || buyer?.phone || '';
+  const lines = Array.isArray(sale.lines) ? sale.lines : [];
+
+  const totalBoxes = sale.totalBoxes || lines.reduce((acc, l) => acc + (Number(l.crates) || Number(l.qty) || 0), 0);
+  const prevBal = Number(sale.previousBalance) || 0;
+  const billTotal = Number(sale.total) || 0;
+  const totalDue = (sale.totalBalanceDue !== undefined && sale.totalBalanceDue !== null) ? Number(sale.totalBalanceDue) : (billTotal + prevBal);
+  const paid = Number(sale.amountPaid) || 0;
+  const closingBal = (sale.closingBalance !== undefined && sale.closingBalance !== null) ? Number(sale.closingBalance) : (totalDue - paid);
+
+  const titleEl = document.getElementById('viewBillModalTitle');
+  const subEl = document.getElementById('viewBillModalSub');
+  if (titleEl) titleEl.innerHTML = `<i class="fas fa-file-invoice" style="color:var(--primary-blue);"></i> Sale Bill: ${sale.billNo || ('#' + sale.id)}`;
+  if (subEl) subEl.textContent = `Buyer: ${sale.buyerName} • Date: ${sale.date} ${sale.time || ''}`;
+
+  const rowsHtml = lines.map((l, i) => {
+    const boxCount = (l.crates !== undefined && l.crates !== null && l.crates !== '') ? `${l.crates} Box` : (l.qty ? `${l.qty} ${l.unit || 'Box'}` : '-');
+    const rateVal = Number(l.rate || 0).toLocaleString('en-IN');
+    const amtVal = Number(l.amount || 0).toLocaleString('en-IN');
+    const dealerInfo = l.dealerName ? `From ${l.dealerName}` : 'Market Lot';
+
+    return `
+      <tr style="border-bottom:1px solid #f1f5f9; ${i % 2 === 1 ? 'background:#fafbfc;' : ''}">
+        <td style="padding:10px 12px; text-align:center; color:#64748b; font-weight:600;">${i + 1}</td>
+        <td style="padding:10px 12px; font-weight:700; color:#0f172a;">${l.variety || '-'}</td>
+        <td style="padding:10px 12px; color:#475569; font-size:12px;"><i class="fas fa-ship" style="font-size:10px; color:#94a3b8; margin-right:4px;"></i>${dealerInfo}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#6d28d9; font-family:var(--font-mono);">${boxCount}</td>
+        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">₹${rateVal}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${amtVal}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const contentHtml = `
+    <div style="font-family:var(--font-main); color:#0f172a;">
+      <!-- Header Branding -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #e2e8f0; padding-bottom:16px; margin-bottom:16px;">
+        <div>
+          <div style="font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-anchor" style="color:var(--primary-blue); font-size:20px;"></i> Al Haseena Exports
+          </div>
+          <div style="font-size:12px; color:#475569; font-weight:600; margin-top:3px;">Fish Commission Agent & Wholesale Broking</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Harbour Wharf, Fish Market Yard | Phone: +91 98400 12345</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; padding:4px 10px; border-radius:6px; margin-bottom:6px;">
+            WHOLESALE SALES BILL
+          </div>
+          <div style="font-size:13.5px; font-weight:700; font-family:var(--font-mono); color:#0f172a;">Bill No: ${sale.billNo || ('#' + sale.id)}</div>
+          <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Date: ${sale.date} ${sale.time || ''}</div>
+          <div style="font-size:11.5px; margin-top:3px;">
+            Terms: <span class="badge ${sale.paymentType === 'Cash' ? 'badge-green' : 'badge-amber'}">${sale.paymentType || 'Credit'}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billed To & Package Bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:18px;">
+        <div>
+          <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700;">BILLED TO (BUYER)</div>
+          <div style="font-size:16px; font-weight:800; color:#0f172a; margin-top:2px;">${sale.buyerName}</div>
+          ${phone ? `<div style="font-size:11.5px; color:#64748b; margin-top:2px;"><i class="fas fa-phone" style="font-size:10px; margin-right:4px;"></i>${phone}</div>` : ''}
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700;">TOTAL PACKAGES</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#ede9fe; color:#6d28d9; border:1px solid #ddd6fe; padding:5px 14px; border-radius:20px; font-weight:800; font-size:13px; margin-top:2px;">
+            <i class="fas fa-box" style="font-size:12px;"></i> P - ${totalBoxes} Boxes
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; margin-bottom:18px;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead>
+            <tr style="background:#059669; color:#ffffff; font-weight:700; text-align:left;">
+              <th style="padding:10px 12px; width:40px; text-align:center;">#</th>
+              <th style="padding:10px 12px;">Item Variety</th>
+              <th style="padding:10px 12px;">Dealer Source</th>
+              <th style="padding:10px 12px; text-align:right;">Boxes (P)</th>
+              <th style="padding:10px 12px; text-align:right;">Rate (₹)</th>
+              <th style="padding:10px 12px; text-align:right;">Amount (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml || '<tr><td colspan="6" style="padding:20px; text-align:center; color:#94a3b8;">No line items</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Layout: Signatures & Running Ledger Summary -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-top:16px;">
+        <div style="flex:1;">
+          ${sale.notes ? `<div style="font-size:11.5px; color:#64748b; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 12px; margin-bottom:20px;"><strong>Notes:</strong> ${sale.notes}</div>` : ''}
+          <div style="display:flex; gap:36px; padding-top:20px;">
+            <div style="flex:1; border-top:1px dashed #cbd5e1; padding-top:6px; text-align:center;">
+              <span style="font-size:11px; color:#64748b; font-weight:600;">Receiver Signature</span>
+            </div>
+            <div style="flex:1; border-top:1px dashed #cbd5e1; padding-top:6px; text-align:center;">
+              <span style="font-size:11px; color:#64748b; font-weight:600;">Authorized Signatory</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ledger Summary Box -->
+        <div style="width:300px; background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:10px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+          <div style="padding:8px 14px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:0.04em;">
+            Financial Summary
+          </div>
+          <div style="padding:12px 14px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px;">
+              <span style="color:#64748b;">Today's Goods Bill:</span>
+              <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px;">
+              <span style="color:#64748b;">(+) Previous Balance:</span>
+              <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${prevBal.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:7px; margin-bottom:7px;">
+              <span>Total Balance Due:</span>
+              <span style="font-family:var(--font-mono);">₹${totalDue.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; color:#64748b;">
+              <span>(-) Cash Received:</span>
+              <span style="font-family:var(--font-mono); color:#0f172a;">₹${paid.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#ecfdf5; border-top:1.5px solid #10b981; padding:10px 14px;">
+            <span style="font-size:12px; font-weight:800; color:#047857; text-transform:uppercase;">NET OUTSTANDING:</span>
+            <span style="font-size:16px; font-weight:800; font-family:var(--font-mono); color:#047857;">₹${closingBal.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const container = document.getElementById('viewBillContent');
+  if (container) container.innerHTML = contentHtml;
+  document.getElementById('viewBillModal').classList.add('open');
+}
+
+function viewPatiyaBill(settlementId) {
+  const s = appState.settlements.find(item => item.id == settlementId);
+  if (!s) {
+    showToast('Settlement bill not found', 'error');
+    return;
+  }
+  appState.activeViewingBill = { type: 'patiya', id: s.id, data: s };
+
+  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0);
+  const prevBal = Number(s.previousBalance) || 0;
+  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const cashPaid = Number(s.cashPaidToday) || 0;
+  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+
+  const titleEl = document.getElementById('viewBillModalTitle');
+  const subEl = document.getElementById('viewBillModalSub');
+  if (titleEl) titleEl.innerHTML = `<i class="fas fa-calculator" style="color:#7c3aed;"></i> Patiya Settlement: ${s.settlementNo || ('#' + s.id)}`;
+  if (subEl) subEl.textContent = `Dealer: ${s.dealerName} • Date: ${s.date}`;
+
+  const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
+    variety: 'Consignment Lot',
+    qtySold: s.totalQtySold || 0,
+    unit: 'Crate',
+    reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
+    reportedGross: s.totalReportedGross || 0
+  }];
+
+  const rowsHtml = items.map((it, idx) => {
+    return `
+      <tr style="border-bottom:1px solid #f1f5f9; ${idx % 2 === 1 ? 'background:#fafbfc;' : ''}">
+        <td style="padding:10px 12px; text-align:center; color:#64748b; font-weight:600;">${idx + 1}</td>
+        <td style="padding:10px 12px; font-weight:700; color:#0f172a;">${it.variety || '-'}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#0284c7; font-family:var(--font-mono);">${it.qtySold} ${it.unit || 'Crate'}</td>
+        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">₹${Number(it.reportedRate || 0).toLocaleString('en-IN')}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${Number(it.reportedGross || 0).toLocaleString('en-IN')}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const expRows = (s.expenses || []).map(e => `
+    <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:5px;">
+      <span style="color:#64748b;">• ${e.name}:</span>
+      <span style="font-weight:600; font-family:var(--font-mono); color:#dc2626;">-₹${Number(e.amount || 0).toLocaleString('en-IN')}</span>
+    </div>
+  `).join('');
+
+  const contentHtml = `
+    <div style="font-family:var(--font-main); color:#0f172a;">
+      <!-- Header Branding -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #e2e8f0; padding-bottom:16px; margin-bottom:16px;">
+        <div>
+          <div style="font-size:24px; font-weight:800; color:#0f172a; letter-spacing:-0.5px; display:flex; align-items:center; gap:8px;">
+            <i class="fas fa-anchor" style="color:var(--primary-blue); font-size:20px;"></i> Al Haseena Exports
+          </div>
+          <div style="font-size:12px; color:#475569; font-weight:600; margin-top:3px;">Fish Commission Agent & Wholesale Broking</div>
+          <div style="font-size:11px; color:#64748b; margin-top:2px;">Harbour Wharf, Fish Market Yard | Phone: +91 98400 12345</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:#0284c7; background:#e0f2fe; border:1px solid #bae6fd; padding:4px 10px; border-radius:6px; margin-bottom:6px;">
+            DEALER CONSIGNMENT SETTLEMENT
+          </div>
+          <div style="font-size:13.5px; font-weight:700; font-family:var(--font-mono); color:#0f172a;">Patiya #: ${s.settlementNo || ('#' + s.id)}</div>
+          <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Date: ${s.date}</div>
+        </div>
+      </div>
+
+      <!-- Dealer & Arrival Banner -->
+      <div style="display:flex; justify-content:space-between; align-items:center; background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px 16px; margin-bottom:18px;">
+        <div>
+          <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#0284c7; font-weight:700;">DEALER NAME</div>
+          <div style="font-size:16px; font-weight:800; color:#0f172a; margin-top:2px;">${s.dealerName}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#0284c7; font-weight:700;">ARRIVAL CONSIGNMENT LOT</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:5px 14px; border-radius:20px; font-weight:800; font-size:13px; margin-top:2px;">
+            <i class="fas fa-boxes-stacked" style="font-size:12px;"></i> ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)
+          </div>
+        </div>
+      </div>
+
+      <!-- Items Table -->
+      <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; margin-bottom:18px;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead>
+            <tr style="background:#0284c7; color:#ffffff; font-weight:700; text-align:left;">
+              <th style="padding:10px 12px; width:40px; text-align:center;">#</th>
+              <th style="padding:10px 12px;">Fish Variety</th>
+              <th style="padding:10px 12px; text-align:right;">Quantity Sold</th>
+              <th style="padding:10px 12px; text-align:right;">Settled Rate / Box (₹)</th>
+              <th style="padding:10px 12px; text-align:right;">Gross Total (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Split Boxes: Deductions & Continuous Balance -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px;">
+        <!-- Deductions -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+          <div style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase; margin-bottom:10px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
+            Deductions & Commission
+          </div>
+          ${expRows || '<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">• No direct expenses logged</div>'}
+          <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:5px;">
+            <span style="color:#64748b;">• Broker Commission (${s.commissionRate || 5}%):</span>
+            <span style="font-weight:600; font-family:var(--font-mono); color:#dc2626;">-₹${Number(s.commissionAmount || 0).toLocaleString('en-IN')}</span>
+          </div>
+          ${s.adjustments ? `
+            <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:5px;">
+              <span style="color:#64748b;">• Adjustments:</span>
+              <span style="font-weight:600; font-family:var(--font-mono);">₹${Number(s.adjustments || 0).toLocaleString('en-IN')}</span>
+            </div>
+          ` : ''}
+          <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:800; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:8px; margin-top:8px;">
+            <span>Net Consignment Proceed:</span>
+            <span style="font-family:var(--font-mono); color:#0284c7;">₹${netProceed.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+
+        <!-- Ledger -->
+        <div style="background:#f8fafc; border:1.5px solid #e2e8f0; border-radius:8px; overflow:hidden;">
+          <div style="padding:10px 14px; background:#f1f5f9; border-bottom:1px solid #e2e8f0; font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">
+            Running Balance to Dealer
+          </div>
+          <div style="padding:12px 14px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+              <span style="color:#64748b;">Consignment Net:</span>
+              <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${netProceed.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
+              <span style="color:#64748b;">(+) Previous Balance:</span>
+              <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${prevBal.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:6px; margin-bottom:6px;">
+              <span>Total Payable to Dealer:</span>
+              <span style="font-family:var(--font-mono);">₹${totalDue.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; color:#64748b;">
+              <span>(-) Cash Paid Today:</span>
+              <span style="font-family:var(--font-mono); color:#0f172a;">₹${cashPaid.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#f0fdf4; border-top:1.5px solid #16a34a; padding:10px 14px;">
+            <span style="font-size:12px; font-weight:800; color:#15803d; text-transform:uppercase;">BALANCE WE OWE:</span>
+            <span style="font-size:16px; font-weight:800; font-family:var(--font-mono); color:#15803d;">₹${closingBal.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const container = document.getElementById('viewBillContent');
+  if (container) container.innerHTML = contentHtml;
+  document.getElementById('viewBillModal').classList.add('open');
+}
+
+function printOrDownloadActiveBill() {
+  if (!appState.activeViewingBill) return;
+  if (appState.activeViewingBill.type === 'sale') {
+    downloadA4SalesBill(appState.activeViewingBill.id);
+  } else if (appState.activeViewingBill.type === 'patiya') {
+    downloadA4Patiya(appState.activeViewingBill.id);
+  }
+}
+
+function whatsAppActiveBill() {
+  if (!appState.activeViewingBill) return;
+  if (appState.activeViewingBill.type === 'sale') {
+    sendSaleWhatsApp(appState.activeViewingBill.id);
+  } else if (appState.activeViewingBill.type === 'patiya') {
+    sendPatiyaWhatsApp(appState.activeViewingBill.id);
+  }
+}
+
+function printCurrentBillView() {
+  const content = document.getElementById('viewBillContent');
+  if (!content) return;
+  const printWindow = window.open('', '_blank', 'width=840,height=900');
+  if (!printWindow) {
+    window.print();
+    return;
+  }
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8"/>
+      <title>Print Bill</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background: #fff; color: #0f172a; padding: 24px; font-size: 13px; }
+        .num { font-family: 'JetBrains Mono', monospace; }
+        .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+        .badge-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .badge-amber { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        table { border-collapse: collapse; width: 100%; }
+        @media print {
+          body { padding: 0; }
+          @page { margin: 12mm; }
+        }
+      </style>
+    </head>
+    <body>
+      ${content.innerHTML}
+      <script>
+        window.onload = function() {
+          window.focus();
+          window.print();
+          setTimeout(function() { window.close(); }, 750);
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+}
+
+function downloadA4SalesBill(saleId, fallbackSale) {
+  const sale = (appState.sales && appState.sales.find(s => s.id == saleId)) || fallbackSale;
   if (!sale) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
@@ -4629,20 +5108,18 @@ function downloadA4SalesBill(saleId) {
     i + 1,
     l.variety,
     l.dealerName ? `From ${l.dealerName}` : 'Market Lot',
-    l.crates ? `${l.crates} Box` : '-',
-    l.kgPerCrate ? `${l.kgPerCrate} KG` : '-',
-    `${l.qty} ${l.unit || 'Kg'}`,
-    `Rs. ${l.rate}`,
-    `Rs. ${l.amount.toLocaleString('en-IN')}`
+    l.crates ? `${l.crates} Box` : `${l.qty || 0} Box`,
+    `Rs. ${Number(l.rate || 0).toLocaleString('en-IN')}`,
+    `Rs. ${Number(l.amount || 0).toLocaleString('en-IN')}`
   ]);
 
   doc.autoTable({
     startY: 54,
-    head: [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Kg / Box', 'Total Qty', 'Rate (Rs.)', 'Amount (Rs.)']],
+    head: [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Rate (Rs.)', 'Amount (Rs.)']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [5, 150, 105] },
-    columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' }, 7: { halign: 'right' } }
+    columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
   });
 
   const finalY = doc.lastAutoTable.finalY + 8;
@@ -4688,15 +5165,15 @@ function downloadA4SalesBill(saleId) {
   doc.save(`Bill_${sale.billNo}.pdf`);
 }
 
-function sendSaleWhatsApp(saleId) {
-  const sale = appState.sales.find(s => s.id === saleId);
+function sendSaleWhatsApp(saleId, fallbackSale) {
+  const sale = (appState.sales && appState.sales.find(s => s.id == saleId)) || fallbackSale;
   if (!sale) return;
-  const buyer = appState.contacts.find(c => c.name.toLowerCase() === sale.buyerName.toLowerCase());
+  const buyer = appState.contacts.find(c => c.name.toLowerCase() === (sale.buyerName || '').toLowerCase());
   const phone = (buyer?.phone || '').replace(/[^0-9]/g, '');
   const lines = Array.isArray(sale.lines) ? sale.lines : [];
   const linesText = lines.map(l => {
-    const boxInfo = l.crates ? `${l.crates} Box x ${l.kgPerCrate}kg = ` : '';
-    return `• ${boxInfo}${l.qty} ${l.unit} ${l.variety} @ Rs.${l.rate} = Rs.${l.amount.toLocaleString('en-IN')}`;
+    const boxInfo = (l.crates || l.qty) ? `${l.crates || l.qty} Box ` : '';
+    return `• ${boxInfo}${l.variety} @ Rs.${l.rate} = Rs.${Number(l.amount || 0).toLocaleString('en-IN')}`;
   }).join('%0A');
 
   const prevBal = Number(sale.previousBalance) || 0;
@@ -4732,6 +5209,41 @@ async function loadSettlements() {
   }
 }
 
+let allPatiyaExpanded = false;
+
+function toggleAllPatiyaBreakdowns() {
+  allPatiyaExpanded = !allPatiyaExpanded;
+  const rows = document.querySelectorAll('.patiya-breakdown-row');
+  const btns = document.querySelectorAll('.patiya-breakdown-btn');
+  rows.forEach(r => r.style.display = allPatiyaExpanded ? 'table-row' : 'none');
+  btns.forEach(b => {
+    b.innerHTML = allPatiyaExpanded 
+      ? '<i class="fas fa-chevron-up"></i> Hide Net & Gross' 
+      : '<i class="fas fa-calculator"></i> View Net & Gross';
+    b.style.background = allPatiyaExpanded ? '#ede9fe' : '#faf5ff';
+  });
+  const mainBtn = document.getElementById('btnToggleAllPatiya');
+  if (mainBtn) {
+    mainBtn.innerHTML = allPatiyaExpanded 
+      ? '<i class="fas fa-eye-slash"></i> Hide All Breakdowns' 
+      : '<i class="fas fa-eye"></i> Show All Breakdown';
+  }
+}
+
+function togglePatiyaRowBreakdown(id) {
+  const row = document.getElementById(`patiyaRowBreakdown_${id}`);
+  const btn = document.getElementById(`btnBreakdown_${id}`);
+  if (!row) return;
+  const isHidden = row.style.display === 'none';
+  row.style.display = isHidden ? 'table-row' : 'none';
+  if (btn) {
+    btn.innerHTML = isHidden 
+      ? '<i class="fas fa-chevron-up"></i> Hide Net & Gross' 
+      : '<i class="fas fa-calculator"></i> View Net & Gross';
+    btn.style.background = isHidden ? '#ede9fe' : '#faf5ff';
+  }
+}
+
 function renderPatiyaList() {
   const tbody = document.getElementById('patiyaListTbody');
   if (!tbody) return;
@@ -4739,35 +5251,75 @@ function renderPatiyaList() {
   const filtered = appState.settlements.filter(s => (s.dealerName || '').toLowerCase().includes(q) || (s.settlementNo || '').toLowerCase().includes(q));
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:32px; color:#64748b;">No Patiya bills found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No Patiya bills found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(s => {
-    const arrLot = s.arrivalCrates ? `ARR. ${s.arrivalCrates} (P)` : `${s.totalQtySold} (P)`;
+    const arrLot = s.arrivalCrates ? `ARR. ${s.arrivalCrates} (P)` : `${s.totalQtySold || 0} (P)`;
+    const gross = Number(s.totalReportedGross) || 0;
     const totalDeductions = (Number(s.totalExpenses) || 0) + (Number(s.commissionAmount) || 0);
-    const netSale = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+    const netSale = Number(s.netConsignmentAmount) || Number(s.netPayableToDealer) || Math.max(0, gross - totalDeductions);
     const prevBal = Number(s.previousBalance) || 0;
     const cashPaid = Number(s.cashPaidToday) || 0;
-    const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (netSale + prevBal - cashPaid);
+    const closingBal = Number(s.closingBalance) || (netSale + prevBal - cashPaid);
 
     return `
       <tr>
-        <td><strong style="font-family:var(--font-mono)">${s.settlementNo}</strong></td>
         <td>${s.date}</td>
-        <td><strong>${s.dealerName}</strong></td>
-        <td class="num"><span class="badge badge-blue">${arrLot}</span></td>
-        <td class="num" style="font-family:var(--font-mono)">₹${s.totalReportedGross.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#dc2626;">-₹${totalDeductions.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:700; color:#059669;">₹${netSale.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#64748b;">+₹${prevBal.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); color:#dc2626;">-₹${cashPaid.toLocaleString('en-IN')}</td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:800; color:#0084ff;">₹${closingBal.toLocaleString('en-IN')}</td>
+        <td><strong style="color:#0f172a; font-size:13.5px;">${s.dealerName}</strong></td>
+        <td>
+          <button type="button" class="btn btn-outline btn-sm patiya-breakdown-btn" id="btnBreakdown_${s.id}" onclick="togglePatiyaRowBreakdown(${s.id})" style="border-color:#7c3aed; color:#6d28d9; background:${allPatiyaExpanded ? '#ede9fe' : '#faf5ff'}; font-size:11.5px; padding:4px 10px;">
+            <i class="fas ${allPatiyaExpanded ? 'fa-chevron-up' : 'fa-calculator'}"></i> ${allPatiyaExpanded ? 'Hide Net & Gross' : 'View Net & Gross'}
+          </button>
+        </td>
+        <td class="num" style="font-family:var(--font-mono); font-weight:800; color:#047857; font-size:14.5px;">
+          ₹${closingBal.toLocaleString('en-IN')}
+        </td>
         <td class="table-action-cell">
           <div class="table-actions-group">
+            <button class="btn btn-outline btn-sm" onclick="viewPatiyaBill(${s.id})" title="View Patiya Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             <button class="btn btn-outline btn-sm" onclick="downloadA4Patiya(${s.id})" title="Print A4 Patiya"><i class="fas fa-print"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendPatiyaWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>
+      <tr id="patiyaRowBreakdown_${s.id}" class="patiya-breakdown-row" style="display:${allPatiyaExpanded ? 'table-row' : 'none'}; background:#faf5ff;">
+        <td colspan="5" style="padding:10px 16px 14px;">
+          <div style="background:#ffffff; border:1.5px solid #ddd6fe; border-radius:10px; padding:12px 16px; box-shadow:0 2px 8px rgba(124, 58, 237, 0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #f3e8ff; padding-bottom:6px;">
+              <span style="font-size:12px; font-weight:700; color:#6d28d9;">
+                <i class="fas fa-calculator"></i> Calculation Breakdown: ${s.dealerName} (${s.date})
+              </span>
+              <span class="badge badge-purple" style="font-size:11px;">${arrLot}</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(6, 1fr); gap:10px;">
+              <div style="background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0;">
+                <div style="color:#64748b; font-size:10.5px; font-weight:600;">Gross Sales</div>
+                <div style="font-size:13.5px; font-weight:800; color:#0f172a; font-family:var(--font-mono); margin-top:2px;">₹${gross.toLocaleString('en-IN')}</div>
+              </div>
+              <div style="background:#fef2f2; padding:8px 10px; border-radius:6px; border:1px solid #fecaca;">
+                <div style="color:#991b1b; font-size:10.5px; font-weight:600;">(-) Deductions</div>
+                <div style="font-size:13.5px; font-weight:800; color:#dc2626; font-family:var(--font-mono); margin-top:2px;">-₹${totalDeductions.toLocaleString('en-IN')}</div>
+              </div>
+              <div style="background:#f0fdf4; padding:8px 10px; border-radius:6px; border:1px solid #bbf7d0;">
+                <div style="color:#166534; font-size:10.5px; font-weight:600;">(=) Net Sale Proceed</div>
+                <div style="font-size:13.5px; font-weight:800; color:#15803d; font-family:var(--font-mono); margin-top:2px;">₹${netSale.toLocaleString('en-IN')}</div>
+              </div>
+              <div style="background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0;">
+                <div style="color:#64748b; font-size:10.5px; font-weight:600;">(+) Previous Bal</div>
+                <div style="font-size:13.5px; font-weight:800; color:#0f172a; font-family:var(--font-mono); margin-top:2px;">+₹${prevBal.toLocaleString('en-IN')}</div>
+              </div>
+              <div style="background:#fef2f2; padding:8px 10px; border-radius:6px; border:1px solid #fecaca;">
+                <div style="color:#991b1b; font-size:10.5px; font-weight:600;">(-) Spot Cash Paid</div>
+                <div style="font-size:13.5px; font-weight:800; color:#dc2626; font-family:var(--font-mono); margin-top:2px;">-₹${cashPaid.toLocaleString('en-IN')}</div>
+              </div>
+              <div style="background:#ecfdf5; padding:8px 10px; border-radius:6px; border:1.5px solid #10b981;">
+                <div style="color:#047857; font-size:10.5px; font-weight:700;">Final Amount We Owe</div>
+                <div style="font-size:14px; font-weight:900; color:#065f46; font-family:var(--font-mono); margin-top:2px;">₹${closingBal.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
           </div>
         </td>
       </tr>
@@ -4775,34 +5327,53 @@ function renderPatiyaList() {
   }).join('');
 }
 
-function openPatiyaModal() {
+function openPatiyaModal(prefillDealer) {
   const today = getTodayIsoDate();
   const patDateInp = document.getElementById('mPatDate');
   if (patDateInp) {
     patDateInp.max = today;
     patDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
-  document.getElementById('mPatDealer').value = '';
+  document.getElementById('mPatDealer').value = prefillDealer || '';
   document.getElementById('patiyaCalcSection').style.display = 'none';
   document.getElementById('savePatiyaBtn').style.display = 'none';
+  document.getElementById('patiyaPrintBtn').style.display = 'none';
+  document.getElementById('patiyaShareWaBtn').style.display = 'none';
   document.getElementById('patiyaModal').classList.add('open');
+  if (prefillDealer) {
+    calculateDealerPatiya();
+  } else {
+    setTimeout(() => {
+      searchPatiyaDealer('');
+    }, 150);
+  }
 }
 
 function settleKumar() {
-  openPatiyaModal();
-  document.getElementById('mPatDealer').value = 'Kumar Traders';
-  calculateDealerPatiya();
+  openPatiyaModal('Kumar Traders');
 }
 
 function searchPatiyaDealer(q) {
   const list = document.getElementById('mPatDealerDropdown');
-  if (!q.trim()) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isDealer && c.name.toLowerCase().includes(q.toLowerCase()));
+  const dealers = appState.contacts.filter(c => c.isDealer);
+  const filterQ = (q || '').trim().toLowerCase();
+  const matches = filterQ ? dealers.filter(c => c.name.toLowerCase().includes(filterQ)) : dealers;
   if (matches.length === 0) { list.style.display = 'none'; return; }
   list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="document.getElementById('mPatDealer').value='${m.name}'; document.getElementById('mPatDealerDropdown').style.display='none';">${m.name}</div>
+    <div class="autocomplete-row" onclick="selectPatiyaDealer('${m.name.replace(/'/g, "\\'")}')" style="display:flex; justify-content:space-between; align-items:center;">
+      <strong>${m.name}</strong>
+      <span class="badge badge-green" style="font-size:10.5px;">Settle Consignments</span>
+    </div>
   `).join('');
   list.style.display = 'block';
+}
+
+function selectPatiyaDealer(name) {
+  const dInp = document.getElementById('mPatDealer');
+  if (dInp) dInp.value = name;
+  const list = document.getElementById('mPatDealerDropdown');
+  if (list) list.style.display = 'none';
+  calculateDealerPatiya();
 }
 
 async function calculateDealerPatiya() {
@@ -4824,6 +5395,8 @@ async function calculateDealerPatiya() {
     renderPatiyaView();
     document.getElementById('patiyaCalcSection').style.display = 'block';
     document.getElementById('savePatiyaBtn').style.display = 'inline-flex';
+    document.getElementById('patiyaPrintBtn').style.display = 'inline-flex';
+    document.getElementById('patiyaShareWaBtn').style.display = 'inline-flex';
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
@@ -4833,40 +5406,90 @@ function renderPatiyaView() {
   if (!curPatiyaData) return;
   const tbody = document.getElementById('patItemsTbody');
 
-  document.getElementById('mPatArrivalCrates').value = curPatiyaData.arrivalCratesToday || 0;
+  const totalArr = curPatiyaData.arrivalCratesToday || 0;
+  document.getElementById('mPatArrivalCrates').value = totalArr;
+  const arrBadge = document.getElementById('mPatTotalArrivalBadge');
+  if (arrBadge) arrBadge.textContent = `Total: ${totalArr} Crates`;
+
   document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance || 0;
   document.getElementById('mPatCashPaid').value = 0;
   document.getElementById('mPatAdjustments').value = 0;
   document.getElementById('mPatCashPayee').value = 'Cash Paid to DRL (Driver)';
 
+  // Render Received Varieties (You Owe Him Money For)
+  const recVars = Array.isArray(curPatiyaData.receivedVarieties) ? curPatiyaData.receivedVarieties : [];
+  const recListEl = document.getElementById('mPatReceivedVarietiesList');
+  const dlist = document.getElementById('patVarietyDatalist');
+  if (dlist) {
+    dlist.innerHTML = recVars.map(v => `<option value="${v.variety}">`).join('');
+  }
+
+  if (recListEl) {
+    if (recVars.length > 0) {
+      recListEl.innerHTML = recVars.map(rv => {
+        const safeId = 'patPill_' + rv.variety.replace(/[^a-zA-Z0-9]/g, '_');
+        return `
+          <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <div style="font-size:12.5px;">
+              <strong style="color:#0f172a; font-size:13px;">${rv.variety}</strong>:
+              <span style="color:#0284c7; font-weight:800;">${rv.totalCrates} Crates</span>
+            </div>
+            <span class="badge badge-gray pat-var-pill" id="${safeId}" style="font-size:11px;">0 / ${rv.totalCrates} Accounted</span>
+            <button class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:11px;" onclick="addPatiyaItemLine('${rv.variety.replace(/'/g, "\\'")}', '')" title="Add sub-lot for ${rv.variety}"><i class="fas fa-plus"></i> Bill Lot</button>
+          </div>
+        `;
+      }).join('');
+    } else {
+      recListEl.innerHTML = '<div style="color:#64748b; font-size:12.5px; font-style:italic;">No recorded consignments found for this dealer on this date. You can add fish lots manually below.</div>';
+    }
+  }
+
+  // Populate Fish Sold Sub-lots
   const patItems = Array.isArray(curPatiyaData.items) ? curPatiyaData.items : [];
-  if (patItems.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:18px; color:#64748b;">No active sales for this dealer on this date. Click "+ Add Fish Lot" to enter manually.</td></tr>';
-  } else {
+  if (patItems.length > 0) {
     tbody.innerHTML = patItems.map((it, idx) => `
       <tr>
-        <td><input type="text" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:130px;"/></td>
-        <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" style="width:70px; text-align:right;" oninput="onPatiyaLineChange(${idx})"/></td>
+        <td><input type="text" list="patVarietyDatalist" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
+        <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
         <td class="num"><span style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
         <td class="num" style="background:#fffbeb;">
-          <input type="number" value="${it.reportedRate}" class="patItemRate" style="width:80px; text-align:right; font-weight:700;" oninput="onPatiyaLineChange(${idx})"/>
+          <input type="number" value="${it.reportedRate}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:700;" id="pRepGross_${idx}">₹${it.reportedGross.toLocaleString('en-IN')}</td>
+        <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹${it.reportedGross.toLocaleString('en-IN')}</td>
         <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
       </tr>
     `).join('');
+  } else if (recVars.length > 0) {
+    // Automatically generate initial lines from received varieties
+    tbody.innerHTML = recVars.map((rv, idx) => `
+      <tr>
+        <td><input type="text" list="patVarietyDatalist" value="${rv.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
+        <td class="num"><input type="number" value="${rv.totalCrates}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+        <td class="num"><span style="font-size:12px; color:#64748b;">Crate</span></td>
+        <td class="num" style="background:#fffbeb;">
+          <input type="number" value="" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+        </td>
+        <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹0</td>
+        <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+      </tr>
+    `).join('');
+  } else {
+    tbody.innerHTML = '';
+    addPatiyaItemLine('Fish', 50, '');
   }
 
-  const exp = document.getElementById('patExpenseTbody');
-  exp.innerHTML = `
+  // Deduct Expenses One by One (Default with Transport and Ice/Coolie)
+  const expTbody = document.getElementById('patExpenseTbody');
+  const defaultFreight = curPatiyaData.lorryBhada || 4320;
+  expTbody.innerHTML = `
     <tr>
       <td><input type="text" class="expLabel" value="Transport / Lorry Bhada (MEN)"/></td>
-      <td class="num"><input type="number" class="expCost" value="4320" oninput="recalculatePatiya()" style="text-align:right;"/></td>
+      <td class="num"><input type="number" class="expCost" value="${defaultFreight}" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
       <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
     <tr>
       <td><input type="text" class="expLabel" value="Ice & Coolie Labor (ML)"/></td>
-      <td class="num"><input type="number" class="expCost" value="1000" oninput="recalculatePatiya()" style="text-align:right;"/></td>
+      <td class="num"><input type="number" class="expCost" value="1000" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
       <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
   `;
@@ -4877,31 +5500,34 @@ function renderPatiyaView() {
   recalculatePatiya();
 }
 
-function addPatiyaItemLine() {
+function addPatiyaItemLine(variety = '', qty = '', rate = '') {
   const tbody = document.getElementById('patItemsTbody');
+  const recVars = curPatiyaData?.receivedVarieties || [];
+  if (!variety && recVars.length > 0) {
+    variety = recVars[0].variety;
+  }
   const tr = document.createElement('tr');
-  const idx = tbody.querySelectorAll('tr').length;
   tr.innerHTML = `
-    <td><input type="text" placeholder="Fish Variety" class="patItemVariety" style="font-weight:700; width:130px;" value="Fish"/></td>
-    <td class="num"><input type="number" value="50" class="patItemQty" style="width:70px; text-align:right;" oninput="recalculatePatiya()"/></td>
+    <td><input type="text" list="patVarietyDatalist" placeholder="Fish Variety" value="${variety || ''}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
+    <td class="num"><input type="number" value="${qty || ''}" placeholder="Crates" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
     <td class="num"><span style="font-size:12px; color:#64748b;">Crate</span></td>
     <td class="num" style="background:#fffbeb;">
-      <input type="number" value="2000" class="patItemRate" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+      <input type="number" value="${rate || ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
     </td>
-    <td class="num" style="font-family:var(--font-mono); font-weight:700;" id="pRepGross_${idx}">₹1,00,000</td>
+    <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹0</td>
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
   tbody.appendChild(tr);
   recalculatePatiya();
 }
 
-function addPatiyaExpenseLine() {
+function addPatiyaExpenseLine(name = '', amount = '') {
   const tbody = document.getElementById('patExpenseTbody');
   if (!tbody) return;
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><input type="text" class="expLabel" placeholder="e.g. Storage / Box charges"/></td>
-    <td class="num"><input type="number" class="expCost" value="0" oninput="recalculatePatiya()" style="text-align:right;"/></td>
+    <td><input type="text" class="expLabel" value="${name || ''}" placeholder="e.g. Storage / Box charges"/></td>
+    <td class="num"><input type="number" class="expCost" value="${amount || 0}" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
   tbody.appendChild(tr);
@@ -4916,45 +5542,124 @@ function recalculatePatiya() {
   const itemRows = document.querySelectorAll('#patItemsTbody tr');
   let gross = 0;
   let totalSold = 0;
+  const accountedMap = {};
 
-  itemRows.forEach((r, idx) => {
+  itemRows.forEach((r) => {
     const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
     const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
     const lineGross = qty * rate;
-    const grossEl = r.querySelector(`#pRepGross_${idx}`) || r.querySelector('td:nth-child(5)');
+    const grossEl = r.querySelector('.gross-cell');
     if (grossEl) grossEl.textContent = `₹${lineGross.toLocaleString('en-IN')}`;
     gross += lineGross;
     totalSold += qty;
+
+    const varName = (r.querySelector('.patItemVariety')?.value || '').trim().toLowerCase();
+    if (varName) {
+      accountedMap[varName] = (accountedMap[varName] || 0) + qty;
+    }
   });
+
+  const totalSoldEl = document.getElementById('mPatTotalSoldCrates');
+  if (totalSoldEl) totalSoldEl.textContent = totalSold;
+
+  const totalGrossEl = document.getElementById('mPatTotalGrossSales');
+  if (totalGrossEl) totalGrossEl.textContent = `₹${gross.toLocaleString('en-IN')}`;
 
   const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
   const avgBadge = document.getElementById('mPatBlendedAvgBadge');
   if (avgBadge) avgBadge.textContent = `Blended Avg: @ ₹${avgRate.toLocaleString('en-IN')} / Box`;
 
+  // Update dynamic per-variety status badges
+  const recVars = curPatiyaData?.receivedVarieties || [];
+  recVars.forEach(rv => {
+    const safeId = 'patPill_' + rv.variety.replace(/[^a-zA-Z0-9]/g, '_');
+    const pill = document.getElementById(safeId);
+    if (pill) {
+      const accounted = accountedMap[rv.variety.toLowerCase()] || 0;
+      if (accounted === 0) {
+        pill.className = 'badge badge-gray pat-var-pill';
+        pill.textContent = `0 / ${rv.totalCrates} Accounted (${rv.totalCrates} Left)`;
+      } else if (accounted < rv.totalCrates) {
+        pill.className = 'badge badge-amber pat-var-pill';
+        pill.textContent = `${accounted} / ${rv.totalCrates} Accounted (${rv.totalCrates - accounted} Left)`;
+      } else if (accounted === rv.totalCrates) {
+        pill.className = 'badge badge-green pat-var-pill';
+        pill.textContent = `✓ ${accounted} / ${rv.totalCrates} Fully Accounted`;
+      } else {
+        pill.className = 'badge badge-purple pat-var-pill';
+        pill.textContent = `${accounted} / ${rv.totalCrates} (${accounted - rv.totalCrates} Extra)`;
+      }
+    }
+  });
+
+  // Update overall accounting status badge
+  const totalArr = Number(document.getElementById('mPatArrivalCrates')?.value) || curPatiyaData?.arrivalCratesToday || totalSold;
+  const statBadge = document.getElementById('mPatAccountingStatusBadge');
+  if (statBadge) {
+    if (totalArr > 0) {
+      const leftOverall = totalArr - totalSold;
+      if (leftOverall === 0) {
+        statBadge.className = 'badge badge-green';
+        statBadge.innerHTML = `<i class="fas fa-check"></i> All ${totalArr} Crates Accounted`;
+      } else if (leftOverall > 0) {
+        statBadge.className = 'badge badge-amber';
+        statBadge.innerHTML = `${totalSold} / ${totalArr} Crates Accounted (${leftOverall} Left)`;
+      } else {
+        statBadge.className = 'badge badge-purple';
+        statBadge.innerHTML = `${totalSold} / ${totalArr} Crates (${Math.abs(leftOverall)} Extra)`;
+      }
+    } else {
+      statBadge.className = 'badge badge-blue';
+      statBadge.innerHTML = `${totalSold} Crates Accounted`;
+    }
+  }
+
+  // Deduct Expenses One by One
   let exp = 0;
   document.querySelectorAll('#patExpenseTbody tr').forEach(r => {
     exp += Number(r.querySelector('.expCost')?.value) || 0;
   });
+  const expEl = document.getElementById('mPatTotalExpenses');
+  if (expEl) expEl.textContent = `-₹${exp.toLocaleString('en-IN')}`;
 
+  // Deduct Commission
   const commType = document.getElementById('mPatCommType').value;
   const commVal = Number(document.getElementById('mPatCommVal').value) || 0;
   let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(totalSold * commVal) : commVal);
   document.getElementById('mPatCommDeduction').textContent = `-₹${commAmt.toLocaleString('en-IN')}`;
 
+  // Net Consignment Proceeds
   const adj = Number(document.getElementById('mPatAdjustments').value) || 0;
   const netConsignment = Math.max(0, gross - exp - commAmt + adj);
   document.getElementById('mPatConsignmentNet').textContent = `₹${netConsignment.toLocaleString('en-IN')}`;
+  const netSummaryEl = document.getElementById('mPatConsignmentNetSummary');
+  if (netSummaryEl) netSummaryEl.textContent = `₹${netConsignment.toLocaleString('en-IN')}`;
 
+  // Running Ledger & Final Amount We Owe Him
   const prevBal = Number(document.getElementById('mPatPrevBal').value) || 0;
   const totalDue = netConsignment + prevBal;
   document.getElementById('mPatTotalDue').textContent = `₹${totalDue.toLocaleString('en-IN')}`;
 
   const cashPaid = Number(document.getElementById('mPatCashPaid').value) || 0;
   const closingBal = totalDue - cashPaid;
-  document.getElementById('mPatClosingBal').textContent = `₹${closingBal.toLocaleString('en-IN')}`;
+  const closingEl = document.getElementById('mPatClosingBal');
+  if (closingEl) closingEl.textContent = `₹${closingBal.toLocaleString('en-IN')}`;
+
+  const statusEl = document.getElementById('mPatClosingBalStatus');
+  if (statusEl) {
+    if (closingBal >= 0) {
+      statusEl.textContent = "Added to dealer ledger. Pay money to reduce balance later via 'Pay Dealer'.";
+    } else {
+      statusEl.textContent = `Dealer owes us: ₹${Math.abs(closingBal).toLocaleString('en-IN')}`;
+    }
+  }
+
+  const unsoldLeft = Math.max(0, totalArr - totalSold);
+  const unsoldEl = document.getElementById('mPatUnsoldCrates');
+  if (unsoldEl) unsoldEl.textContent = unsoldLeft;
 }
 
-async function saveFinalizedPatiya() {
+async function saveFinalizedPatiya(action = 'save') {
   if (!curPatiyaData) return;
   const dealer = curPatiyaData.dealer;
   const date = document.getElementById('mPatDate').value;
@@ -4986,7 +5691,7 @@ async function saveFinalizedPatiya() {
     }
   });
 
-  if (items.length === 0) return showToast('Please enter at least one fish lot item', 'error');
+  if (items.length === 0) return showToast('Please enter at least one fish lot item with sold crates', 'error');
 
   const arrivalCrates = Number(document.getElementById('mPatArrivalCrates').value) || totalSold;
   const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
@@ -5040,15 +5745,19 @@ async function saveFinalizedPatiya() {
         cashPaidToday,
         cashPaidPayee,
         closingBalance,
-        unsoldCratesCarriedForward: curPatiyaData.unsoldCratesRemaining || 0
+        unsoldCratesCarriedForward: Math.max(0, arrivalCrates - totalSold)
       })
     });
     const saved = await res.json();
     if (res.ok) {
       showToast('Patiya finalized & credited!', 'success');
       closeModal('patiyaModal');
-      await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadReports()]);
-      downloadA4Patiya(saved.id);
+      await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadConsignments(), loadStockBoard(), loadReports()]);
+      if (action === 'print') {
+        downloadA4Patiya(saved.id);
+      } else if (action === 'whatsapp') {
+        sendPatiyaWhatsApp(saved.id);
+      }
     } else {
       showToast(saved.error || 'Failed to finalize', 'error');
     }
@@ -5311,14 +6020,21 @@ function renderContactsList() {
         <td>${c.isOverdue ? `<span class="badge badge-red"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>` : '<span class="badge badge-green">Clear</span>'}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
+            ${c.isDealer ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates (Patiya)"><i class="fas fa-calculator"></i> Settle</button>` : ''}
+            ${c.isDealer ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money to Dealer"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
+            ${c.isBuyer ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
             <button class="btn btn-outline btn-sm" onclick="openStatementModal(${c.id})" title="Passbook"><i class="fas fa-book-open"></i></button>
-            ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
+            ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name.replace(/'/g, "\\'")}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
             <button class="btn btn-ghost btn-sm" onclick="editPartyAccount(${c.id})" title="Edit"><i class="fas fa-pen"></i></button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function openPatiyaForDealer(dealerName) {
+  openPatiyaModal(dealerName);
 }
 
 function openContactModal() {
@@ -5561,7 +6277,11 @@ function openPaymentModal(type) {
     payDateInp.max = today;
     payDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
-  document.getElementById('mPayContactName').value = '';
+  const contactInp = document.getElementById('mPayContactName');
+  if (contactInp) {
+    contactInp.value = '';
+    delete contactInp.dataset.contactId;
+  }
   document.getElementById('mPayAmount').value = '';
   document.getElementById('mPayDiscount').value = '0';
   document.getElementById('mPayRef').value = '';
@@ -5569,22 +6289,100 @@ function openPaymentModal(type) {
   document.getElementById('mPayBalanceInfo').textContent = '';
 
   const isDealer = type === 'DEALER_PAYMENT';
-  document.getElementById('paymentModalTitle').innerHTML = isDealer ? '<i class="fas fa-wallet" style="color:#d97706"></i> Pay Dealer' : '<i class="fas fa-sack-dollar" style="color:#059669"></i> Collect from Buyer';
+  const notice = document.getElementById('mPayDealerSettlementNotice');
+  if (notice) notice.style.display = isDealer ? 'flex' : 'none';
+
+  document.getElementById('paymentModalTitle').innerHTML = isDealer 
+    ? '<i class="fas fa-hand-holding-dollar" style="color:#d97706"></i> Pay Dealer (Reduce Balance)' 
+    : '<i class="fas fa-sack-dollar" style="color:#059669"></i> Collect from Buyer';
   document.getElementById('mPayContactLabel').textContent = isDealer ? 'Dealer Name *' : 'Buyer Name *';
   document.getElementById('mPayDiscountGroup').style.display = isDealer ? 'block' : 'none';
+
+  const submitBtn = document.getElementById('mPaySubmitBtn');
+  if (submitBtn) {
+    if (isDealer) {
+      submitBtn.className = 'btn btn-primary';
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Pay & Reduce Balance';
+    } else {
+      submitBtn.className = 'btn btn-green';
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Save Collection';
+    }
+  }
+
+  const impactBox = document.getElementById('mPayLiveBalanceImpact');
+  if (impactBox) impactBox.style.display = 'none';
+
   document.getElementById('paymentModal').classList.add('open');
+}
+
+function switchPayToSettlement() {
+  const selectedDealer = document.getElementById('mPayContactName')?.value?.trim();
+  closeModal('paymentModal');
+  openPatiyaModal(selectedDealer);
 }
 
 function searchPayContact(q) {
   const list = document.getElementById('mPayContactDropdown');
-  if (!q.trim()) { list.style.display = 'none'; return; }
+  if (!list) return;
   const type = document.getElementById('mPayType').value;
-  const matches = appState.contacts.filter(c => (type === 'DEALER_PAYMENT' ? c.isDealer : c.isBuyer) && c.name.toLowerCase().includes(q.toLowerCase()));
+  const isDealer = type === 'DEALER_PAYMENT';
+  const candidates = appState.contacts.filter(c => isDealer ? c.isDealer : c.isBuyer);
+  const filterQ = (q || '').trim().toLowerCase();
+  const matches = filterQ ? candidates.filter(c => c.name.toLowerCase().includes(filterQ) || (c.phone && c.phone.includes(filterQ))) : candidates;
   if (matches.length === 0) { list.style.display = 'none'; return; }
-  list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="choosePayContact('${m.name}', ${m.id})">${m.name}</div>
-  `).join('');
+  list.innerHTML = matches.map(m => {
+    const due = isDealer ? (m.payableBalance || 0) : (m.receivableBalance || 0);
+    return `
+      <div class="autocomplete-row" onclick="choosePayContact('${m.name.replace(/'/g, "\\'")}', ${m.id})" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <strong>${m.name}</strong>
+          <small style="color:#64748b; margin-left:6px;">${m.phone || ''}</small>
+        </div>
+        <span class="badge ${isDealer ? 'badge-amber' : 'badge-green'}" style="font-size:11px;">
+          ${isDealer ? 'We Owe' : 'Owes Us'}: ₹${due.toLocaleString('en-IN')}
+        </span>
+      </div>
+    `;
+  }).join('');
   list.style.display = 'block';
+}
+
+function updatePaymentLiveBalance() {
+  const type = document.getElementById('mPayType').value;
+  const isDealer = type === 'DEALER_PAYMENT';
+  const cName = document.getElementById('mPayContactName').value.trim();
+  const cId = Number(document.getElementById('mPayContactName').dataset.contactId);
+  const contact = appState.contacts.find(c => (cId && c.id === cId) || c.name.toLowerCase() === cName.toLowerCase());
+  const box = document.getElementById('mPayLiveBalanceImpact');
+  if (!contact || !box) {
+    if (box) box.style.display = 'none';
+    return;
+  }
+  
+  box.style.display = 'block';
+  const curDue = isDealer ? (Number(contact.payableBalance) || 0) : (Number(contact.receivableBalance) || 0);
+  const amt = Number(document.getElementById('mPayAmount').value) || 0;
+  const disc = Number(document.getElementById('mPayDiscount').value) || 0;
+  const totalReduction = amt + disc;
+  const newBal = Math.max(0, curDue - totalReduction);
+
+  const curOwedEl = document.getElementById('mPayCurrentOwed');
+  const dedEl = document.getElementById('mPayDeduction');
+  const remEl = document.getElementById('mPayRemainingOwed');
+  const curLabelEl = document.getElementById('mPayBalanceLabelText');
+  const remLabelEl = document.getElementById('mPayRemainingLabelText');
+
+  if (isDealer) {
+    if (curLabelEl) curLabelEl.textContent = 'Current Balance We Owe Dealer:';
+    if (remLabelEl) remLabelEl.textContent = '(=) New Remaining Balance We Owe:';
+  } else {
+    if (curLabelEl) curLabelEl.textContent = 'Current Balance Buyer Owes Us:';
+    if (remLabelEl) remLabelEl.textContent = '(=) New Balance Buyer Owes:';
+  }
+
+  if (curOwedEl) curOwedEl.textContent = `₹${curDue.toLocaleString('en-IN')}`;
+  if (dedEl) dedEl.textContent = `-₹${totalReduction.toLocaleString('en-IN')}`;
+  if (remEl) remEl.textContent = `₹${newBal.toLocaleString('en-IN')}`;
 }
 
 function choosePayContact(name, id) {
@@ -5595,8 +6393,36 @@ function choosePayContact(name, id) {
   if (c) {
     const isDealer = document.getElementById('mPayType').value === 'DEALER_PAYMENT';
     const due = isDealer ? c.payableBalance : c.receivableBalance;
-    document.getElementById('mPayBalanceInfo').innerHTML = `Current balance: <strong style="color:${isDealer ? '#059669' : '#0084ff'}">₹${(due || 0).toLocaleString('en-IN')}</strong>`;
+    if (isDealer) {
+      document.getElementById('mPayBalanceInfo').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+          <span>Current Amount We Owe Dealer: <strong style="color:#059669;">₹${(due || 0).toLocaleString('en-IN')}</strong></span>
+          <button type="button" class="btn btn-purple btn-sm" style="padding:2px 8px; font-size:11px;" onclick="switchPayToSettlement()"><i class="fas fa-calculator"></i> Settle (Patiya)</button>
+        </div>
+      `;
+    } else {
+      document.getElementById('mPayBalanceInfo').innerHTML = `Current balance buyer owes: <strong style="color:#0084ff;">₹${(due || 0).toLocaleString('en-IN')}</strong>`;
+    }
     document.getElementById('mPayAmount').value = due || 0;
+    updatePaymentLiveBalance();
+  }
+}
+
+function openPaymentForDealer(dealerName, contactId) {
+  openPaymentModal('DEALER_PAYMENT');
+  const inp = document.getElementById('mPayContactName');
+  if (inp) {
+    inp.value = dealerName;
+    if (contactId) choosePayContact(dealerName, contactId);
+  }
+}
+
+function openPaymentForBuyer(buyerName, contactId) {
+  openPaymentModal('BUYER_COLLECTION');
+  const inp = document.getElementById('mPayContactName');
+  if (inp) {
+    inp.value = buyerName;
+    if (contactId) choosePayContact(buyerName, contactId);
   }
 }
 
@@ -5919,8 +6745,12 @@ function handleCtrlKSearch(q) {
         <div><i class="fas fa-cart-shopping" style="margin-right:8px; color:#10b981;"></i> New Morning Sale Bill</div>
         <span class="badge badge-green">Action</span>
       </div>
+      <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPatiyaModal();">
+        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> Settle Dealer (Patiya Bill)</div>
+        <span class="badge badge-purple">Action</span>
+      </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPaymentModal('DEALER_PAYMENT');">
-        <div><i class="fas fa-wallet" style="margin-right:8px; color:#d97706;"></i> Make Dealer Payment</div>
+        <div><i class="fas fa-hand-holding-dollar" style="margin-right:8px; color:#d97706;"></i> Pay Dealer (Reduce Balance)</div>
         <span class="badge badge-amber">Action</span>
       </div>
     `;
@@ -5967,7 +6797,7 @@ function handleCtrlKSearch(q) {
       matches.push({
         title: `Sale Bill ${s.billNo || ('#' + s.id)} - ${s.buyerName}`,
         sub: `₹${(s.total || 0).toLocaleString('en-IN')} (${s.date}) · ${fishDesc}`,
-        action: () => downloadA4SalesBill(s.id)
+        action: () => viewSaleBill(s.id)
       });
     }
   });
