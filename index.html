@@ -2632,14 +2632,11 @@ th.num:last-child {
           <table class="data-grid">
             <thead>
               <tr>
-                <th>Txn #</th>
                 <th>Date</th>
-                <th>Type</th>
-                <th>Party Name</th>
+                <th>Name</th>
                 <th class="num">Amount</th>
-                <th class="num">Kasar Discount</th>
+                <th class="num">Discount</th>
                 <th>Mode / Ref</th>
-                <th>Notes</th>
                 <th class="num">Actions</th>
               </tr>
             </thead>
@@ -3565,6 +3562,25 @@ th.num:last-child {
       <button class="btn btn-wa" onclick="whatsAppActiveBill()"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
       <button class="btn btn-primary" onclick="printOrDownloadActiveBill()"><i class="fas fa-file-pdf"></i> Download PDF</button>
       <button class="btn btn-green" onclick="printCurrentBillView()"><i class="fas fa-print"></i> Print Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 11: Stock Contribution Preview -->
+<div class="modal-backdrop" id="stockContributionModal" onclick="if(event.target===this)closeModal('stockContributionModal')">
+  <div class="modal-window modal-lg" style="max-width:760px;">
+    <div class="modal-top-bar" style="background:#f8fafc;">
+      <div>
+        <span class="modal-headline" id="stockContribModalTitle"><i class="fas fa-chart-pie" style="color:var(--primary-blue);"></i> Stock Contribution</span>
+        <div id="stockContribModalSub" style="font-size:11.5px; color:#64748b; margin-top:2px;">Consignor breakdown of active godown inventory</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('stockContributionModal')" title="Close">✕</button>
+    </div>
+    <div class="modal-scroll-body" id="stockContribModalBody" style="padding:22px;">
+      <!-- Content dynamically injected by previewStockContribution() -->
+    </div>
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('stockContributionModal')">Close</button>
     </div>
   </div>
 </div>
@@ -6220,25 +6236,20 @@ function renderPaymentsList() {
   const filtered = appState.payments.filter(p => p.contactName.toLowerCase().includes(q) || (p.referenceNo && p.referenceNo.toLowerCase().includes(q)));
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b;">No payment records found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No payment records found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(p => {
-    let tag = p.type === 'DEALER_PAYMENT' ? '<span class="badge badge-amber">PAID DEALER</span>' : (p.type === 'BUYER_COLLECTION' ? '<span class="badge badge-green">BUYER COLLECTION</span>' : '<span class="badge badge-blue">CONTRA</span>');
-
     return `
       <tr>
-        <td><strong style="font-family:var(--font-mono)">${p.paymentNo}</strong></td>
         <td>${p.date}</td>
-        <td>${tag}</td>
         <td><strong>${p.contactName}</strong></td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700;">₹${p.amount.toLocaleString('en-IN')}</td>
         <td class="num" style="font-family:var(--font-mono); color:#d97706;">
           ${p.settlementDiscount > 0 ? `₹${p.settlementDiscount.toLocaleString('en-IN')}` : '-'}
         </td>
         <td>${p.paymentMode} ${p.referenceNo ? `<small>(${p.referenceNo})</small>` : ''}</td>
-        <td>${p.notes || '-'}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
             <button class="btn btn-danger btn-sm" onclick="deletePaymentEntry(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
@@ -6645,50 +6656,205 @@ function renderGodownStockList() {
   const container = document.getElementById('godownStockCardsList');
   if (!container) return;
 
-  if (appState.inventory.length === 0) {
-    container.innerHTML = '<div style="text-align:center; padding:48px; color:#64748b;">No active stock in godown.</div>';
+  // Filter out any items with no live stock or no live dealers
+  const validItems = (appState.inventory || []).filter(item => {
+    const liveDealers = Object.entries(item.byDealer || {}).filter(([name, d]) => (d.crates > 0 || d.kg > 0));
+    return liveDealers.length > 0 && (item.totalCrates > 0 || item.totalKg > 0);
+  });
+
+  if (validItems.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:48px; color:#64748b; background:#ffffff; border-radius:12px; border:1px solid #e2e8f0;"><i class="fas fa-boxes-stacked" style="font-size:32px; color:#cbd5e1; margin-bottom:12px; display:block;"></i>No active stock in godown. All crates have been sold out.</div>';
     return;
   }
 
-  container.innerHTML = appState.inventory.map(item => {
-    const dealerRows = Object.entries(item.byDealer || {}).map(([name, d]) => `
-      <tr>
-        <td><strong>${name}</strong></td>
-        <td class="num" style="font-weight:700;">${d.crates} crates</td>
-        <td class="num" style="color:#64748b;">${d.kg ? d.kg + ' KG' : '-'}</td>
-      </tr>
-    `).join('');
+  container.innerHTML = validItems.map(item => {
+    let specText = '';
+    if (item.totalKg > 0 && item.totalCrates > 0) {
+      specText = `${item.totalKg} KG • ${item.totalCrates} Crates`;
+    } else if (item.totalKg > 0) {
+      specText = `${item.totalKg} KG`;
+    } else {
+      specText = `${item.totalCrates} Crates`;
+    }
 
     return `
-      <div class="data-table-box">
-        <div class="table-filter-bar">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="font-weight:700;"><i class="fas fa-fish" style="color:#0084ff;"></i> ${item.variety}</span>
-            <span class="badge badge-blue" style="font-size:11.5px; padding:3px 9px;">
-              Total: ${item.totalCrates} Crates ${item.totalKg ? `(${item.totalKg} KG)` : ''}
-            </span>
+      <div class="data-table-box" style="margin-bottom:16px; background:#ffffff; border-radius:12px; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(15,23,42,0.04); transition:all 0.2s;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; flex-wrap:wrap; gap:14px;">
+          <!-- Left: Variety Icon, Name & Live Weight / Crates Badge -->
+          <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+            <div style="width:44px; height:44px; border-radius:10px; background:#f0f9ff; border:1px solid #bae6fd; display:flex; align-items:center; justify-content:center; color:#0084ff; font-size:18px;">
+              <i class="fas fa-fish"></i>
+            </div>
+            <div>
+              <div style="font-weight:800; font-size:16px; color:#0f172a; letter-spacing:-0.2px;">
+                ${item.variety}
+              </div>
+              <div style="margin-top:3px;">
+                <span class="badge badge-blue" style="font-size:12.5px; font-weight:800; padding:4px 11px; background:#eff6ff; color:#0284c7; border:1.5px solid #bfdbfe; border-radius:6px;">
+                  <i class="fas fa-weight-hanging" style="font-size:11px; margin-right:4px;"></i> Total: ${specText}
+                </span>
+              </div>
+            </div>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteStockVariety('${item.variety.replace(/'/g, "\\'")}')" title="Delete and write off stock">
-            <i class="fas fa-trash"></i> Delete Stock
-          </button>
-        </div>
-        <div class="table-scroller">
-          <table class="data-grid">
-            <thead>
-              <tr>
-                <th>Dealer Consignor</th>
-                <th class="num">Crates Owned</th>
-                <th class="num">Weight (Kg)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${dealerRows || '<tr><td colspan="3" style="text-align:center; padding:16px;">No dealer lots</td></tr>'}
-            </tbody>
-          </table>
+
+          <!-- Right: Exactly the 2 buttons requested: Preview Consignment & Delete Stock -->
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button class="btn btn-outline btn-sm" onclick="previewStockContribution('${item.variety.replace(/'/g, "\\'")}')" title="Preview Consignors Contribution" style="border-color:#0284c7; color:#0284c7; background:#f0f9ff; font-weight:700; font-size:12.5px; padding:7px 15px; border-radius:8px; display:inline-flex; align-items:center; gap:7px; box-shadow:0 1px 3px rgba(2,132,199,0.08);">
+              <i class="fas fa-eye" style="color:#0284c7;"></i> Preview Consignment
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteStockVariety('${item.variety.replace(/'/g, "\\'")}')" title="Delete and write off stock" style="font-weight:700; font-size:12.5px; padding:7px 15px; border-radius:8px; display:inline-flex; align-items:center; gap:7px;">
+              <i class="fas fa-trash"></i> Delete Stock
+            </button>
+          </div>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function previewStockContribution(varietyName) {
+  const item = (appState.inventory || []).find(it => it.variety.toLowerCase() === (varietyName || '').toLowerCase());
+  if (!item) {
+    showToast('Stock data not found', 'error');
+    return;
+  }
+
+  // Filter only dealers who have live stock (crates > 0 or kg > 0)
+  const dealers = Object.entries(item.byDealer || {})
+    .filter(([name, d]) => (d.crates > 0 || d.kg > 0))
+    .map(([name, d]) => ({
+      name,
+      crates: d.crates || 0,
+      kg: d.kg || 0,
+      consignmentNo: d.consignmentNo || '-',
+      date: d.date || '-',
+      percentOfWeight: item.totalKg > 0 ? (d.percentOfWeight !== undefined ? d.percentOfWeight : Number(((d.kg / item.totalKg) * 100).toFixed(1))) : 0,
+      percentOfCrates: item.totalCrates > 0 ? (d.percentOfCrates !== undefined ? d.percentOfCrates : Number(((d.crates / item.totalCrates) * 100).toFixed(1))) : 0
+    }));
+
+  const totalKg = item.totalKg || 0;
+  const totalCrates = item.totalCrates || 0;
+
+  const titleEl = document.getElementById('stockContribModalTitle');
+  const subEl = document.getElementById('stockContribModalSub');
+  if (titleEl) titleEl.innerHTML = `<i class="fas fa-boxes-stacked" style="color:#0084ff;"></i> Consignment Preview: ${item.variety}`;
+  if (subEl) subEl.textContent = `Consignors contributing to live godown stock (${totalKg > 0 ? totalKg + ' KG' : ''}${totalKg > 0 && totalCrates > 0 ? ' • ' : ''}${totalCrates > 0 ? totalCrates + ' Crates' : ''}) across ${dealers.length} active dealer${dealers.length === 1 ? '' : 's'}`;
+
+  // Color palette for segments
+  const colors = ['#0084ff', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899'];
+
+  // Segment bar
+  const segmentBars = dealers.map((d, idx) => {
+    const color = colors[idx % colors.length];
+    const pct = totalKg > 0 ? d.percentOfWeight : d.percentOfCrates;
+    return `<div style="background:${color}; width:${pct}%; height:100%; transition:width 0.3s;" title="${d.name}: ${pct}% (${d.kg ? d.kg + ' KG' : d.crates + ' crates'})"></div>`;
+  }).join('');
+
+  // Legend items
+  const legendItems = dealers.map((d, idx) => {
+    const color = colors[idx % colors.length];
+    const pct = totalKg > 0 ? d.percentOfWeight : d.percentOfCrates;
+    const weightText = d.kg ? `${d.kg} KG` : `${d.crates} Crates`;
+    return `
+      <div style="display:flex; align-items:center; gap:8px; font-size:12.5px;">
+        <span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${color};"></span>
+        <strong style="color:#0f172a;">${d.name}:</strong>
+        <span style="color:#475569;">${weightText}</span>
+        <span style="font-weight:800; font-family:var(--font-mono); color:${color};">(${pct}%)</span>
+      </div>
+    `;
+  }).join('');
+
+  // Table rows
+  const tableRows = dealers.map((d, idx) => {
+    const color = colors[idx % colors.length];
+    const pct = totalKg > 0 ? d.percentOfWeight : d.percentOfCrates;
+    return `
+      <tr style="border-bottom:1px solid #f1f5f9; ${idx % 2 === 1 ? 'background:#fafbfc;' : ''}">
+        <td style="padding:10px 14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:9px; height:9px; border-radius:50%; background:${color};"></span>
+            <strong style="color:#0f172a; font-size:13.5px;">${d.name}</strong>
+          </div>
+        </td>
+        <td class="num" style="padding:10px 14px; font-weight:700; font-family:var(--font-mono); color:#6d28d9; text-align:right;">${d.crates} crates</td>
+        <td class="num" style="padding:10px 14px; font-weight:700; font-family:var(--font-mono); color:#0f172a; text-align:right;">${d.kg ? d.kg + ' KG' : '-'}</td>
+        <td style="padding:10px 14px; text-align:right;">
+          <span class="badge" style="background:#eff6ff; color:${color}; border:1px solid #bfdbfe; font-family:var(--font-mono); font-weight:800; font-size:12px; padding:3px 8px;">
+            ${pct}%
+          </span>
+        </td>
+        <td style="padding:10px 14px; color:#64748b; font-size:11.5px; font-family:var(--font-mono);">${d.consignmentNo}</td>
+        <td style="padding:10px 14px; color:#64748b; font-size:12px;">${d.date || '-'}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const bodyHtml = `
+    <div>
+      <!-- Stat Cards Grid -->
+      <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:18px;">
+        <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:12px 16px;">
+          <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#0284c7; letter-spacing:0.04em;">Total Live Weight</div>
+          <div style="font-size:22px; font-weight:800; font-family:var(--font-mono); color:#0369a1; margin-top:2px;">${totalKg > 0 ? totalKg + ' KG' : 'N/A'}</div>
+          <div style="font-size:11px; color:#0284c7; margin-top:2px;">Live in godown</div>
+        </div>
+        <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:10px; padding:12px 16px;">
+          <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#7c3aed; letter-spacing:0.04em;">Crates Owned</div>
+          <div style="font-size:22px; font-weight:800; font-family:var(--font-mono); color:#6d28d9; margin-top:2px;">${totalCrates} Crates</div>
+          <div style="font-size:11px; color:#7c3aed; margin-top:2px;">Unsold godown crates</div>
+        </div>
+        <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:10px; padding:12px 16px;">
+          <div style="font-size:11px; text-transform:uppercase; font-weight:700; color:#059669; letter-spacing:0.04em;">Active Consignors</div>
+          <div style="font-size:22px; font-weight:800; font-family:var(--font-mono); color:#047857; margin-top:2px;">${dealers.length} Dealers</div>
+          <div style="font-size:11px; color:#059669; margin-top:2px;">Contributing to stock</div>
+        </div>
+      </div>
+
+      <!-- Segmented Bar Banner -->
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:18px; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:12px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:0.04em;">
+            <i class="fas fa-layer-group" style="color:#0084ff; margin-right:4px;"></i> Weight Contribution Distribution
+          </span>
+          <span style="font-size:13px; font-weight:800; color:#0084ff; font-family:var(--font-mono);">${totalKg > 0 ? totalKg + ' KG Total' : ''}</span>
+        </div>
+        <div style="width:100%; height:16px; background:#f1f5f9; border-radius:8px; overflow:hidden; display:flex; border:1px solid #cbd5e1; margin-bottom:12px;">
+          ${segmentBars}
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:18px; padding-top:4px;">
+          ${legendItems}
+        </div>
+      </div>
+
+      <!-- Detailed Table -->
+      <div style="border:1px solid #e2e8f0; border-radius:10px; overflow:hidden; margin-bottom:14px;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
+          <thead>
+            <tr style="background:#f8fafc; color:#475569; font-weight:700; text-align:left; border-bottom:1px solid #e2e8f0;">
+              <th style="padding:10px 14px;">Dealer Consignor</th>
+              <th style="padding:10px 14px; text-align:right;">Crates Owned</th>
+              <th style="padding:10px 14px; text-align:right;">Weight (KG)</th>
+              <th style="padding:10px 14px; text-align:right;">Contribution</th>
+              <th style="padding:10px 14px;">Arrival Lot</th>
+              <th style="padding:10px 14px;">Date In</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tableRows || '<tr><td colspan="6" style="padding:20px; text-align:center; color:#94a3b8;">No active consignors</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px; font-size:11.5px; color:#64748b; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 14px;">
+        <i class="fas fa-info-circle" style="color:#0084ff;"></i>
+        <span>Dealers whose crates have been fully sold are excluded from active godown contribution.</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('stockContribModalBody').innerHTML = bodyHtml;
+  document.getElementById('stockContributionModal').classList.add('open');
 }
 
 async function deleteStockVariety(variety, event) {
