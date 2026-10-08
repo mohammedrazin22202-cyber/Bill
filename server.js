@@ -67,7 +67,15 @@ function matchItem(item, query) {
   if (!query || Object.keys(query).length === 0) return true;
   for (const key in query) {
     const val = query[key];
-    if (val && typeof val === 'object') {
+    if (key === '$or' && Array.isArray(val)) {
+      if (!val.some(subQ => matchItem(item, subQ))) return false;
+      continue;
+    }
+    if (val instanceof RegExp) {
+      if (!val.test(String(item[key] || ''))) return false;
+      continue;
+    }
+    if (val && typeof val === 'object' && !(val instanceof RegExp)) {
       if ('$gt' in val) {
         if (!(item[key] > val.$gt)) return false;
       } else if ('$gte' in val) {
@@ -379,7 +387,7 @@ function normalizeSale(data) {
           qty = crates * kgPerCrate;
         }
         const rate = Number(l.rate) || 0;
-        const amount = Number(l.amount) !== undefined ? Number(l.amount) : (qty > 0 ? qty * rate : crates * rate);
+        const amount = Number(l.amount) !== undefined ? Number(l.amount) : (crates > 0 ? crates * rate : (qty > 0 ? qty * rate : 0));
         return {
           id: Number(l.id) || idx + 1,
           consignmentId: Number(l.consignmentId) || null,
@@ -387,10 +395,10 @@ function normalizeSale(data) {
           dealerId: Number(l.dealerId) || null,
           dealerName: String(l.dealerName || ''),
           variety: String(l.variety || '').trim(),
-          unit: l.unit === 'Crate' ? 'Crate' : 'Kg',
+          unit: (l.unit === 'Crate' || l.unit === 'Box') ? l.unit : (kgPerCrate > 0 ? 'Kg' : 'Box'),
           crates,
           kgPerCrate,
-          qty,
+          qty: qty || crates,
           rate,
           amount
         };
@@ -398,7 +406,7 @@ function normalizeSale(data) {
     : [];
 
   if (!totalBoxes && lines.length > 0) {
-    totalBoxes = lines.reduce((sum, l) => sum + (Number(l.crates) || (l.unit === 'Crate' ? Number(l.qty) : 0)), 0);
+    totalBoxes = lines.reduce((sum, l) => sum + (Number(l.crates) || ((l.unit === 'Crate' || l.unit === 'Box') ? Number(l.qty) : 0)), 0);
   }
 
   return {
@@ -624,13 +632,22 @@ async function getLiveStockSummary() {
   const database = await connectDb();
   const consignments = await database.collection('consignments').find({}).toArray();
 
-  const productMap = {}; // varietyName -> { totalCrates, totalKg, byDealer: { [dealerName]: { crates, kg } } }
+  const productMap = {}; // varietyName -> { totalCrates, totalKg, byDealer: { [dealerName]: { crates, kg, percentOfWeight, percentOfCrates, consignmentNo, date } } }
 
   for (const c of consignments) {
-    for (const it of c.items) {
-      const v = it.variety || 'General';
+    for (const it of (c.items || [])) {
       const uCrates = Number(it.unsoldCrates) || 0;
-      const uKg = Number(it.unsoldWeightKg) || 0;
+      let uKg = Number(it.unsoldWeightKg) || 0;
+      if (uCrates <= 0) {
+        uKg = 0;
+      }
+
+      // Do not include if crates are sold (0 crates and 0 kg)
+      if (uCrates <= 0 && uKg <= 0) {
+        continue;
+      }
+
+      const v = it.variety || 'General';
 
       if (!productMap[v]) {
         productMap[v] = {
@@ -646,14 +663,37 @@ async function getLiveStockSummary() {
 
       const dName = c.dealerName || 'Unknown Dealer';
       if (!productMap[v].byDealer[dName]) {
-        productMap[v].byDealer[dName] = { dealerId: c.dealerId, crates: 0, kg: 0 };
+        productMap[v].byDealer[dName] = {
+          dealerId: c.dealerId,
+          crates: 0,
+          kg: 0,
+          consignmentNo: c.consignmentNo || ('#' + c.id),
+          date: c.date || '',
+          vehicleNo: c.vehicleNo || ''
+        };
       }
       productMap[v].byDealer[dName].crates += uCrates;
       productMap[v].byDealer[dName].kg += uKg;
     }
   }
 
-  return Object.values(productMap);
+  // Filter out any varieties with 0 live stock
+  const activeStock = Object.values(productMap).filter(p => p.totalCrates > 0 || p.totalKg > 0);
+
+  // Compute contribution percentages and ensure zero-crate dealers are excluded
+  for (const p of activeStock) {
+    const liveDealers = {};
+    for (const [name, d] of Object.entries(p.byDealer)) {
+      if (d.crates > 0 || d.kg > 0) {
+        d.percentOfWeight = p.totalKg > 0 ? Number(((d.kg / p.totalKg) * 100).toFixed(1)) : 0;
+        d.percentOfCrates = p.totalCrates > 0 ? Number(((d.crates / p.totalCrates) * 100).toFixed(1)) : 0;
+        liveDealers[name] = d;
+      }
+    }
+    p.byDealer = liveDealers;
+  }
+
+  return activeStock.filter(p => Object.keys(p.byDealer).length > 0);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1183,7 +1223,7 @@ const server = http.createServer(async (req, res) => {
           if (oldLine.consignmentId) {
             const cons = await database.collection('consignments').findOne({ id: oldLine.consignmentId });
             if (cons) {
-              const lineCrates = Number(oldLine.crates) > 0 ? Number(oldLine.crates) : (oldLine.unit === 'Crate' ? Number(oldLine.qty) : 0);
+              const lineCrates = Number(oldLine.crates) > 0 ? Number(oldLine.crates) : ((oldLine.unit === 'Crate' || oldLine.unit === 'Box') ? Number(oldLine.qty) : 0);
               const lineKg = oldLine.unit === 'Kg' ? Number(oldLine.qty) : (Number(oldLine.crates) > 0 && Number(oldLine.kgPerCrate) > 0 ? Number(oldLine.crates) * Number(oldLine.kgPerCrate) : 0);
               const updatedItems = cons.items.map(it => {
                 if (it.variety === oldLine.variety) {
@@ -1206,14 +1246,16 @@ const server = http.createServer(async (req, res) => {
         if (line.consignmentId) {
           const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
           if (cons) {
-            const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : (line.unit === 'Crate' ? Number(line.qty) : 0);
+            const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : ((line.unit === 'Crate' || line.unit === 'Box') ? Number(line.qty) : 0);
             const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
             const updatedItems = cons.items.map(it => {
               if (it.variety === line.variety) {
+                const remCrates = Math.max(0, (it.unsoldCrates || 0) - lineCrates);
+                const remKg = remCrates === 0 ? 0 : Math.max(0, (it.unsoldWeightKg || 0) - lineKg);
                 return {
                   ...it,
-                  unsoldCrates: Math.max(0, (it.unsoldCrates || 0) - lineCrates),
-                  unsoldWeightKg: Math.max(0, (it.unsoldWeightKg || 0) - lineKg)
+                  unsoldCrates: remCrates,
+                  unsoldWeightKg: remKg
                 };
               }
               return it;
@@ -1348,21 +1390,71 @@ const server = http.createServer(async (req, res) => {
         };
       });
 
-      // Find arrival crates and unsold crates for this dealer
-      const consignments = await database.collection('consignments').find({ dealerId }).toArray();
+      // Find arrival crates, varieties, and unsold crates for this dealer
+      const consignments = await database.collection('consignments').find({
+        $or: [
+          { dealerId },
+          { dealerName: new RegExp(`^${dealer.name.trim()}$`, 'i') }
+        ]
+      }).toArray();
+
+      const receivedVarietiesMap = {};
       let arrivalCratesToday = 0;
       let unsoldCrates = 0;
+
       for (const c of consignments) {
         const isMatchDate = !date || c.date === date;
-        for (const it of c.items) {
+        for (const it of (c.items || [])) {
+          const varName = (it.variety || 'Fish').trim();
           if (isMatchDate) {
             arrivalCratesToday += Number(it.crates) || 0;
+            if (!receivedVarietiesMap[varName]) {
+              receivedVarietiesMap[varName] = {
+                variety: varName,
+                totalCrates: 0,
+                unsoldCrates: 0
+              };
+            }
+            receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
+            receivedVarietiesMap[varName].unsoldCrates += (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
           }
           unsoldCrates += Number(it.unsoldCrates) || 0;
         }
       }
-      if (!arrivalCratesToday) {
+
+      // If no arrivals on exact date, check any consignments with unsold stock for this dealer
+      if (Object.keys(receivedVarietiesMap).length === 0) {
+        for (const c of consignments) {
+          for (const it of (c.items || [])) {
+            const varName = (it.variety || 'Fish').trim();
+            const left = (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
+            if (left > 0 || (Number(it.crates) > 0)) {
+              if (!receivedVarietiesMap[varName]) {
+                receivedVarietiesMap[varName] = {
+                  variety: varName,
+                  totalCrates: 0,
+                  unsoldCrates: 0
+                };
+              }
+              receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
+              receivedVarietiesMap[varName].unsoldCrates += left;
+              arrivalCratesToday += Number(it.crates) || 0;
+            }
+          }
+        }
+      }
+
+      const receivedVarieties = Object.values(receivedVarietiesMap);
+
+      if (!arrivalCratesToday && items.length > 0) {
         arrivalCratesToday = items.reduce((s, it) => s + (it.unit === 'Crate' ? it.qtySold : 0), 0);
+      }
+
+      let totalLorryBhada = 0;
+      for (const c of consignments) {
+        if (!date || c.date === date) {
+          totalLorryBhada += Number(c.lorryBhada) || 0;
+        }
       }
 
       // Financials / Previous Balance
@@ -1373,10 +1465,12 @@ const server = http.createServer(async (req, res) => {
         dealer,
         date,
         items,
+        receivedVarieties,
         defaultCommissionType: dealer.defaultCommissionType || 'percent',
         defaultCommissionVal: dealer.defaultCommissionVal || 5,
         arrivalCratesToday,
         unsoldCratesRemaining: unsoldCrates,
+        lorryBhada: totalLorryBhada,
         previousBalance
       });
     } catch (err) {
@@ -1392,6 +1486,41 @@ const server = http.createServer(async (req, res) => {
 
       const database = await connectDb();
       await database.collection('settlements').replaceOne({ id: settlement.id }, settlement, { upsert: true });
+
+      // Automatically deduct settled crates from active consignments for this dealer
+      if (Array.isArray(settlement.items)) {
+        const dealerConsignments = await database.collection('consignments').find({
+          $or: [
+            { dealerId: settlement.dealerId },
+            { dealerName: new RegExp(`^${settlement.dealerName.trim()}$`, 'i') }
+          ]
+        }).toArray();
+
+        for (const it of settlement.items) {
+          let toDeduct = Number(it.qtySold) || 0;
+          for (const c of dealerConsignments) {
+            if (toDeduct <= 0) break;
+            let modified = false;
+            const updatedItems = (c.items || []).map(ci => {
+              if (ci.variety && ci.variety.toLowerCase() === (it.variety || '').toLowerCase() && toDeduct > 0) {
+                const currentUnsold = ci.unsoldCrates !== undefined ? Number(ci.unsoldCrates) : Number(ci.crates);
+                const deduct = Math.min(toDeduct, currentUnsold);
+                toDeduct -= deduct;
+                modified = true;
+                return { ...ci, unsoldCrates: Math.max(0, currentUnsold - deduct) };
+              }
+              return ci;
+            });
+            if (modified) {
+              const allSold = updatedItems.every(ci => (ci.unsoldCrates || 0) === 0);
+              await database.collection('consignments').updateOne(
+                { id: c.id },
+                { $set: { items: updatedItems, status: allSold ? 'Settled' : c.status, updated: Date.now() } }
+              );
+            }
+          }
+        }
+      }
 
       // Automatically sync on-the-spot driver cash payment to Payments collection
       if (settlement.cashPaidToday > 0) {
