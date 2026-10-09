@@ -3184,11 +3184,11 @@ th.num:last-child {
 </div>
 
 <!-- Modal 4: Contact / Party Account -->
-<div class="modal-backdrop" id="contactModal">
+<div class="modal-backdrop" id="contactModal" style="z-index:1100;">
   <div class="modal-window modal-sm">
     <div class="modal-top-bar">
       <span class="modal-headline" id="contactModalTitle"><i class="fas fa-user-plus"></i> New Party Account</span>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('contactModal')">✕</button>
+      <button class="btn btn-ghost btn-sm" onclick="cancelPendingContactModal()">✕</button>
     </div>
     <div class="modal-scroll-body">
       <input type="hidden" id="mContId"/>
@@ -3231,7 +3231,7 @@ th.num:last-child {
       </div>
     </div>
     <div class="modal-bottom-actions">
-      <button class="btn btn-outline" onclick="closeModal('contactModal')">Cancel</button>
+      <button class="btn btn-outline" onclick="cancelPendingContactModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveContactAccount()"><i class="fas fa-check"></i> Save Party</button>
     </div>
   </div>
@@ -3779,7 +3779,18 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       openGlobalSearch();
     } else if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
+      const openModals = Array.from(document.querySelectorAll('.modal-backdrop.open'));
+      if (openModals.length > 1) {
+        // If contact modal is open on top of another modal, cancel it specifically
+        const contModal = document.getElementById('contactModal');
+        if (contModal && contModal.classList.contains('open')) {
+          cancelPendingContactModal();
+        } else {
+          openModals[openModals.length - 1].classList.remove('open');
+        }
+      } else if (openModals.length === 1) {
+        openModals[0].classList.remove('open');
+      }
     }
   });
 
@@ -4425,12 +4436,24 @@ function addInwardRow(variety = '', crates = '') {
 
 function searchDealerInward(q) {
   const list = document.getElementById('mArrDealerDropdown');
-  if (!q.trim()) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isDealer && c.name.toLowerCase().includes(q.toLowerCase()));
-  if (matches.length === 0) { list.style.display = 'none'; return; }
-  list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="document.getElementById('mArrDealer').value='${m.name}'; document.getElementById('mArrDealerDropdown').style.display='none';">${m.name}</div>
+  const term = q.trim();
+  if (!term) { list.style.display = 'none'; return; }
+  const matches = appState.contacts.filter(c => c.isDealer && c.name.toLowerCase().includes(term.toLowerCase()));
+  const exactMatch = appState.contacts.find(c => c.name.toLowerCase() === term.toLowerCase());
+
+  let html = matches.map(m => `
+    <div class="autocomplete-row" onclick="document.getElementById('mArrDealer').value='${m.name.replace(/'/g, "\\'")}'; document.getElementById('mArrDealerDropdown').style.display='none';">${m.name}</div>
   `).join('');
+
+  if (!exactMatch) {
+    html += `
+      <div class="autocomplete-row" onclick="promptCreateNewParty('${term.replace(/'/g, "\\'")}', 'dealer', 'arrivalModal')" style="color:#0284c7; font-weight:700; background:#f0f9ff; border-top:1px dashed #bae6fd;">
+        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Dealer "${term}"
+      </div>
+    `;
+  }
+
+  list.innerHTML = html;
   list.style.display = 'block';
 }
 
@@ -4441,6 +4464,12 @@ async function saveInwardArrival() {
   if (date > today) return showToast('Arrival date cannot be in the future', 'error');
 
   if (!dealerName) return showToast('Dealer name is required', 'error');
+
+  const existingContact = appState.contacts.find(c => c.name.toLowerCase() === dealerName.toLowerCase());
+  if (!existingContact) {
+    promptCreateNewParty(dealerName, 'dealer', 'arrivalModal');
+    return;
+  }
 
   const rows = document.querySelectorAll('#inwardItemsTbody tr');
   const items = [];
@@ -4456,7 +4485,7 @@ async function saveInwardArrival() {
     const res = await fetch('/api/consignments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealerName, date, vehicleNo: '', lorryBhada: 0, lorryBhadaMode: 'Cash', driverPhone: '', items })
+      body: JSON.stringify({ dealerName: existingContact.name, date, vehicleNo: '', lorryBhada: 0, lorryBhadaMode: 'Cash', driverPhone: '', items })
     });
     if (res.ok) {
       showToast('Arrival saved & stock added!', 'success');
@@ -4752,15 +4781,27 @@ function computeSaleBillTotals() {
 
 function searchSaleBuyer(q) {
   const list = document.getElementById('mSaleBuyerDropdown');
-  if (!q.trim()) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isBuyer && c.name.toLowerCase().includes(q.toLowerCase()));
-  if (matches.length === 0) { list.style.display = 'none'; return; }
-  list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name}')">
+  const term = q.trim();
+  if (!term) { list.style.display = 'none'; return; }
+  const matches = appState.contacts.filter(c => c.isBuyer && c.name.toLowerCase().includes(term.toLowerCase()));
+  const exactMatch = appState.contacts.find(c => c.name.toLowerCase() === term.toLowerCase());
+
+  let html = matches.map(m => `
+    <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name.replace(/'/g, "\\'")}')">
       ${m.name} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
       <span style="font-size:11px; color:#64748b; float:right;">Due: ₹${(m.receivableBalance || 0).toLocaleString('en-IN')}</span>
     </div>
   `).join('');
+
+  if (!exactMatch) {
+    html += `
+      <div class="autocomplete-row" onclick="promptCreateNewParty('${term.replace(/'/g, "\\'")}', 'buyer', 'saleModal')" style="color:#0284c7; font-weight:700; background:#f0f9ff; border-top:1px dashed #bae6fd;">
+        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Buyer "${term}"
+      </div>
+    `;
+  }
+
+  list.innerHTML = html;
   list.style.display = 'block';
 }
 
@@ -4779,7 +4820,9 @@ function checkBuyerCreditStatus() {
   const prevBalInp = document.getElementById('mSalePrevBal');
 
   if (!contact) {
-    infoEl.textContent = 'New contact will be created';
+    infoEl.innerHTML = name
+      ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New buyer — click to enter phone & wharf location</span>`
+      : '';
     warnBox.style.display = 'none';
     if (prevBalInp) prevBalInp.value = 0;
     computeSaleBillTotals();
@@ -4812,6 +4855,12 @@ async function saveMorningSale(action = 'save') {
   const bypass = document.getElementById('mSaleBypassBox').checked;
 
   if (!buyerName) return showToast('Name is required', 'error');
+
+  const existingContact = appState.contacts.find(c => c.name.toLowerCase() === buyerName.toLowerCase());
+  if (!existingContact) {
+    promptCreateNewParty(buyerName, 'buyer', 'saleModal', action);
+    return;
+  }
 
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   const lines = [];
@@ -6391,6 +6440,7 @@ function openPatiyaForDealer(dealerName) {
 }
 
 function openContactModal() {
+  appState.pendingTransactionOnContactSaved = null;
   document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> New Party Account';
   document.getElementById('mContId').value = '';
   document.getElementById('mContName').value = '';
@@ -6404,6 +6454,7 @@ function openContactModal() {
 }
 
 function editPartyAccount(id) {
+  appState.pendingTransactionOnContactSaved = null;
   const c = appState.contacts.find(item => item.id === id);
   if (!c) return;
   document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-pen"></i> Edit Party';
@@ -6416,6 +6467,50 @@ function editPartyAccount(id) {
   document.getElementById('mContCreditLimit').value = c.creditLimit || 0;
   document.getElementById('mContCreditPeriod').value = c.creditPeriod || 0;
   document.getElementById('contactModal').classList.add('open');
+}
+
+function promptCreateNewParty(name, role = 'dealer', originModal = '', pendingAction = null) {
+  const arrFlyout = document.getElementById('mArrDealerDropdown');
+  if (arrFlyout) arrFlyout.style.display = 'none';
+  const saleFlyout = document.getElementById('mSaleBuyerDropdown');
+  if (saleFlyout) saleFlyout.style.display = 'none';
+
+  appState.pendingTransactionOnContactSaved = {
+    originModal,
+    role,
+    name,
+    pendingAction
+  };
+
+  document.getElementById('mContId').value = '';
+  document.getElementById('mContName').value = name;
+  document.getElementById('mContPhone').value = '';
+  document.getElementById('mContAddress').value = '';
+
+  if (role === 'buyer') {
+    document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#10b981;"></i> New Buyer Account';
+    document.getElementById('mContIsDealer').checked = false;
+    document.getElementById('mContIsBuyer').checked = true;
+  } else {
+    document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#0084ff;"></i> New Dealer Account';
+    document.getElementById('mContIsDealer').checked = true;
+    document.getElementById('mContIsBuyer').checked = false;
+  }
+
+  document.getElementById('mContCreditLimit').value = '0';
+  document.getElementById('mContCreditPeriod').value = '7';
+
+  document.getElementById('contactModal').classList.add('open');
+
+  setTimeout(() => {
+    const phoneInp = document.getElementById('mContPhone');
+    if (phoneInp) phoneInp.focus();
+  }, 100);
+}
+
+function cancelPendingContactModal() {
+  appState.pendingTransactionOnContactSaved = null;
+  closeModal('contactModal');
 }
 
 async function saveContactAccount() {
@@ -6437,9 +6532,27 @@ async function saveContactAccount() {
       body: JSON.stringify({ id: id ? Number(id) : undefined, name, phone, address, isDealer, isBuyer, creditLimit, creditPeriod })
     });
     if (res.ok) {
-      showToast('Party saved!', 'success');
+      const saved = await res.json();
       closeModal('contactModal');
       await Promise.all([loadContacts(), loadReports()]);
+
+      if (appState.pendingTransactionOnContactSaved) {
+        const pending = appState.pendingTransactionOnContactSaved;
+        appState.pendingTransactionOnContactSaved = null;
+
+        if (pending.originModal === 'arrivalModal') {
+          const dealerInp = document.getElementById('mArrDealer');
+          if (dealerInp) dealerInp.value = saved.name;
+          showToast(`Dealer "${saved.name}" saved! Click Save Arrival to finish.`, 'success');
+        } else if (pending.originModal === 'saleModal') {
+          const buyerInp = document.getElementById('mSaleBuyer');
+          if (buyerInp) buyerInp.value = saved.name;
+          checkBuyerCreditStatus();
+          showToast(`Buyer "${saved.name}" saved! Click Save to finish bill.`, 'success');
+        }
+      } else {
+        showToast('Party saved!', 'success');
+      }
     } else {
       const err = await res.json();
       showToast(err.error || 'Failed to save', 'error');
