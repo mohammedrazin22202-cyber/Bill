@@ -2902,7 +2902,7 @@ th.num:last-child {
         <table class="data-grid" id="saleLinesGrid">
           <thead>
             <tr>
-              <th style="width:44%">Dealer Stock / Variety</th>
+              <th style="width:44%">Fish Name</th>
               <th style="width:16%" class="num">Boxes (P)</th>
               <th style="width:16%" class="num">Rate (₹)</th>
               <th style="width:18%" class="num">Amount (₹)</th>
@@ -4628,25 +4628,39 @@ function addSaleLine() {
   const tbody = document.getElementById('saleLinesTbody');
   const tr = document.createElement('tr');
 
-  let stockOptions = '<option value="">-- Select Consignment Stock --</option>';
-  for (const c of appState.consignments) {
+  const fishMap = new Map();
+  for (const c of (appState.consignments || [])) {
     for (const it of (c.items || [])) {
       const left = it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates;
-      if (left > 0) {
-        stockOptions += `
-          <option value="${c.id}|${it.variety}|${c.dealerId}|${c.dealerName}" data-crates="${left}">
-            ${it.variety} (${c.dealerName} - ${left} crates)
-          </option>
-        `;
+      if (left > 0 && it.variety && it.variety.trim()) {
+        const v = it.variety.trim();
+        const key = v.toLowerCase();
+        const current = fishMap.get(key) || { variety: v, totalCrates: 0 };
+        current.totalCrates += Number(left) || 0;
+        fishMap.set(key, current);
       }
     }
   }
 
+  const sortedFish = Array.from(fishMap.values()).sort((a, b) => 
+    a.variety.localeCompare(b.variety, undefined, { sensitivity: 'base' })
+  );
+
+  let stockOptions = '<option value="">-- Select Fish --</option>';
+  for (const f of sortedFish) {
+    stockOptions += `
+      <option value="${f.variety}" data-crates="${f.totalCrates}">
+        ${f.variety}
+      </option>
+    `;
+  }
+
   tr.innerHTML = `
     <td>
-      <select class="lineStockPicker" onchange="computeSaleBillTotals()">
+      <select class="lineStockPicker" onchange="onSaleStockSelected(this)" style="width:100%; font-size:13px;">
         ${stockOptions}
       </select>
+      <div class="lineStockAvailHint" style="font-size:11.5px; margin-top:4px; display:none; line-height:1.3;"></div>
     </td>
     <td class="num">
       <input type="number" class="lineCrates" placeholder="Box" min="1" value="1" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
@@ -4665,18 +4679,54 @@ function addSaleLine() {
   computeSaleBillTotals();
 }
 
+function onSaleStockSelected(selectEl) {
+  const tr = selectEl.closest('tr');
+  const opt = selectEl.selectedOptions[0];
+  const cratesInput = tr?.querySelector('.lineCrates');
+  if (opt && opt.value) {
+    const availCrates = Number(opt.dataset.crates) || 0;
+    if (cratesInput) {
+      cratesInput.max = availCrates;
+      if (!cratesInput.value || Number(cratesInput.value) <= 0) {
+        cratesInput.value = availCrates > 0 ? 1 : 0;
+      }
+    }
+  }
+  computeSaleBillTotals();
+}
+
 function computeSaleBillTotals() {
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   let subtotal = 0;
   let totalBoxes = 0;
 
   rows.forEach(r => {
-    const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+    const sel = r.querySelector('.lineStockPicker');
+    const opt = sel ? sel.selectedOptions[0] : null;
+    const cratesInput = r.querySelector('.lineCrates');
+    const crates = Number(cratesInput?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
     const total = crates * rate;
 
     const span = r.querySelector('.lineRowSum');
     if (span) span.textContent = `₹${total.toLocaleString('en-IN')}`;
+
+    const hint = r.querySelector('.lineStockAvailHint');
+    if (hint) {
+      if (opt && opt.value) {
+        const availCrates = Number(opt.dataset.crates) || 0;
+        hint.style.display = 'block';
+        const boxWord = availCrates === 1 ? 'Box' : 'Boxes';
+        if (crates > availCrates) {
+          hint.innerHTML = `<span style="color:#ef4444; font-weight:600;"><i class="fas fa-triangle-exclamation"></i> Available Stock: <b>${availCrates} ${boxWord}</b> (Entered: ${crates})</span>`;
+        } else {
+          hint.innerHTML = `<span style="color:#059669; font-weight:600;"><i class="fas fa-boxes-stacked"></i> Available Stock: <b>${availCrates} ${boxWord}</b></span>`;
+        }
+      } else {
+        hint.style.display = 'none';
+        hint.innerHTML = '';
+      }
+    }
 
     totalBoxes += crates;
     subtotal += total;
@@ -4766,32 +4816,79 @@ async function saveMorningSale(action = 'save') {
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   const lines = [];
   let totalBoxes = 0;
+  const consumedMap = new Map();
 
   rows.forEach(r => {
     const val = r.querySelector('.lineStockPicker')?.value;
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-    const amount = crates * rate;
 
     if (val && crates > 0) {
-      const [consignmentId, variety, dealerId, dealerName] = val.split('|');
-      lines.push({
-        consignmentId: Number(consignmentId),
-        variety,
-        dealerId: Number(dealerId),
-        dealerName,
-        unit: 'Box',
-        crates,
-        kgPerCrate: 0,
-        qty: crates,
-        rate,
-        amount
-      });
-      totalBoxes += crates;
+      // Find matching consignments with unsold stock for this variety (FIFO)
+      const matchingCons = [];
+      for (const c of (appState.consignments || [])) {
+        for (const it of (c.items || [])) {
+          if (it.variety && it.variety.trim().toLowerCase() === val.trim().toLowerCase()) {
+            const initialLeft = it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates;
+            const consumedKey = `${c.id}_${it.variety.trim().toLowerCase()}`;
+            const alreadyConsumed = consumedMap.get(consumedKey) || 0;
+            const currentAvail = Math.max(0, initialLeft - alreadyConsumed);
+            if (currentAvail > 0) {
+              matchingCons.push({
+                consignmentId: c.id,
+                dealerId: c.dealerId,
+                dealerName: c.dealerName,
+                variety: it.variety,
+                left: currentAvail,
+                consumedKey
+              });
+            }
+          }
+        }
+      }
+
+      let remaining = crates;
+      for (const mc of matchingCons) {
+        if (remaining <= 0) break;
+        const take = Math.min(remaining, mc.left);
+        consumedMap.set(mc.consumedKey, (consumedMap.get(mc.consumedKey) || 0) + take);
+        lines.push({
+          consignmentId: Number(mc.consignmentId),
+          variety: mc.variety,
+          dealerId: Number(mc.dealerId),
+          dealerName: mc.dealerName,
+          unit: 'Box',
+          crates: take,
+          kgPerCrate: 0,
+          qty: take,
+          rate,
+          amount: take * rate
+        });
+        remaining -= take;
+        totalBoxes += take;
+      }
+
+      // Fallback if remaining crates exceed known consignment stock
+      if (remaining > 0) {
+        const fallbackCons = matchingCons[0] || {};
+        lines.push({
+          consignmentId: Number(fallbackCons.consignmentId) || 0,
+          variety: val,
+          dealerId: Number(fallbackCons.dealerId) || 0,
+          dealerName: fallbackCons.dealerName || '',
+          unit: 'Box',
+          crates: remaining,
+          kgPerCrate: 0,
+          qty: remaining,
+          rate,
+          amount: remaining * rate
+        });
+        totalBoxes += remaining;
+      }
     }
   });
 
-  if (lines.length === 0) return showToast('Please select dealer stock and enter quantity', 'error');
+  if (lines.length === 0) return showToast('Please select fish and enter quantity', 'error');
   const subtotal = lines.reduce((s, l) => s + l.amount, 0);
   const total = Math.max(0, subtotal - discount);
   const totalBalanceDue = total + previousBalance;
