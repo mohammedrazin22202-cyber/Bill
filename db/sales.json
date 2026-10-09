@@ -97,7 +97,9 @@
         "rate": 532.5,
         "amount": 42600
       }
-    ]
+    ],
+    "isBadDebt": false,
+    "updated": 1791458102796
   },
   {
     "id": 205,

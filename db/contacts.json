@@ -99,7 +99,9 @@
     "defaultCommissionVal": 5,
     "bypassCreditCheck": false,
     "isBadDebtDefaulter": false,
-    "created": 1789910227149
+    "created": 1789910227149,
+    "badDebtReason": "",
+    "updated": 1791458102792
   },
   {
     "id": 8,

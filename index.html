@@ -1662,13 +1662,13 @@ input[type="text"].global-search-input:focus {
 
 .table-action-cell {
   white-space: nowrap !important;
-  text-align: right !important;
-  min-width: 170px;
+  text-align: left !important;
+  min-width: 220px;
 }
 .table-actions-group {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: flex-end !important;
+  justify-content: flex-start !important;
   gap: 5px !important;
   flex-wrap: nowrap !important;
   white-space: nowrap !important;
@@ -1698,9 +1698,8 @@ input[type="text"].global-search-input:focus {
   max-width: 30px !important;
   padding: 0 !important;
 }
-th.num:last-child {
+th:last-child {
   min-width: 170px !important;
-  text-align: right !important;
   white-space: nowrap !important;
 }
 
@@ -2046,10 +2045,10 @@ th.num:last-child {
 
           <div class="hero-weather-quote-box">
             <div class="weather-header">
-              <i class="fa-solid fa-sun"></i>
+              <i class="fa-solid fa-sun" id="heroWeatherIcon"></i>
               <div>
                 <span class="weather-city">Chennai</span>
-                <span class="weather-cond">28°C | Clear Skies</span>
+                <span class="weather-cond" id="heroWeatherCond">28°C | Clear Skies</span>
               </div>
             </div>
             <div class="weather-quote">
@@ -2482,7 +2481,7 @@ th.num:last-child {
                 <th>Fish Varieties</th>
                 <th class="num">Stock Left</th>
                 <th>Status</th>
-                <th class="num">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="arrivalsListTbody"></tbody>
@@ -2524,7 +2523,7 @@ th.num:last-child {
                 <th>Buyer</th>
                 <th class="num">Today's Bill</th>
                 <th>Payment</th>
-                <th class="num">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="salesListTbody"></tbody>
@@ -2550,7 +2549,7 @@ th.num:last-child {
                 <th>Dealer</th>
                 <th>Breakdown</th>
                 <th class="num">Amount We Owe (Closing Bal)</th>
-                <th class="num">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="patiyaListTbody"></tbody>
@@ -2610,7 +2609,7 @@ th.num:last-child {
                 <th>Phone</th>
                 <th class="num">Net Position</th>
                 <th>Payment Details</th>
-                <th class="num">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="contactsListTbody"></tbody>
@@ -2656,7 +2655,7 @@ th.num:last-child {
                 <th class="num">Amount</th>
                 <th class="num">Discount</th>
                 <th>Mode / Ref</th>
-                <th class="num">Actions</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="paymentsListTbody"></tbody>
@@ -3829,9 +3828,90 @@ document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
 
+async function loadChennaiLiveWeather() {
+  const iconEl = document.getElementById('heroWeatherIcon');
+  const condEl = document.getElementById('heroWeatherCond');
+  if (!iconEl || !condEl) return;
+
+  const CACHE_KEY = 'billify_chennai_weather';
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+
+  // 1. Check cached weather from localStorage (updated once every hour)
+  try {
+    const cachedStr = localStorage.getItem(CACHE_KEY);
+    if (cachedStr) {
+      const cached = JSON.parse(cachedStr);
+      if (cached && cached.timestamp && (Date.now() - cached.timestamp < ONE_HOUR_MS)) {
+        condEl.textContent = `${cached.temp}°C | ${cached.condition}`;
+        iconEl.className = `fa-solid ${cached.icon}`;
+        return;
+      }
+    }
+  } catch (e) {
+    console.warn('Weather cache parse error:', e);
+  }
+
+  // 2. Fetch live weather from Open-Meteo for Chennai, Tamil Nadu (13.0827°N, 80.2707°E)
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=13.0827&longitude=80.2707&current=temperature_2m,weather_code,is_day&timezone=Asia%2FKolkata');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.current) return;
+
+    const current = data.current;
+    const temp = Math.round(Number(current.temperature_2m) || 28);
+    const code = Number(current.weather_code) || 0;
+    const isDay = current.is_day !== undefined ? !!current.is_day : (new Date().getHours() >= 6 && new Date().getHours() < 18);
+
+    let condition = isDay ? 'Clear Skies' : 'Clear Night';
+    let icon = isDay ? 'fa-sun' : 'fa-moon';
+
+    if (code === 0) {
+      condition = isDay ? 'Clear Skies' : 'Clear Night';
+      icon = isDay ? 'fa-sun' : 'fa-moon';
+    } else if (code === 1 || code === 2) {
+      condition = 'Partly Cloudy';
+      icon = isDay ? 'fa-cloud-sun' : 'fa-cloud-moon';
+    } else if (code === 3) {
+      condition = 'Overcast';
+      icon = 'fa-cloud';
+    } else if (code === 45 || code === 48) {
+      condition = 'Misty Fog';
+      icon = 'fa-smog';
+    } else if (code >= 51 && code <= 55) {
+      condition = 'Light Drizzle';
+      icon = 'fa-cloud-rain';
+    } else if (code >= 61 && code <= 65) {
+      condition = 'Rainy';
+      icon = 'fa-cloud-showers-heavy';
+    } else if (code >= 80 && code <= 82) {
+      condition = 'Passing Showers';
+      icon = 'fa-cloud-showers-heavy';
+    } else if (code >= 95) {
+      condition = 'Thunderstorm';
+      icon = 'fa-bolt-lightning';
+    }
+
+    condEl.textContent = `${temp}°C | ${condition}`;
+    iconEl.className = `fa-solid ${icon}`;
+
+    // Cache with hourly timestamp
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      timestamp: Date.now(),
+      temp,
+      condition,
+      icon
+    }));
+  } catch (err) {
+    console.warn('Could not fetch live Chennai weather:', err);
+  }
+}
+
 async function initApp() {
   applyMaxDateRestrictions();
   updateDisplayDatePill();
+  loadChennaiLiveWeather();
+  setInterval(loadChennaiLiveWeather, 60 * 60 * 1000);
   await Promise.all([
     loadContacts(),
     loadConsignments(),
