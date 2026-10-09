@@ -552,13 +552,21 @@ async function getContactFinancials(contactId) {
   const totalSettlementCredited = settlements.reduce((sum, s) => sum + (Number(s.netPayableToDealer) || 0), 0);
 
   // 2. Buyer Receivable: Generated from Sales where this contact bought items
-  const sales = await database.collection('sales').find({ buyerId: cId }).toArray();
-  const totalPurchasedGoods = sales.reduce((sum, s) => {
-    if (s.isBadDebt) return sum; // If written off as bad debt, not active receivable
-    return sum + (Number(s.total) || 0);
-  }, 0);
+  const contact = await database.collection('contacts').findOne({ id: cId });
+  const sales = await database.collection('sales').find({
+    $or: [
+      { buyerId: cId },
+      { buyerName: new RegExp(`^${(contact?.name || '').trim()}$`, 'i') }
+    ]
+  }).toArray();
+
+  const totalPurchasedGoods = sales.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
   const totalImmediateCashPaid = sales.reduce((sum, s) => {
     return sum + (s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0));
+  }, 0);
+  const totalBadDebtLoss = sales.reduce((sum, s) => {
+    if (s.isBadDebt) return sum + (Number(s.total) || 0);
+    return sum;
   }, 0);
 
   // 3. Payments made to dealer
@@ -585,14 +593,14 @@ async function getContactFinancials(contactId) {
   // Dealer Balance: What we owe them
   const payableBalance = Math.max(0, totalSettlementCredited - totalPaidToDealer - totalDealerDiscounts - totalContraAdjustments);
 
-  // Buyer Balance: What they owe us
-  const receivableBalance = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalContraAdjustments);
+  // Buyer Balance: What they owe us (active receivable excluding written off bad debt)
+  const rawReceivable = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalContraAdjustments);
+  const receivableBalance = Math.max(0, rawReceivable - totalBadDebtLoss);
 
   // Net Balance: (+ve means we owe them, -ve means they owe us)
   const netBalance = payableBalance - receivableBalance;
 
   // Check Overdue Status
-  const contact = await database.collection('contacts').findOne({ id: cId });
   const creditPeriod = Number(contact?.creditPeriod) || 0;
   let isOverdue = false;
   let daysOverdue = 0;
@@ -613,8 +621,12 @@ async function getContactFinancials(contactId) {
   return {
     payableBalance,
     receivableBalance,
+    rawReceivable,
+    badDebtAmount: totalBadDebtLoss,
+    isBadDebtDefaulter: !!contact?.isBadDebtDefaulter,
+    badDebtReason: contact?.badDebtReason || '',
     netBalance,
-    isOverdue,
+    isOverdue: isOverdue && !contact?.isBadDebtDefaulter,
     daysOverdue,
     totalSettlementCredited,
     totalPurchasedGoods,
@@ -1082,12 +1094,45 @@ const server = http.createServer(async (req, res) => {
       const id = Number(parts[3]);
       const body = await readBody(req);
       const database = await connectDb();
+      const isDefaulter = !!body.isBadDebtDefaulter;
+      const contact = await database.collection('contacts').findOne({ id });
 
       await database.collection('contacts').updateOne(
         { id },
-        { $set: { isBadDebtDefaulter: !!body.isBadDebtDefaulter, badDebtReason: body.reason || 'Defaulted on payment', updated: Date.now() } }
+        { $set: { isBadDebtDefaulter: isDefaulter, badDebtReason: body.reason || (isDefaulter ? 'Defaulted on credit payment' : ''), updated: Date.now() } }
       );
-      return sendJson(res, { ok: true });
+
+      // Also update credit sales for this buyer
+      const query = contact ? { $or: [{ buyerId: id }, { buyerName: new RegExp(`^${contact.name.trim()}$`, 'i') }] } : { buyerId: id };
+      const sales = await database.collection('sales').find(query).toArray();
+      for (const s of sales) {
+        if (s.paymentType === 'Credit') {
+          await database.collection('sales').updateOne(
+            { id: s.id },
+            { $set: { isBadDebt: isDefaulter, updated: Date.now() } }
+          );
+        }
+      }
+
+      return sendJson(res, { ok: true, isBadDebtDefaulter: isDefaulter });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname.startsWith('/api/sales/') && pathname.endsWith('/bad-debt')) {
+    try {
+      const parts = pathname.split('/');
+      const id = Number(parts[3]);
+      const body = await readBody(req);
+      const database = await connectDb();
+      const isBad = body.isBadDebt !== undefined ? !!body.isBadDebt : true;
+
+      await database.collection('sales').updateOne(
+        { id },
+        { $set: { isBadDebt: isBad, badDebtReason: body.reason || (isBad ? 'Written off as bad debt' : ''), updated: Date.now() } }
+      );
+      return sendJson(res, { ok: true, isBadDebt: isBad });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
