@@ -1663,7 +1663,7 @@ input[type="text"].global-search-input:focus {
 .table-action-cell {
   white-space: nowrap !important;
   text-align: right !important;
-  min-width: 145px;
+  min-width: 170px;
 }
 .table-actions-group {
   display: inline-flex !important;
@@ -1672,13 +1672,34 @@ input[type="text"].global-search-input:focus {
   gap: 5px !important;
   flex-wrap: nowrap !important;
   white-space: nowrap !important;
+  height: 30px !important;
+  vertical-align: middle !important;
 }
 .table-actions-group .btn {
-  flex-shrink: 0 !important;
+  height: 30px !important;
+  line-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
   margin: 0 !important;
+  padding: 0 10px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+  vertical-align: middle !important;
+  transition: all 0.12s ease;
+}
+.table-actions-group .btn.btn-icon {
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  padding: 0 !important;
 }
 th.num:last-child {
-  min-width: 145px !important;
+  min-width: 170px !important;
   text-align: right !important;
   white-space: nowrap !important;
 }
@@ -2584,14 +2605,11 @@ th.num:last-child {
           <table class="data-grid">
             <thead>
               <tr>
-                <th>Party Name</th>
+                <th>Name</th>
                 <th>Role</th>
-                <th>Phone / Location</th>
-                <th>Credit Details</th>
-                <th class="num">We Owe (Dealer)</th>
-                <th class="num">They Owe (Buyer)</th>
+                <th>Phone</th>
                 <th class="num">Net Position</th>
-                <th>Payment Status</th>
+                <th>Payment Details</th>
                 <th class="num">Actions</th>
               </tr>
             </thead>
@@ -2698,7 +2716,7 @@ th.num:last-child {
         <h1 class="view-heading-title">Reports & Financials</h1>
         <div style="font-size:12px; color:#64748b;">Commission, broking profit, bad debt write-offs and net profits</div>
       </div>
-      <button class="btn btn-outline" onclick="downloadFinancialSummaryPDF()"><i class="fas fa-file-pdf"></i> Export Summary PDF</button>
+      <button class="btn btn-primary" onclick="openCustomReportModal()"><i class="fas fa-file-invoice-dollar"></i> Custom Period & Category Report</button>
     </div>
 
     <div class="view-body-content">
@@ -2730,98 +2748,6 @@ th.num:last-child {
           <div class="money-sub-card" style="background:#ecfdf5;">
             <div class="flow-title" style="color:#047857;">Clean Net Profit</div>
             <div class="flow-main-val" style="color:#047857;" id="repCleanProfit">₹0</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Custom Report Download Generator -->
-      <div class="standard-card" style="padding:22px; margin-top:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
-          <div>
-            <h3 style="font-size:15px; font-weight:700; margin:0;"><i class="fas fa-file-invoice-dollar" style="color:#0084ff; margin-right:8px;"></i> Custom Period & Category Reports</h3>
-            <div style="font-size:12px; color:#64748b; margin-top:4px;">Download daily, weekly, or custom reports filtered by purchases, sales, or payments</div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-outline" onclick="downloadCustomReport('csv')"><i class="fas fa-file-csv" style="color:#10b981;"></i> Export CSV</button>
-            <button class="btn btn-primary" onclick="downloadCustomReport('pdf')"><i class="fas fa-file-pdf"></i> Download PDF Report</button>
-          </div>
-        </div>
-
-        <!-- Filter Controls Row -->
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:18px;">
-          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px; align-items:end;">
-            
-            <div class="input-block" style="margin:0;">
-              <label><i class="fa-regular fa-calendar" style="color:#64748b;"></i> Report Period</label>
-              <select id="reportPresetPeriod" onchange="onReportPresetChanged(this.value)">
-                <option value="today">Daily (Today)</option>
-                <option value="last7" selected>Weekly (Last 7 Days)</option>
-                <option value="last30">Monthly (Last 30 Days)</option>
-                <option value="all">All Time</option>
-                <option value="custom">Custom Date Range</option>
-              </select>
-            </div>
-
-            <div class="input-block" style="margin:0;">
-              <label>From Date</label>
-              <input type="date" id="reportFromDate" onchange="onCustomReportFilterChanged()"/>
-            </div>
-
-            <div class="input-block" style="margin:0;">
-              <label>To Date</label>
-              <input type="date" id="reportToDate" onchange="onCustomReportFilterChanged()"/>
-            </div>
-
-            <div class="input-block" style="margin:0;">
-              <label><i class="fa-solid fa-filter" style="color:#64748b;"></i> Transaction Filter</label>
-              <select id="reportCategoryScope" onchange="onCustomReportFilterChanged()">
-                <option value="all" selected>All Transactions (Full Report)</option>
-                <option value="purchases">Purchases Only (Fish In / Arrivals)</option>
-                <option value="sales">Sales Only (Fish Sold Bills)</option>
-                <option value="payments">Payments Only (Receipts & Payouts)</option>
-              </select>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Live Summary KPIs of Selection -->
-        <div class="three-col-grid" id="reportLiveKpis" style="margin-bottom:18px;">
-          <div class="money-sub-card">
-            <div class="flow-title">Selected Records</div>
-            <div class="flow-main-val" id="repFilteredCount" style="font-size:20px;">0 txns</div>
-          </div>
-          <div class="money-sub-card">
-            <div class="flow-title">Total Volume / Turnover</div>
-            <div class="flow-main-val" id="repFilteredVolume" style="font-size:20px; color:#0084ff;">₹0</div>
-          </div>
-          <div class="money-sub-card">
-            <div class="flow-title">Broker Commission / Net</div>
-            <div class="flow-main-val" id="repFilteredCommission" style="font-size:20px; color:#059669;">₹0</div>
-          </div>
-        </div>
-
-        <!-- Live Table Preview -->
-        <div class="data-table-box">
-          <div class="table-filter-bar" style="padding:10px 14px;">
-            <span style="font-weight:700; font-size:12.5px;"><i class="fas fa-table-list" style="color:#0084ff; margin-right:6px;"></i> Live Report Preview</span>
-            <span id="repPreviewScopeBadge" class="badge badge-blue">Weekly · All Transactions</span>
-          </div>
-          <div class="table-scroller" style="max-height:360px;">
-            <table class="data-grid">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Type</th>
-                  <th>Reference #</th>
-                  <th>Party Name</th>
-                  <th>Details / Varieties</th>
-                  <th class="num">Qty (Kg)</th>
-                  <th class="num">Amount (₹)</th>
-                </tr>
-              </thead>
-              <tbody id="reportPreviewTbody"></tbody>
-            </table>
           </div>
         </div>
       </div>
@@ -3257,55 +3183,6 @@ th.num:last-child {
   </div>
 </div>
 
-
-<!-- Modal 10: Bad Debt Confirmation Modal -->
-<div class="modal-backdrop" id="badDebtConfirmModal">
-  <div class="modal-window modal-sm" style="max-width:440px;">
-    <div class="modal-top-bar" style="border-bottom:none; padding-bottom:4px;">
-      <span class="modal-headline" style="color:#ef4444;"><i class="fas fa-triangle-exclamation"></i> Consider Bad Debt</span>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('badDebtConfirmModal')">✕</button>
-    </div>
-    <div class="modal-scroll-body" style="padding:16px 22px;">
-      <div style="font-size:13.5px; color:#1e293b; line-height:1.5; margin-bottom:14px;">
-        Are you sure you want to write off outstanding receivables for <strong id="mBadDebtPartyName" style="color:#0f172a;"></strong> as a <strong style="color:#ef4444;">Bad Debt</strong>?
-      </div>
-      <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:12px; color:#991b1b; margin-bottom:14px;">
-        <i class="fas fa-circle-info"></i> This marks the party as a defaulter, logs the unpaid balance to Bad Debt losses, and halts active credit.
-      </div>
-      <div class="input-block">
-        <label>Reason / Audit Note (Optional)</label>
-        <input type="text" id="mBadDebtReason" placeholder="e.g. Unreachable / Disputed credit / Defaulter" style="width:100%; font-size:12.5px;"/>
-      </div>
-    </div>
-    <div class="modal-bottom-actions" style="padding:12px 22px 18px; border-top:1px solid #f1f5f9;">
-      <button class="btn btn-outline" onclick="closeModal('badDebtConfirmModal')">Cancel</button>
-      <button class="btn btn-danger" onclick="confirmBadDebtAction()"><i class="fas fa-ban"></i> Yes, Mark as Bad Debt</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 11: Restore Bad Debt Confirmation Modal -->
-<div class="modal-backdrop" id="restoreBadDebtConfirmModal">
-  <div class="modal-window modal-sm" style="max-width:420px;">
-    <div class="modal-top-bar" style="border-bottom:none; padding-bottom:4px;">
-      <span class="modal-headline" style="color:#0284c7;"><i class="fas fa-rotate-left"></i> Restore Account</span>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('restoreBadDebtConfirmModal')">✕</button>
-    </div>
-    <div class="modal-scroll-body" style="padding:16px 22px;">
-      <div style="font-size:13.5px; color:#1e293b; line-height:1.5; margin-bottom:14px;">
-        Do you want to restore <strong id="mRestoreBadDebtPartyName" style="color:#0f172a;"></strong> back to active credit status?
-      </div>
-      <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 12px; font-size:12px; color:#0369a1;">
-        <i class="fas fa-circle-info"></i> Unpaid sales will be restored to active receivable ledger.
-      </div>
-    </div>
-    <div class="modal-bottom-actions" style="padding:12px 22px 18px; border-top:1px solid #f1f5f9;">
-      <button class="btn btn-outline" onclick="closeModal('restoreBadDebtConfirmModal')">Cancel</button>
-      <button class="btn btn-primary" onclick="confirmRestoreBadDebtAction()"><i class="fas fa-check"></i> Restore Account</button>
-    </div>
-  </div>
-</div>
-
 <!-- Modal 4: Contact / Party Account -->
 <div class="modal-backdrop" id="contactModal">
   <div class="modal-window modal-sm">
@@ -3498,16 +3375,15 @@ th.num:last-child {
         <span class="modal-headline" id="mStmtModalTitle"><i class="fas fa-book-open"></i> Party Passbook & Ledger</span>
         <div id="mStmtModalSub" style="font-size:11.5px; color:#64748b;"></div>
       </div>
-      <div style="display:flex; gap:6px;">
+      <div style="display:flex; gap:6px; align-items:center;">
+        <div id="stmtBadDebtActionBtn"></div>
         <button class="btn btn-outline btn-sm" onclick="exportPartyStatementPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
         <button class="btn btn-ghost btn-sm" onclick="closeModal('statementModal')">✕</button>
       </div>
     </div>
     <div class="modal-scroll-body">
       <div style="display:flex; gap:6px; border-bottom:1px solid #e2e8f0; padding-bottom:10px; margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" id="btnStmtAll" onclick="changeStmtFilter('all')">Combined (Both)</button>
-        <button class="btn btn-outline btn-sm" id="btnStmtSales" onclick="changeStmtFilter('sales_only')">Consignment Sales (Patiya)</button>
-        <button class="btn btn-outline btn-sm" id="btnStmtPurchases" onclick="changeStmtFilter('purchases_only')">Goods Purchased</button>
+        <button class="btn btn-primary btn-sm" id="btnStmtAll">Passbook</button>
       </div>
 
       <div class="three-col-grid" style="margin-bottom:14px;">
@@ -3530,12 +3406,8 @@ th.num:last-child {
           <thead>
             <tr>
               <th>Date</th>
-              <th>Ref</th>
               <th>Description</th>
-              <th class="num">Debit (₹)</th>
-              <th class="num">Credit (₹)</th>
               <th class="num">Running Net</th>
-              <th>Notes</th>
             </tr>
           </thead>
           <tbody id="mStmtTbody"></tbody>
@@ -3631,6 +3503,216 @@ th.num:last-child {
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('stockContributionModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 12: Custom Period & Category Reports -->
+<div class="modal-backdrop" id="customReportModal" onclick="if(event.target===this)closeModal('customReportModal')">
+  <div class="modal-window modal-xl" style="max-width:980px;">
+    <div class="modal-top-bar" style="background:#f8fafc;">
+      <div>
+        <span class="modal-headline"><i class="fas fa-file-invoice-dollar" style="color:#0084ff;"></i> Custom Period & Category Reports</span>
+        <div style="font-size:12px; color:#64748b; margin-top:2px;">Download daily, weekly, or custom reports filtered by purchases, sales, or payments</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('customReportModal')" title="Close">✕</button>
+    </div>
+
+    <div class="modal-scroll-body" style="padding:22px;">
+      <!-- Filter Controls Row -->
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:16px; margin-bottom:18px;">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px; align-items:end;">
+          
+          <div class="input-block" style="margin:0;">
+            <label><i class="fa-regular fa-calendar" style="color:#64748b;"></i> Report Period</label>
+            <select id="reportPresetPeriod" onchange="onReportPresetChanged(this.value)">
+              <option value="today">Daily (Today)</option>
+              <option value="last7" selected>Weekly (Last 7 Days)</option>
+              <option value="last30">Monthly (Last 30 Days)</option>
+              <option value="all">All Time</option>
+              <option value="custom">Custom Date Range</option>
+            </select>
+          </div>
+
+          <div class="input-block" style="margin:0;">
+            <label>From Date</label>
+            <input type="date" id="reportFromDate" onchange="onCustomReportFilterChanged()"/>
+          </div>
+
+          <div class="input-block" style="margin:0;">
+            <label>To Date</label>
+            <input type="date" id="reportToDate" onchange="onCustomReportFilterChanged()"/>
+          </div>
+
+          <div class="input-block" style="margin:0;">
+            <label><i class="fa-solid fa-filter" style="color:#64748b;"></i> Transaction Filter</label>
+            <select id="reportCategoryScope" onchange="onCustomReportFilterChanged()">
+              <option value="all" selected>All Transactions (Full Report)</option>
+              <option value="purchases">Purchases Only (Fish In / Arrivals)</option>
+              <option value="sales">Sales Only (Fish Sold Bills)</option>
+              <option value="payments">Payments Only (Receipts & Payouts)</option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live Summary KPIs of Selection -->
+      <div class="three-col-grid" id="reportLiveKpis" style="margin-bottom:18px;">
+        <div class="money-sub-card">
+          <div class="flow-title">Selected Records</div>
+          <div class="flow-main-val" id="repFilteredCount" style="font-size:20px;">0 txns</div>
+        </div>
+        <div class="money-sub-card">
+          <div class="flow-title">Total Volume / Turnover</div>
+          <div class="flow-main-val" id="repFilteredVolume" style="font-size:20px; color:#0084ff;">₹0</div>
+        </div>
+        <div class="money-sub-card">
+          <div class="flow-title">Broker Commission / Net</div>
+          <div class="flow-main-val" id="repFilteredCommission" style="font-size:20px; color:#059669;">₹0</div>
+        </div>
+      </div>
+
+      <!-- Live Table Preview -->
+      <div class="data-table-box">
+        <div class="table-filter-bar" style="padding:10px 14px;">
+          <span style="font-weight:700; font-size:12.5px;"><i class="fas fa-table-list" style="color:#0084ff; margin-right:6px;"></i> Live Report Preview</span>
+          <span id="repPreviewScopeBadge" class="badge badge-blue">Weekly · All Transactions</span>
+        </div>
+        <div class="table-scroller" style="max-height:360px;">
+          <table class="data-grid">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Reference #</th>
+                <th>Party Name</th>
+                <th>Details / Varieties</th>
+                <th class="num">Qty (Kg)</th>
+                <th class="num">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="reportPreviewTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('customReportModal')">Close</button>
+      <button class="btn btn-outline" onclick="downloadCustomReport('csv')"><i class="fas fa-file-csv" style="color:#10b981;"></i> Export CSV</button>
+      <button class="btn btn-primary" onclick="downloadCustomReport('pdf')"><i class="fas fa-file-pdf"></i> Download PDF Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 10: Simple Balance & Adjustments Preview -->
+<div class="modal-backdrop" id="balancePreviewModal">
+  <div class="modal-window modal-sm" style="max-width:380px;">
+    <div class="modal-top-bar" style="padding:14px 18px 10px; border-bottom:1px solid #f1f5f9;">
+      <div>
+        <span class="modal-headline" id="mPrevContactName" style="font-size:16px; font-weight:700; color:#0f172a;">Party Name</span>
+        <div id="mPrevContactRole" style="font-size:12px; color:#64748b; margin-top:2px;"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('balancePreviewModal')">✕</button>
+    </div>
+    
+    <div class="modal-scroll-body" style="padding:16px 18px;">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+          <span style="font-size:13px; color:#475569; font-weight:500;">We Owe (Dealer)</span>
+          <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#059669;" id="mPrevWeOweVal">₹0</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+          <span style="font-size:13px; color:#475569; font-weight:500;">They Owe (Buyer)</span>
+          <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#0084ff;" id="mPrevTheyOweVal">₹0</span>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
+          <div>
+            <div style="font-size:13px; color:#475569; font-weight:500;">Adjustments</div>
+            <div style="font-size:10.5px; color:#94a3b8;" id="mPrevAdjNote">Contra & Discounts</div>
+          </div>
+          <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#7c3aed;" id="mPrevAdjVal">₹0</span>
+        </div>
+
+        <!-- Net Position Highlight -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 14px; margin-top:4px; border-radius:8px; border:1.5px solid transparent;" id="mPrevNetBox">
+          <span style="font-size:13.5px; font-weight:700;" id="mPrevNetLabel">Net Balance</span>
+          <span style="font-size:17px; font-weight:800; font-family:var(--font-mono);" id="mPrevNetVal">₹0</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-bottom-actions" style="padding:10px 18px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('balancePreviewModal')">Close</button>
+      <button class="btn btn-primary btn-sm" id="mPrevOpenPassbookBtn"><i class="fas fa-book-open"></i> Passbook & Ledger</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 11: Custom Bad Debt Confirmation -->
+<div class="modal-backdrop" id="badDebtConfirmModal">
+  <div class="modal-window modal-sm" style="max-width:440px;">
+    <div class="modal-top-bar" style="border-bottom:none; padding-bottom:4px;">
+      <span class="modal-headline" style="color:#dc2626; font-size:16px;">
+        <i class="fas fa-triangle-exclamation"></i> Consider as Bad Debt?
+      </span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('badDebtConfirmModal')">✕</button>
+    </div>
+    <div class="modal-scroll-body" style="padding:16px 20px;">
+      <input type="hidden" id="mBadDebtContactId"/>
+      
+      <div style="background:#fef2f2; border:1.5px solid #fecaca; border-radius:10px; padding:14px; text-align:center; margin-bottom:14px;">
+        <div style="font-size:11.5px; color:#991b1b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Pending Unpaid Amount</div>
+        <div style="font-size:26px; font-weight:800; color:#dc2626; font-family:var(--font-mono); margin:4px 0;" id="mBadDebtAmount">₹0</div>
+        <div style="font-size:13.5px; color:#7f1d1d; font-weight:700;" id="mBadDebtBuyerName">Party Name</div>
+      </div>
+
+      <div style="font-size:12px; color:#64748b; line-height:1.5; margin-bottom:14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px 12px;">
+        <i class="fas fa-circle-info" style="color:#0084ff; margin-right:4px;"></i>
+        Writing off this amount marks the buyer as a <b>Defaulter</b>, clears active receivables from your ledger, and records this loss under <b>Bad Debts Absorbed</b> in Reports & Financials.
+      </div>
+
+      <div class="input-block" style="margin-bottom:6px;">
+        <label style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:4px; display:block;">Write-Off Reason</label>
+        <input type="text" id="mBadDebtReason" value="Defaulted on credit payment / Unreachable" placeholder="Enter reason..." style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:12.5px; border:1px solid #cbd5e1; border-radius:6px;"/>
+      </div>
+    </div>
+    <div class="modal-bottom-actions" style="display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('badDebtConfirmModal')">Cancel</button>
+      <button class="btn btn-danger btn-sm" id="mBadDebtConfirmSubmitBtn" onclick="confirmBadDebtWriteOff()"><i class="fas fa-ban"></i> Confirm Bad Debt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 12: Custom Bad Debt Restore Confirmation -->
+<div class="modal-backdrop" id="restoreBadDebtConfirmModal">
+  <div class="modal-window modal-sm" style="max-width:420px;">
+    <div class="modal-top-bar" style="border-bottom:none; padding-bottom:4px;">
+      <span class="modal-headline" style="color:#0284c7; font-size:16px;">
+        <i class="fas fa-rotate-left"></i> Restore Party Account?
+      </span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('restoreBadDebtConfirmModal')">✕</button>
+    </div>
+    <div class="modal-scroll-body" style="padding:16px 20px;">
+      <input type="hidden" id="mRestoreContactId"/>
+      
+      <div style="background:#f0f9ff; border:1.5px solid #bae6fd; border-radius:10px; padding:14px; text-align:center; margin-bottom:14px;">
+        <div style="font-size:14px; color:#0369a1; font-weight:700;" id="mRestoreBuyerName">Party Name</div>
+        <div style="font-size:12px; color:#0284c7; margin-top:4px;">Currently marked as Bad Debt Defaulter</div>
+      </div>
+
+      <div style="font-size:12px; color:#64748b; line-height:1.5;">
+        Restoring will re-activate this buyer's credit ledger balance and remove the written-off loss absorption from Financials.
+      </div>
+    </div>
+    <div class="modal-bottom-actions" style="display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
+      <button class="btn btn-outline btn-sm" onclick="closeModal('restoreBadDebtConfirmModal')">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="confirmRestoreBadDebt()"><i class="fas fa-rotate-left"></i> Restore Account</button>
     </div>
   </div>
 </div>
@@ -3800,6 +3882,11 @@ function showToast(msg, type = 'info') {
     t.style.opacity = '0';
     setTimeout(() => t.remove(), 200);
   }, 3000);
+}
+
+function openModal(id) {
+  const m = document.getElementById(id);
+  if (m) m.classList.add('open');
 }
 
 function closeModal(id) {
@@ -4474,12 +4561,18 @@ function renderSalesList() {
         <td>${s.date}</td>
         <td><strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong></td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700; font-size:14px; color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</td>
-        <td><span class="badge ${s.paymentType === 'Cash' ? 'badge-green' : 'badge-amber'}">${s.paymentType}</span></td>
+        <td>
+          <span class="badge ${s.isBadDebt ? 'badge-red' : (s.paymentType === 'Cash' ? 'badge-green' : 'badge-amber')}">
+            ${s.isBadDebt ? '<i class="fas fa-ban"></i> BAD DEBT' : s.paymentType}
+          </span>
+        </td>
         <td class="table-action-cell">
           <div class="table-actions-group">
             <button class="btn btn-outline btn-sm" onclick="viewSaleBill(${s.id})" title="View Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             <button class="btn btn-outline btn-sm" onclick="downloadA4SalesBill(${s.id})" title="Print A4 Bill"><i class="fas fa-print"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendSaleWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+            ${s.paymentType === 'Credit' && !s.isBadDebt ? `<button class="btn btn-outline btn-sm" onclick="markSaleBadDebtPrompt(${s.id}, '${(s.buyerName || '').replace(/'/g, "\\'")}', ${billTotal})" title="Write Off as Bad Debt" style="color:#ef4444; border-color:#fca5a5;"><i class="fas fa-ban"></i></button>` : ''}
+            ${s.isBadDebt ? `<button class="btn btn-outline btn-sm" onclick="restoreSaleBadDebtPrompt(${s.id}, '${(s.buyerName || '').replace(/'/g, "\\'")}')" title="Restore Sale" style="color:#0284c7; border-color:#bfdbfe;"><i class="fas fa-rotate-left"></i></button>` : ''}
             <button class="btn btn-danger btn-sm" onclick="deleteSaleBill(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
           </div>
         </td>
@@ -6061,10 +6154,11 @@ function renderContactsList() {
 
   if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
   else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
-  else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0);
+  else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
+  else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
     return;
   }
 
@@ -6072,31 +6166,127 @@ function renderContactsList() {
     const isDual = c.isDealer && c.isBuyer;
     let badge = isDual ? '<span class="badge badge-purple">Both (2-in-1)</span>' : (c.isDealer ? '<span class="badge badge-green">Dealer</span>' : '<span class="badge badge-blue">Buyer</span>');
 
+    let statusBadge = '';
+    if (c.isBadDebtDefaulter) {
+      statusBadge = `<span class="badge badge-red" style="font-weight:700;" title="${c.badDebtReason || 'Marked as Bad Debt Defaulter'}"><i class="fas fa-ban"></i> Defaulter (Bad Debt)</span>`;
+    } else if (c.isOverdue) {
+      statusBadge = `<span class="badge badge-red"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>`;
+    } else {
+      statusBadge = '<span class="badge badge-green">Clear</span>';
+    }
+
+    let netPosHtml = '';
+    if (c.isBadDebtDefaulter && (c.badDebtAmount > 0 || c.rawReceivable > 0)) {
+      const writtenOffAmt = c.badDebtAmount || c.rawReceivable || 0;
+      netPosHtml = `<span style="color:#dc2626; font-weight:700;">₹${writtenOffAmt.toLocaleString('en-IN')} (Bad Debt)</span>`;
+    } else if (c.netBalance >= 0) {
+      netPosHtml = `<span style="color:#047857; font-weight:700;">We Pay ₹${c.netBalance.toLocaleString('en-IN')}</span>`;
+    } else {
+      netPosHtml = `<span style="color:#0084ff; font-weight:700;">They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}</span>`;
+    }
+
     return `
-      <tr>
+      <tr style="${c.isBadDebtDefaulter ? 'background:#fef2f2;' : ''}">
         <td><strong style="cursor:pointer; color:#0f172a;" onclick="openStatementModal(${c.id})">${c.name}</strong></td>
         <td>${badge}</td>
-        <td>${c.phone || '-'} <small style="display:block; color:#64748b;">${c.address || ''}</small></td>
-        <td>Limit: ₹${(c.creditLimit || 0).toLocaleString('en-IN')}<br/><small style="color:#64748b;">Period: ${c.creditPeriod || 0}d</small></td>
-        <td class="num" style="color:#047857; font-weight:700;">₹${(c.payableBalance || 0).toLocaleString('en-IN')}</td>
-        <td class="num" style="color:#0084ff; font-weight:700;">₹${(c.receivableBalance || 0).toLocaleString('en-IN')}</td>
-        <td class="num" style="font-weight:700; color:${c.netBalance >= 0 ? '#047857' : '#0084ff'};">
-          ${c.netBalance >= 0 ? `We Pay ₹${c.netBalance.toLocaleString('en-IN')}` : `They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}`}
+        <td>${c.phone || '-'}</td>
+        <td class="num">
+          ${netPosHtml}
         </td>
-        <td>${c.isOverdue ? `<span class="badge badge-red"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>` : '<span class="badge badge-green">Clear</span>'}</td>
+        <td>${statusBadge}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
             ${c.isDealer ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates (Patiya)"><i class="fas fa-calculator"></i> Settle</button>` : ''}
             ${c.isDealer ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money to Dealer"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
-            ${c.isBuyer ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
-            <button class="btn btn-outline btn-sm" onclick="openStatementModal(${c.id})" title="Passbook"><i class="fas fa-book-open"></i></button>
-            ${c.phone ? `<button class="btn btn-wa btn-sm" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name.replace(/'/g, "\\'")}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
-            <button class="btn btn-ghost btn-sm" onclick="editPartyAccount(${c.id})" title="Edit"><i class="fas fa-pen"></i></button>
+            ${c.isBuyer && !c.isBadDebtDefaulter ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
+            <button class="btn btn-outline btn-sm btn-icon" onclick="openBalancePreviewModal(${c.id})" title="Preview Breakdown & Passbook"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
+            ${c.phone && !c.isBadDebtDefaulter ? `<button class="btn btn-wa btn-sm btn-icon" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name.replace(/'/g, "\\'")}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
+            ${c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.isOverdue) ? `<button class="btn btn-danger btn-sm btn-icon" onclick="openBadDebtModal(${c.id})" title="Consider as Bad Debt"><i class="fas fa-ban"></i></button>` : ''}
+            ${c.isBadDebtDefaulter ? `<button class="btn btn-outline btn-sm btn-icon" onclick="openRestoreBadDebtModal(${c.id})" title="Restore Account from Bad Debt" style="color:#0284c7; border-color:#0284c7;"><i class="fas fa-rotate-left"></i></button>` : ''}
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="editPartyAccount(${c.id})" title="Edit Party"><i class="fas fa-pen"></i></button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function openBalancePreviewModal(contactId) {
+  const c = appState.contacts.find(x => x.id === contactId);
+  if (!c) return showToast('Contact not found', 'error');
+
+  const isDual = c.isDealer && c.isBuyer;
+  const roleName = isDual ? 'Both (Dealer & Buyer)' : (c.isDealer ? 'Dealer' : 'Buyer');
+  document.getElementById('mPrevContactName').textContent = c.name;
+  document.getElementById('mPrevContactRole').textContent = `${roleName} • ${c.phone || 'No Phone'}`;
+
+  // We Owe & They Owe
+  const weOwe = Number(c.payableBalance || 0);
+  const theyOwe = Number(c.receivableBalance || 0);
+  document.getElementById('mPrevWeOweVal').textContent = `₹${weOwe.toLocaleString('en-IN')}`;
+  document.getElementById('mPrevTheyOweVal').textContent = `₹${theyOwe.toLocaleString('en-IN')}`;
+
+  // Adjustments (Contra + Discounts + Bad Debt)
+  const contra = Number(c.totalContraAdjustments || 0);
+  const discounts = Number(c.totalDealerDiscounts || 0);
+  const badDebt = Number(c.badDebtAmount || 0);
+  const totalAdj = contra + discounts + badDebt;
+  document.getElementById('mPrevAdjVal').textContent = `₹${totalAdj.toLocaleString('en-IN')}`;
+
+  if (totalAdj > 0) {
+    const parts = [];
+    if (contra > 0) parts.push(`Contra: ₹${contra.toLocaleString('en-IN')}`);
+    if (discounts > 0) parts.push(`Disc: ₹${discounts.toLocaleString('en-IN')}`);
+    if (badDebt > 0) parts.push(`Bad Debt: ₹${badDebt.toLocaleString('en-IN')}`);
+    document.getElementById('mPrevAdjNote').textContent = parts.join(' | ');
+  } else {
+    document.getElementById('mPrevAdjNote').textContent = 'Contra & Discounts (None)';
+  }
+
+  // Net Box styling
+  const netBox = document.getElementById('mPrevNetBox');
+  const netLabel = document.getElementById('mPrevNetLabel');
+  const netVal = document.getElementById('mPrevNetVal');
+
+  if (c.isBadDebtDefaulter) {
+    netBox.style.background = '#fef2f2';
+    netBox.style.borderColor = '#fecaca';
+    netLabel.style.color = '#991b1b';
+    netLabel.textContent = 'Bad Debt Defaulter';
+    netVal.style.color = '#dc2626';
+    netVal.textContent = `₹${(c.badDebtAmount || c.rawReceivable || 0).toLocaleString('en-IN')}`;
+  } else if (c.netBalance > 0) {
+    netBox.style.background = '#ecfdf5';
+    netBox.style.borderColor = '#a7f3d0';
+    netLabel.style.color = '#065f46';
+    netLabel.textContent = 'We Owe (Dealer)';
+    netVal.style.color = '#059669';
+    netVal.textContent = `₹${c.netBalance.toLocaleString('en-IN')}`;
+  } else if (c.netBalance < 0) {
+    netBox.style.background = '#eff6ff';
+    netBox.style.borderColor = '#bfdbfe';
+    netLabel.style.color = '#1e40af';
+    netLabel.textContent = c.isOverdue ? `They Owe (${c.daysOverdue}d late)` : 'They Owe (Buyer)';
+    netVal.style.color = '#0084ff';
+    netVal.textContent = `₹${Math.abs(c.netBalance).toLocaleString('en-IN')}`;
+  } else {
+    netBox.style.background = '#f8fafc';
+    netBox.style.borderColor = '#e2e8f0';
+    netLabel.style.color = '#475569';
+    netLabel.textContent = 'All Settled';
+    netVal.style.color = '#0f172a';
+    netVal.textContent = '₹0';
+  }
+
+  const passbookBtn = document.getElementById('mPrevOpenPassbookBtn');
+  if (passbookBtn) {
+    passbookBtn.onclick = () => {
+      closeModal('balancePreviewModal');
+      openStatementModal(contactId);
+    };
+  }
+
+  openModal('balancePreviewModal');
 }
 
 function openPatiyaForDealer(dealerName) {
@@ -6176,11 +6366,10 @@ async function openStatementModal(contactId) {
   }
 }
 
-function changeStmtFilter(mode) {
-  appState.statementFilter = mode;
-  document.getElementById('btnStmtAll').className = `btn btn-sm ${mode === 'all' ? 'btn-primary' : 'btn-outline'}`;
-  document.getElementById('btnStmtSales').className = `btn btn-sm ${mode === 'sales_only' ? 'btn-primary' : 'btn-outline'}`;
-  document.getElementById('btnStmtPurchases').className = `btn btn-sm ${mode === 'purchases_only' ? 'btn-primary' : 'btn-outline'}`;
+function changeStmtFilter(mode = 'all') {
+  appState.statementFilter = 'all';
+  const btnAll = document.getElementById('btnStmtAll');
+  if (btnAll) btnAll.className = 'btn btn-sm btn-primary';
   if (appState.activeStatement?.contact?.id) {
     openStatementModal(appState.activeStatement.contact.id);
   }
@@ -6199,27 +6388,33 @@ function renderStatementView() {
     ? `We Owe ₹${d.financials.netBalance.toLocaleString('en-IN')}`
     : `They Owe ₹${Math.abs(d.financials.netBalance).toLocaleString('en-IN')}`;
 
+  const badDebtBtnHolder = document.getElementById('stmtBadDebtActionBtn');
+  if (badDebtBtnHolder) {
+    const isDefaulter = !!d.contact.isBadDebtDefaulter;
+    const recBal = d.financials.receivableBalance || 0;
+    const escapedName = (d.contact.name || '').replace(/'/g, "\\'");
+    if (isDefaulter) {
+      badDebtBtnHolder.innerHTML = `<button class="btn btn-outline btn-sm" onclick="openRestoreBadDebtModal(${d.contact.id})" style="color:#0284c7; border-color:#0284c7;"><i class="fas fa-rotate-left"></i> Restore Account</button>`;
+    } else if (d.contact.isBuyer && (recBal > 0 || d.financials.isOverdue)) {
+      badDebtBtnHolder.innerHTML = `<button class="btn btn-danger btn-sm" onclick="openBadDebtModal(${d.contact.id})"><i class="fas fa-ban"></i> Consider as Bad Debt</button>`;
+    } else {
+      badDebtBtnHolder.innerHTML = '';
+    }
+  }
+
   const tbody = document.getElementById('mStmtTbody');
   if (!d.rows || d.rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No ledger transactions found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:32px; color:#64748b;">No ledger transactions found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = d.rows.map(r => `
     <tr>
       <td>${r.date}</td>
-      <td><strong style="font-family:var(--font-mono)">${r.ref || '-'}</strong></td>
       <td>${r.description}</td>
-      <td class="num" style="font-family:var(--font-mono); color:${r.debit > 0 ? '#0084ff' : '#94a3b8'}">
-        ${r.debit > 0 ? `₹${r.debit.toLocaleString('en-IN')}` : '-'}
-      </td>
-      <td class="num" style="font-family:var(--font-mono); color:${r.credit > 0 ? '#059669' : '#94a3b8'}">
-        ${r.credit > 0 ? `₹${r.credit.toLocaleString('en-IN')}` : '-'}
-      </td>
       <td class="num" style="font-family:var(--font-mono); font-weight:700;">
         ₹${r.runningBalance.toLocaleString('en-IN')}
       </td>
-      <td><small style="color:#64748b;">${r.notes || ''}</small></td>
     </tr>
   `).join('');
 }
@@ -6240,16 +6435,13 @@ function exportPartyStatementPDF() {
 
   const tableData = d.rows.map(r => [
     r.date,
-    r.ref || '-',
     r.description,
-    r.debit > 0 ? `Rs. ${r.debit.toLocaleString('en-IN')}` : '-',
-    r.credit > 0 ? `Rs. ${r.credit.toLocaleString('en-IN')}` : '-',
     `Rs. ${r.runningBalance.toLocaleString('en-IN')}`
   ]);
 
   doc.autoTable({
     startY: 40,
-    head: [['Date', 'Ref #', 'Description', 'Debit (-)', 'Credit (+)', 'Running Net']],
+    head: [['Date', 'Description', 'Running Net']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [0, 132, 255] }
@@ -6258,38 +6450,48 @@ function exportPartyStatementPDF() {
   doc.save(`Statement_${d.contact.name}.pdf`);
 }
 
+function sendWhatsAppFollowup(phone, name, amount, daysOverdue) {
+  const clean = (phone || '').replace(/[^0-9]/g, '');
+  const msg = `Dear *${name}*,%0AGreetings from *Al Haseena Exports*.%0AThis is a reminder that your pending balance of *Rs.${(amount || 0).toLocaleString('en-IN')}* is overdue by *${daysOverdue} days*.%0AKindly arrange the payment at your earliest convenience.%0AThank you!`;
+  window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+}
 
 function openBadDebtModal(contactId) {
   const c = appState.contacts.find(x => x.id === contactId);
-  if (!c) return;
-  window._pendingBadDebtContactId = contactId;
-  const nameEl = document.getElementById('mBadDebtPartyName');
-  if (nameEl) nameEl.textContent = c.name;
-  const reasonInp = document.getElementById('mBadDebtReason');
-  if (reasonInp) reasonInp.value = '';
-  document.getElementById('badDebtConfirmModal').classList.add('open');
+  if (!c) return showToast('Contact not found', 'error');
+
+  document.getElementById('mBadDebtContactId').value = c.id;
+  document.getElementById('mBadDebtBuyerName').textContent = c.name;
+  const bal = Number(c.receivableBalance || 0);
+  document.getElementById('mBadDebtAmount').textContent = '₹' + bal.toLocaleString('en-IN');
+  document.getElementById('mBadDebtReason').value = 'Defaulted on credit payment / Unreachable';
+  openModal('badDebtConfirmModal');
 }
 
-async function confirmBadDebtAction() {
-  const id = window._pendingBadDebtContactId;
-  if (!id) return;
-  const reason = document.getElementById('mBadDebtReason')?.value.trim() || 'Written off as bad debt';
+async function confirmBadDebtWriteOff() {
+  const contactId = Number(document.getElementById('mBadDebtContactId').value);
+  const reason = (document.getElementById('mBadDebtReason').value || '').trim() || 'Defaulted on credit payment';
+  const c = appState.contacts.find(x => x.id === contactId);
+  const name = c ? c.name : 'Party';
+
   try {
-    const res = await fetch(`/api/contacts/${id}/bad-debt`, {
+    const res = await fetch(`/api/contacts/${contactId}/bad-debt`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isBadDebtDefaulter: true, reason })
     });
     if (res.ok) {
-      showToast('Party marked as Bad Debt defaulter', 'success');
       closeModal('badDebtConfirmModal');
+      showToast(`Marked "${name}" as Bad Debt Defaulter. Loss absorbed in Financials.`, 'warning');
       await Promise.all([loadContacts(), loadSales(), loadReports()]);
       renderContactsList();
-      if (appState.activeStatement && appState.activeStatement.contact.id === id) {
-        openStatementModal(id);
+      updateDashboardMetrics();
+      if (appState.activeStatement?.contact?.id === contactId) {
+        openStatementModal(contactId);
       }
     } else {
-      showToast('Failed to update bad debt status', 'error');
+      const data = await res.json();
+      showToast(data.error || 'Failed to mark bad debt', 'error');
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
@@ -6298,42 +6500,95 @@ async function confirmBadDebtAction() {
 
 function openRestoreBadDebtModal(contactId) {
   const c = appState.contacts.find(x => x.id === contactId);
-  if (!c) return;
-  window._pendingRestoreBadDebtContactId = contactId;
-  const nameEl = document.getElementById('mRestoreBadDebtPartyName');
-  if (nameEl) nameEl.textContent = c.name;
-  document.getElementById('restoreBadDebtConfirmModal').classList.add('open');
+  if (!c) return showToast('Contact not found', 'error');
+
+  document.getElementById('mRestoreContactId').value = c.id;
+  document.getElementById('mRestoreBuyerName').textContent = c.name;
+  openModal('restoreBadDebtConfirmModal');
 }
 
-async function confirmRestoreBadDebtAction() {
-  const id = window._pendingRestoreBadDebtContactId;
-  if (!id) return;
+async function confirmRestoreBadDebt() {
+  const contactId = Number(document.getElementById('mRestoreContactId').value);
+  const c = appState.contacts.find(x => x.id === contactId);
+  const name = c ? c.name : 'Party';
+
   try {
-    const res = await fetch(`/api/contacts/${id}/bad-debt`, {
+    const res = await fetch(`/api/contacts/${contactId}/bad-debt`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ isBadDebtDefaulter: false, reason: '' })
+      body: JSON.stringify({ isBadDebtDefaulter: false })
     });
     if (res.ok) {
-      showToast('Party restored from Bad Debt status', 'success');
       closeModal('restoreBadDebtConfirmModal');
+      showToast(`Restored "${name}" from Bad Debt status.`, 'success');
       await Promise.all([loadContacts(), loadSales(), loadReports()]);
       renderContactsList();
-      if (appState.activeStatement && appState.activeStatement.contact.id === id) {
-        openStatementModal(id);
+      updateDashboardMetrics();
+      if (appState.activeStatement?.contact?.id === contactId) {
+        openStatementModal(contactId);
       }
     } else {
-      showToast('Failed to restore account', 'error');
+      const data = await res.json();
+      showToast(data.error || 'Failed to restore contact', 'error');
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
 }
 
-function sendWhatsAppFollowup(phone, name, amount, daysOverdue) {
-  const clean = (phone || '').replace(/[^0-9]/g, '');
-  const msg = `Dear *${name}*,%0AGreetings from *Al Haseena Exports*.%0AThis is a reminder that your pending balance of *Rs.${(amount || 0).toLocaleString('en-IN')}* is overdue by *${daysOverdue} days*.%0AKindly arrange the payment at your earliest convenience.%0AThank you!`;
-  window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+// Backward-compatible aliases
+function markBadDebtPrompt(contactId) { openBadDebtModal(contactId); }
+function restoreBadDebtPrompt(contactId) { openRestoreBadDebtModal(contactId); }
+
+async function markSaleBadDebtPrompt(saleId, buyerName, amount) {
+  const formattedAmt = Number(amount || 0).toLocaleString('en-IN');
+  const reason = prompt(
+    `Write off Sale #${saleId} (₹${formattedAmt}) to "${buyerName}" as Bad Debt?\n\nThis marks the bill as bad debt and records the loss in Financials.\n\nEnter reason:`,
+    'Uncollected credit sale / Defaulter'
+  );
+  if (reason === null) return;
+  try {
+    const res = await fetch(`/api/sales/${saleId}/bad-debt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isBadDebt: true, reason: reason.trim() })
+    });
+    if (res.ok) {
+      showToast(`Sale #${saleId} marked as Bad Debt.`, 'warning');
+      await Promise.all([loadContacts(), loadSales(), loadReports()]);
+      renderSalesList();
+      renderContactsList();
+      updateDashboardMetrics();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to update sale', 'error');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
+async function restoreSaleBadDebtPrompt(saleId, buyerName) {
+  if (!confirm(`Restore Sale #${saleId} to "${buyerName}" from Bad Debt?`)) return;
+  try {
+    const res = await fetch(`/api/sales/${saleId}/bad-debt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isBadDebt: false })
+    });
+    if (res.ok) {
+      showToast(`Sale #${saleId} restored.`, 'success');
+      await Promise.all([loadContacts(), loadSales(), loadReports()]);
+      renderSalesList();
+      renderContactsList();
+      updateDashboardMetrics();
+    } else {
+      const data = await res.json();
+      showToast(data.error || 'Failed to restore sale', 'error');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -7041,6 +7296,10 @@ function handleCtrlKSearch(q) {
         <div><i class="fas fa-hand-holding-dollar" style="margin-right:8px; color:#d97706;"></i> Pay Dealer (Reduce Balance)</div>
         <span class="badge badge-amber">Action</span>
       </div>
+      <div class="ctrl-k-item" onclick="closeModal('searchModal'); openCustomReportModal();">
+        <div><i class="fas fa-file-invoice-dollar" style="margin-right:8px; color:#0284c7;"></i> Custom Period & Category Report</div>
+        <span class="badge badge-blue">Report</span>
+      </div>
     `;
     return;
   }
@@ -7189,41 +7448,26 @@ function showTipNotice() {
 }
 
 function downloadFinancialSummaryPDF() {
-  const d = appState.reports;
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF('p', 'mm', 'a4');
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.text('Al Haseena Exports', 14, 20);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Fish Commission Brokerage Financial Report', 14, 26);
-  doc.text(`Date: ${appState.selectedDate || getTodayIsoDate()}`, 150, 20);
-
-  const summaryData = [
-    ['Gross Consignment Turnover', `Rs. ${(d.totalGrossConsignmentSales || 0).toLocaleString('en-IN')}`],
-    ['Broker Commission Income', `Rs. ${(d.totalBrokerCommission || 0).toLocaleString('en-IN')}`],
-    ['Broking Margin Profit', `Rs. ${(d.totalBrokingProfit || 0).toLocaleString('en-IN')}`],
-    ['Total Company Gross Earnings', `Rs. ${(d.totalBrokerEarnings || 0).toLocaleString('en-IN')}`],
-    ['Bad Debts Absorbed by Broker', `- Rs. ${(d.totalBadDebtLoss || 0).toLocaleString('en-IN')}`],
-    ['Net Company Earnings', `Rs. ${(d.netCompanyProfit || 0).toLocaleString('en-IN')}`]
-  ];
-
-  doc.autoTable({
-    startY: 36,
-    head: [['Financial Metric', 'Amount']],
-    body: summaryData,
-    theme: 'grid',
-    headStyles: { fillColor: [0, 132, 255] }
-  });
-
-  doc.save('Brokerage_Financial_Report.pdf');
+  // Replaced with Custom Period & Category Report
+  downloadCustomReport('pdf');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 11. CUSTOM REPORT GENERATOR & EXPORTER
 // ─────────────────────────────────────────────────────────────────────────────
+async function openCustomReportModal() {
+  initReportControls();
+  openModal('customReportModal');
+  if (!appState.sales || !appState.sales.length) {
+    try {
+      await Promise.all([loadConsignments(), loadSales(), loadPayments()]);
+      onCustomReportFilterChanged();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+
 function initReportControls() {
   const today = getTodayIsoDate();
   const fromEl = document.getElementById('reportFromDate');
