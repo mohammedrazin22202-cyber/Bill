@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "accountName": "HDFC Kasimedu Current A/c",
+    "bankName": "HDFC Bank",
+    "accountNumber": "50200084729103",
+    "ifscCode": "HDFC0000124",
+    "accountType": "Current",
+    "upiId": "alhaseena@hdfcbank",
+    "branch": "Royapuram / Kasimedu",
+    "openingBalance": 250000,
+    "isActive": true,
+    "created": 1791076627149
+  },
+  {
+    "id": 2,
+    "accountName": "SBI Harbor Branch",
+    "bankName": "State Bank of India",
+    "accountNumber": "38920194821",
+    "ifscCode": "SBIN0001842",
+    "accountType": "Current",
+    "upiId": "alhaseenafoods@sbi",
+    "branch": "Kasimedu Harbor",
+    "openingBalance": 120000,
+    "isActive": true,
+    "created": 1791076627150
+  }
+]

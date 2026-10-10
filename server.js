@@ -63,6 +63,40 @@ function writeJsonFile(filename, data) {
   }
 }
 
+function getDefaultSettings() {
+  return {
+    companyName: 'Al Haseena Exports',
+    harborLocation: 'Kasimedu Fishing Harbor, Chennai - Gate 2',
+    proprietorName: 'M S Bhathrudeen',
+    contactPhone: '+91 9841021203',
+    contactEmail: 'alhaseenaexports@gmail.com',
+    mandiLicenseNo: 'TN-CHE-KSM-2024-88',
+    gstin: '33AABCA1234F1Z5',
+    tagline: 'Wholesale Fish Commission Agent & Consignment Exporter',
+    defaultCommission: 5,
+    commissionMode: 'percent',
+    trackBrokingProfit: true,
+    autoCarryForward: true,
+    deductLorryBhada: true,
+    deductIce: true,
+    deductCoolie: true,
+    deductStorage: false,
+    defaultCreditDays: 7,
+    defaultCreditLimit: 50000,
+    enableOverdueBlinking: true,
+    strictCreditLock: false,
+    enableBadDebtProtection: true,
+    invoicePrefix: 'ALH-',
+    hideDealerOnBuyerInvoice: true,
+    printFormat: 'a4',
+    whatsappTemplate: 'Al Haseena Exports: Bill #{billNo} for Rs.{amount} ({crates} crates {fish}). Balance: Rs.{balance}. Thank you!',
+    enableHourlyQuotes: true,
+    quoteRotationFrequency: 'hourly',
+    quoteManualCycle: true,
+    soundAlerts: true
+  };
+}
+
 function matchItem(item, query) {
   if (!query || Object.keys(query).length === 0) return true;
   for (const key in query) {
@@ -532,6 +566,7 @@ function normalizePayment(data) {
     paymentMode: data.paymentMode || 'Cash', // 'Cash', 'Bank Transfer', 'UPI', 'Cheque'
     referenceNo: String(data.referenceNo || '').trim(), // Cheque No, UTR, Txn ID
     bankName: String(data.bankName || '').trim(),
+    bankAccountId: Number(data.bankAccountId) || null,
     paymentDate: data.paymentDate || data.date || '',
     notes: String(data.notes || ''),
     created: Number(data.created) || now,
@@ -816,6 +851,329 @@ async function getDaybook(dateStr) {
       netBankChange: totalBankIn - totalBankOut
     }
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BANK ACCOUNTS & TREASURY CASH/BANK LEDGER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getDefaultBankAccounts() {
+  return [
+    {
+      id: 1,
+      accountName: "HDFC Kasimedu Current A/c",
+      bankName: "HDFC Bank",
+      accountNumber: "50200084729103",
+      ifscCode: "HDFC0000124",
+      accountType: "Current",
+      upiId: "alhaseena@hdfcbank",
+      branch: "Royapuram / Kasimedu",
+      openingBalance: 250000,
+      isActive: true,
+      created: 1791076627149
+    },
+    {
+      id: 2,
+      accountName: "SBI Harbor Branch",
+      bankName: "State Bank of India",
+      accountNumber: "38920194821",
+      ifscCode: "SBIN0001842",
+      accountType: "Current",
+      upiId: "alhaseenafoods@sbi",
+      branch: "Kasimedu Harbor",
+      openingBalance: 120000,
+      isActive: true,
+      created: 1791076627150
+    }
+  ];
+}
+
+async function getTreasuryOverview() {
+  const database = await connectDb();
+  let accounts = [];
+  if (useLocalStorage) {
+    accounts = readJsonFile('bank_accounts.json', null);
+  } else {
+    accounts = await database.collection('bank_accounts').find({}).toArray();
+  }
+  if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+    accounts = getDefaultBankAccounts();
+    if (useLocalStorage) {
+      writeJsonFile('bank_accounts.json', accounts);
+    }
+  }
+
+  const treasuryTxns = useLocalStorage ? readJsonFile('treasury_transactions.json', []) : await database.collection('treasury_transactions').find({}).toArray();
+  const payments = await database.collection('payments').find({}).toArray();
+  const sales = await database.collection('sales').find({}).toArray();
+  const consignments = await database.collection('consignments').find({}).toArray();
+
+  const enrichedAccounts = accounts.map(acc => {
+    let balance = Number(acc.openingBalance) || 0;
+    let totalIn = 0;
+    let totalOut = 0;
+
+    for (const p of payments) {
+      const isThisBank = (p.bankAccountId && Number(p.bankAccountId) === Number(acc.id)) || 
+                         (!p.bankAccountId && p.bankName && p.bankName.toLowerCase().includes(acc.bankName.toLowerCase()));
+      if (['Bank Transfer', 'UPI', 'Cheque'].includes(p.paymentMode) && isThisBank) {
+        const amt = Number(p.amount) || 0;
+        if (p.type === 'BUYER_COLLECTION') {
+          balance += amt;
+          totalIn += amt;
+        } else if (p.type === 'DEALER_PAYMENT') {
+          balance -= amt;
+          totalOut += amt;
+        }
+      }
+    }
+
+    for (const tx of treasuryTxns) {
+      const amt = Number(tx.amount) || 0;
+      if (tx.type === 'BANK_IN' && Number(tx.accountId) === Number(acc.id)) {
+        balance += amt;
+        totalIn += amt;
+      } else if (tx.type === 'BANK_OUT' && Number(tx.accountId) === Number(acc.id)) {
+        balance -= amt;
+        totalOut += amt;
+      } else if (tx.type === 'CONTRA') {
+        if (Number(tx.toAccountId) === Number(acc.id)) {
+          balance += amt;
+          totalIn += amt;
+        }
+        if (Number(tx.accountId) === Number(acc.id)) {
+          balance -= amt;
+          totalOut += amt;
+        }
+      }
+    }
+
+    return {
+      ...acc,
+      currentBalance: balance,
+      totalIn,
+      totalOut
+    };
+  });
+
+  let cashInHandBalance = 65000;
+  let cashInTotal = 0;
+  let cashOutTotal = 0;
+
+  for (const s of sales) {
+    if (s.paymentType === 'Cash' || (s.paymentMode === 'Cash' && Number(s.amountPaid) > 0)) {
+      const amt = s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0);
+      cashInHandBalance += amt;
+      cashInTotal += amt;
+    }
+  }
+
+  for (const p of payments) {
+    if (p.paymentMode === 'Cash') {
+      const amt = Number(p.amount) || 0;
+      if (p.type === 'BUYER_COLLECTION') {
+        cashInHandBalance += amt;
+        cashInTotal += amt;
+      } else if (p.type === 'DEALER_PAYMENT') {
+        cashInHandBalance -= amt;
+        cashOutTotal += amt;
+      }
+    }
+  }
+
+  for (const c of consignments) {
+    if (c.lorryBhadaMode !== 'Bank' && Number(c.lorryBhada) > 0) {
+      const amt = Number(c.lorryBhada) || 0;
+      cashInHandBalance -= amt;
+      cashOutTotal += amt;
+    }
+  }
+
+  for (const tx of treasuryTxns) {
+    const amt = Number(tx.amount) || 0;
+    if (tx.accountId === 'cash_in_hand') {
+      if (tx.type === 'CASH_IN') {
+        cashInHandBalance += amt;
+        cashInTotal += amt;
+      } else if (tx.type === 'CASH_OUT') {
+        cashInHandBalance -= amt;
+        cashOutTotal += amt;
+      } else if (tx.type === 'CONTRA') {
+        cashInHandBalance -= amt;
+        cashOutTotal += amt;
+      }
+    } else if (tx.type === 'CONTRA' && tx.toAccountId === 'cash_in_hand') {
+      cashInHandBalance += amt;
+      cashInTotal += amt;
+    }
+  }
+
+  const totalBankBalance = enrichedAccounts.reduce((sum, a) => sum + (a.currentBalance || 0), 0);
+  const totalLiquidFunds = cashInHandBalance + totalBankBalance;
+
+  return {
+    accounts: enrichedAccounts,
+    cashInHand: {
+      id: 'cash_in_hand',
+      name: 'Cash in Hand (Physical Drawer)',
+      currentBalance: cashInHandBalance,
+      totalIn: cashInTotal,
+      totalOut: cashOutTotal
+    },
+    totalBankBalance,
+    totalLiquidFunds
+  };
+}
+
+async function getTreasuryTransactions() {
+  const overview = await getTreasuryOverview();
+  const database = await connectDb();
+
+  const treasuryTxns = useLocalStorage ? readJsonFile('treasury_transactions.json', []) : await database.collection('treasury_transactions').find({}).toArray();
+  const payments = await database.collection('payments').find({}).toArray();
+  const consignments = await database.collection('consignments').find({}).toArray();
+  const sales = await database.collection('sales').find({}).toArray();
+
+  const accountsMap = {};
+  for (const a of overview.accounts) {
+    accountsMap[a.id] = a.accountName;
+  }
+  accountsMap['cash_in_hand'] = 'Cash in Hand (Drawer)';
+
+  const allList = [];
+
+  for (const t of treasuryTxns) {
+    const isContra = t.type === 'CONTRA';
+    const isIn = t.type === 'CASH_IN' || t.type === 'BANK_IN';
+    const isOut = t.type === 'CASH_OUT' || t.type === 'BANK_OUT';
+
+    let accountName = accountsMap[t.accountId] || (t.accountId === 'cash_in_hand' ? 'Cash in Hand (Drawer)' : 'Treasury Account');
+    let toAccountName = isContra ? (accountsMap[t.toAccountId] || (t.toAccountId === 'cash_in_hand' ? 'Cash in Hand (Drawer)' : 'Target Account')) : '';
+
+    allList.push({
+      id: `TRX-${t.id}`,
+      rawId: t.id,
+      date: t.date || new Date(t.created || Date.now()).toISOString().split('T')[0],
+      time: t.time || '10:00 AM',
+      type: t.type,
+      flow: isContra ? 'CONTRA' : (isIn ? 'IN' : 'OUT'),
+      accountId: t.accountId,
+      accountName,
+      toAccountId: t.toAccountId || null,
+      toAccountName,
+      amount: Number(t.amount) || 0,
+      inflow: isIn ? Number(t.amount) || 0 : (isContra ? Number(t.amount) || 0 : 0),
+      outflow: isOut ? Number(t.amount) || 0 : 0,
+      category: t.category || (isContra ? 'Internal Contra Transfer' : (isIn ? 'General Inflow' : 'General Expense')),
+      referenceNo: t.referenceNo || '',
+      contactName: t.contactName || '',
+      notes: t.notes || (isContra ? `Transferred from ${accountName} to ${toAccountName}` : ''),
+      isManual: true,
+      created: t.created || Date.now()
+    });
+  }
+
+  for (const p of payments) {
+    const isCash = p.paymentMode === 'Cash';
+    const isBuyerCol = p.type === 'BUYER_COLLECTION';
+    const isDealerPay = p.type === 'DEALER_PAYMENT';
+    if (!isBuyerCol && !isDealerPay) continue;
+
+    let accId = isCash ? 'cash_in_hand' : (p.bankAccountId || null);
+    if (!accId && !isCash && p.bankName) {
+      const match = overview.accounts.find(a => a.bankName.toLowerCase().includes(p.bankName.toLowerCase()));
+      if (match) accId = match.id;
+    }
+    if (!accId && !isCash && overview.accounts.length > 0) {
+      accId = overview.accounts[0].id;
+    }
+
+    const accName = accId ? (accountsMap[accId] || p.bankName || 'Bank') : (isCash ? 'Cash in Hand (Drawer)' : 'Bank');
+    const amt = Number(p.amount) || 0;
+
+    allList.push({
+      id: `PAY-${p.id}`,
+      rawId: p.id,
+      date: p.date || (p.created ? new Date(p.created).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]),
+      time: p.time || 'Trade',
+      type: isBuyerCol ? (isCash ? 'CASH_IN' : 'BANK_IN') : (isCash ? 'CASH_OUT' : 'BANK_OUT'),
+      flow: isBuyerCol ? 'IN' : 'OUT',
+      accountId: accId || (isCash ? 'cash_in_hand' : 'bank'),
+      accountName: accName,
+      amount: amt,
+      inflow: isBuyerCol ? amt : 0,
+      outflow: isDealerPay ? amt : 0,
+      category: isBuyerCol ? 'Buyer Collection' : 'Dealer Payout',
+      referenceNo: p.referenceNo || p.paymentNo || '',
+      contactName: p.contactName || '',
+      notes: p.notes || (isBuyerCol ? `Collection from ${p.contactName} (${p.paymentMode})` : `Payout to ${p.contactName} (${p.paymentMode})`),
+      isManual: false,
+      created: p.created || Date.now()
+    });
+  }
+
+  for (const c of consignments) {
+    if (Number(c.lorryBhada) > 0) {
+      const amt = Number(c.lorryBhada);
+      const isBank = c.lorryBhadaMode === 'Bank';
+      const accId = isBank && overview.accounts[0] ? overview.accounts[0].id : 'cash_in_hand';
+      const accName = accountsMap[accId] || 'Cash in Hand (Drawer)';
+
+      allList.push({
+        id: `LB-${c.id}`,
+        rawId: c.id,
+        date: c.date,
+        time: 'Morning',
+        type: isBank ? 'BANK_OUT' : 'CASH_OUT',
+        flow: 'OUT',
+        accountId: accId,
+        accountName: accName,
+        amount: amt,
+        inflow: 0,
+        outflow: amt,
+        category: 'Advance Lorry Bhada',
+        referenceNo: c.vehicleNo || '',
+        contactName: c.dealerName || '',
+        notes: `Freight paid to driver (${c.vehicleNo}) - Dealer: ${c.dealerName}`,
+        isManual: false,
+        created: c.created || Date.now()
+      });
+    }
+  }
+
+  for (const s of sales) {
+    if (s.paymentType === 'Cash' || (s.paymentMode === 'Cash' && Number(s.amountPaid) > 0)) {
+      const amt = s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0);
+      if (amt > 0) {
+        allList.push({
+          id: `SALE-${s.id}`,
+          rawId: s.id,
+          date: s.date,
+          time: s.time || 'Market',
+          type: 'CASH_IN',
+          flow: 'IN',
+          accountId: 'cash_in_hand',
+          accountName: 'Cash in Hand (Drawer)',
+          amount: amt,
+          inflow: amt,
+          outflow: 0,
+          category: 'Market Cash Sale',
+          referenceNo: `Bill #${s.billNo}`,
+          contactName: s.buyerName || '',
+          notes: `Fast cash sale to ${s.buyerName} - Bill #${s.billNo}`,
+          isManual: false,
+          created: s.created || Date.now()
+        });
+      }
+    }
+  }
+
+  allList.sort((a, b) => {
+    if (a.date !== b.date) return b.date.localeCompare(a.date);
+    return (b.created || 0) - (a.created || 0);
+  });
+
+  return allList;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1138,6 +1496,25 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Bulk Delete Contacts
+  if (req.method === 'POST' && pathname === '/api/contacts/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(n => !isNaN(n)) : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      for (const id of ids) {
+        await database.collection('contacts').deleteOne({ id });
+        deletedCount++;
+      }
+      return sendJson(res, { ok: true, count: deletedCount });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   if (req.method === 'DELETE' && pathname.startsWith('/api/contacts/')) {
     try {
       const id = Number(pathname.split('/').pop());
@@ -1195,6 +1572,25 @@ const server = http.createServer(async (req, res) => {
 
       await database.collection('consignments').replaceOne({ id: cons.id }, cons, { upsert: true });
       return sendJson(res, cons);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // Bulk Delete Consignments (Arrivals)
+  if (req.method === 'POST' && pathname === '/api/consignments/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(n => !isNaN(n)) : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      for (const id of ids) {
+        await database.collection('consignments').deleteOne({ id });
+        deletedCount++;
+      }
+      return sendJson(res, { ok: true, count: deletedCount });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
@@ -1312,6 +1708,51 @@ const server = http.createServer(async (req, res) => {
 
       await database.collection('sales').replaceOne({ id: sale.id }, sale, { upsert: true });
       return sendJson(res, sale);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // Bulk Delete Sales Bills
+  if (req.method === 'POST' && pathname === '/api/sales/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(n => !isNaN(n)) : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      for (const id of ids) {
+        const sale = await database.collection('sales').findOne({ id });
+        if (sale) {
+          // Revert stock
+          if (Array.isArray(sale.lines)) {
+            for (const line of sale.lines) {
+              if (line.consignmentId) {
+                const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
+                if (cons && Array.isArray(cons.items)) {
+                  const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : (line.unit === 'Crate' ? Number(line.qty) : 0);
+                  const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
+                  const updatedItems = cons.items.map(it => {
+                    if (it.variety === line.variety) {
+                      return {
+                        ...it,
+                        unsoldCrates: Math.min(it.crates, (it.unsoldCrates || 0) + lineCrates),
+                        unsoldWeightKg: Math.min(it.weightKg, (it.unsoldWeightKg || 0) + lineKg)
+                      };
+                    }
+                    return it;
+                  });
+                  await database.collection('consignments').updateOne({ id: cons.id }, { $set: { items: updatedItems, updated: Date.now() } });
+                }
+              }
+            }
+          }
+          await database.collection('sales').deleteOne({ id });
+          deletedCount++;
+        }
+      }
+      return sendJson(res, { ok: true, count: deletedCount });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
@@ -1646,6 +2087,25 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Bulk Delete Payments
+  if (req.method === 'POST' && pathname === '/api/payments/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(n => !isNaN(n)) : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      for (const id of ids) {
+        await database.collection('payments').deleteOne({ id });
+        deletedCount++;
+      }
+      return sendJson(res, { ok: true, count: deletedCount });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   if (req.method === 'DELETE' && pathname.startsWith('/api/payments/')) {
     try {
       const id = Number(pathname.split('/').pop());
@@ -1730,6 +2190,183 @@ const server = http.createServer(async (req, res) => {
       };
       await database.collection('daybook').insertOne(entry);
       return sendJson(res, entry);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Bank Accounts API ──
+  if (req.method === 'GET' && pathname === '/api/bank-accounts') {
+    try {
+      const overview = await getTreasuryOverview();
+      return sendJson(res, overview);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/bank-accounts') {
+    try {
+      const body = await readBody(req);
+      const database = await connectDb();
+      let accounts = useLocalStorage ? readJsonFile('bank_accounts.json', null) : await database.collection('bank_accounts').find({}).toArray();
+      if (!accounts || !Array.isArray(accounts)) accounts = getDefaultBankAccounts();
+
+      const id = Number(body.id) || Date.now();
+      const existingIdx = accounts.findIndex(a => Number(a.id) === id);
+
+      const accObj = {
+        id,
+        accountName: String(body.accountName || '').trim() || 'Bank Account',
+        bankName: String(body.bankName || '').trim() || 'Bank',
+        accountNumber: String(body.accountNumber || '').trim(),
+        ifscCode: String(body.ifscCode || '').trim().toUpperCase(),
+        accountType: body.accountType || 'Current',
+        upiId: String(body.upiId || '').trim(),
+        branch: String(body.branch || '').trim(),
+        openingBalance: Number(body.openingBalance) || 0,
+        isActive: body.isActive !== false,
+        created: existingIdx >= 0 ? accounts[existingIdx].created : Date.now(),
+        updated: Date.now()
+      };
+
+      if (existingIdx >= 0) {
+        accounts[existingIdx] = accObj;
+      } else {
+        accounts.push(accObj);
+      }
+
+      if (useLocalStorage) {
+        writeJsonFile('bank_accounts.json', accounts);
+      } else {
+        await database.collection('bank_accounts').replaceOne({ id }, accObj, { upsert: true });
+      }
+
+      return sendJson(res, accObj);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname.startsWith('/api/bank-accounts/')) {
+    try {
+      const id = Number(pathname.split('/').pop());
+      const database = await connectDb();
+      if (useLocalStorage) {
+        let accounts = readJsonFile('bank_accounts.json', []);
+        accounts = accounts.filter(a => Number(a.id) !== id);
+        writeJsonFile('bank_accounts.json', accounts);
+      } else {
+        await database.collection('bank_accounts').deleteOne({ id });
+      }
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Treasury Transactions API (Cash In/Out, Bank In/Out, Contra) ──
+  if (req.method === 'GET' && pathname === '/api/treasury/transactions') {
+    try {
+      const txns = await getTreasuryTransactions();
+      return sendJson(res, txns);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/treasury/transactions') {
+    try {
+      const body = await readBody(req);
+      const database = await connectDb();
+      const id = Number(body.id) || Date.now();
+      const txObj = {
+        id,
+        date: body.date || new Date().toISOString().split('T')[0],
+        time: body.time || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        type: body.type || 'CASH_IN',
+        accountId: body.accountId || 'cash_in_hand',
+        toAccountId: body.toAccountId || null,
+        amount: Number(body.amount) || 0,
+        category: String(body.category || 'General').trim(),
+        referenceNo: String(body.referenceNo || '').trim(),
+        contactId: Number(body.contactId) || null,
+        contactName: String(body.contactName || '').trim(),
+        notes: String(body.notes || '').trim(),
+        created: Date.now()
+      };
+
+      if (txObj.amount <= 0) {
+        return sendJson(res, { error: 'Amount must be greater than 0' }, 400);
+      }
+
+      if (useLocalStorage) {
+        const list = readJsonFile('treasury_transactions.json', []);
+        list.push(txObj);
+        writeJsonFile('treasury_transactions.json', list);
+      } else {
+        await database.collection('treasury_transactions').insertOne(txObj);
+      }
+
+      return sendJson(res, txObj);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // Bulk Delete Treasury Transactions
+  if (req.method === 'POST' && pathname === '/api/treasury/transactions/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      let treasuryList = useLocalStorage ? readJsonFile('treasury_transactions.json', []) : null;
+
+      for (const item of ids) {
+        const strId = String(item);
+        if (strId.startsWith('PAY-')) {
+          const payId = Number(strId.replace('PAY-', ''));
+          await database.collection('payments').deleteOne({ id: payId });
+          deletedCount++;
+        } else {
+          const numId = Number(strId.replace('TRX-', ''));
+          if (!isNaN(numId)) {
+            if (useLocalStorage && treasuryList) {
+              treasuryList = treasuryList.filter(t => Number(t.id) !== numId);
+            } else {
+              await database.collection('treasury_transactions').deleteOne({ id: numId });
+            }
+            deletedCount++;
+          }
+        }
+      }
+
+      if (useLocalStorage && treasuryList) {
+        writeJsonFile('treasury_transactions.json', treasuryList);
+      }
+
+      return sendJson(res, { ok: true, count: deletedCount });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname.startsWith('/api/treasury/transactions/')) {
+    try {
+      const rawId = pathname.split('/').pop().replace('TRX-', '');
+      const id = Number(rawId);
+      const database = await connectDb();
+      if (useLocalStorage) {
+        let list = readJsonFile('treasury_transactions.json', []);
+        list = list.filter(t => Number(t.id) !== id);
+        writeJsonFile('treasury_transactions.json', list);
+      } else {
+        await database.collection('treasury_transactions').deleteOne({ id });
+      }
+      return sendJson(res, { ok: true });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
@@ -1843,6 +2480,84 @@ const server = http.createServer(async (req, res) => {
         todayCashIn: todayDaybook.summary.cashIn,
         todayCashOut: todayDaybook.summary.cashOut,
         netCashToday: todayDaybook.summary.netCashChange
+      });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Settings API ──
+  if (req.method === 'GET' && pathname === '/api/settings') {
+    try {
+      const database = await connectDb();
+      let settings = null;
+      if (useLocalStorage) {
+        settings = readJsonFile('settings.json', null);
+      } else {
+        settings = await database.collection('settings').findOne({ _id: 'app_settings' });
+      }
+      if (!settings || Array.isArray(settings)) {
+        settings = getDefaultSettings();
+      } else {
+        settings = { ...getDefaultSettings(), ...settings };
+      }
+      return sendJson(res, settings);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'POST' && pathname === '/api/settings') {
+    try {
+      const body = await readBody(req);
+      const database = await connectDb();
+      const current = (useLocalStorage ? readJsonFile('settings.json', null) : await database.collection('settings').findOne({ _id: 'app_settings' })) || getDefaultSettings();
+      const updated = {
+        ...(Array.isArray(current) ? getDefaultSettings() : current),
+        ...body,
+        updatedAt: new Date().toISOString()
+      };
+      if (useLocalStorage) {
+        writeJsonFile('settings.json', updated);
+      } else {
+        await database.collection('settings').replaceOne({ _id: 'app_settings' }, { _id: 'app_settings', ...updated }, { upsert: true });
+      }
+      return sendJson(res, updated);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Backup Export API ──
+  if (req.method === 'GET' && pathname === '/api/backup/export') {
+    try {
+      const database = await connectDb();
+      const consignments = await database.collection('consignments').find({}).toArray();
+      const contacts = await database.collection('contacts').find({}).toArray();
+      const sales = await database.collection('sales').find({}).toArray();
+      const settlements = await database.collection('settlements').find({}).toArray();
+      const payments = await database.collection('payments').find({}).toArray();
+      const daybook = await database.collection('daybook').find({}).toArray();
+      const products = await database.collection('products').find({}).toArray();
+      const bank_accounts = useLocalStorage ? readJsonFile('bank_accounts.json', getDefaultBankAccounts()) : await database.collection('bank_accounts').find({}).toArray();
+      const treasury_transactions = useLocalStorage ? readJsonFile('treasury_transactions.json', []) : await database.collection('treasury_transactions').find({}).toArray();
+      const settings = useLocalStorage ? readJsonFile('settings.json', getDefaultSettings()) : (await database.collection('settings').findOne({ _id: 'app_settings' }) || getDefaultSettings());
+      return sendJson(res, {
+        app: 'Billify',
+        version: '1.0.0',
+        exportedAt: new Date().toISOString(),
+        data: {
+          consignments,
+          contacts,
+          sales,
+          settlements,
+          payments,
+          daybook,
+          products,
+          bank_accounts,
+          treasury_transactions,
+          settings
+        }
       });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
