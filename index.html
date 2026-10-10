@@ -541,6 +541,9 @@ input[type="text"].global-search-input:focus {
   border-top: 1px solid rgba(255,255,255,0.14);
   padding-top: 8px;
   line-height: 1.35;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1029,6 +1032,10 @@ input[type="text"].global-search-input:focus {
   color: #ef4444;
 }
 
+.timeline-amount.inflow-green {
+  color: #059669;
+}
+
 .timeline-arrow {
   color: #cbd5e1;
   font-size: 11px;
@@ -1188,63 +1195,75 @@ input[type="text"].global-search-input:focus {
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 2px 8px rgba(15,23,42,0.03);
-  padding: 12px 18px;
+  padding: 14px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .insight-left-block {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex: 1;
+  gap: 14px;
+  flex: 1 1 320px;
   min-width: 0;
 }
 
 .insight-chart-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: #ecfdf5;
   color: #059669;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
 .insight-text-wrapper {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
+  flex-direction: column;
+  gap: 3px;
   min-width: 0;
-  overflow: hidden;
+}
+
+.insight-header-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .insight-heading {
-  font-weight: 700;
+  font-weight: 800;
   color: #0f172a;
-  font-size: 13px;
+  font-size: 13.5px;
   white-space: nowrap;
-  flex-shrink: 0;
+}
+
+.insight-live-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #059669;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 1px 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .insight-sentence {
   color: #64748b;
   font-size: 12.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.insight-wave-graphic {
-  width: 80px;
-  height: 20px;
-  flex-shrink: 0;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .insight-tip-pill {
@@ -1265,6 +1284,8 @@ input[type="text"].global-search-input:focus {
 
 .insight-tip-pill:hover {
   background: #fef3c7;
+  border-color: #fde68a;
+  transform: translateY(-1px);
 }
 
 .insight-tip-badge-tag {
@@ -1624,6 +1645,15 @@ input[type="text"].global-search-input:focus {
 }
 
 .data-grid tr:hover td { background: #f8fafc; }
+.data-grid tr.row-selected td { background: #eff6ff !important; }
+.data-grid tr.row-selected:hover td { background: #dbeafe !important; }
+.batch-chk {
+  cursor: pointer;
+  width: 17px;
+  height: 17px;
+  accent-color: #0084ff;
+  vertical-align: middle;
+}
 .data-grid td.num, .data-grid th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Buttons & Badges */
@@ -1769,20 +1799,37 @@ th:last-child {
 }
 .modal-backdrop.open { display: flex; }
 
+/* Sleek Modern Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 .modal-window {
   background: #ffffff;
   border-radius: 14px;
   box-shadow: 0 20px 40px -10px rgba(0,0,0,0.25);
   max-width: 94vw;
   width: 700px;
+  min-height: 300px;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border: 1px solid #e2e8f0;
 }
-.modal-lg { width: 900px; }
-.modal-sm { width: 420px; }
+.modal-lg { width: 900px; min-height: 480px; }
+.modal-sm { width: 440px; min-height: 280px; }
 
 .modal-top-bar {
   padding: 16px 20px;
@@ -1792,7 +1839,7 @@ th:last-child {
   justify-content: space-between;
 }
 .modal-headline { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-.modal-scroll-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+.modal-scroll-body { padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; }
 .modal-bottom-actions {
   padding: 12px 20px;
   border-top: 1px solid #f1f5f9;
@@ -1829,21 +1876,24 @@ th:last-child {
 .autocomplete-anchor { position: relative; }
 .autocomplete-flyout {
   position: absolute;
-  top: 100%; left: 0; right: 0;
+  top: calc(100% + 4px); left: 0; right: 0;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  max-height: 180px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15), 0 8px 10px -6px rgba(0,0,0,0.1);
+  max-height: 200px;
   overflow-y: auto;
   z-index: 1500;
   display: none;
 }
 .autocomplete-row {
-  padding: 8px 12px;
+  padding: 9px 12px;
   font-size: 12.5px;
   cursor: pointer;
   border-bottom: 1px solid #f1f5f9;
+}
+.autocomplete-row:last-child {
+  border-bottom: none;
 }
 .autocomplete-row:hover { background: #eff6ff; color: #0084ff; }
 
@@ -1921,6 +1971,278 @@ th:last-child {
   .fish-cards-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .action-cards-grid { grid-template-columns: 1fr; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   SETTINGS VIEW STYLING
+══════════════════════════════════════════════════════════════ */
+.settings-tabs-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.settings-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  border-radius: 6px 6px 0 0;
+}
+.settings-tab-btn:hover {
+  color: #0084ff;
+  background: #f8fafc;
+}
+.settings-tab-btn.active {
+  color: #0084ff;
+  border-bottom-color: #0084ff;
+  background: #eff6ff;
+}
+.settings-tab-content {
+  display: none;
+}
+.settings-tab-content.active {
+  display: block;
+}
+.settings-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.03);
+  margin-bottom: 16px;
+}
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.settings-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-card-desc {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+.settings-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+}
+.settings-toggle-row:last-child {
+  border-bottom: none;
+}
+.settings-toggle-info h4 {
+  margin: 0 0 3px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.settings-toggle-info p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #cbd5e1;
+  transition: .2s;
+  border-radius: 24px;
+}
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.switch-toggle input:checked + .switch-slider {
+  background-color: #0084ff;
+}
+.switch-toggle input:checked + .switch-slider:before {
+  transform: translateX(20px);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BANKING & CASH DESK STYLING
+══════════════════════════════════════════════════════════════ */
+.bank-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.bank-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.bank-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15,23,42,0.08);
+}
+.bank-card-primary {
+  border-left: 5px solid #0084ff;
+}
+.bank-card-cash {
+  border-left: 5px solid #10b981;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+}
+.bank-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.bank-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #0084ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.bank-card-icon.cash-icon {
+  background: #dcfce7;
+  color: #10b981;
+}
+.bank-card-tools {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.bank-card-tool-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 13px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.bank-card-tool-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+.bank-card-tool-btn.danger:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+.bank-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.bank-card-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+}
+.bank-card-accno {
+  font-family: var(--font-mono, monospace);
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
+  color: #475569;
+  margin: 8px 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bank-card-balance {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 6px 0 14px;
+  font-family: var(--font-mono, monospace);
+}
+.bank-card-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+  align-items: center;
+}
+.bank-card-add-dashed {
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  cursor: pointer;
+  background: #f8fafc;
+  color: #64748b;
+  transition: all 0.15s ease;
+  min-height: 190px;
+}
+.bank-card-add-dashed:hover {
+  border-color: #0084ff;
+  background: #eff6ff;
+  color: #0084ff;
+}
 </style>
 </head>
 <body>
@@ -1962,6 +2284,10 @@ th:last-child {
     <button class="menu-item" data-view="payments">
       <i class="fa-solid fa-wallet"></i>
       <span>Payments</span>
+    </button>
+    <button class="menu-item" data-view="banking">
+      <i class="fa-solid fa-building-columns"></i>
+      <span>Banking & Cash</span>
     </button>
     <button class="menu-item" data-view="reports">
       <i class="fa-solid fa-chart-column"></i>
@@ -2051,7 +2377,7 @@ th:last-child {
                 <span class="weather-cond" id="heroWeatherCond">28°C | Clear Skies</span>
               </div>
             </div>
-            <div class="weather-quote">
+            <div class="weather-quote" id="heroQuote" title="Changes hourly • Click to preview next quote" onclick="cycleNextQuote()">
               "Different people.<br/>Same direction.<br/>Growth."
             </div>
           </div>
@@ -2313,21 +2639,22 @@ th:last-child {
         <div class="market-insight-container">
           <div class="insight-left-block">
             <div class="insight-chart-icon">
-              <i class="fa-solid fa-chart-simple"></i>
+              <i class="fa-solid fa-chart-line"></i>
             </div>
             <div class="insight-text-wrapper">
-              <span class="insight-heading">Market Insight: </span>
-              <span class="insight-sentence">Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.</span>
+              <div class="insight-header-line">
+                <span class="insight-heading">Market Insights</span>
+                <span class="insight-live-badge"><i class="fa-solid fa-circle" style="font-size:5px; color:#10b981;"></i> Live Trends</span>
+              </div>
+              <div class="insight-sentence" id="dashboardMarketInsightText">
+                Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.
+              </div>
             </div>
           </div>
 
-          <svg class="insight-wave-graphic" viewBox="0 0 100 24" fill="none">
-            <path d="M0,12 C25,2 35,22 60,12 C75,5 85,18 100,10" stroke="#0084ff" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-
-          <div class="insight-tip-pill" onclick="showTipNotice()">
-            <span class="insight-tip-badge-tag"><i class="fa-solid fa-lightbulb"></i> Tip</span>
-            <span>Sardine rates may increase tomorrow due to low arrivals at Kasimedu.</span>
+          <div class="insight-tip-pill" onclick="showTipNotice()" title="Click for Kasimedu Mandi advisory">
+            <span class="insight-tip-badge-tag"><i class="fa-solid fa-lightbulb"></i> Mandi Tip</span>
+            <span class="insight-tip-text">Sardine rates may rise tomorrow</span>
             <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
           </div>
         </div>
@@ -2468,14 +2795,30 @@ th:last-child {
 
     <div class="view-body-content">
       <div class="data-table-box">
-        <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-truck-ramp-box" style="color:#0084ff;"></i> Inward Arrivals History</span>
+        <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-weight:700;"><i class="fas fa-truck-ramp-box" style="color:#0084ff;"></i> Inward Arrivals History</span>
+            <div id="arrivalsBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="arrivalsSelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeleteArrivals" onclick="bulkDeleteSelectedArrivals()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="arrivalsDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearArrivalsSelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+          </div>
           <input type="text" id="filterArrivalsInput" placeholder="Search dealer, fish variety..." style="width:240px;" oninput="renderArrivalsList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllArrivalsChk" class="batch-chk" onchange="toggleSelectAllArrivals(this.checked)" title="Select all visible arrivals"/>
+                </th>
                 <th>Date</th>
                 <th>Dealer</th>
                 <th>Fish Varieties</th>
@@ -2511,14 +2854,30 @@ th:last-child {
     <div class="view-body-content">
       <!-- Sub-view: Bills -->
       <div id="subViewSalesBills" class="data-table-box">
-        <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-cart-shopping" style="color:#10b981;"></i> Sales Invoices</span>
-          <input type="text" id="filterSalesInput" placeholder="Search buyer..." style="width:240px;" oninput="renderSalesList()"/>
+        <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-weight:700;"><i class="fas fa-cart-shopping" style="color:#10b981;"></i> Sales Invoices</span>
+            <div id="salesBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="salesSelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeleteSales" onclick="bulkDeleteSelectedSales()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="salesDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearSalesSelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+          </div>
+          <input type="text" id="filterSalesInput" placeholder="Search buyer or bill no..." style="width:240px;" oninput="renderSalesList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllSalesChk" class="batch-chk" onchange="toggleSelectAllSales(this.checked)" title="Select all visible sales bills"/>
+                </th>
                 <th>Date</th>
                 <th>Buyer</th>
                 <th class="num">Today's Bill</th>
@@ -2596,14 +2955,30 @@ th:last-child {
 
     <div class="view-body-content">
       <div class="data-table-box">
-        <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-address-book" style="color:#0084ff;"></i> Address Book & Ledger Status</span>
+        <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-weight:700;"><i class="fas fa-address-book" style="color:#0084ff;"></i> Address Book & Ledger Status</span>
+            <div id="contactsBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="contactsSelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeleteContacts" onclick="bulkDeleteSelectedContacts()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="contactsDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearContactsSelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+          </div>
           <input type="text" id="filterContactsInput" placeholder="Search name, phone..." style="width:240px;" oninput="renderContactsList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllContactsChk" class="batch-chk" onchange="toggleSelectAllContacts(this.checked)" title="Select all visible contacts"/>
+                </th>
                 <th>Name</th>
                 <th>Role</th>
                 <th>Phone</th>
@@ -2642,14 +3017,31 @@ th:last-child {
     <div class="view-body-content">
       <!-- Sub-view 1: History -->
       <div id="subViewPayHistory" class="data-table-box">
-        <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-receipt" style="color:#0084ff;"></i> Settlement Transactions</span>
+        <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-weight:700;"><i class="fas fa-receipt" style="color:#0084ff;"></i> Settlement Transactions</span>
+            <div id="paymentsSummaryChips" style="display:inline-flex; gap:8px;"></div>
+            <div id="paymentsBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="paymentsSelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeletePayments" onclick="bulkDeleteSelectedPayments()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="paymentsDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearPaymentsSelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+          </div>
           <input type="text" id="filterPaymentsInput" placeholder="Search contact, mode..." style="width:240px;" oninput="renderPaymentsList()"/>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
             <thead>
               <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllPaymentsChk" class="batch-chk" onchange="toggleSelectAllPayments(this.checked)" title="Select all visible payments"/>
+                </th>
                 <th>Date</th>
                 <th>Name</th>
                 <th class="num">Amount</th>
@@ -2701,6 +3093,118 @@ th:last-child {
               <tbody id="daybookListTbody"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       VIEW: BANKING & CASH
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="view-container" id="view-banking">
+    <div class="view-sub-header-bar">
+      <div>
+        <h1 class="view-heading-title">Bank & Cash</h1>
+        <div style="font-size:12px; color:#64748b;">Track physical cash in hand, bank accounts, and daily payments</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" onclick="openUnifiedTransactionModal('IN')"><i class="fas fa-plus"></i> Add Entry</button>
+        <button class="btn btn-outline" onclick="openUnifiedTransactionModal('TRANSFER')"><i class="fas fa-right-left"></i> Move Money</button>
+        <button class="btn btn-outline" onclick="openAddBankAccountModal()"><i class="fas fa-building-columns"></i> Add Bank</button>
+      </div>
+    </div>
+
+    <div class="view-body-content">
+      <!-- 3 Simplified Balance Cards -->
+      <div class="three-col-grid" style="margin-bottom:20px;">
+        <div class="standard-card" style="padding:18px 20px; border-left:4px solid #10b981; background:linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:11.5px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:0.5px;">Cash in Hand</div>
+            <span style="font-size:18px; color:#10b981;"><i class="fa-solid fa-money-bill-wave"></i></span>
+          </div>
+          <div style="font-size:26px; font-weight:800; color:#065f46; margin:8px 0 4px; font-family:var(--font-mono, monospace);" id="treasuryCashInHand">₹0</div>
+          <div style="font-size:11.5px; color:#166534;" id="treasuryCashTodayIn">Physical Cash Drawer</div>
+        </div>
+
+        <div class="standard-card" style="padding:18px 20px; border-left:4px solid #0084ff; background:linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:11.5px; font-weight:700; color:#1d4ed8; text-transform:uppercase; letter-spacing:0.5px;">Total in Banks</div>
+            <span style="font-size:18px; color:#0084ff;"><i class="fa-solid fa-building-columns"></i></span>
+          </div>
+          <div style="font-size:26px; font-weight:800; color:#1e40af; margin:8px 0 4px; font-family:var(--font-mono, monospace);" id="treasuryTotalBanks">₹0</div>
+          <div style="font-size:11.5px; color:#3b82f6;" id="treasuryBankCount">Across Bank Accounts</div>
+        </div>
+
+        <div class="standard-card" style="padding:18px 20px; border-left:4px solid #7c3aed; background:linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:11.5px; font-weight:700; color:#6b21a8; text-transform:uppercase; letter-spacing:0.5px;">Total Available</div>
+            <span style="font-size:18px; color:#7c3aed;"><i class="fa-solid fa-wallet"></i></span>
+          </div>
+          <div style="font-size:26px; font-weight:800; color:#4c1d95; margin:8px 0 4px; font-family:var(--font-mono, monospace);" id="treasuryTotalLiquid">₹0</div>
+          <div style="font-size:11.5px; color:#7e22ce;">Cash in Drawer + All Banks</div>
+        </div>
+      </div>
+
+      <!-- Accounts Grid Section -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="font-size:15px; font-weight:700; color:#0f172a; margin:0;"><i class="fas fa-wallet" style="color:#0084ff;"></i> Accounts</h3>
+        <button class="btn btn-ghost btn-sm" onclick="loadBankingData()"><i class="fas fa-rotate"></i> Refresh</button>
+      </div>
+
+      <div class="bank-cards-grid" id="bankAccountsListContainer">
+        <!-- Rendered dynamically via JS -->
+      </div>
+
+      <!-- Recent Transactions Section -->
+      <div class="data-table-box" style="margin-top:16px;">
+        <div class="table-filter-bar" style="flex-wrap:wrap; gap:10px; justify-content:space-between;">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-weight:700; font-size:13.5px;"><i class="fas fa-clock-rotate-left" style="color:#0084ff;"></i> Recent Transactions</span>
+            <div id="treasuryBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="treasurySelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeleteTreasury" onclick="bulkDeleteSelectedTreasury()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="treasuryDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearTreasurySelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+            <select id="filterTreasuryAccount" onchange="renderTreasuryTransactions()" style="width:160px; padding:6px 10px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1;">
+              <option value="all">All Accounts</option>
+              <option value="cash_in_hand">Cash in Hand</option>
+            </select>
+            <select id="filterTreasuryFlow" onchange="renderTreasuryTransactions()" style="width:130px; padding:6px 10px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1;">
+              <option value="all">All Flows</option>
+              <option value="IN">Money In (+)</option>
+              <option value="OUT">Money Out (-)</option>
+              <option value="CONTRA">Transfers (⇄)</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="searchTreasuryInput" placeholder="Search party, note, ref..." style="width:200px;" oninput="renderTreasuryTransactions()" />
+            <button class="btn btn-outline btn-sm" onclick="exportTreasuryCSV()"><i class="fas fa-download"></i> Export</button>
+          </div>
+        </div>
+        <div class="table-scroller">
+          <table class="data-grid">
+            <thead>
+              <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllTreasuryChk" class="batch-chk" onchange="toggleSelectAllTreasury(this.checked)" title="Select all visible transactions"/>
+                </th>
+                <th style="min-width:110px;">Date</th>
+                <th>Account</th>
+                <th>Flow</th>
+                <th>Description / Reason</th>
+                <th>Person / Ref</th>
+                <th class="num" style="min-width:110px;">Amount (₹)</th>
+                <th style="width:50px; text-align:center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="treasuryLedgerTbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -2759,31 +3263,316 @@ th:last-child {
   <div class="view-container" id="view-settings">
     <div class="view-sub-header-bar">
       <div>
-        <h1 class="view-heading-title">Settings & Defaults</h1>
-        <div style="font-size:12px; color:#64748b;">Mandi brokerage parameters and demo data setup</div>
+        <h1 class="view-heading-title">Settings & System Preferences</h1>
+        <div style="font-size:12px; color:#64748b;">Mandi brokerage configuration, commission rules, credit policies, invoicing and system backups</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" onclick="resetSettingsToDefault()"><i class="fas fa-rotate-left"></i> Reset Defaults</button>
+        <button class="btn btn-primary" id="btnSaveSettings" onclick="saveSettingsForm()"><i class="fas fa-floppy-disk"></i> Save Settings</button>
       </div>
     </div>
 
     <div class="view-body-content">
-      <div class="standard-card" style="max-width:620px; padding:20px;">
-        <div class="input-block">
-          <label>Company Trading Name</label>
-          <input type="text" value="Al Haseena Exports" readonly/>
-        </div>
-        <div class="input-block">
-          <label>Wholesale Mandi Harbor</label>
-          <input type="text" value="Kasimedu Fishing Harbor, Chennai" readonly/>
-        </div>
-        <div class="input-block">
-          <label>Default Broker Commission (%)</label>
-          <input type="number" value="5"/>
-        </div>
-        <div style="margin-top:18px; border-top:1px solid #e2e8f0; padding-top:14px; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div style="font-weight:700;">Reset Demo Data</div>
-            <div style="font-size:11.5px; color:#64748b;">Reload trade numbers matching the screenshot.</div>
+      <!-- Tabs Navigation -->
+      <div class="settings-tabs-bar">
+        <button class="settings-tab-btn active" onclick="switchSettingsTab('firm', this)"><i class="fas fa-building"></i> Firm Profile</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('commission', this)"><i class="fas fa-scale-balanced"></i> Commission & Patiya</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('credit', this)"><i class="fas fa-shield-halved"></i> Credit & Risk</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('invoicing', this)"><i class="fas fa-receipt"></i> Invoicing & WhatsApp</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('dashboard', this)"><i class="fas fa-quote-left"></i> Quotes & Dashboard</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('data', this)"><i class="fas fa-database"></i> Data & Backup</button>
+      </div>
+
+      <!-- Tab 1: Firm Profile -->
+      <div class="settings-tab-content active" id="tab-settings-firm">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-building" style="color:#0084ff;"></i> Brokerage Firm & Mandi Profile</div>
+              <div class="settings-card-desc">Trade identity used across buyer bills, dealer patiyas, headers and WhatsApp messages.</div>
+            </div>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="location.reload()"><i class="fas fa-rotate"></i> Reload</button>
+          <div class="settings-grid-2">
+            <div class="input-block">
+              <label>Company / Firm Trading Name</label>
+              <input type="text" id="setCompanyName" placeholder="e.g. Al Haseena Exports" />
+            </div>
+            <div class="input-block">
+              <label>Wholesale Mandi Harbor Location</label>
+              <input type="text" id="setHarborLocation" placeholder="e.g. Kasimedu Fishing Harbor, Chennai - Gate 2" />
+            </div>
+            <div class="input-block">
+              <label>Managing Broker / Proprietor</label>
+              <input type="text" id="setProprietorName" placeholder="e.g. M S Bhathrudeen" />
+            </div>
+            <div class="input-block">
+              <label>Phone / WhatsApp Hotline</label>
+              <input type="text" id="setContactPhone" placeholder="e.g. +91 9841021203" />
+            </div>
+            <div class="input-block">
+              <label>Official Email</label>
+              <input type="email" id="setContactEmail" placeholder="e.g. alhaseenaexports@gmail.com" />
+            </div>
+            <div class="input-block">
+              <label>Mandi License / Registration No.</label>
+              <input type="text" id="setMandiLicenseNo" placeholder="e.g. TN-CHE-KSM-2024-88" />
+            </div>
+            <div class="input-block">
+              <label>GSTIN / Tax ID</label>
+              <input type="text" id="setGstin" placeholder="e.g. 33AABCA1234F1Z5" />
+            </div>
+            <div class="input-block">
+              <label>Business Tagline / Subtitle</label>
+              <input type="text" id="setTagline" placeholder="e.g. Wholesale Fish Commission Agent & Exporters" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Commission & Patiya -->
+      <div class="settings-tab-content" id="tab-settings-commission">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-scale-balanced" style="color:#059669;"></i> Broker Commission & Patiya Settlement</div>
+              <div class="settings-card-desc">Default calculation parameters for consignment sales realization and dealer deductions.</div>
+            </div>
+          </div>
+          <div class="settings-grid-2">
+            <div class="input-block">
+              <label>Default Broker Commission (%)</label>
+              <input type="number" id="setDefaultCommission" step="0.1" min="0" max="100" />
+            </div>
+            <div class="input-block">
+              <label>Commission Calculation Basis</label>
+              <select id="setCommissionMode">
+                <option value="percent">% of Gross Sales Realized (Standard)</option>
+                <option value="flat_crate">Flat ₹ per Crate Sold</option>
+                <option value="lump_sum">Fixed Lump-Sum per Patiya</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:16px; border-top:1px solid #f1f5f9; padding-top:10px;">
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Broking Rate Profit Tracking</h4>
+                <p>Automatically calculate company margin profit when settlement rate is overwritten below actual market realization.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setTrackBrokingProfit" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Auto Carry-Forward Unsold Crates</h4>
+                <p>Automatically retain unsold crate balances on dealer inventory account for subsequent market sales.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setAutoCarryForward" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Deduct Advance Lorry Bhada (Freight)</h4>
+                <p>Include advance road freight paid to truck drivers as standard deduction in dealer patiya settlement.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setDeductLorryBhada" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Deduct Ice & Coolie Charges</h4>
+                <p>Include ice crushing and coolie labor charges in dealer settlement deductions by default.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setDeductIce" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Credit & Risk -->
+      <div class="settings-tab-content" id="tab-settings-credit">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-shield-halved" style="color:#d97706;"></i> Buyer Credit Policy & Risk Management</div>
+              <div class="settings-card-desc">Control credit terms, overdue warnings, and defaulter protection rules for wholesale buyers.</div>
+            </div>
+          </div>
+          <div class="settings-grid-2">
+            <div class="input-block">
+              <label>Default Buyer Credit Period (Days)</label>
+              <input type="number" id="setDefaultCreditDays" min="1" max="90" />
+            </div>
+            <div class="input-block">
+              <label>Default Buyer Credit Limit (₹)</label>
+              <input type="number" id="setDefaultCreditLimit" min="0" step="1000" />
+            </div>
+          </div>
+          <div style="margin-top:16px; border-top:1px solid #f1f5f9; padding-top:10px;">
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Blinking Red Overdue Alerts</h4>
+                <p>Visually pulse overdue buyer accounts in bold blinking red on table ledgers and the top-right alert center.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setEnableOverdueBlinking" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Strict Credit Limit Enforcement</h4>
+                <p>Block billing and require manager authorization bypass whenever an outstanding balance breaches credit limit.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setStrictCreditLock" />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4>Bad Debt Defaulter Protection</h4>
+                <p>Permanently flag chronic defaulters with a red badge and isolate uncollectible balances in broker P&L reports.</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setEnableBadDebtProtection" checked />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Invoicing & WhatsApp -->
+      <div class="settings-tab-content" id="tab-settings-invoicing">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-receipt" style="color:#7c3aed;"></i> Invoices, WhatsApp & Print Format</div>
+              <div class="settings-card-desc">Configure invoice numbers, consignor privacy, print output format and messaging templates.</div>
+            </div>
+          </div>
+          <div class="settings-grid-2">
+            <div class="input-block">
+              <label>Invoice Number Prefix</label>
+              <input type="text" id="setInvoicePrefix" placeholder="e.g. ALH-" />
+            </div>
+            <div class="input-block">
+              <label>Default Print Output Format</label>
+              <select id="setPrintFormat">
+                <option value="a4">Standard A4 Tax Invoice (PDF)</option>
+                <option value="thermal">80mm Thermal Receipt Slip</option>
+                <option value="compact">Compact Half-Sheet Voucher</option>
+              </select>
+            </div>
+          </div>
+          <div class="settings-toggle-row" style="margin-top:14px;">
+            <div class="settings-toggle-info">
+              <h4>Consignor Privacy Protection</h4>
+              <p>Keep dealer/boat source names hidden on buyer bills to protect brokerage trade relationships.</p>
+            </div>
+            <label class="switch-toggle">
+              <input type="checkbox" id="setHideDealerOnBuyerInvoice" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="input-block" style="margin-top:14px;">
+            <label>WhatsApp Share Message Template</label>
+            <textarea id="setWhatsappTemplate" rows="3" style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:10px; font-size:12.5px; font-family:inherit;"></textarea>
+            <div style="font-size:11.5px; color:#64748b; margin-top:4px;">
+              Placeholders: <code>{billNo}</code>, <code>{amount}</code>, <code>{crates}</code>, <code>{fish}</code>, <code>{buyer}</code>, <code>{balance}</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 5: Quotes & Dashboard -->
+      <div class="settings-tab-content" id="tab-settings-dashboard">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-quote-left" style="color:#0284c7;"></i> Quotes & Dashboard Experience</div>
+              <div class="settings-card-desc">Manage the hero banner motivational quotes and user interface preferences.</div>
+            </div>
+          </div>
+          <div class="settings-toggle-row">
+            <div class="settings-toggle-info">
+              <h4>Hero Banner Quote Card</h4>
+              <p>Display rotating inspirational quote box beside live Chennai weather on the dashboard.</p>
+            </div>
+            <label class="switch-toggle">
+              <input type="checkbox" id="setEnableHourlyQuotes" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="settings-grid-2" style="margin-top:14px;">
+            <div class="input-block">
+              <label>Quote Rotation Interval</label>
+              <select id="setQuoteRotationFrequency">
+                <option value="hourly">Every 1 Hour (Standard)</option>
+                <option value="half_hour">Every 30 Minutes</option>
+                <option value="refresh">Change on every page refresh</option>
+              </select>
+            </div>
+            <div class="input-block">
+              <label>Total Stored Quotes</label>
+              <input type="text" value="50 Curated Quotes" readonly style="background:#f8fafc; color:#64748b;" />
+            </div>
+          </div>
+          <div class="settings-toggle-row" style="margin-top:14px;">
+            <div class="settings-toggle-info">
+              <h4>Interactive 1-Click Quote Preview</h4>
+              <p>Allow clicking directly on the hero quote card in dashboard to cycle and preview quotes immediately.</p>
+            </div>
+            <label class="switch-toggle">
+              <input type="checkbox" id="setQuoteManualCycle" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+          <div class="settings-toggle-row">
+            <div class="settings-toggle-info">
+              <h4>Fast Billing Sound Feedback</h4>
+              <p>Play pleasant audio chime when invoice or inward arrival is saved.</p>
+            </div>
+            <label class="switch-toggle">
+              <input type="checkbox" id="setSoundAlerts" checked />
+              <span class="switch-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 6: Data & Backup -->
+      <div class="settings-tab-content" id="tab-settings-data">
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div>
+              <div class="settings-card-title"><i class="fas fa-database" style="color:#475569;"></i> Data Management, Backup & System Status</div>
+              <div class="settings-card-desc">Export complete database backups, restore records, and check storage health.</div>
+            </div>
+          </div>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:13.5px; color:#0f172a;">Active Database Storage Engine</div>
+              <div style="font-size:12px; color:#64748b;" id="settingsDbStatusText">Local JSON Storage (./db directory) &bull; Synchronized</div>
+            </div>
+            <span class="badge" style="background:#dcfce7; color:#15803d; font-size:12px; padding:4px 10px;"><i class="fas fa-circle-check"></i> Connected</span>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <button class="btn btn-primary" onclick="exportFullBackup()"><i class="fas fa-cloud-arrow-down"></i> Download Full Database Backup (JSON)</button>
+            <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="handleRestoreFileSelected(event)" />
+            <button class="btn btn-outline" onclick="document.getElementById('backupFileInput').click()"><i class="fas fa-cloud-arrow-up"></i> Restore from JSON Backup</button>
+            <button class="btn btn-danger btn-sm" onclick="clearLocalAppCache()"><i class="fas fa-trash-can"></i> Clear Browser Cache</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2930,7 +3719,7 @@ th:last-child {
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
               <span>(-) Discount (₹):</span>
-              <input type="number" id="mSaleDiscount" value="0" style="width:100px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+              <input type="number" id="mSaleDiscount" value="" placeholder="0" style="width:100px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:13.5px; font-weight:800; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:5px;">
@@ -2940,7 +3729,7 @@ th:last-child {
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; margin-top:3px;">
               <span>(+) Previous Balance:</span>
-              <input type="number" id="mSalePrevBal" value="0" style="width:110px; padding:3px 6px; text-align:right; font-weight:700;" oninput="computeSaleBillTotals()"/>
+              <input type="number" id="mSalePrevBal" value="" placeholder="0" style="width:110px; padding:3px 6px; text-align:right; font-weight:700;" oninput="computeSaleBillTotals()"/>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:700; color:#0f172a; border-top:1px dashed #cbd5e1; padding-top:5px;">
@@ -2950,7 +3739,7 @@ th:last-child {
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
               <span>(-) Cash Received Today:</span>
-              <input type="number" id="mSaleCashPaid" value="0" style="width:110px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
+              <input type="number" id="mSaleCashPaid" value="" placeholder="0" style="width:110px; padding:3px 6px; text-align:right;" oninput="computeSaleBillTotals()"/>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:16px; font-weight:800; color:#047857; border-top:1.5px solid #10b981; padding-top:6px; margin-top:2px;">
@@ -2992,6 +3781,23 @@ th:last-child {
           <button class="btn btn-primary" style="width:100%; height:35px; justify-content:center;" onclick="calculateDealerPatiya()">
             <i class="fas fa-sync"></i> Fetch Consignment Sales
           </button>
+        </div>
+      </div>
+
+      <!-- Clean Empty State Placeholder Before Fetching -->
+      <div id="patiyaEmptyPlaceholder" style="padding: 40px 20px; text-align: center; color: #64748b; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="width: 58px; height: 58px; border-radius: 50%; background: #eff6ff; color: #0084ff; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 14px;">
+          <i class="fas fa-calculator"></i>
+        </div>
+        <div style="font-weight: 800; font-size: 16px; color: #0f172a; margin-bottom: 6px;">Consignment Settlement (Patiya Builder)</div>
+        <div style="font-size: 12.5px; color: #64748b; max-width: 480px; line-height: 1.5; margin-bottom: 22px;">
+          Select a supplier or dealer above and click <strong>Fetch Consignment Sales</strong> to load received fish varieties, calculate gross realization, deduct lorry freight & broker commission, and update continuous ledger.
+        </div>
+        <div style="border-top: 1px dashed #e2e8f0; padding-top: 18px; width: 100%; max-width: 620px;">
+          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+            Quick Select Supplier / Dealer:
+          </div>
+          <div id="mPatQuickDealerChips" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;"></div>
         </div>
       </div>
 
@@ -3103,7 +3909,7 @@ th:last-child {
               </div>
               <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; border-top:1px dashed #cbd5e1; padding-top:6px; margin-bottom:6px;">
                 <span>Rounding / Adjustment (+/- ₹):</span>
-                <input type="number" id="mPatAdjustments" value="0" style="width:90px; padding:2px 6px; text-align:right;" oninput="recalculatePatiya()" placeholder="+/- 0"/>
+                <input type="number" id="mPatAdjustments" value="" style="width:90px; padding:2px 6px; text-align:right;" oninput="recalculatePatiya()" placeholder="0"/>
               </div>
             </div>
             <div style="background:#e0f2fe; border:1px solid #bae6fd; padding:10px 12px; border-radius:8px; font-size:13px; display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
@@ -3127,7 +3933,7 @@ th:last-child {
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:12px;">
             <div style="background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;">
               <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">(+) Previous Balance Owed</label>
-              <input type="number" id="mPatPrevBal" value="0" style="width:100%; text-align:right; font-weight:700; font-size:14px;" oninput="recalculatePatiya()"/>
+              <input type="number" id="mPatPrevBal" value="" placeholder="0" style="width:100%; text-align:right; font-weight:700; font-size:14px;" oninput="recalculatePatiya()"/>
               <small style="font-size:10.5px; color:#64748b;">What you already owed him before today (e.g. ₹100)</small>
             </div>
 
@@ -3153,7 +3959,7 @@ th:last-child {
             </div>
             <div style="width:160px; text-align:right;">
               <label style="font-size:11px; font-weight:700; color:#991b1b; display:block; margin-bottom:2px;">Cash Given (₹)</label>
-              <input type="number" id="mPatCashPaid" value="0" style="width:100%; text-align:right; font-weight:700; color:#dc2626; font-size:14px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" oninput="recalculatePatiya()"/>
+              <input type="number" id="mPatCashPaid" value="" placeholder="0" style="width:100%; text-align:right; font-weight:700; color:#dc2626; font-size:14px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" oninput="recalculatePatiya()"/>
             </div>
           </div>
 
@@ -3221,7 +4027,7 @@ th:last-child {
       <div class="two-col-grid">
         <div class="input-block">
           <label>Credit Limit (₹)</label>
-          <input type="number" id="mContCreditLimit" value="0"/>
+          <input type="number" id="mContCreditLimit" value="" placeholder="0"/>
         </div>
         <div class="input-block">
           <label>Period (Days)</label>
@@ -3282,13 +4088,18 @@ th:last-child {
         </div>
         <div class="input-block">
           <label>Mode</label>
-          <select id="mPayMode">
+          <select id="mPayMode" onchange="handlePayModeChange()">
             <option value="Cash">Cash (Counter Drawer)</option>
             <option value="Bank Transfer">Bank Transfer / NEFT</option>
             <option value="UPI">UPI / GPay</option>
             <option value="Cheque">Cheque</option>
           </select>
         </div>
+      </div>
+
+      <div class="input-block" id="mPayBankSelectGroup" style="display:none;">
+        <label>Deposit / Transfer Bank Account *</label>
+        <select id="mPayBankAccount"></select>
       </div>
 
       <div class="input-block">
@@ -3298,7 +4109,7 @@ th:last-child {
 
       <div class="input-block" id="mPayDiscountGroup">
         <label>Settlement Discount / Kasar (₹)</label>
-        <input type="number" id="mPayDiscount" value="0" oninput="updatePaymentLiveBalance()"/>
+        <input type="number" id="mPayDiscount" value="" placeholder="0" oninput="updatePaymentLiveBalance()"/>
         <small style="color:#64748b; font-size:10.5px;">Agreed round-off discount to settle balance</small>
       </div>
 
@@ -3454,6 +4265,180 @@ th:last-child {
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('manualDaybookModal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveDaybookItem()"><i class="fas fa-save"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 12: Add / Edit Bank Account -->
+<div class="modal-backdrop" id="addBankAccountModal">
+  <div class="modal-window modal-sm">
+    <div class="modal-top-bar">
+      <span class="modal-headline" id="bankAccountModalTitle"><i class="fas fa-building-columns" style="color:#0084ff;"></i> Add Bank Account</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('addBankAccountModal')">✕</button>
+    </div>
+    <div class="modal-scroll-body">
+      <input type="hidden" id="mBankId" />
+      <div class="input-block">
+        <label>Account Display Name *</label>
+        <input type="text" id="mBankAccountName" placeholder="e.g. HDFC Mandi Current Account" />
+      </div>
+      <div class="two-col-grid">
+        <div class="input-block">
+          <label>Bank Name *</label>
+          <input type="text" id="mBankBankName" placeholder="e.g. HDFC Bank, SBI, ICICI" />
+        </div>
+        <div class="input-block">
+          <label>Account Type</label>
+          <select id="mBankAccountType">
+            <option value="Current">Current Account</option>
+            <option value="Savings">Savings Account</option>
+            <option value="OD/CC">Cash Credit / Overdraft</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-block">
+        <label>Account Number *</label>
+        <input type="text" id="mBankAccountNumber" placeholder="e.g. 50200084729103" />
+      </div>
+      <div class="two-col-grid">
+        <div class="input-block">
+          <label>IFSC Code</label>
+          <input type="text" id="mBankIfscCode" placeholder="e.g. HDFC0000124" style="text-transform:uppercase;" />
+        </div>
+        <div class="input-block">
+          <label>Branch Name</label>
+          <input type="text" id="mBankBranch" placeholder="e.g. Royapuram / Kasimedu" />
+        </div>
+      </div>
+      <div class="two-col-grid">
+        <div class="input-block">
+          <label>UPI ID (Optional)</label>
+          <input type="text" id="mBankUpiId" placeholder="e.g. alhaseena@hdfcbank" />
+        </div>
+        <div class="input-block">
+          <label>Opening Balance (₹)</label>
+          <input type="number" id="mBankOpeningBalance" placeholder="0" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('addBankAccountModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBankAccount()"><i class="fas fa-check"></i> Save Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 13: Unified Cash & Bank Transaction Modal -->
+<div class="modal-backdrop" id="unifiedTransactionModal">
+  <div class="modal-window modal-sm" style="max-width:480px;">
+    <div class="modal-top-bar">
+      <span class="modal-headline" id="uTxnModalTitle"><i class="fas fa-wallet" style="color:#0084ff;"></i> Add Entry</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('unifiedTransactionModal')">✕</button>
+    </div>
+
+    <!-- 3 Segmented Mode Tabs -->
+    <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; margin:12px 18px 4px; gap:4px;">
+      <button type="button" class="btn" id="tabTxnIn" onclick="switchTxnTab('IN')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:#10b981; color:#ffffff; border:none; cursor:pointer;">
+        <i class="fas fa-arrow-down"></i> Money In
+      </button>
+      <button type="button" class="btn" id="tabTxnOut" onclick="switchTxnTab('OUT')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:transparent; color:#64748b; border:none; cursor:pointer;">
+        <i class="fas fa-arrow-up"></i> Money Out
+      </button>
+      <button type="button" class="btn" id="tabTxnTransfer" onclick="switchTxnTab('TRANSFER')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:transparent; color:#64748b; border:none; cursor:pointer;">
+        <i class="fas fa-right-left"></i> Transfer
+      </button>
+    </div>
+
+    <div class="modal-scroll-body" style="padding-top:14px;">
+      <!-- Big friendly Amount Input -->
+      <div class="input-block" style="text-align:center; margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Amount (₹) *</label>
+        <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
+          <input type="number" id="uTxnAmount" placeholder="0" min="1" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" />
+        </div>
+      </div>
+
+      <!-- PANEL: MONEY IN & OUT -->
+      <div id="uTxnInOutFields">
+        <div class="two-col-grid">
+          <div class="input-block">
+            <label id="uTxnAccountLabel">Account *</label>
+            <select id="uTxnAccountSelect">
+              <option value="cash_in_hand">Cash in Hand (Drawer)</option>
+            </select>
+          </div>
+          <div class="input-block">
+            <label>Date *</label>
+            <input type="date" id="uTxnDate" />
+          </div>
+        </div>
+
+        <div class="input-block">
+          <label id="uTxnCategoryLabel">Category / Reason *</label>
+          <select id="uTxnCategorySelect"></select>
+        </div>
+
+        <div class="input-block">
+          <label id="uTxnPartyLabel">Person / Party (Optional)</label>
+          <input type="text" id="uTxnPartyName" placeholder="e.g. Buyer name, Driver, Supplier" />
+        </div>
+
+        <div class="two-col-grid">
+          <div class="input-block">
+            <label>Reference / Slip (Optional)</label>
+            <input type="text" id="uTxnRef" placeholder="e.g. UTR / Chq / Slip #" />
+          </div>
+          <div class="input-block">
+            <label>Note (Optional)</label>
+            <input type="text" id="uTxnNotes" placeholder="Short note" />
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL: TRANSFER (CASH <-> BANK) -->
+      <div id="uTxnTransferFields" style="display:none;">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:14px;">
+          <div class="two-col-grid" style="align-items:center;">
+            <div class="input-block" style="margin-bottom:0;">
+              <label style="color:#64748b; font-size:11px; font-weight:700;">FROM ACCOUNT</label>
+              <select id="uTxnFromAccount" onchange="validateTransferAccounts()"></select>
+            </div>
+            <div class="input-block" style="margin-bottom:0;">
+              <label style="color:#64748b; font-size:11px; font-weight:700;">TO ACCOUNT</label>
+              <select id="uTxnToAccount" onchange="validateTransferAccounts()"></select>
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:8px;">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="swapTransferAccounts()" style="font-size:11.5px; color:#0084ff;">
+              <i class="fas fa-right-left"></i> Swap Accounts
+            </button>
+          </div>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="input-block">
+            <label>Transfer Date *</label>
+            <input type="date" id="uTxnTransferDate" />
+          </div>
+          <div class="input-block">
+            <label>Reference (Optional)</label>
+            <input type="text" id="uTxnTransferRef" placeholder="Deposit slip / ATM" />
+          </div>
+        </div>
+
+        <div class="input-block">
+          <label>Transfer Note / Purpose</label>
+          <input type="text" id="uTxnTransferNotes" placeholder="e.g. Daily cash deposit to current account" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('unifiedTransactionModal')">Cancel</button>
+      <button class="btn btn-green" id="uTxnSubmitBtn" onclick="saveUnifiedTransaction()">
+        <i class="fas fa-check"></i> Record Money In
+      </button>
     </div>
   </div>
 </div>
@@ -3793,10 +4778,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Clicking outside modal window on backdrop closes it
+  // Clicking outside modal window on backdrop closes it, and clicking outside autocomplete closes flyouts
   document.addEventListener('click', e => {
     if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
       e.target.classList.remove('open');
+    }
+    if (!e.target.closest || !e.target.closest('.autocomplete-anchor')) {
+      document.querySelectorAll('.autocomplete-flyout').forEach(f => {
+        f.style.display = 'none';
+      });
     }
   });
 
@@ -3907,11 +4897,1184 @@ async function loadChennaiLiveWeather() {
   }
 }
 
+const HERO_QUOTES = [
+  "\"Different people.<br/>Same direction.<br/>Growth.\"",
+  "\"Small disciplines repeated daily<br/>lead to great achievements.\"",
+  "\"In trade and partnership,<br/>trust is the real currency.\"",
+  "\"Opportunities multiply<br/>as they are seized.\"",
+  "\"Patience in negotiation.<br/>Speed in execution.\"",
+  "\"Clear accounts create<br/>long-lasting friendships.\"",
+  "\"Every morning tide brings<br/>fresh opportunities.\"",
+  "\"Consistency transforms<br/>ordinary into excellence.\"",
+  "\"Hard work beats talent<br/>when talent rests.\"",
+  "\"Precision in numbers.<br/>Integrity in trade.\"",
+  "\"Calm waters never made<br/>a skilled sailor.\"",
+  "\"Focus on real value,<br/>and profit will follow.\"",
+  "\"Today's disciplined preparation<br/>is tomorrow's victory.\"",
+  "\"A reputation for honesty<br/>is business's greatest asset.\"",
+  "\"Move fast, stay humble,<br/>and respect every partner.\"",
+  "\"Great things are built<br/>one solid step at a time.\"",
+  "\"Early mornings.<br/>Sharp decisions.<br/>Consistent results.\"",
+  "\"A satisfied partner<br/>is the best business plan.\"",
+  "\"Adversity tests courage;<br/>perseverance wins the day.\"",
+  "\"Never lower the standard.<br/>Raise your determination.\"",
+  "\"Action is the foundation<br/>underlying all success.\"",
+  "\"Honor your commitments.<br/>The market remembers.\"",
+  "\"Success is leased daily,<br/>and rent is due every morning.\"",
+  "\"Turn every challenge<br/>into an advantage.\"",
+  "\"Speed, accuracy, and fairness:<br/>the soul of good commerce.\"",
+  "\"The price of excellence<br/>is steady discipline.\"",
+  "\"Navigate the waves of change<br/>with steady hands.\"",
+  "\"Do the work quietly;<br/>let results speak.\"",
+  "\"Quality produce, fair rates,<br/>lifelong relationships.\"",
+  "\"Wisdom is knowing the way;<br/>character is walking it.\"",
+  "\"Every obstacle is an invitation<br/>to grow stronger.\"",
+  "\"Courage is keeping composure<br/>in turbulent tides.\"",
+  "\"Efficiency is doing things right;<br/>integrity is doing right things.\"",
+  "\"Rough seas sculpt<br/>the finest captains.\"",
+  "\"Keep your word firm<br/>and your ledger clear.\"",
+  "\"Growth begins where<br/>complacency ends.\"",
+  "\"Strong partnerships turn<br/>daily effort into shared triumph.\"",
+  "\"Stay alert to opportunities,<br/>unshakable in ethics.\"",
+  "\"Daily progress, not perfection,<br/>builds enduring strength.\"",
+  "\"Deep market knowledge.<br/>Unmatched reliability.\"",
+  "\"Fortune favors the prepared<br/>and the resolute.\"",
+  "\"Build trust drop by drop;<br/>protect it like the ocean.\"",
+  "\"Count with care.<br/>Trade with fairness.\"",
+  "\"The finest investment is always<br/>in character and discipline.\"",
+  "\"Every harbor sunrise brings<br/>another chance to excel.\"",
+  "\"Keep moving forward.<br/>Momentum creates good fortune.\"",
+  "\"Work with purpose.<br/>Trade with principle.\"",
+  "\"Resilience turns setbacks<br/>into stepping stones.\"",
+  "\"Deliver more than promised,<br/>every single time.\"",
+  "\"Same harbour.<br/>New horizons.<br/>Limitless possibilities.\""
+];
+
+let currentQuoteManualOffset = 0;
+
+let appSettings = {
+  companyName: 'Al Haseena Exports',
+  harborLocation: 'Kasimedu Fishing Harbor, Chennai - Gate 2',
+  proprietorName: 'M S Bhathrudeen',
+  contactPhone: '+91 9841021203',
+  contactEmail: 'alhaseenaexports@gmail.com',
+  mandiLicenseNo: 'TN-CHE-KSM-2024-88',
+  gstin: '33AABCA1234F1Z5',
+  tagline: 'Wholesale Fish Commission Agent & Consignment Exporter',
+  defaultCommission: 5,
+  commissionMode: 'percent',
+  trackBrokingProfit: true,
+  autoCarryForward: true,
+  deductLorryBhada: true,
+  deductIce: true,
+  defaultCreditDays: 7,
+  defaultCreditLimit: 50000,
+  enableOverdueBlinking: true,
+  strictCreditLock: false,
+  enableBadDebtProtection: true,
+  invoicePrefix: 'ALH-',
+  hideDealerOnBuyerInvoice: true,
+  printFormat: 'a4',
+  whatsappTemplate: 'Al Haseena Exports: Bill #{billNo} for Rs.{amount} ({crates} crates {fish}). Balance: Rs.{balance}. Thank you!',
+  enableHourlyQuotes: true,
+  quoteRotationFrequency: 'hourly',
+  quoteManualCycle: true,
+  soundAlerts: true
+};
+
+function switchSettingsTab(tabName, btn) {
+  document.querySelectorAll('.settings-tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const target = document.getElementById(`tab-settings-${tabName}`);
+  if (target) target.classList.add('active');
+}
+
+async function loadAppSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object') {
+        appSettings = { ...appSettings, ...data };
+      }
+    }
+  } catch (err) {
+    console.warn('Could not load settings from server, using local fallback:', err);
+    try {
+      const saved = localStorage.getItem('billify_app_settings');
+      if (saved) appSettings = { ...appSettings, ...JSON.parse(saved) };
+    } catch (e) {}
+  }
+  applySettingsToUI();
+}
+
+function applySettingsToUI() {
+  const titleEl = document.querySelector('.hero-greeting-title');
+  if (titleEl && appSettings.proprietorName) {
+    titleEl.textContent = appSettings.proprietorName;
+  }
+  const quoteEl = document.getElementById('heroQuote');
+  if (quoteEl) {
+    quoteEl.style.display = appSettings.enableHourlyQuotes !== false ? 'block' : 'none';
+  }
+}
+
+function loadSettingsForm() {
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = !!val;
+    else el.value = val !== undefined && val !== null ? val : '';
+  };
+
+  setVal('setCompanyName', appSettings.companyName);
+  setVal('setHarborLocation', appSettings.harborLocation);
+  setVal('setProprietorName', appSettings.proprietorName);
+  setVal('setContactPhone', appSettings.contactPhone);
+  setVal('setContactEmail', appSettings.contactEmail);
+  setVal('setMandiLicenseNo', appSettings.mandiLicenseNo);
+  setVal('setGstin', appSettings.gstin);
+  setVal('setTagline', appSettings.tagline);
+
+  setVal('setDefaultCommission', appSettings.defaultCommission);
+  setVal('setCommissionMode', appSettings.commissionMode || 'percent');
+  setVal('setTrackBrokingProfit', appSettings.trackBrokingProfit !== false);
+  setVal('setAutoCarryForward', appSettings.autoCarryForward !== false);
+  setVal('setDeductLorryBhada', appSettings.deductLorryBhada !== false);
+  setVal('setDeductIce', appSettings.deductIce !== false);
+
+  setVal('setDefaultCreditDays', appSettings.defaultCreditDays || 7);
+  setVal('setDefaultCreditLimit', appSettings.defaultCreditLimit || 50000);
+  setVal('setEnableOverdueBlinking', appSettings.enableOverdueBlinking !== false);
+  setVal('setStrictCreditLock', !!appSettings.strictCreditLock);
+  setVal('setEnableBadDebtProtection', appSettings.enableBadDebtProtection !== false);
+
+  setVal('setInvoicePrefix', appSettings.invoicePrefix || 'ALH-');
+  setVal('setPrintFormat', appSettings.printFormat || 'a4');
+  setVal('setHideDealerOnBuyerInvoice', appSettings.hideDealerOnBuyerInvoice !== false);
+  setVal('setWhatsappTemplate', appSettings.whatsappTemplate);
+
+  setVal('setEnableHourlyQuotes', appSettings.enableHourlyQuotes !== false);
+  setVal('setQuoteRotationFrequency', appSettings.quoteRotationFrequency || 'hourly');
+  setVal('setQuoteManualCycle', appSettings.quoteManualCycle !== false);
+  setVal('setSoundAlerts', appSettings.soundAlerts !== false);
+}
+
+async function saveSettingsForm() {
+  const btn = document.getElementById('btnSaveSettings');
+  const getVal = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return '';
+    return el.type === 'checkbox' ? el.checked : el.value;
+  };
+
+  const newSettings = {
+    companyName: getVal('setCompanyName') || 'Al Haseena Exports',
+    harborLocation: getVal('setHarborLocation') || 'Kasimedu Fishing Harbor, Chennai',
+    proprietorName: getVal('setProprietorName') || 'M S Bhathrudeen',
+    contactPhone: getVal('setContactPhone') || '+91 9841021203',
+    contactEmail: getVal('setContactEmail') || '',
+    mandiLicenseNo: getVal('setMandiLicenseNo') || '',
+    gstin: getVal('setGstin') || '',
+    tagline: getVal('setTagline') || '',
+
+    defaultCommission: Number(getVal('setDefaultCommission')) || 5,
+    commissionMode: getVal('setCommissionMode') || 'percent',
+    trackBrokingProfit: !!getVal('setTrackBrokingProfit'),
+    autoCarryForward: !!getVal('setAutoCarryForward'),
+    deductLorryBhada: !!getVal('setDeductLorryBhada'),
+    deductIce: !!getVal('setDeductIce'),
+
+    defaultCreditDays: Number(getVal('setDefaultCreditDays')) || 7,
+    defaultCreditLimit: Number(getVal('setDefaultCreditLimit')) || 50000,
+    enableOverdueBlinking: !!getVal('setEnableOverdueBlinking'),
+    strictCreditLock: !!getVal('setStrictCreditLock'),
+    enableBadDebtProtection: !!getVal('setEnableBadDebtProtection'),
+
+    invoicePrefix: getVal('setInvoicePrefix') || 'ALH-',
+    printFormat: getVal('setPrintFormat') || 'a4',
+    hideDealerOnBuyerInvoice: !!getVal('setHideDealerOnBuyerInvoice'),
+    whatsappTemplate: getVal('setWhatsappTemplate') || '',
+
+    enableHourlyQuotes: !!getVal('setEnableHourlyQuotes'),
+    quoteRotationFrequency: getVal('setQuoteRotationFrequency') || 'hourly',
+    quoteManualCycle: !!getVal('setQuoteManualCycle'),
+    soundAlerts: !!getVal('setSoundAlerts')
+  };
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  }
+
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newSettings)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      appSettings = { ...appSettings, ...saved };
+      localStorage.setItem('billify_app_settings', JSON.stringify(appSettings));
+      applySettingsToUI();
+      showToast('Settings saved successfully!', 'success');
+    } else {
+      throw new Error('Server returned ' + res.status);
+    }
+  } catch (err) {
+    console.error('Save settings error:', err);
+    appSettings = { ...appSettings, ...newSettings };
+    localStorage.setItem('billify_app_settings', JSON.stringify(appSettings));
+    applySettingsToUI();
+    showToast('Saved locally in browser!', 'success');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Save Settings';
+    }
+  }
+}
+
+async function resetSettingsToDefault() {
+  if (!confirm('Are you sure you want to reset all settings to company defaults?')) return;
+  try {
+    const res = await fetch('/api/settings');
+    let defaults = {};
+    if (res.ok) {
+      defaults = await res.json();
+    }
+    appSettings = { ...appSettings, ...defaults };
+    localStorage.removeItem('billify_app_settings');
+    loadSettingsForm();
+    applySettingsToUI();
+    showToast('Settings restored to defaults!', 'info');
+  } catch (e) {
+    showToast('Could not reset defaults', 'error');
+  }
+}
+
+async function exportFullBackup() {
+  try {
+    showToast('Generating full database backup...', 'info');
+    const res = await fetch('/api/backup/export');
+    if (!res.ok) throw new Error('Backup export failed');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = `billify_full_backup_${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Backup downloaded successfully!', 'success');
+  } catch (err) {
+    console.error('Backup error:', err);
+    showToast('Failed to export backup: ' + err.message, 'error');
+  }
+}
+
+async function handleRestoreFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  if (!confirm(`Restore database from file "${file.name}"? This will synchronize imported trade records.`)) {
+    event.target.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed || !parsed.data) {
+        throw new Error('Invalid backup file format');
+      }
+      showToast('Importing backup data...', 'info');
+      if (parsed.data.settings) {
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(parsed.data.settings)
+        });
+      }
+      showToast('Backup restored successfully! Refreshing...', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } catch (err) {
+      alert('Error parsing backup file: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearLocalAppCache() {
+  if (confirm('Clear local browser cache and reload? Your saved trade database will remain safe.')) {
+    localStorage.clear();
+    showToast('Local cache cleared. Reloading...', 'info');
+    setTimeout(() => location.reload(), 800);
+  }
+}
+
+function updateHourlyQuote() {
+  const quoteEl = document.getElementById('heroQuote');
+  if (!quoteEl || !HERO_QUOTES.length) return;
+  if (appSettings && appSettings.enableHourlyQuotes === false) {
+    quoteEl.style.display = 'none';
+    return;
+  }
+  quoteEl.style.display = 'block';
+
+  let stepInterval = 1000 * 60 * 60; // 1 hour
+  if (appSettings && appSettings.quoteRotationFrequency === 'half_hour') {
+    stepInterval = 1000 * 60 * 30; // 30 minutes
+  }
+
+  const currentStep = Math.floor(Date.now() / stepInterval) + currentQuoteManualOffset;
+  const quoteIndex = ((currentStep % HERO_QUOTES.length) + HERO_QUOTES.length) % HERO_QUOTES.length;
+  const nextQuote = HERO_QUOTES[quoteIndex];
+
+  if (quoteEl.innerHTML.trim() !== nextQuote.trim()) {
+    quoteEl.style.opacity = '0';
+    setTimeout(() => {
+      quoteEl.innerHTML = nextQuote;
+      quoteEl.style.opacity = '1';
+    }, 150);
+  }
+}
+
+function cycleNextQuote() {
+  if (appSettings && appSettings.quoteManualCycle === false) return;
+  currentQuoteManualOffset++;
+  const quoteEl = document.getElementById('heroQuote');
+  if (!quoteEl || !HERO_QUOTES.length) return;
+
+  let stepInterval = 1000 * 60 * 60;
+  if (appSettings && appSettings.quoteRotationFrequency === 'half_hour') {
+    stepInterval = 1000 * 60 * 30;
+  }
+  const currentStep = Math.floor(Date.now() / stepInterval) + currentQuoteManualOffset;
+  const quoteIndex = ((currentStep % HERO_QUOTES.length) + HERO_QUOTES.length) % HERO_QUOTES.length;
+  const nextQuote = HERO_QUOTES[quoteIndex];
+
+  quoteEl.style.opacity = '0';
+  setTimeout(() => {
+    quoteEl.innerHTML = nextQuote;
+    quoteEl.style.opacity = '1';
+  }, 150);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BANKING & CASH MANAGEMENT
+// ─────────────────────────────────────────────────────────────────────────────
+
+let bankingData = {
+  accounts: [],
+  cashInHand: { currentBalance: 0, totalIn: 0, totalOut: 0 },
+  totalBankBalance: 0,
+  totalLiquidFunds: 0
+};
+let treasuryTransactions = [];
+const selectedTreasuryIds = new Set();
+
+async function loadBankingData() {
+  try {
+    const [accRes, txnRes] = await Promise.all([
+      fetch('/api/bank-accounts'),
+      fetch('/api/treasury/transactions')
+    ]);
+
+    if (accRes.ok) {
+      bankingData = await accRes.json();
+      renderBankingOverview();
+      renderBankAccountsGrid();
+      populateBankSelectDropdowns();
+    }
+
+    if (txnRes.ok) {
+      treasuryTransactions = await txnRes.json();
+      const validIds = new Set((treasuryTransactions || []).map(t => String(t.id)));
+      for (const id of Array.from(selectedTreasuryIds)) {
+        if (!validIds.has(String(id))) selectedTreasuryIds.delete(id);
+      }
+      renderTreasuryTransactions();
+      renderBankingOverview();
+    }
+  } catch (err) {
+    console.error('Error loading banking data:', err);
+  }
+}
+
+function renderBankingOverview() {
+  const elLiquid = document.getElementById('treasuryTotalLiquid');
+  const elCash = document.getElementById('treasuryCashInHand');
+  const elCashInToday = document.getElementById('treasuryCashTodayIn');
+  const elBanks = document.getElementById('treasuryTotalBanks');
+  const elBankCount = document.getElementById('treasuryBankCount');
+
+  if (elLiquid) elLiquid.textContent = `₹${(bankingData.totalLiquidFunds || 0).toLocaleString('en-IN')}`;
+  if (elCash) elCash.textContent = `₹${(bankingData.cashInHand?.currentBalance || 0).toLocaleString('en-IN')}`;
+  if (elCashInToday) {
+    const totalIn = bankingData.cashInHand?.totalIn || 0;
+    const totalOut = bankingData.cashInHand?.totalOut || 0;
+    elCashInToday.textContent = `In: ₹${totalIn.toLocaleString('en-IN')} • Out: ₹${totalOut.toLocaleString('en-IN')}`;
+  }
+  if (elBanks) elBanks.textContent = `₹${(bankingData.totalBankBalance || 0).toLocaleString('en-IN')}`;
+  if (elBankCount) {
+    const count = (bankingData.accounts || []).length;
+    elBankCount.textContent = `Across ${count} active account${count === 1 ? '' : 's'}`;
+  }
+}
+
+function renderBankAccountsGrid() {
+  const container = document.getElementById('bankAccountsListContainer');
+  if (!container) return;
+
+  let html = '';
+
+  const cashBal = bankingData.cashInHand?.currentBalance || 0;
+  html += `
+    <div class="bank-card bank-card-cash">
+      <div>
+        <div class="bank-card-header">
+          <div class="bank-card-icon cash-icon">
+            <i class="fa-solid fa-money-bill-1-wave"></i>
+          </div>
+          <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700;">Physical Cash Drawer</span>
+        </div>
+        <div class="bank-card-title">Cash in Hand</div>
+        <div class="bank-card-sub">Shop counter cash box • Synced with Daybook</div>
+        <div class="bank-card-balance" style="color:#059669;">₹${cashBal.toLocaleString('en-IN')}</div>
+      </div>
+      <div class="bank-card-actions">
+        <button class="btn btn-green btn-sm" onclick="openUnifiedTransactionModal('IN', 'cash_in_hand')" style="flex:1; justify-content:center;"><i class="fas fa-plus"></i> In</button>
+        <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('OUT', 'cash_in_hand')" style="flex:1; justify-content:center;"><i class="fas fa-minus"></i> Out</button>
+        <button class="btn btn-purple btn-sm" onclick="openUnifiedTransactionModal('TRANSFER', 'cash_in_hand')" style="flex:1.2; justify-content:center;" title="Deposit Cash to Bank"><i class="fas fa-right-left"></i> To Bank</button>
+      </div>
+    </div>
+  `;
+
+  for (const acc of (bankingData.accounts || [])) {
+    const bal = acc.currentBalance || 0;
+    const maskedNo = acc.accountNumber ? `•••• ${acc.accountNumber.slice(-4)}` : '';
+    html += `
+      <div class="bank-card bank-card-primary">
+        <div>
+          <div class="bank-card-header">
+            <div class="bank-card-icon">
+              <i class="fa-solid fa-building-columns"></i>
+            </div>
+            <div class="bank-card-tools">
+              <button class="bank-card-tool-btn" onclick="openAddBankAccountModal(${acc.id})" title="Edit Account"><i class="fas fa-pen"></i></button>
+              <button class="bank-card-tool-btn danger" onclick="deleteBankAccount(${acc.id})" title="Delete Account"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <div class="bank-card-title">${acc.accountName}</div>
+          <div class="bank-card-sub">${acc.bankName} ${maskedNo ? '&bull; ' + maskedNo : ''}</div>
+          <div class="bank-card-balance" style="color:#0f172a;">₹${bal.toLocaleString('en-IN')}</div>
+        </div>
+        <div class="bank-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('IN', '${acc.id}')" style="flex:1; justify-content:center;"><i class="fas fa-plus" style="color:#10b981;"></i> In</button>
+          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('OUT', '${acc.id}')" style="flex:1; justify-content:center;"><i class="fas fa-minus" style="color:#ef4444;"></i> Out</button>
+          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('TRANSFER', '${acc.id}')" style="flex:1.2; justify-content:center;"><i class="fas fa-right-left" style="color:#7c3aed;"></i> Transfer</button>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `
+    <div class="bank-card-add-dashed" onclick="openAddBankAccountModal()">
+      <div style="width:40px; height:40px; border-radius:50%; background:#eff6ff; color:#0084ff; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:8px;">
+        <i class="fas fa-plus"></i>
+      </div>
+      <div style="font-weight:700; font-size:13.5px; color:#0f172a;">Add Bank Account</div>
+      <div style="font-size:11.5px; color:#64748b; margin-top:2px;">HDFC, SBI, ICICI, Current or Savings</div>
+    </div>
+  `;
+
+  container.innerHTML = html;
+}
+
+function populateBankSelectDropdowns() {
+  const filterAcc = document.getElementById('filterTreasuryAccount');
+  if (filterAcc) {
+    const currentVal = filterAcc.value;
+    let optHtml = `
+      <option value="all">All Accounts</option>
+      <option value="cash_in_hand">Cash in Hand</option>
+    `;
+    for (const a of (bankingData.accounts || [])) {
+      optHtml += `<option value="${a.id}">${a.accountName}</option>`;
+    }
+    filterAcc.innerHTML = optHtml;
+    if (currentVal) filterAcc.value = currentVal;
+  }
+
+  const uAccSelect = document.getElementById('uTxnAccountSelect');
+  if (uAccSelect) {
+    let optHtml = `<option value="cash_in_hand">Cash in Hand (Drawer)</option>`;
+    for (const a of (bankingData.accounts || [])) {
+      optHtml += `<option value="${a.id}">${a.accountName} (${a.bankName})</option>`;
+    }
+    uAccSelect.innerHTML = optHtml;
+  }
+
+  const fromSelect = document.getElementById('uTxnFromAccount');
+  const toSelect = document.getElementById('uTxnToAccount');
+  if (fromSelect && toSelect) {
+    let allOptions = `<option value="cash_in_hand">Cash in Hand (Drawer)</option>`;
+    for (const a of (bankingData.accounts || [])) {
+      allOptions += `<option value="${a.id}">${a.accountName} (${a.bankName})</option>`;
+    }
+    fromSelect.innerHTML = allOptions;
+    toSelect.innerHTML = allOptions;
+    if ((bankingData.accounts || []).length > 0) {
+      toSelect.value = String(bankingData.accounts[0].id);
+    }
+  }
+
+  const payBankSelect = document.getElementById('mPayBankAccount');
+  if (payBankSelect) {
+    let optHtml = '';
+    for (const a of (bankingData.accounts || [])) {
+      optHtml += `<option value="${a.id}">${a.accountName} (${a.bankName} - ${a.accountNumber ? a.accountNumber.slice(-4) : ''})</option>`;
+    }
+    payBankSelect.innerHTML = optHtml;
+  }
+}
+
+function handlePayModeChange() {
+  const mode = document.getElementById('mPayMode')?.value;
+  const grp = document.getElementById('mPayBankSelectGroup');
+  if (!grp) return;
+  if (['Bank Transfer', 'UPI', 'Cheque'].includes(mode)) {
+    grp.style.display = 'block';
+  } else {
+    grp.style.display = 'none';
+  }
+}
+
+let activeTxnTab = 'IN';
+
+const TXN_IN_CATEGORIES = [
+  'Customer / Buyer Payment',
+  'Cash Sale Collection',
+  'Owner Capital Inflow',
+  'Bank Interest / Dividend',
+  'General Inflow'
+];
+
+const TXN_OUT_CATEGORIES = [
+  'Ice Crushing & Preservation',
+  'Coolie & Labor Charges',
+  'Harbor Diesel & Transport',
+  'Tea & Mandi Refreshments',
+  'Rent & Mandi Charges',
+  'Dealer Payout',
+  'Owner Drawings',
+  'General Expense'
+];
+
+function switchTxnTab(tab) {
+  activeTxnTab = tab;
+  const tabIn = document.getElementById('tabTxnIn');
+  const tabOut = document.getElementById('tabTxnOut');
+  const tabTransfer = document.getElementById('tabTxnTransfer');
+  const inOutFields = document.getElementById('uTxnInOutFields');
+  const transferFields = document.getElementById('uTxnTransferFields');
+  const submitBtn = document.getElementById('uTxnSubmitBtn');
+  const catSelect = document.getElementById('uTxnCategorySelect');
+  const modalTitle = document.getElementById('uTxnModalTitle');
+
+  [tabIn, tabOut, tabTransfer].forEach(b => {
+    if (b) {
+      b.style.background = 'transparent';
+      b.style.color = '#64748b';
+    }
+  });
+
+  if (tab === 'IN') {
+    if (tabIn) {
+      tabIn.style.background = '#10b981';
+      tabIn.style.color = '#ffffff';
+    }
+    if (inOutFields) inOutFields.style.display = 'block';
+    if (transferFields) transferFields.style.display = 'none';
+    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-arrow-down" style="color:#10b981;"></i> Record Money In`;
+    if (submitBtn) {
+      submitBtn.className = 'btn btn-green';
+      submitBtn.innerHTML = `<i class="fas fa-check"></i> Record Money In`;
+    }
+    if (catSelect) {
+      catSelect.innerHTML = TXN_IN_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+  } else if (tab === 'OUT') {
+    if (tabOut) {
+      tabOut.style.background = '#ef4444';
+      tabOut.style.color = '#ffffff';
+    }
+    if (inOutFields) inOutFields.style.display = 'block';
+    if (transferFields) transferFields.style.display = 'none';
+    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-arrow-up" style="color:#ef4444;"></i> Record Money Out`;
+    if (submitBtn) {
+      submitBtn.className = 'btn btn-danger';
+      submitBtn.innerHTML = `<i class="fas fa-check"></i> Record Money Out`;
+    }
+    if (catSelect) {
+      catSelect.innerHTML = TXN_OUT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+  } else if (tab === 'TRANSFER') {
+    if (tabTransfer) {
+      tabTransfer.style.background = '#7c3aed';
+      tabTransfer.style.color = '#ffffff';
+    }
+    if (inOutFields) inOutFields.style.display = 'none';
+    if (transferFields) transferFields.style.display = 'block';
+    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-right-left" style="color:#7c3aed;"></i> Move Money`;
+    if (submitBtn) {
+      submitBtn.className = 'btn btn-purple';
+      submitBtn.innerHTML = `<i class="fas fa-check"></i> Complete Transfer`;
+    }
+  }
+}
+
+function openUnifiedTransactionModal(initialTab = 'IN', defaultAccount = null) {
+  populateBankSelectDropdowns();
+  switchTxnTab(initialTab);
+
+  const today = new Date().toISOString().split('T')[0];
+  const amtInput = document.getElementById('uTxnAmount');
+  if (amtInput) amtInput.value = '';
+
+  const dateInput = document.getElementById('uTxnDate');
+  if (dateInput) dateInput.value = today;
+
+  const tDateInput = document.getElementById('uTxnTransferDate');
+  if (tDateInput) tDateInput.value = today;
+
+  const partyInput = document.getElementById('uTxnPartyName');
+  if (partyInput) partyInput.value = '';
+
+  const refInput = document.getElementById('uTxnRef');
+  if (refInput) refInput.value = '';
+
+  const notesInput = document.getElementById('uTxnNotes');
+  if (notesInput) notesInput.value = '';
+
+  const tRefInput = document.getElementById('uTxnTransferRef');
+  if (tRefInput) tRefInput.value = '';
+
+  const tNotesInput = document.getElementById('uTxnTransferNotes');
+  if (tNotesInput) tNotesInput.value = '';
+
+  if (initialTab === 'TRANSFER') {
+    const fromSelect = document.getElementById('uTxnFromAccount');
+    const toSelect = document.getElementById('uTxnToAccount');
+    if (defaultAccount && defaultAccount !== 'cash_in_hand') {
+      if (fromSelect) fromSelect.value = String(defaultAccount);
+      if (toSelect) toSelect.value = 'cash_in_hand';
+    } else {
+      if (fromSelect) fromSelect.value = 'cash_in_hand';
+      if (toSelect && (bankingData.accounts || []).length > 0) {
+        toSelect.value = String(bankingData.accounts[0].id);
+      }
+    }
+  } else {
+    const accSelect = document.getElementById('uTxnAccountSelect');
+    if (accSelect && defaultAccount) {
+      accSelect.value = String(defaultAccount);
+    }
+  }
+
+  openModal('unifiedTransactionModal');
+  setTimeout(() => {
+    document.getElementById('uTxnAmount')?.focus();
+  }, 100);
+}
+
+function swapTransferAccounts() {
+  const fromSelect = document.getElementById('uTxnFromAccount');
+  const toSelect = document.getElementById('uTxnToAccount');
+  if (fromSelect && toSelect) {
+    const temp = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = temp;
+  }
+}
+
+function validateTransferAccounts() {
+  const from = document.getElementById('uTxnFromAccount')?.value;
+  const to = document.getElementById('uTxnToAccount')?.value;
+  if (from && to && from === to) {
+    alert('Source and destination accounts must be different.');
+  }
+}
+
+async function saveUnifiedTransaction() {
+  const amt = Number(document.getElementById('uTxnAmount')?.value);
+  if (!amt || amt <= 0) {
+    alert('Please enter a valid amount greater than 0.');
+    document.getElementById('uTxnAmount')?.focus();
+    return;
+  }
+
+  if (activeTxnTab === 'TRANSFER') {
+    const from = document.getElementById('uTxnFromAccount')?.value;
+    const to = document.getElementById('uTxnToAccount')?.value;
+    if (from === to) {
+      alert('From and To accounts must be different.');
+      return;
+    }
+    const payload = {
+      date: document.getElementById('uTxnTransferDate')?.value || new Date().toISOString().split('T')[0],
+      type: 'CONTRA',
+      accountId: from,
+      toAccountId: to,
+      amount: amt,
+      category: 'Account Transfer',
+      referenceNo: document.getElementById('uTxnTransferRef')?.value.trim() || '',
+      notes: document.getElementById('uTxnTransferNotes')?.value.trim() || 'Transfer between accounts'
+    };
+
+    try {
+      const res = await fetch('/api/treasury/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        closeModal('unifiedTransactionModal');
+        showToast('Transfer completed successfully!', 'success');
+        loadBankingData();
+      } else {
+        const err = await res.json();
+        alert('Error: ' + err.error);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  } else {
+    const accId = document.getElementById('uTxnAccountSelect')?.value || 'cash_in_hand';
+    const isBank = accId !== 'cash_in_hand';
+    const type = activeTxnTab === 'IN' ? (isBank ? 'BANK_IN' : 'CASH_IN') : (isBank ? 'BANK_OUT' : 'CASH_OUT');
+
+    const payload = {
+      date: document.getElementById('uTxnDate')?.value || new Date().toISOString().split('T')[0],
+      type,
+      accountId: accId,
+      amount: amt,
+      category: document.getElementById('uTxnCategorySelect')?.value || (activeTxnTab === 'IN' ? 'Money In' : 'Money Out'),
+      contactName: document.getElementById('uTxnPartyName')?.value.trim() || '',
+      referenceNo: document.getElementById('uTxnRef')?.value.trim() || '',
+      notes: document.getElementById('uTxnNotes')?.value.trim() || ''
+    };
+
+    try {
+      const res = await fetch('/api/treasury/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        closeModal('unifiedTransactionModal');
+        showToast(`Money ${activeTxnTab === 'IN' ? 'In' : 'Out'} recorded successfully!`, 'success');
+        loadBankingData();
+      } else {
+        const err = await res.json();
+        alert('Error: ' + err.error);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+}
+
+function renderTreasuryTransactions() {
+  const tbody = document.getElementById('treasuryLedgerTbody');
+  if (!tbody) return;
+
+  const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
+  const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
+  const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
+
+  const filtered = treasuryTransactions.filter(t => {
+    if (accFilter !== 'all') {
+      if (t.flow === 'CONTRA') {
+        if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
+      } else {
+        if (String(t.accountId) !== String(accFilter)) return false;
+      }
+    }
+    if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
+    if (searchTerm) {
+      const match = (t.description || '').toLowerCase().includes(searchTerm) ||
+                    (t.category || '').toLowerCase().includes(searchTerm) ||
+                    (t.contactName || '').toLowerCase().includes(searchTerm) ||
+                    (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
+                    (t.accountName || '').toLowerCase().includes(searchTerm);
+      if (!match) return false;
+    }
+    return true;
+  });
+
+  updateTreasurySelectionUI(filtered);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-inbox" style="font-size:24px; margin-bottom:8px; display:block;"></i>No transactions found matching criteria.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(t => {
+    let flowBadge = '';
+    let amtDisplay = '';
+    if (t.flow === 'CONTRA') {
+      flowBadge = `<span class="badge" style="background:#f3e8ff; color:#7e22ce;"><i class="fas fa-right-left"></i> Transfer</span>`;
+      amtDisplay = `<span style="color:#7c3aed; font-weight:800; font-family:var(--font-mono, monospace);">⇄ ₹${(t.inflow || t.outflow || 0).toLocaleString('en-IN')}</span>`;
+    } else if (t.flow === 'IN') {
+      flowBadge = `<span class="badge" style="background:#dcfce7; color:#15803d;"><i class="fas fa-arrow-down"></i> In</span>`;
+      amtDisplay = `<span style="color:#059669; font-weight:800; font-family:var(--font-mono, monospace);">+₹${(t.inflow || 0).toLocaleString('en-IN')}</span>`;
+    } else {
+      flowBadge = `<span class="badge" style="background:#fee2e2; color:#b91c1c;"><i class="fas fa-arrow-up"></i> Out</span>`;
+      amtDisplay = `<span style="color:#dc2626; font-weight:800; font-family:var(--font-mono, monospace);">-₹${(t.outflow || 0).toLocaleString('en-IN')}</span>`;
+    }
+
+    const isSelected = selectedTreasuryIds.has(String(t.id));
+    const deleteBtn = `<button class="btn btn-ghost btn-sm" style="color:#ef4444;" onclick="deleteTreasuryTxn('${t.id}')" title="Delete entry"><i class="fas fa-trash"></i></button>`;
+
+    const partyRefText = [t.contactName, t.referenceNo].filter(Boolean).join(' • ');
+
+    return `
+      <tr id="treasuryRow_${t.id}" class="${isSelected ? 'row-selected' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk treasury-select-chk" value="${t.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectTreasury('${t.id}', this.checked)" title="Select transaction for deletion"/>
+        </td>
+        <td style="white-space:nowrap;">
+          <strong>${t.date}</strong>
+          <div style="font-size:11px; color:#64748b;">${t.time || ''}</div>
+        </td>
+        <td>
+          <div style="font-weight:700;">${t.accountName}</div>
+          ${t.toAccountName ? `<div style="font-size:11px; color:#7c3aed;">&rarr; ${t.toAccountName}</div>` : ''}
+        </td>
+        <td>${flowBadge}</td>
+        <td>
+          <div style="font-weight:600; color:#0f172a;">${t.category}</div>
+          ${t.notes ? `<div style="font-size:11px; color:#64748b;">${t.notes}</div>` : ''}
+        </td>
+        <td style="font-size:12px; color:#475569;">${partyRefText || '<span style="color:#cbd5e1;">-</span>'}</td>
+        <td class="num">${amtDisplay}</td>
+        <td style="text-align:center;">${deleteBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function updateTreasurySelectionUI(filtered) {
+  if (!filtered) {
+    const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
+    const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
+    const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
+
+    filtered = (treasuryTransactions || []).filter(t => {
+      if (accFilter !== 'all') {
+        if (t.flow === 'CONTRA') {
+          if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
+        } else {
+          if (String(t.accountId) !== String(accFilter)) return false;
+        }
+      }
+      if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
+      if (searchTerm) {
+        const match = (t.description || '').toLowerCase().includes(searchTerm) ||
+                      (t.category || '').toLowerCase().includes(searchTerm) ||
+                      (t.contactName || '').toLowerCase().includes(searchTerm) ||
+                      (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
+                      (t.accountName || '').toLowerCase().includes(searchTerm);
+        if (!match) return false;
+      }
+      return true;
+    });
+  }
+
+  const masterChk = document.getElementById('selectAllTreasuryChk');
+  const bar = document.getElementById('treasuryBulkActionBar');
+  const countBadge = document.getElementById('treasurySelectedCountBadge');
+  const countSpan = document.getElementById('treasuryDeleteCount');
+
+  const visibleIds = filtered.map(t => String(t.id));
+  const selectedVisible = visibleIds.filter(id => selectedTreasuryIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  const totalSelected = selectedTreasuryIds.size;
+  if (bar) {
+    if (totalSelected > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${totalSelected} selected`;
+      if (countSpan) countSpan.textContent = totalSelected;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function toggleSelectTreasury(id, isChecked) {
+  id = String(id);
+  if (isChecked) {
+    selectedTreasuryIds.add(id);
+  } else {
+    selectedTreasuryIds.delete(id);
+  }
+  const row = document.getElementById(`treasuryRow_${id}`);
+  if (row) {
+    if (isChecked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+  updateTreasurySelectionUI();
+}
+
+function toggleSelectAllTreasury(isChecked) {
+  const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
+  const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
+  const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
+
+  const filtered = (treasuryTransactions || []).filter(t => {
+    if (accFilter !== 'all') {
+      if (t.flow === 'CONTRA') {
+        if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
+      } else {
+        if (String(t.accountId) !== String(accFilter)) return false;
+      }
+    }
+    if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
+    if (searchTerm) {
+      const match = (t.description || '').toLowerCase().includes(searchTerm) ||
+                    (t.category || '').toLowerCase().includes(searchTerm) ||
+                    (t.contactName || '').toLowerCase().includes(searchTerm) ||
+                    (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
+                    (t.accountName || '').toLowerCase().includes(searchTerm);
+      if (!match) return false;
+    }
+    return true;
+  });
+
+  filtered.forEach(t => {
+    const tId = String(t.id);
+    if (isChecked) {
+      selectedTreasuryIds.add(tId);
+    } else {
+      selectedTreasuryIds.delete(tId);
+    }
+  });
+
+  renderTreasuryTransactions();
+}
+
+function clearTreasurySelection() {
+  selectedTreasuryIds.clear();
+  renderTreasuryTransactions();
+}
+
+async function bulkDeleteSelectedTreasury() {
+  const ids = Array.from(selectedTreasuryIds);
+  if (ids.length === 0) {
+    showToast('No transactions selected', 'warning');
+    return;
+  }
+
+  const count = ids.length;
+  const label = count > 1 ? `${count} transactions` : '1 transaction';
+  if (!confirm(`Are you sure you want to delete ${label}?`)) {
+    return;
+  }
+
+  showToast(`Deleting ${label}...`, 'info');
+
+  try {
+    const res = await fetch('/api/treasury/transactions/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      selectedTreasuryIds.clear();
+      showToast(`${data.count || count} transaction(s) deleted!`, 'success');
+      loadBankingData();
+    } else {
+      let deleted = 0;
+      for (const id of ids) {
+        const dRes = await fetch(`/api/treasury/transactions/${id}`, { method: 'DELETE' });
+        if (dRes.ok) deleted++;
+      }
+      selectedTreasuryIds.clear();
+      showToast(`${deleted} transaction(s) deleted!`, 'success');
+      loadBankingData();
+    }
+  } catch (err) {
+    showToast('Failed to delete selected transactions: ' + err.message, 'error');
+  }
+}
+
+function openAddBankAccountModal(accId = null) {
+  document.getElementById('mBankId').value = accId || '';
+  if (accId) {
+    const acc = (bankingData.accounts || []).find(a => Number(a.id) === Number(accId));
+    if (acc) {
+      document.getElementById('bankAccountModalTitle').innerHTML = `<i class="fas fa-building-columns" style="color:#0084ff;"></i> Edit Bank Account`;
+      document.getElementById('mBankAccountName').value = acc.accountName || '';
+      document.getElementById('mBankBankName').value = acc.bankName || '';
+      document.getElementById('mBankAccountType').value = acc.accountType || 'Current';
+      document.getElementById('mBankAccountNumber').value = acc.accountNumber || '';
+      document.getElementById('mBankIfscCode').value = acc.ifscCode || '';
+      document.getElementById('mBankBranch').value = acc.branch || '';
+      document.getElementById('mBankUpiId').value = acc.upiId || '';
+      document.getElementById('mBankOpeningBalance').value = acc.openingBalance || 0;
+    }
+  } else {
+    document.getElementById('bankAccountModalTitle').innerHTML = `<i class="fas fa-building-columns" style="color:#0084ff;"></i> Add Bank Account`;
+    document.getElementById('mBankAccountName').value = '';
+    document.getElementById('mBankBankName').value = '';
+    document.getElementById('mBankAccountType').value = 'Current';
+    document.getElementById('mBankAccountNumber').value = '';
+    document.getElementById('mBankIfscCode').value = '';
+    document.getElementById('mBankBranch').value = '';
+    document.getElementById('mBankUpiId').value = '';
+    document.getElementById('mBankOpeningBalance').value = '';
+  }
+  openModal('addBankAccountModal');
+}
+
+async function saveBankAccount() {
+  const name = document.getElementById('mBankAccountName').value.trim();
+  const bank = document.getElementById('mBankBankName').value.trim();
+  const num = document.getElementById('mBankAccountNumber').value.trim();
+  if (!name || !bank || !num) {
+    alert('Please enter Account Name, Bank Name, and Account Number.');
+    return;
+  }
+
+  const payload = {
+    id: document.getElementById('mBankId').value || Date.now(),
+    accountName: name,
+    bankName: bank,
+    accountType: document.getElementById('mBankAccountType').value,
+    accountNumber: num,
+    ifscCode: document.getElementById('mBankIfscCode').value.trim().toUpperCase(),
+    branch: document.getElementById('mBankBranch').value.trim(),
+    upiId: document.getElementById('mBankUpiId').value.trim(),
+    openingBalance: Number(document.getElementById('mBankOpeningBalance').value) || 0
+  };
+
+  try {
+    const res = await fetch('/api/bank-accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      closeModal('addBankAccountModal');
+      showToast('Bank Account saved successfully!', 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error saving bank account: ' + (err.error || 'Unknown'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  }
+}
+
+async function deleteBankAccount(id) {
+  if (!confirm('Are you sure you want to delete this bank account? Its transaction history will be preserved.')) return;
+  try {
+    const res = await fetch(`/api/bank-accounts/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('Bank Account deleted.', 'info');
+      loadBankingData();
+    }
+  } catch (e) {
+    alert('Error deleting account: ' + e.message);
+  }
+}
+
+// Backward compatible aliases
+function openTreasuryInOutModal(acc = 'cash_in_hand', type = 'IN') {
+  openUnifiedTransactionModal(type, acc);
+}
+
+function openContraTransferModal(fromAcc = 'cash_in_hand') {
+  openUnifiedTransactionModal('TRANSFER', fromAcc);
+}
+
+async function deleteTreasuryTxn(id) {
+  if (!confirm('Are you sure you want to delete this manual treasury transaction?')) return;
+  try {
+    const res = await fetch(`/api/treasury/transactions/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      if (selectedTreasuryIds) selectedTreasuryIds.delete(String(id));
+      showToast('Transaction deleted.', 'info');
+      loadBankingData();
+    }
+  } catch (err) {
+    alert('Error deleting: ' + err.message);
+  }
+}
+
+function exportTreasuryCSV() {
+  if (!treasuryTransactions || treasuryTransactions.length === 0) {
+    alert('No transactions to export.');
+    return;
+  }
+  let csv = 'Date,Time,Account,To Account,Flow,Category,Party,Reference,Inflow (INR),Outflow (INR),Notes\n';
+  for (const t of treasuryTransactions) {
+    const row = [
+      t.date,
+      t.time,
+      `"${t.accountName || ''}"`,
+      `"${t.toAccountName || ''}"`,
+      t.flow,
+      `"${t.category || ''}"`,
+      `"${t.contactName || ''}"`,
+      `"${t.referenceNo || ''}"`,
+      t.inflow || 0,
+      t.outflow || 0,
+      `"${t.notes || ''}"`
+    ];
+    csv += row.join(',') + '\n';
+  }
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `treasury_ledger_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 async function initApp() {
   applyMaxDateRestrictions();
   updateDisplayDatePill();
+  await loadAppSettings();
   loadChennaiLiveWeather();
   setInterval(loadChennaiLiveWeather, 60 * 60 * 1000);
+  updateHourlyQuote();
+  setInterval(updateHourlyQuote, 60 * 1000);
   await Promise.all([
     loadContacts(),
     loadConsignments(),
@@ -3920,7 +6083,8 @@ async function initApp() {
     loadPayments(),
     loadStockBoard(),
     loadReports(),
-    loadDaybook()
+    loadDaybook(),
+    loadBankingData()
   ]);
   updateDashboardMetrics();
   renderActivityTimeline();
@@ -3957,8 +6121,12 @@ function switchTo(viewId) {
     renderContactsList();
   } else if (viewId === 'payments') {
     renderPaymentsList();
+  } else if (viewId === 'banking') {
+    loadBankingData();
   } else if (viewId === 'reports') {
     initReportControls();
+  } else if (viewId === 'settings') {
+    loadSettingsForm();
   }
 }
 
@@ -4134,6 +6302,17 @@ function updateDashboardMetrics() {
   }
   const elComm = document.getElementById('valCommission');
   if (elComm) elComm.textContent = `₹${comm.toLocaleString('en-IN')}`;
+
+  const elInsightText = document.getElementById('dashboardMarketInsightText');
+  if (elInsightText) {
+    if (salesForDate.length > 0) {
+      elInsightText.textContent = `Today's sales volume is active with ${salesCount} transaction${salesCount === 1 ? '' : 's'}. Vanjaram and Seer are in high demand.`;
+    } else if (arrivalsForDate.length > 0) {
+      elInsightText.textContent = `Fresh consignments arrived today (${fishInKg.toLocaleString('en-IN')} KG). Ready for wholesale booking.`;
+    } else {
+      elInsightText.textContent = `Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.`;
+    }
+  }
 }
 
 function formatTimelineTime(timeStr, createdTs) {
@@ -4250,7 +6429,7 @@ function renderActivityTimeline() {
     const pDate = p.date || (p.created ? new Date(p.created).toISOString().split('T')[0] : '');
     const time = formatTimelineTime(p.time, p.created);
     const timestamp = p.created || (p.date ? new Date(`${p.date} ${p.time || '10:00 AM'}`).getTime() : Date.now());
-    const isOutflow = p.type === 'DEALER_PAYMENT';
+    const isOutflow = p.type === 'DEALER_PAYMENT' || (!p.type && (appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isDealer);
 
     entries.push({
       date: pDate,
@@ -4258,13 +6437,14 @@ function renderActivityTimeline() {
       timestamp,
       type: 'payment',
       tag: isOutflow ? '💼 Pay Dealer' : '💼 Buyer Cash',
-      nodeClass: 'node-orange',
+      nodeClass: isOutflow ? 'node-orange' : 'node-blue',
       party: p.contactName || 'Party',
       details: `${p.paymentMode || 'Payment'}${p.referenceNo ? ` (${p.referenceNo})` : ''}`,
       weight: '',
       rate: '',
-      amount: `₹${(p.amount || 0).toLocaleString('en-IN')}`,
+      amount: `${isOutflow ? '-' : '+'}₹${(p.amount || 0).toLocaleString('en-IN')}`,
       isRed: isOutflow,
+      isGreen: !isOutflow,
       onClick: () => switchTo('payments')
     });
   });
@@ -4320,7 +6500,7 @@ function renderActivityTimeline() {
         </div>
         <div class="timeline-weight">${e.weight}</div>
         <div class="timeline-rate">${e.rate}</div>
-        <div class="timeline-amount ${e.isRed ? 'outflow-red' : ''}">${e.amount}</div>
+        <div class="timeline-amount ${e.isRed ? 'outflow-red' : (e.isGreen ? 'inflow-green' : '')}">${e.amount}</div>
         <i class="fas fa-chevron-right timeline-arrow"></i>
       </div>
     `;
@@ -4423,10 +6603,16 @@ function renderFishStockCards() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. INWARD ARRIVALS (FISH IN)
 // ─────────────────────────────────────────────────────────────────────────────
+const selectedArrivalIds = new Set();
+
 async function loadConsignments() {
   try {
     const res = await fetch('/api/consignments');
     appState.consignments = await res.json();
+    const validIds = new Set((appState.consignments || []).map(c => Number(c.id)));
+    for (const id of Array.from(selectedArrivalIds)) {
+      if (!validIds.has(Number(id))) selectedArrivalIds.delete(id);
+    }
     renderArrivalsList();
     updateDashboardMetrics();
     renderActivityTimeline();
@@ -4445,8 +6631,10 @@ function renderArrivalsList() {
     (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
   );
 
+  updateArrivalsSelectionUI(filtered);
+
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
     return;
   }
 
@@ -4456,9 +6644,13 @@ function renderArrivalsList() {
     const left = items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
     const uniqueVarieties = [...new Set(items.map(it => it.variety).filter(Boolean))];
     const desc = uniqueVarieties.length > 0 ? uniqueVarieties.join(', ') : 'Fish';
+    const isSelected = selectedArrivalIds.has(Number(c.id));
 
     return `
-      <tr>
+      <tr id="arrivalRow_${c.id}" class="${isSelected ? 'row-selected' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk arrival-select-chk" value="${c.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectArrival(${c.id}, this.checked)" title="Select arrival for deletion"/>
+        </td>
         <td>${c.date}</td>
         <td><strong>${c.dealerName}</strong></td>
         <td>${desc}</td>
@@ -4476,6 +6668,129 @@ function renderArrivalsList() {
       </tr>
     `;
   }).join('');
+}
+
+function updateArrivalsSelectionUI(filtered) {
+  if (!filtered) {
+    const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
+    filtered = (appState.consignments || []).filter(c => 
+      c.dealerName.toLowerCase().includes(q) || 
+      (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
+    );
+  }
+
+  const masterChk = document.getElementById('selectAllArrivalsChk');
+  const bar = document.getElementById('arrivalsBulkActionBar');
+  const countBadge = document.getElementById('arrivalsSelectedCountBadge');
+  const countSpan = document.getElementById('arrivalsDeleteCount');
+
+  const visibleIds = filtered.map(c => Number(c.id));
+  const selectedVisible = visibleIds.filter(id => selectedArrivalIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  const totalSelected = selectedArrivalIds.size;
+  if (bar) {
+    if (totalSelected > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${totalSelected} selected`;
+      if (countSpan) countSpan.textContent = totalSelected;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function toggleSelectArrival(id, isChecked) {
+  id = Number(id);
+  if (isChecked) {
+    selectedArrivalIds.add(id);
+  } else {
+    selectedArrivalIds.delete(id);
+  }
+  const row = document.getElementById(`arrivalRow_${id}`);
+  if (row) {
+    if (isChecked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+  updateArrivalsSelectionUI();
+}
+
+function toggleSelectAllArrivals(isChecked) {
+  const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
+  const filtered = (appState.consignments || []).filter(c => 
+    c.dealerName.toLowerCase().includes(q) || 
+    (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
+  );
+
+  filtered.forEach(c => {
+    const cId = Number(c.id);
+    if (isChecked) {
+      selectedArrivalIds.add(cId);
+    } else {
+      selectedArrivalIds.delete(cId);
+    }
+  });
+
+  renderArrivalsList();
+}
+
+function clearArrivalsSelection() {
+  selectedArrivalIds.clear();
+  renderArrivalsList();
+}
+
+async function bulkDeleteSelectedArrivals() {
+  const ids = Array.from(selectedArrivalIds).map(Number);
+  if (ids.length === 0) {
+    showToast('No arrivals selected', 'warning');
+    return;
+  }
+
+  const count = ids.length;
+  const label = count > 1 ? `${count} inward arrivals` : '1 inward arrival';
+  if (!confirm(`Are you sure you want to delete ${label}?`)) {
+    return;
+  }
+
+  showToast(`Deleting ${label}...`, 'info');
+
+  try {
+    const res = await fetch('/api/consignments/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      selectedArrivalIds.clear();
+      showToast(`${data.count || count} consignment(s) deleted!`, 'success');
+      await Promise.all([loadConsignments(), loadStockBoard(), loadReports(), loadContacts()]);
+    } else {
+      let deleted = 0;
+      for (const id of ids) {
+        const dRes = await fetch(`/api/consignments/${id}`, { method: 'DELETE' });
+        if (dRes.ok) deleted++;
+      }
+      selectedArrivalIds.clear();
+      showToast(`${deleted} consignment(s) deleted!`, 'success');
+      await Promise.all([loadConsignments(), loadStockBoard(), loadReports(), loadContacts()]);
+    }
+  } catch (err) {
+    showToast('Failed to delete selected arrivals: ' + err.message, 'error');
+  }
 }
 
 function settleArrivalDealerById(consignmentId) {
@@ -4499,7 +6814,7 @@ function openArrivalModal() {
   }
   document.getElementById('mArrDealer').value = '';
   document.getElementById('inwardItemsTbody').innerHTML = '';
-  addInwardRow('Vanjaram (Seer Fish)', 3);
+  addInwardRow('', '');
   document.getElementById('arrivalModal').classList.add('open');
 }
 
@@ -4581,12 +6896,14 @@ async function saveInwardArrival() {
 }
 
 async function deleteInwardArrival(id) {
+  id = Number(id);
   if (!confirm('Delete this consignment arrival?')) return;
   try {
     const res = await fetch(`/api/consignments/${id}`, { method: 'DELETE' });
     if (res.ok) {
+      selectedArrivalIds.delete(id);
       showToast('Consignment deleted', 'success');
-      await Promise.all([loadConsignments(), loadStockBoard(), loadReports()]);
+      await Promise.all([loadConsignments(), loadStockBoard(), loadReports(), loadContacts()]);
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
@@ -4636,10 +6953,17 @@ function printArrivalGatepass(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. SALES BILLING (FISH SOLD)
 // ─────────────────────────────────────────────────────────────────────────────
+const selectedSaleIds = new Set();
+
 async function loadSales() {
   try {
     const res = await fetch('/api/sales');
     appState.sales = await res.json();
+    // Prune selected IDs that no longer exist
+    const validIds = new Set((appState.sales || []).map(s => Number(s.id)));
+    for (const id of Array.from(selectedSaleIds)) {
+      if (!validIds.has(Number(id))) selectedSaleIds.delete(id);
+    }
     renderSalesList();
     updateDashboardMetrics();
     renderActivityTimeline();
@@ -4657,16 +6981,22 @@ function renderSalesList() {
     (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
   );
 
+  updateSalesSelectionUI(filtered);
+
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(s => {
     const billTotal = Number(s.total) || 0;
+    const isSelected = selectedSaleIds.has(Number(s.id));
 
     return `
-      <tr>
+      <tr id="saleRow_${s.id}" class="${isSelected ? 'row-selected' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk sale-select-chk" value="${s.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectSale(${s.id}, this.checked)" title="Select bill for deletion"/>
+        </td>
         <td>${s.date}</td>
         <td><strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong></td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700; font-size:14px; color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</td>
@@ -4688,6 +7018,128 @@ function renderSalesList() {
       </tr>
     `;
   }).join('');
+}
+
+function updateSalesSelectionUI(filtered) {
+  if (!filtered) {
+    const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
+    filtered = (appState.sales || []).filter(s => 
+      (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
+    );
+  }
+
+  const masterChk = document.getElementById('selectAllSalesChk');
+  const bar = document.getElementById('salesBulkActionBar');
+  const countBadge = document.getElementById('salesSelectedCountBadge');
+  const countSpan = document.getElementById('salesDeleteCount');
+
+  const visibleIds = filtered.map(s => Number(s.id));
+  const selectedVisible = visibleIds.filter(id => selectedSaleIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  const totalSelected = selectedSaleIds.size;
+  if (bar) {
+    if (totalSelected > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${totalSelected} selected`;
+      if (countSpan) countSpan.textContent = totalSelected;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function toggleSelectSale(id, isChecked) {
+  id = Number(id);
+  if (isChecked) {
+    selectedSaleIds.add(id);
+  } else {
+    selectedSaleIds.delete(id);
+  }
+  const row = document.getElementById(`saleRow_${id}`);
+  if (row) {
+    if (isChecked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+  updateSalesSelectionUI();
+}
+
+function toggleSelectAllSales(isChecked) {
+  const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
+  const filtered = (appState.sales || []).filter(s => 
+    (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
+  );
+
+  filtered.forEach(s => {
+    const sId = Number(s.id);
+    if (isChecked) {
+      selectedSaleIds.add(sId);
+    } else {
+      selectedSaleIds.delete(sId);
+    }
+  });
+
+  renderSalesList();
+}
+
+function clearSalesSelection() {
+  selectedSaleIds.clear();
+  renderSalesList();
+}
+
+async function bulkDeleteSelectedSales() {
+  const ids = Array.from(selectedSaleIds).map(Number);
+  if (ids.length === 0) {
+    showToast('No sales bills selected', 'warning');
+    return;
+  }
+
+  const count = ids.length;
+  const label = count > 1 ? `${count} sales bills` : '1 sales bill';
+  if (!confirm(`Are you sure you want to delete ${label}?\n\nConsignment crates & weights will be restored back to unsold godown stock.`)) {
+    return;
+  }
+
+  showToast(`Deleting ${label}...`, 'info');
+
+  try {
+    const res = await fetch('/api/sales/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      selectedSaleIds.clear();
+      showToast(`${data.count || count} sales bill(s) deleted & stock restored!`, 'success');
+      await Promise.all([loadSales(), loadConsignments(), loadContacts(), loadStockBoard(), loadDaybook(), loadReports()]);
+    } else {
+      // Fallback: delete one by one
+      let deleted = 0;
+      for (const id of ids) {
+        const dRes = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
+        if (dRes.ok) deleted++;
+      }
+      selectedSaleIds.clear();
+      showToast(`${deleted} sales bill(s) deleted & stock restored!`, 'success');
+      await Promise.all([loadSales(), loadConsignments(), loadContacts(), loadStockBoard(), loadDaybook(), loadReports()]);
+    }
+  } catch (err) {
+    showToast('Failed to delete selected bills: ' + err.message, 'error');
+  }
 }
 
 function setSalesSubTab(tab) {
@@ -4722,9 +7174,9 @@ function openSaleModal() {
   document.getElementById('mSaleBuyer').value = '';
   document.getElementById('mSaleBuyerInfo').textContent = '';
   document.getElementById('mSalePaymentTerms').value = 'Credit';
-  document.getElementById('mSaleDiscount').value = '0';
-  document.getElementById('mSalePrevBal').value = '0';
-  document.getElementById('mSaleCashPaid').value = '0';
+  document.getElementById('mSaleDiscount').value = '';
+  document.getElementById('mSalePrevBal').value = '';
+  document.getElementById('mSaleCashPaid').value = '';
   document.getElementById('mSaleCreditWarning').style.display = 'none';
   document.getElementById('mSaleBypassBox').checked = false;
   document.getElementById('saleLinesTbody').innerHTML = '';
@@ -4775,7 +7227,7 @@ function addSaleLine() {
       <input type="number" class="lineCrates" placeholder="Box" min="1" value="1" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
     </td>
     <td class="num">
-      <input type="number" class="lineRate" placeholder="Rate" value="0" oninput="computeSaleBillTotals()" style="width:85px; text-align:right; font-weight:700;"/>
+      <input type="number" class="lineRate" placeholder="Rate" value="" oninput="computeSaleBillTotals()" style="width:85px; text-align:right; font-weight:700;"/>
     </td>
     <td class="num" style="font-family:var(--font-mono); font-weight:700;">
       <span class="lineRowSum">₹0</span>
@@ -4904,13 +7356,13 @@ function checkBuyerCreditStatus() {
       ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New buyer — click to enter phone & wharf location</span>`
       : '';
     warnBox.style.display = 'none';
-    if (prevBalInp) prevBalInp.value = 0;
+    if (prevBalInp) prevBalInp.value = '';
     computeSaleBillTotals();
     return;
   }
 
   const prevDue = contact.receivableBalance || 0;
-  if (prevBalInp) prevBalInp.value = prevDue;
+  if (prevBalInp) prevBalInp.value = prevDue ? prevDue : '';
   computeSaleBillTotals();
 
   infoEl.textContent = `Previous Due: ₹${prevDue.toLocaleString('en-IN')} | Credit Limit: ₹${(contact.creditLimit || 0).toLocaleString('en-IN')}`;
@@ -5062,11 +7514,13 @@ async function saveMorningSale(action = 'save') {
 }
 
 async function deleteSaleBill(id) {
+  id = Number(id);
   if (!confirm('Revert this sale bill?')) return;
   try {
     const res = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
     if (res.ok) {
-      showToast('Sale reverted', 'success');
+      selectedSaleIds.delete(id);
+      showToast('Sale reverted & stock restored', 'success');
       await Promise.all([loadSales(), loadConsignments(), loadContacts(), loadStockBoard(), loadReports()]);
     }
   } catch (e) {
@@ -5712,6 +8166,22 @@ function renderPatiyaList() {
   }).join('');
 }
 
+function renderPatiyaQuickDealerChips() {
+  const container = document.getElementById('mPatQuickDealerChips');
+  if (!container) return;
+  const dealers = (appState.contacts || []).filter(c => c.isDealer);
+  if (dealers.length === 0) {
+    container.innerHTML = `<span style="font-size:12px; color:#94a3b8;">No registered dealers yet.</span>`;
+    return;
+  }
+  container.innerHTML = dealers.map(d => `
+    <button type="button" class="btn btn-outline btn-sm" onclick="selectPatiyaDealer('${d.name.replace(/'/g, "\\'")}')" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+      <i class="fas fa-user-tag" style="color:#0084ff; font-size:11px;"></i>
+      <strong>${d.name}</strong>
+    </button>
+  `).join('');
+}
+
 function openPatiyaModal(prefillDealer) {
   const today = getTodayIsoDate();
   const patDateInp = document.getElementById('mPatDate');
@@ -5720,17 +8190,23 @@ function openPatiyaModal(prefillDealer) {
     patDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
   document.getElementById('mPatDealer').value = prefillDealer || '';
-  document.getElementById('patiyaCalcSection').style.display = 'none';
+  const list = document.getElementById('mPatDealerDropdown');
+  if (list) list.style.display = 'none';
+
+  const emptyPlaceholder = document.getElementById('patiyaEmptyPlaceholder');
+  const calcSection = document.getElementById('patiyaCalcSection');
+  if (emptyPlaceholder) emptyPlaceholder.style.display = 'flex';
+  if (calcSection) calcSection.style.display = 'none';
+
   document.getElementById('savePatiyaBtn').style.display = 'none';
   document.getElementById('patiyaPrintBtn').style.display = 'none';
   document.getElementById('patiyaShareWaBtn').style.display = 'none';
+
+  renderPatiyaQuickDealerChips();
+
   document.getElementById('patiyaModal').classList.add('open');
   if (prefillDealer) {
     calculateDealerPatiya();
-  } else {
-    setTimeout(() => {
-      searchPatiyaDealer('');
-    }, 150);
   }
 }
 
@@ -5740,7 +8216,8 @@ function settleKumar() {
 
 function searchPatiyaDealer(q) {
   const list = document.getElementById('mPatDealerDropdown');
-  const dealers = appState.contacts.filter(c => c.isDealer);
+  if (!list) return;
+  const dealers = (appState.contacts || []).filter(c => c.isDealer);
   const filterQ = (q || '').trim().toLowerCase();
   const matches = filterQ ? dealers.filter(c => c.name.toLowerCase().includes(filterQ)) : dealers;
   if (matches.length === 0) { list.style.display = 'none'; return; }
@@ -5764,7 +8241,7 @@ function selectPatiyaDealer(name) {
 async function calculateDealerPatiya() {
   const name = document.getElementById('mPatDealer').value.trim();
   const date = document.getElementById('mPatDate').value;
-  const dealer = appState.contacts.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const dealer = (appState.contacts || []).find(c => c.name.toLowerCase() === name.toLowerCase());
   if (!dealer) return showToast('Please select a valid dealer', 'error');
 
   try {
@@ -5778,6 +8255,8 @@ async function calculateDealerPatiya() {
 
     curPatiyaData = data;
     renderPatiyaView();
+    const emptyPlaceholder = document.getElementById('patiyaEmptyPlaceholder');
+    if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
     document.getElementById('patiyaCalcSection').style.display = 'block';
     document.getElementById('savePatiyaBtn').style.display = 'inline-flex';
     document.getElementById('patiyaPrintBtn').style.display = 'inline-flex';
@@ -5796,9 +8275,9 @@ function renderPatiyaView() {
   const arrBadge = document.getElementById('mPatTotalArrivalBadge');
   if (arrBadge) arrBadge.textContent = `Total: ${totalArr} Crates`;
 
-  document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance || 0;
-  document.getElementById('mPatCashPaid').value = 0;
-  document.getElementById('mPatAdjustments').value = 0;
+  document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance ? curPatiyaData.previousBalance : '';
+  document.getElementById('mPatCashPaid').value = '';
+  document.getElementById('mPatAdjustments').value = '';
   document.getElementById('mPatCashPayee').value = 'Cash Paid to DRL (Driver)';
 
   // Render Received Varieties (You Owe Him Money For)
@@ -5838,7 +8317,7 @@ function renderPatiyaView() {
         <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
         <td class="num"><span style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
         <td class="num" style="background:#fffbeb;">
-          <input type="number" value="${it.reportedRate}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+          <input type="number" value="${it.reportedRate ? it.reportedRate : ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
         <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹${it.reportedGross.toLocaleString('en-IN')}</td>
         <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
@@ -5860,27 +8339,26 @@ function renderPatiyaView() {
     `).join('');
   } else {
     tbody.innerHTML = '';
-    addPatiyaItemLine('Fish', 50, '');
+    addPatiyaItemLine('', '', '');
   }
 
-  // Deduct Expenses One by One (Default with Transport and Ice/Coolie)
+  // Deduct Expenses One by One (Default empty for user input)
   const expTbody = document.getElementById('patExpenseTbody');
-  const defaultFreight = curPatiyaData.lorryBhada || 4320;
   expTbody.innerHTML = `
     <tr>
       <td><input type="text" class="expLabel" value="Transport / Lorry Bhada (MEN)"/></td>
-      <td class="num"><input type="number" class="expCost" value="${defaultFreight}" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
+      <td class="num"><input type="number" class="expCost" value="" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
       <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
     <tr>
       <td><input type="text" class="expLabel" value="Ice & Coolie Labor (ML)"/></td>
-      <td class="num"><input type="number" class="expCost" value="1000" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
+      <td class="num"><input type="number" class="expCost" value="" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
       <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
     </tr>
   `;
 
   document.getElementById('mPatCommType').value = curPatiyaData.defaultCommissionType || 'percent';
-  document.getElementById('mPatCommVal').value = curPatiyaData.defaultCommissionVal || 5;
+  document.getElementById('mPatCommVal').value = curPatiyaData.defaultCommissionVal !== undefined ? curPatiyaData.defaultCommissionVal : '';
   document.getElementById('mPatUnsoldCrates').textContent = curPatiyaData.unsoldCratesRemaining || 0;
   recalculatePatiya();
 }
@@ -5912,7 +8390,7 @@ function addPatiyaExpenseLine(name = '', amount = '') {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" class="expLabel" value="${name || ''}" placeholder="e.g. Storage / Box charges"/></td>
-    <td class="num"><input type="number" class="expCost" value="${amount || 0}" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
+    <td class="num"><input type="number" class="expCost" value="${amount !== undefined && amount !== null && amount !== 0 ? amount : ''}" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
   tbody.appendChild(tr);
@@ -6352,10 +8830,16 @@ function sendPatiyaWhatsApp(id) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. CONTACTS DIRECTORY & STATEMENT
 // ─────────────────────────────────────────────────────────────────────────────
+const selectedContactIds = new Set();
+
 async function loadContacts() {
   try {
     const res = await fetch('/api/contacts');
     appState.contacts = await res.json();
+    const validIds = new Set((appState.contacts || []).map(c => Number(c.id)));
+    for (const id of Array.from(selectedContactIds)) {
+      if (!validIds.has(Number(id))) selectedContactIds.delete(id);
+    }
     renderContactsList();
     updateMoneyCardBalances();
   } catch (err) {
@@ -6383,8 +8867,10 @@ function renderContactsList() {
   else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
   else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
 
+  updateContactsSelectionUI(filtered);
+
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
     return;
   }
 
@@ -6411,8 +8897,13 @@ function renderContactsList() {
       netPosHtml = `<span style="color:#0084ff; font-weight:700;">They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}</span>`;
     }
 
+    const isSelected = selectedContactIds.has(Number(c.id));
+
     return `
-      <tr style="${c.isBadDebtDefaulter ? 'background:#fef2f2;' : ''}">
+      <tr id="contactRow_${c.id}" class="${isSelected ? 'row-selected' : ''}" style="${c.isBadDebtDefaulter ? 'background:#fef2f2;' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk contact-select-chk" value="${c.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectContact(${c.id}, this.checked)" title="Select person for deletion"/>
+        </td>
         <td><strong style="cursor:pointer; color:#0f172a;" onclick="openStatementModal(${c.id})">${c.name}</strong></td>
         <td>${badge}</td>
         <td>${c.phone || '-'}</td>
@@ -6430,11 +8921,158 @@ function renderContactsList() {
             ${c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.isOverdue) ? `<button class="btn btn-danger btn-sm btn-icon" onclick="openBadDebtModal(${c.id})" title="Consider as Bad Debt"><i class="fas fa-ban"></i></button>` : ''}
             ${c.isBadDebtDefaulter ? `<button class="btn btn-outline btn-sm btn-icon" onclick="openRestoreBadDebtModal(${c.id})" title="Restore Account from Bad Debt" style="color:#0284c7; border-color:#0284c7;"><i class="fas fa-rotate-left"></i></button>` : ''}
             <button class="btn btn-ghost btn-sm btn-icon" onclick="editPartyAccount(${c.id})" title="Edit Party"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteContactSingle(${c.id})" title="Delete Party"><i class="fas fa-trash"></i></button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function updateContactsSelectionUI(filtered) {
+  if (!filtered) {
+    const q = (document.getElementById('filterContactsInput')?.value || '').toLowerCase();
+    filtered = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)));
+    if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
+    else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
+    else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
+    else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
+  }
+
+  const masterChk = document.getElementById('selectAllContactsChk');
+  const bar = document.getElementById('contactsBulkActionBar');
+  const countBadge = document.getElementById('contactsSelectedCountBadge');
+  const countSpan = document.getElementById('contactsDeleteCount');
+
+  const visibleIds = filtered.map(c => Number(c.id));
+  const selectedVisible = visibleIds.filter(id => selectedContactIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  const totalSelected = selectedContactIds.size;
+  if (bar) {
+    if (totalSelected > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${totalSelected} selected`;
+      if (countSpan) countSpan.textContent = totalSelected;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function toggleSelectContact(id, isChecked) {
+  id = Number(id);
+  if (isChecked) {
+    selectedContactIds.add(id);
+  } else {
+    selectedContactIds.delete(id);
+  }
+  const row = document.getElementById(`contactRow_${id}`);
+  if (row) {
+    if (isChecked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+  updateContactsSelectionUI();
+}
+
+function toggleSelectAllContacts(isChecked) {
+  const q = (document.getElementById('filterContactsInput')?.value || '').toLowerCase();
+  let filtered = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)));
+  if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
+  else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
+  else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
+  else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
+
+  filtered.forEach(c => {
+    const cId = Number(c.id);
+    if (isChecked) {
+      selectedContactIds.add(cId);
+    } else {
+      selectedContactIds.delete(cId);
+    }
+  });
+
+  renderContactsList();
+}
+
+function clearContactsSelection() {
+  selectedContactIds.clear();
+  renderContactsList();
+}
+
+async function bulkDeleteSelectedContacts() {
+  const ids = Array.from(selectedContactIds).map(Number);
+  if (ids.length === 0) {
+    showToast('No contacts selected', 'warning');
+    return;
+  }
+
+  const count = ids.length;
+  const label = count > 1 ? `${count} contacts` : '1 contact';
+  if (!confirm(`Are you sure you want to delete ${label}?`)) {
+    return;
+  }
+
+  showToast(`Deleting ${label}...`, 'info');
+
+  try {
+    const res = await fetch('/api/contacts/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      selectedContactIds.clear();
+      showToast(`${data.count || count} contact(s) deleted!`, 'success');
+      await Promise.all([loadContacts(), loadReports(), loadBankingData()]);
+    } else {
+      let deleted = 0;
+      for (const id of ids) {
+        const dRes = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+        if (dRes.ok) deleted++;
+      }
+      selectedContactIds.clear();
+      showToast(`${deleted} contact(s) deleted!`, 'success');
+      await Promise.all([loadContacts(), loadReports(), loadBankingData()]);
+    }
+  } catch (err) {
+    showToast('Failed to delete selected contacts: ' + err.message, 'error');
+  }
+}
+
+async function deleteContactSingle(id) {
+  id = Number(id);
+  const c = (appState.contacts || []).find(x => x.id === id);
+  const name = c ? c.name : 'this person';
+  if (!confirm(`Delete ${name} from contacts directory?`)) return;
+
+  try {
+    const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      selectedContactIds.delete(id);
+      showToast('Contact deleted', 'success');
+      await Promise.all([loadContacts(), loadReports(), loadBankingData()]);
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to delete contact', 'error');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
 }
 
 function openBalancePreviewModal(contactId) {
@@ -6528,7 +9166,7 @@ function openContactModal() {
   document.getElementById('mContAddress').value = '';
   document.getElementById('mContIsDealer').checked = true;
   document.getElementById('mContIsBuyer').checked = false;
-  document.getElementById('mContCreditLimit').value = '0';
+  document.getElementById('mContCreditLimit').value = '';
   document.getElementById('mContCreditPeriod').value = '7';
   document.getElementById('contactModal').classList.add('open');
 }
@@ -6884,10 +9522,16 @@ async function restoreSaleBadDebtPrompt(saleId, buyerName) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. PAYMENTS, CONTRA & DAYBOOK
 // ─────────────────────────────────────────────────────────────────────────────
+const selectedPaymentIds = new Set();
+
 async function loadPayments() {
   try {
     const res = await fetch('/api/payments');
     appState.payments = await res.json();
+    const validIds = new Set((appState.payments || []).map(p => Number(p.id)));
+    for (const id of Array.from(selectedPaymentIds)) {
+      if (!validIds.has(Number(id))) selectedPaymentIds.delete(id);
+    }
     renderPaymentsList();
     updateDashboardMetrics();
     renderActivityTimeline();
@@ -6902,17 +9546,77 @@ function renderPaymentsList() {
   const q = (document.getElementById('filterPaymentsInput')?.value || '').toLowerCase();
   const filtered = appState.payments.filter(p => p.contactName.toLowerCase().includes(q) || (p.referenceNo && p.referenceNo.toLowerCase().includes(q)));
 
+  // Calculate summary for chips
+  let sumReceived = 0;
+  let sumGiven = 0;
+  filtered.forEach(p => {
+    const isContra = p.type === 'CONTRA_ADJUSTMENT';
+    const isRec = !isContra && (
+      p.type === 'BUYER_COLLECTION' || 
+      (!p.type && (appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isBuyer && !(appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isDealer)
+    );
+    if (!isContra) {
+      if (isRec) sumReceived += (Number(p.amount) || 0);
+      else sumGiven += (Number(p.amount) || 0);
+    }
+  });
+
+  const chipsEl = document.getElementById('paymentsSummaryChips');
+  if (chipsEl) {
+    chipsEl.innerHTML = `
+      <span class="badge badge-green" style="font-size:11px; padding:2px 8px; font-weight:700;">
+        <i class="fas fa-arrow-down" style="font-size:9px;"></i> Received: +₹${sumReceived.toLocaleString('en-IN')}
+      </span>
+      <span class="badge" style="font-size:11px; padding:2px 8px; font-weight:700; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca;">
+        <i class="fas fa-arrow-up" style="font-size:9px;"></i> Given: -₹${sumGiven.toLocaleString('en-IN')}
+      </span>
+    `;
+  }
+
+  updatePaymentsSelectionUI(filtered);
+
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No payment records found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No payment records found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(p => {
+    const isContra = p.type === 'CONTRA_ADJUSTMENT';
+    const isReceived = !isContra && (
+      p.type === 'BUYER_COLLECTION' || 
+      (!p.type && (appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isBuyer && !(appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isDealer)
+    );
+
+    let amountStyle = '';
+    let flowBadge = '';
+    let prefix = '';
+
+    if (isContra) {
+      amountStyle = 'color: #7c3aed; font-weight: 800;';
+      flowBadge = `<span class="badge" style="font-size:10px; padding:2px 7px; background:#f3e8ff; color:#7e22ce; border:1px solid #e9d5ff; margin-left:6px;"><i class="fas fa-arrows-split-up-and-left" style="font-size:9px;"></i> Contra</span>`;
+      prefix = '⇄ ';
+    } else if (isReceived) {
+      amountStyle = 'color: #059669; font-weight: 800;';
+      flowBadge = `<span class="badge badge-green" style="font-size:10px; padding:2px 7px; margin-left:6px;"><i class="fas fa-arrow-down" style="font-size:9px;"></i> Received</span>`;
+      prefix = '+';
+    } else {
+      amountStyle = 'color: #dc2626; font-weight: 800;';
+      flowBadge = `<span class="badge" style="font-size:10px; padding:2px 7px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; margin-left:6px;"><i class="fas fa-arrow-up" style="font-size:9px;"></i> Given</span>`;
+      prefix = '-';
+    }
+
+    const isSelected = selectedPaymentIds.has(Number(p.id));
+
     return `
-      <tr>
+      <tr id="paymentRow_${p.id}" class="${isSelected ? 'row-selected' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk payment-select-chk" value="${p.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectPayment(${p.id}, this.checked)" title="Select payment for deletion"/>
+        </td>
         <td>${p.date}</td>
-        <td><strong>${p.contactName}</strong></td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:700;">₹${p.amount.toLocaleString('en-IN')}</td>
+        <td><strong>${p.contactName}</strong> ${flowBadge}</td>
+        <td class="num" style="font-family:var(--font-mono); font-size:14px; ${amountStyle}">
+          ${prefix}₹${p.amount.toLocaleString('en-IN')}
+        </td>
         <td class="num" style="font-family:var(--font-mono); color:#d97706;">
           ${p.settlementDiscount > 0 ? `₹${p.settlementDiscount.toLocaleString('en-IN')}` : '-'}
         </td>
@@ -6925,6 +9629,123 @@ function renderPaymentsList() {
       </tr>
     `;
   }).join('');
+}
+
+function updatePaymentsSelectionUI(filtered) {
+  if (!filtered) {
+    const q = (document.getElementById('filterPaymentsInput')?.value || '').toLowerCase();
+    filtered = (appState.payments || []).filter(p => p.contactName.toLowerCase().includes(q) || (p.referenceNo && p.referenceNo.toLowerCase().includes(q)));
+  }
+
+  const masterChk = document.getElementById('selectAllPaymentsChk');
+  const bar = document.getElementById('paymentsBulkActionBar');
+  const countBadge = document.getElementById('paymentsSelectedCountBadge');
+  const countSpan = document.getElementById('paymentsDeleteCount');
+
+  const visibleIds = filtered.map(p => Number(p.id));
+  const selectedVisible = visibleIds.filter(id => selectedPaymentIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  const totalSelected = selectedPaymentIds.size;
+  if (bar) {
+    if (totalSelected > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${totalSelected} selected`;
+      if (countSpan) countSpan.textContent = totalSelected;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+function toggleSelectPayment(id, isChecked) {
+  id = Number(id);
+  if (isChecked) {
+    selectedPaymentIds.add(id);
+  } else {
+    selectedPaymentIds.delete(id);
+  }
+  const row = document.getElementById(`paymentRow_${id}`);
+  if (row) {
+    if (isChecked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+  updatePaymentsSelectionUI();
+}
+
+function toggleSelectAllPayments(isChecked) {
+  const q = (document.getElementById('filterPaymentsInput')?.value || '').toLowerCase();
+  const filtered = (appState.payments || []).filter(p => p.contactName.toLowerCase().includes(q) || (p.referenceNo && p.referenceNo.toLowerCase().includes(q)));
+
+  filtered.forEach(p => {
+    const pId = Number(p.id);
+    if (isChecked) {
+      selectedPaymentIds.add(pId);
+    } else {
+      selectedPaymentIds.delete(pId);
+    }
+  });
+
+  renderPaymentsList();
+}
+
+function clearPaymentsSelection() {
+  selectedPaymentIds.clear();
+  renderPaymentsList();
+}
+
+async function bulkDeleteSelectedPayments() {
+  const ids = Array.from(selectedPaymentIds).map(Number);
+  if (ids.length === 0) {
+    showToast('No payments selected', 'warning');
+    return;
+  }
+
+  const count = ids.length;
+  const label = count > 1 ? `${count} payment records` : '1 payment record';
+  if (!confirm(`Are you sure you want to delete ${label}?`)) {
+    return;
+  }
+
+  showToast(`Deleting ${label}...`, 'info');
+
+  try {
+    const res = await fetch('/api/payments/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      selectedPaymentIds.clear();
+      showToast(`${data.count || count} payment(s) deleted!`, 'success');
+      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports(), loadBankingData()]);
+    } else {
+      let deleted = 0;
+      for (const id of ids) {
+        const dRes = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
+        if (dRes.ok) deleted++;
+      }
+      selectedPaymentIds.clear();
+      showToast(`${deleted} payment(s) deleted!`, 'success');
+      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports(), loadBankingData()]);
+    }
+  } catch (err) {
+    showToast('Failed to delete selected payments: ' + err.message, 'error');
+  }
 }
 
 function setPaymentsSubTab(tab) {
@@ -6961,7 +9782,7 @@ function openPaymentModal(type) {
     delete contactInp.dataset.contactId;
   }
   document.getElementById('mPayAmount').value = '';
-  document.getElementById('mPayDiscount').value = '0';
+  document.getElementById('mPayDiscount').value = '';
   document.getElementById('mPayRef').value = '';
   document.getElementById('mPayBank').value = '';
   document.getElementById('mPayBalanceInfo').textContent = '';
@@ -6990,6 +9811,8 @@ function openPaymentModal(type) {
   const impactBox = document.getElementById('mPayLiveBalanceImpact');
   if (impactBox) impactBox.style.display = 'none';
 
+  populateBankSelectDropdowns();
+  handlePayModeChange();
   document.getElementById('paymentModal').classList.add('open');
 }
 
@@ -7081,7 +9904,11 @@ function choosePayContact(name, id) {
     } else {
       document.getElementById('mPayBalanceInfo').innerHTML = `Current balance buyer owes: <strong style="color:#0084ff;">₹${(due || 0).toLocaleString('en-IN')}</strong>`;
     }
-    document.getElementById('mPayAmount').value = due || 0;
+    const payAmtInp = document.getElementById('mPayAmount');
+    if (payAmtInp) {
+      payAmtInp.placeholder = due ? String(due) : '0';
+      payAmtInp.value = '';
+    }
     updatePaymentLiveBalance();
   }
 }
@@ -7116,6 +9943,7 @@ async function savePaymentEntry() {
   const settlementDiscount = Number(document.getElementById('mPayDiscount').value) || 0;
   const referenceNo = document.getElementById('mPayRef').value.trim();
   const bankName = document.getElementById('mPayBank').value.trim();
+  const bankAccountId = (paymentMode !== 'Cash') ? (Number(document.getElementById('mPayBankAccount')?.value) || null) : null;
 
   if (!contactName) return showToast('Party name is required', 'error');
   if (amount <= 0 && settlementDiscount <= 0) return showToast('Please enter an amount', 'error');
@@ -7124,12 +9952,12 @@ async function savePaymentEntry() {
     const res = await fetch('/api/payments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type, contactId, contactName, date, paymentMode, amount, settlementDiscount, referenceNo, bankName })
+      body: JSON.stringify({ type, contactId, contactName, date, paymentMode, amount, settlementDiscount, referenceNo, bankName, bankAccountId })
     });
     if (res.ok) {
       showToast('Payment saved & ledger updated!', 'success');
       closeModal('paymentModal');
-      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports()]);
+      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports(), loadBankingData()]);
     } else {
       const err = await res.json();
       showToast(err.error || 'Failed to save payment', 'error');
@@ -7140,12 +9968,14 @@ async function savePaymentEntry() {
 }
 
 async function deletePaymentEntry(id) {
+  id = Number(id);
   if (!confirm('Delete this payment transaction?')) return;
   try {
     const res = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
     if (res.ok) {
+      selectedPaymentIds.delete(id);
       showToast('Payment deleted', 'success');
-      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports()]);
+      await Promise.all([loadPayments(), loadContacts(), loadDaybook(), loadReports(), loadBankingData()]);
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
@@ -7916,7 +10746,7 @@ function onCustomReportFilterChanged() {
       <td><strong>${r.partyName}</strong></td>
       <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${r.details}">${r.details}</td>
       <td class="num">${r.weightKg > 0 ? r.weightKg + ' KG' : '-'}</td>
-      <td class="num" style="font-family:var(--font-mono); font-weight:700;">${r.amountLabel}</td>
+      <td class="num" style="font-family:var(--font-mono); font-weight:700; color:${r.type.includes('In') || r.type === 'Sale' ? '#059669' : (r.type.includes('Out') || r.type === 'Purchase' ? '#dc2626' : '#0f172a')};">${r.amountLabel}</td>
     </tr>
   `).join('');
 }
