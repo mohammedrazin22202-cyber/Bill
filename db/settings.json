@@ -28,5 +28,7 @@
   "quoteRotationFrequency": "hourly",
   "quoteManualCycle": true,
   "soundAlerts": true,
-  "updatedAt": "2026-10-09T04:07:21.649Z"
+  "settingsPin": "8181",
+  "openingCashInHand": 0,
+  "updatedAt": "2026-10-10T15:54:05.465Z"
 }
