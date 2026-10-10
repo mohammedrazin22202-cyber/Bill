@@ -637,6 +637,7 @@ input[type="text"].global-search-input:focus {
 }
 .trend-badge.green { color: #10b981; }
 .trend-badge.red { color: #ef4444; }
+.trend-badge.neutral { color: #94a3b8; }
 
 .flow-connector-arrow {
   color: #94a3b8;
@@ -1869,6 +1870,17 @@ th:last-child {
   box-shadow: 0 0 0 3px rgba(0,132,255,0.15);
 }
 
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.pin-shake {
+  animation: pinShake 0.35s ease;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important;
+}
+
 .two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 
@@ -2296,6 +2308,7 @@ th:last-child {
     <button class="menu-item" data-view="settings">
       <i class="fa-solid fa-gear"></i>
       <span>Settings</span>
+      <i class="fa-solid fa-lock" id="sidebarSettingsLockIcon" style="font-size:10px; margin-left:auto; opacity:0.65;" title="PIN Protected (8181)"></i>
     </button>
   </nav>
 
@@ -2353,7 +2366,7 @@ th:last-child {
 
           <button class="top-round-btn" onclick="scrollToAttention()" title="Alerts & Follow-ups">
             <i class="fa-solid fa-bell"></i>
-            <span class="top-badge-dot">1</span>
+            <span class="top-badge-dot" id="topNotificationBadge" style="display:none;">0</span>
           </button>
 
           <div class="top-avatar-circle" onclick="handleLogout()" title="M S Bhathrudeen (Admin)">
@@ -2411,8 +2424,8 @@ th:last-child {
           <div class="flow-title" id="titleFishIn">FISH IN <span>(Today)</span></div>
           <div class="flow-main-val" id="valFishInKg">0 KG</div>
           <div class="flow-meta-line">
-            <span id="subFishInArrivals">14 arrivals</span>
-            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 12%</span>
+            <span id="subFishInArrivals">0 arrivals</span>
+            <span class="trend-badge neutral" id="trendFishIn">0%</span>
           </div>
         </div>
       </div>
@@ -2443,8 +2456,8 @@ th:last-child {
           <div class="flow-title" id="titleFishSold">FISH SOLD <span>(Today)</span></div>
           <div class="flow-main-val" id="valFishSoldKg">0 KG</div>
           <div class="flow-meta-line">
-            <span id="subFishSoldSales">12 sales</span>
-            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 8%</span>
+            <span id="subFishSoldSales">0 sales</span>
+            <span class="trend-badge neutral" id="trendFishSold">0%</span>
           </div>
         </div>
       </div>
@@ -2476,10 +2489,10 @@ th:last-child {
         </div>
         <div class="flow-data-content">
           <div class="flow-title">IN STOCK <span>(Now)</span></div>
-          <div class="flow-main-val" id="valInStockKg">640 KG</div>
+          <div class="flow-main-val" id="valInStockKg">0 KG</div>
           <div class="flow-meta-line">
-            <span id="subInStockLots">22 lots</span>
-            <span class="trend-badge red"><i class="fa-solid fa-arrow-down"></i> 6%</span>
+            <span id="subInStockLots">0 lots</span>
+            <span class="trend-badge neutral" id="trendInStock">0%</span>
           </div>
         </div>
       </div>
@@ -2518,7 +2531,7 @@ th:last-child {
           <div class="flow-title" id="titleCommission">COMMISSION <span>(Today)</span></div>
           <div class="flow-main-val" id="valCommission">₹0</div>
           <div class="flow-meta-line">
-            <span class="trend-badge green"><i class="fa-solid fa-arrow-up"></i> 15%</span>
+            <span class="trend-badge neutral" id="trendCommission">0%</span>
           </div>
         </div>
       </div>
@@ -2623,7 +2636,7 @@ th:last-child {
             <div class="card-title-group">
               <i class="fa-solid fa-cubes" style="color:#0084ff; font-size:16px;"></i>
               <div>
-                <div class="card-heading" id="headerCurrentStock">Current Stock (640 KG)</div>
+                <div class="card-heading" id="headerCurrentStock">Current Stock (0 KG)</div>
                 <div class="card-subheading">Stock available in godown by fish type</div>
               </div>
             </div>
@@ -2647,7 +2660,7 @@ th:last-child {
                 <span class="insight-live-badge"><i class="fa-solid fa-circle" style="font-size:5px; color:#10b981;"></i> Live Trends</span>
               </div>
               <div class="insight-sentence" id="dashboardMarketInsightText">
-                Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.
+                No transactions recorded for today yet. Use + Record Fish In or + Record Fish Sold to begin.
               </div>
             </div>
           </div>
@@ -2732,48 +2745,8 @@ th:last-child {
             <a class="card-action-link" onclick="switchTo('dealers')">View All <i class="fa-solid fa-arrow-right"></i></a>
           </div>
 
-          <div class="attention-card-list">
-            <!-- 1. Overdue payments -->
-            <div class="attention-item-box item-red" onclick="filterLateBuyers()">
-              <div class="attention-left-group">
-                <div class="attention-icon-tile tile-red">
-                  <i class="fa-solid fa-file-invoice"></i>
-                </div>
-                <div>
-                  <div class="attention-title-text red-t" id="attTitleOverdue">3 overdue payments</div>
-                  <div class="attention-sub-text" id="attSubOverdue">Total amount: ₹1,42,800</div>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
-            </div>
-
-            <!-- 2. Low stock -->
-            <div class="attention-item-box item-orange" onclick="switchTo('inventory')">
-              <div class="attention-left-group">
-                <div class="attention-icon-tile tile-orange">
-                  <i class="fa-solid fa-box-open"></i>
-                </div>
-                <div>
-                  <div class="attention-title-text orange-t">Low stock (2 items)</div>
-                  <div class="attention-sub-text">Sardine: 30 KG | Anchovy: 15 KG</div>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
-            </div>
-
-            <!-- 3. Dealer to settle -->
-            <div class="attention-item-box item-blue" onclick="settleKumar()">
-              <div class="attention-left-group">
-                <div class="attention-icon-tile tile-blue">
-                  <i class="fa-solid fa-user-check"></i>
-                </div>
-                <div>
-                  <div class="attention-title-text blue-t">1 dealer to settle</div>
-                  <div class="attention-sub-text">Kumar Traders: ₹82,080 payable</div>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
-            </div>
+          <div class="attention-card-list" id="attentionCardList">
+            <!-- Rendered dynamically by renderNeedsAttention() -->
           </div>
         </div>
 
@@ -3107,9 +3080,10 @@ th:last-child {
         <h1 class="view-heading-title">Bank & Cash</h1>
         <div style="font-size:12px; color:#64748b;">Track physical cash in hand, bank accounts, and daily payments</div>
       </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary" onclick="openUnifiedTransactionModal('IN')"><i class="fas fa-plus"></i> Add Entry</button>
-        <button class="btn btn-outline" onclick="openUnifiedTransactionModal('TRANSFER')"><i class="fas fa-right-left"></i> Move Money</button>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-outline" onclick="openLogExpenseModal()" style="border-color:#fca5a5; color:#dc2626; font-weight:700;"><i class="fas fa-receipt"></i> Log Expense</button>
+        <button class="btn btn-primary" onclick="openRecordMoneyInModal()"><i class="fas fa-plus"></i> Record In</button>
+        <button class="btn btn-outline" onclick="openMoveMoneyModal()"><i class="fas fa-right-left"></i> Move Money</button>
         <button class="btn btn-outline" onclick="openAddBankAccountModal()"><i class="fas fa-building-columns"></i> Add Bank</button>
       </div>
     </div>
@@ -3120,7 +3094,10 @@ th:last-child {
         <div class="standard-card" style="padding:18px 20px; border-left:4px solid #10b981; background:linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size:11.5px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:0.5px;">Cash in Hand</div>
-            <span style="font-size:18px; color:#10b981;"><i class="fa-solid fa-money-bill-wave"></i></span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button class="btn btn-ghost btn-sm" onclick="openEditCashInHandModal()" title="Edit Cash in Hand" style="padding:2px 8px; font-size:11px; color:#15803d; background:#dcfce7; border-radius:6px; font-weight:700;"><i class="fas fa-pen"></i> Edit</button>
+              <span style="font-size:18px; color:#10b981;"><i class="fa-solid fa-money-bill-wave"></i></span>
+            </div>
           </div>
           <div style="font-size:26px; font-weight:800; color:#065f46; margin:8px 0 4px; font-family:var(--font-mono, monospace);" id="treasuryCashInHand">₹0</div>
           <div style="font-size:11.5px; color:#166534;" id="treasuryCashTodayIn">Physical Cash Drawer</div>
@@ -3267,6 +3244,7 @@ th:last-child {
         <div style="font-size:12px; color:#64748b;">Mandi brokerage configuration, commission rules, credit policies, invoicing and system backups</div>
       </div>
       <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" onclick="lockSettingsNow()" title="Lock Settings"><i class="fas fa-lock"></i> Lock Settings</button>
         <button class="btn btn-outline" onclick="resetSettingsToDefault()"><i class="fas fa-rotate-left"></i> Reset Defaults</button>
         <button class="btn btn-primary" id="btnSaveSettings" onclick="saveSettingsForm()"><i class="fas fa-floppy-disk"></i> Save Settings</button>
       </div>
@@ -3446,6 +3424,14 @@ th:last-child {
                 <input type="checkbox" id="setEnableBadDebtProtection" checked />
                 <span class="switch-slider"></span>
               </label>
+            <div class="settings-toggle-row">
+              <div class="settings-toggle-info">
+                <h4><i class="fa-solid fa-lock" style="color:#0084ff;"></i> Settings Access Security PIN</h4>
+                <p>Protect the Settings tab with a 4-digit security PIN. Default PIN: <strong>8181</strong>.</p>
+              </div>
+              <div style="width:130px;">
+                <input type="text" id="setSettingsPin" maxlength="4" placeholder="8181" style="font-weight:800; font-family:monospace; letter-spacing:4px; text-align:center; padding:7px 10px; border-radius:8px; border:1px solid #cbd5e1;" />
+              </div>
             </div>
           </div>
         </div>
@@ -3594,6 +3580,40 @@ th:last-child {
     </div>
     <div class="ctrl-k-results" id="ctrlKResultsList">
       <div style="text-align:center; padding:28px; color:#94a3b8;">Type to search anything in Billify...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Settings PIN Lock -->
+<div class="modal-backdrop" id="settingsPinModal" onclick="if(event.target===this)closeSettingsPinModal()">
+  <div class="modal-window modal-sm" style="max-width:390px; min-height:auto;">
+    <div class="modal-top-bar" style="background:#f8fafc;">
+      <span class="modal-headline"><i class="fa-solid fa-shield-halved" style="color:#0084ff"></i> Security PIN Required</span>
+      <button class="btn btn-ghost btn-sm" onclick="closeSettingsPinModal()">✕</button>
+    </div>
+    <div class="modal-scroll-body" style="padding:24px 20px 16px; text-align:center;">
+      <div style="width:60px; height:60px; border-radius:50%; background:#eff6ff; color:#0084ff; display:flex; align-items:center; justify-content:center; font-size:26px; margin:0 auto 12px; border:2px solid #bfdbfe; box-shadow:0 4px 14px rgba(0,132,255,0.15);">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h3 style="font-size:17px; font-weight:800; color:#0f172a; margin-bottom:4px;">Settings Protected</h3>
+      <p style="font-size:12px; color:#64748b; margin-bottom:16px;">Enter the 4-digit security PIN to access system configuration.</p>
+      
+      <div style="position:relative; width:220px; margin:0 auto;">
+        <input type="password" id="settingsPinInput" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="••••"
+          style="width:100%; font-size:26px; letter-spacing:14px; text-align:center; padding:10px 36px 10px 48px; border-radius:10px; border:2px solid #cbd5e1; outline:none; font-family:monospace; font-weight:800;"
+          onkeydown="if(event.key==='Enter')verifySettingsPin()"
+          oninput="onSettingsPinInput(this)"
+        />
+        <button type="button" onclick="togglePinVisibility()" id="btnTogglePinEye" title="Show/Hide PIN"
+          style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#64748b; font-size:14px; padding:4px;">
+          <i class="fa-solid fa-eye" id="iconPinEye"></i>
+        </button>
+      </div>
+      <div id="settingsPinError" style="color:#dc2626; font-size:12px; font-weight:700; min-height:20px; margin-top:8px;"></div>
+    </div>
+    <div class="modal-bottom-actions" style="justify-content:center; gap:12px; padding:14px 20px;">
+      <button class="btn btn-secondary" onclick="closeSettingsPinModal()" style="min-width:100px;">Cancel</button>
+      <button class="btn btn-primary" onclick="verifySettingsPin()" style="min-width:120px;"><i class="fa-solid fa-unlock"></i> Unlock</button>
     </div>
   </div>
 </div>
@@ -4328,117 +4348,218 @@ th:last-child {
   </div>
 </div>
 
-<!-- Modal 13: Unified Cash & Bank Transaction Modal -->
-<div class="modal-backdrop" id="unifiedTransactionModal">
-  <div class="modal-window modal-sm" style="max-width:480px;">
+<!-- Modal 13: Log Office Expense (Dedicated, No Tabs) -->
+<div class="modal-backdrop" id="logOfficeExpenseModal" onclick="if(event.target===this)closeModal('logOfficeExpenseModal')">
+  <div class="modal-window modal-sm" style="max-width:440px;">
     <div class="modal-top-bar">
-      <span class="modal-headline" id="uTxnModalTitle"><i class="fas fa-wallet" style="color:#0084ff;"></i> Add Entry</span>
-      <button class="btn btn-ghost btn-sm" onclick="closeModal('unifiedTransactionModal')">✕</button>
+      <div>
+        <span class="modal-headline"><i class="fas fa-receipt" style="color:#ef4444;"></i> Log Office Expense</span>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Record counter cash or bank operating expense</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('logOfficeExpenseModal')">✕</button>
     </div>
 
-    <!-- 3 Segmented Mode Tabs -->
-    <div style="display:flex; background:#f1f5f9; padding:4px; border-radius:10px; margin:12px 18px 4px; gap:4px;">
-      <button type="button" class="btn" id="tabTxnIn" onclick="switchTxnTab('IN')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:#10b981; color:#ffffff; border:none; cursor:pointer;">
-        <i class="fas fa-arrow-down"></i> Money In
-      </button>
-      <button type="button" class="btn" id="tabTxnOut" onclick="switchTxnTab('OUT')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:transparent; color:#64748b; border:none; cursor:pointer;">
-        <i class="fas fa-arrow-up"></i> Money Out
-      </button>
-      <button type="button" class="btn" id="tabTxnTransfer" onclick="switchTxnTab('TRANSFER')" style="flex:1; border-radius:8px; font-weight:700; font-size:12.5px; padding:7px 0; background:transparent; color:#64748b; border:none; cursor:pointer;">
-        <i class="fas fa-right-left"></i> Transfer
-      </button>
-    </div>
-
-    <div class="modal-scroll-body" style="padding-top:14px;">
-      <!-- Big friendly Amount Input -->
+    <div class="modal-scroll-body" style="padding-top:16px;">
+      <!-- Amount (₹) -->
       <div class="input-block" style="text-align:center; margin-bottom:14px;">
         <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Amount (₹) *</label>
         <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
           <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
-          <input type="number" id="uTxnAmount" placeholder="0" min="1" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" />
+          <input type="number" id="mExpAmount" placeholder="0" min="1" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" />
         </div>
       </div>
 
-      <!-- PANEL: MONEY IN & OUT -->
-      <div id="uTxnInOutFields">
-        <div class="two-col-grid">
-          <div class="input-block">
-            <label id="uTxnAccountLabel">Account *</label>
-            <select id="uTxnAccountSelect">
-              <option value="cash_in_hand">Cash in Hand (Drawer)</option>
-            </select>
-          </div>
-          <div class="input-block">
-            <label>Date *</label>
-            <input type="date" id="uTxnDate" />
-          </div>
-        </div>
-
-        <div class="input-block">
-          <label id="uTxnCategoryLabel">Category / Reason *</label>
-          <select id="uTxnCategorySelect"></select>
-        </div>
-
-        <div class="input-block">
-          <label id="uTxnPartyLabel">Person / Party (Optional)</label>
-          <input type="text" id="uTxnPartyName" placeholder="e.g. Buyer name, Driver, Supplier" />
-        </div>
-
-        <div class="two-col-grid">
-          <div class="input-block">
-            <label>Reference / Slip (Optional)</label>
-            <input type="text" id="uTxnRef" placeholder="e.g. UTR / Chq / Slip #" />
-          </div>
-          <div class="input-block">
-            <label>Note (Optional)</label>
-            <input type="text" id="uTxnNotes" placeholder="Short note" />
-          </div>
-        </div>
+      <!-- Expense Name -->
+      <div class="input-block" style="margin-bottom:10px;">
+        <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Expense Name *</label>
+        <input type="text" id="mExpName" placeholder="e.g. Tea & Snacks, Office Electricity, Shop Rent, Coolie..." style="width:100%; padding:9px 12px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
       </div>
 
-      <!-- PANEL: TRANSFER (CASH <-> BANK) -->
-      <div id="uTxnTransferFields" style="display:none;">
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:14px;">
-          <div class="two-col-grid" style="align-items:center;">
-            <div class="input-block" style="margin-bottom:0;">
-              <label style="color:#64748b; font-size:11px; font-weight:700;">FROM ACCOUNT</label>
-              <select id="uTxnFromAccount" onchange="validateTransferAccounts()"></select>
-            </div>
-            <div class="input-block" style="margin-bottom:0;">
-              <label style="color:#64748b; font-size:11px; font-weight:700;">TO ACCOUNT</label>
-              <select id="uTxnToAccount" onchange="validateTransferAccounts()"></select>
-            </div>
-          </div>
-          <div style="text-align:center; margin-top:8px;">
-            <button type="button" class="btn btn-ghost btn-sm" onclick="swapTransferAccounts()" style="font-size:11.5px; color:#0084ff;">
-              <i class="fas fa-right-left"></i> Swap Accounts
-            </button>
-          </div>
-        </div>
+      <!-- Quick Preset Chips -->
+      <div style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Tea & Mandi Refreshments')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Tea & Snacks</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Shop Rent & Maintenance')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Shop Rent</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Electricity & Internet Bills')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Electricity / Bills</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Stationery & Printing')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Stationery</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Coolie & Labor Charges')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Coolie / Labor</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Ice Crushing & Preservation')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Ice</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setExpenseNamePreset('Harbor Diesel & Transport')" style="background:#f1f5f9; font-size:11px; padding:3px 8px; border-radius:6px; color:#475569;">Transport</button>
+      </div>
 
-        <div class="two-col-grid">
-          <div class="input-block">
-            <label>Transfer Date *</label>
-            <input type="date" id="uTxnTransferDate" />
-          </div>
-          <div class="input-block">
-            <label>Reference (Optional)</label>
-            <input type="text" id="uTxnTransferRef" placeholder="Deposit slip / ATM" />
-          </div>
+      <!-- Paid From & Date (Aligned 2-col Grid) -->
+      <div class="two-col-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Paid From *</label>
+          <select id="mExpAccount" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; background:#fff; box-sizing:border-box;">
+            <option value="cash_in_hand">Cash in Hand (Drawer)</option>
+          </select>
         </div>
-
-        <div class="input-block">
-          <label>Transfer Note / Purpose</label>
-          <input type="text" id="uTxnTransferNotes" placeholder="e.g. Daily cash deposit to current account" />
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Date *</label>
+          <input type="date" id="mExpDate" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
         </div>
       </div>
     </div>
 
     <div class="modal-bottom-actions">
-      <button class="btn btn-outline" onclick="closeModal('unifiedTransactionModal')">Cancel</button>
-      <button class="btn btn-green" id="uTxnSubmitBtn" onclick="saveUnifiedTransaction()">
+      <button class="btn btn-outline" onclick="closeModal('logOfficeExpenseModal')">Cancel</button>
+      <button class="btn btn-danger" id="mExpSubmitBtn" onclick="saveOfficeExpenseEntry()">
+        <i class="fas fa-check"></i> Log Expense
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 14: Record Money In (Dedicated, No Tabs) -->
+<div class="modal-backdrop" id="recordMoneyInModal" onclick="if(event.target===this)closeModal('recordMoneyInModal')">
+  <div class="modal-window modal-sm" style="max-width:440px;">
+    <div class="modal-top-bar">
+      <div>
+        <span class="modal-headline"><i class="fas fa-arrow-down" style="color:#10b981;"></i> Record Money In</span>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Record incoming cash or bank deposit</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('recordMoneyInModal')">✕</button>
+    </div>
+
+    <div class="modal-scroll-body" style="padding-top:16px;">
+      <!-- Amount (₹) -->
+      <div class="input-block" style="text-align:center; margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Amount (₹) *</label>
+        <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
+          <input type="number" id="mInAmount" placeholder="0" min="1" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" />
+        </div>
+      </div>
+
+      <!-- Description / Received For -->
+      <div class="input-block" style="margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Received For / Description *</label>
+        <input type="text" id="mInDescription" placeholder="e.g. Cash sale collection, Customer payment, Owner capital..." style="width:100%; padding:9px 12px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
+      </div>
+
+      <!-- Deposit Into & Date (Aligned 2-col Grid) -->
+      <div class="two-col-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Deposit Into *</label>
+          <select id="mInAccount" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; background:#fff; box-sizing:border-box;">
+            <option value="cash_in_hand">Cash in Hand (Drawer)</option>
+          </select>
+        </div>
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Date *</label>
+          <input type="date" id="mInDate" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('recordMoneyInModal')">Cancel</button>
+      <button class="btn btn-green" id="mInSubmitBtn" onclick="saveRecordMoneyInEntry()">
         <i class="fas fa-check"></i> Record Money In
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 15: Move Money / Transfer (Dedicated, No Tabs) -->
+<div class="modal-backdrop" id="moveMoneyModal" onclick="if(event.target===this)closeModal('moveMoneyModal')">
+  <div class="modal-window modal-sm" style="max-width:440px;">
+    <div class="modal-top-bar">
+      <div>
+        <span class="modal-headline"><i class="fas fa-right-left" style="color:#7c3aed;"></i> Move Money</span>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Transfer funds between cash drawer and bank accounts</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('moveMoneyModal')">✕</button>
+    </div>
+
+    <div class="modal-scroll-body" style="padding-top:16px;">
+      <!-- Amount (₹) -->
+      <div class="input-block" style="text-align:center; margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Amount (₹) *</label>
+        <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
+          <input type="number" id="mTransferAmount" placeholder="0" min="1" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" />
+        </div>
+      </div>
+
+      <!-- Accounts Transfer Box with Swap Button -->
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px; margin-bottom:12px;">
+        <div class="two-col-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; align-items:center;">
+          <div class="input-block" style="margin-bottom:0;">
+            <label style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px; display:block;">FROM ACCOUNT *</label>
+            <select id="mTransferFromAccount" style="width:100%; height:40px; padding:8px 10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; background:#fff; box-sizing:border-box;"></select>
+          </div>
+          <div class="input-block" style="margin-bottom:0;">
+            <label style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px; display:block;">TO ACCOUNT *</label>
+            <select id="mTransferToAccount" style="width:100%; height:40px; padding:8px 10px; font-size:12.5px; border:1.5px solid #cbd5e1; border-radius:8px; background:#fff; box-sizing:border-box;"></select>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="swapTransferAccountsModal()" style="font-size:11px; color:#7c3aed; padding:3px 10px;">
+            <i class="fas fa-right-left"></i> Swap Accounts
+          </button>
+        </div>
+      </div>
+
+      <!-- Date & Purpose -->
+      <div class="two-col-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Transfer Date *</label>
+          <input type="date" id="mTransferDate" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
+        </div>
+        <div class="input-block" style="margin-bottom:0;">
+          <label style="font-size:12px; font-weight:700; color:#334155; margin-bottom:5px; display:block;">Purpose (Optional)</label>
+          <input type="text" id="mTransferNote" placeholder="e.g. Deposit to bank" style="width:100%; height:40px; padding:8px 10px; font-size:13px; border:1.5px solid #cbd5e1; border-radius:8px; box-sizing:border-box;" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeModal('moveMoneyModal')">Cancel</button>
+      <button class="btn btn-purple" id="mTransferSubmitBtn" onclick="saveMoveMoneyEntry()">
+        <i class="fas fa-check"></i> Complete Transfer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit Cash in Hand (Physical Drawer) -->
+<div class="modal-backdrop" id="editCashInHandModal" onclick="if(event.target===this)closeEditCashInHandModal()">
+  <div class="modal-window modal-sm" style="max-width:440px;">
+    <div class="modal-top-bar">
+      <div>
+        <span class="modal-headline"><i class="fas fa-money-bill-1-wave" style="color:#059669;"></i> Edit Cash in Hand</span>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Count of physical currency notes & coins in drawer</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeEditCashInHandModal()">✕</button>
+    </div>
+    <div class="modal-scroll-body" style="padding-top:16px;">
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px; margin-bottom:16px;">
+        <div style="font-size:12px; color:#166534; line-height:1.45;">
+          <strong>Physical Drawer Count:</strong> Count the actual currency cash in the shop counter box. Setting the exact cash amount here updates your active cash in hand balance immediately.
+        </div>
+      </div>
+
+      <div class="input-block" style="text-align:center; margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Physical Cash in Drawer (₹) *</label>
+        <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
+          <input type="number" id="mEditCashInHandInput" placeholder="0" min="0" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" onkeydown="if(event.key==='Enter')saveEditCashInHand()" />
+        </div>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:16px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=0" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹0</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=10000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹10,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=25000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹25,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=50000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹50,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=65000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹65,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=100000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹1,00,000</button>
+      </div>
+    </div>
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeEditCashInHandModal()">Cancel</button>
+      <button class="btn btn-green" id="mEditCashInHandSaveBtn" onclick="saveEditCashInHand()"><i class="fas fa-check"></i> Save Cash Balance</button>
     </div>
   </div>
 </div>
@@ -4979,7 +5100,8 @@ let appSettings = {
   enableHourlyQuotes: true,
   quoteRotationFrequency: 'hourly',
   quoteManualCycle: true,
-  soundAlerts: true
+  soundAlerts: true,
+  settingsPin: '8181'
 };
 
 function switchSettingsTab(tabName, btn) {
@@ -5059,6 +5181,7 @@ function loadSettingsForm() {
   setVal('setQuoteRotationFrequency', appSettings.quoteRotationFrequency || 'hourly');
   setVal('setQuoteManualCycle', appSettings.quoteManualCycle !== false);
   setVal('setSoundAlerts', appSettings.soundAlerts !== false);
+  setVal('setSettingsPin', appSettings.settingsPin || '8181');
 }
 
 async function saveSettingsForm() {
@@ -5100,7 +5223,8 @@ async function saveSettingsForm() {
     enableHourlyQuotes: !!getVal('setEnableHourlyQuotes'),
     quoteRotationFrequency: getVal('setQuoteRotationFrequency') || 'hourly',
     quoteManualCycle: !!getVal('setQuoteManualCycle'),
-    soundAlerts: !!getVal('setSoundAlerts')
+    soundAlerts: !!getVal('setSoundAlerts'),
+    settingsPin: String(getVal('setSettingsPin') || '8181').trim()
   };
 
   if (btn) {
@@ -5152,6 +5276,110 @@ async function resetSettingsToDefault() {
     showToast('Settings restored to defaults!', 'info');
   } catch (e) {
     showToast('Could not reset defaults', 'error');
+  }
+}
+
+// ── Settings PIN Lock Management (PIN: 8181) ──
+function isSettingsUnlocked() {
+  return sessionStorage.getItem('settings_unlocked_session') === 'true';
+}
+
+function openSettingsPinModal() {
+  const inp = document.getElementById('settingsPinInput');
+  if (inp) {
+    inp.value = '';
+    inp.type = 'password';
+  }
+  const err = document.getElementById('settingsPinError');
+  if (err) err.textContent = '';
+  const eye = document.getElementById('iconPinEye');
+  if (eye) eye.className = 'fa-solid fa-eye';
+
+  openModal('settingsPinModal');
+  setTimeout(() => {
+    if (inp) inp.focus();
+  }, 120);
+}
+
+function closeSettingsPinModal() {
+  closeModal('settingsPinModal');
+  const inp = document.getElementById('settingsPinInput');
+  if (inp) inp.value = '';
+  const err = document.getElementById('settingsPinError');
+  if (err) err.textContent = '';
+}
+
+function onSettingsPinInput(inp) {
+  if (!inp) return;
+  inp.value = inp.value.replace(/[^0-9]/g, '').slice(0, 4);
+  const err = document.getElementById('settingsPinError');
+  if (err) err.textContent = '';
+  if (inp.value.length === 4) {
+    setTimeout(verifySettingsPin, 100);
+  }
+}
+
+function togglePinVisibility() {
+  const inp = document.getElementById('settingsPinInput');
+  const eye = document.getElementById('iconPinEye');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    if (eye) eye.className = 'fa-solid fa-eye-slash';
+  } else {
+    inp.type = 'password';
+    if (eye) eye.className = 'fa-solid fa-eye';
+  }
+}
+
+function verifySettingsPin() {
+  const inp = document.getElementById('settingsPinInput');
+  const pin = (inp ? inp.value : '').trim();
+  const validPin = String(appSettings.settingsPin || '8181').trim();
+
+  if (pin === validPin) {
+    sessionStorage.setItem('settings_unlocked_session', 'true');
+    closeSettingsPinModal();
+    updateSettingsLockUI();
+    showToast('Settings unlocked successfully.', 'success');
+    switchTo('settings');
+  } else {
+    const err = document.getElementById('settingsPinError');
+    if (err) err.textContent = 'Incorrect PIN. Access denied.';
+    if (inp) {
+      inp.classList.add('pin-shake');
+      setTimeout(() => {
+        inp.classList.remove('pin-shake');
+        inp.value = '';
+        inp.focus();
+      }, 400);
+    }
+  }
+}
+
+function lockSettings() {
+  sessionStorage.removeItem('settings_unlocked_session');
+  updateSettingsLockUI();
+}
+
+function lockSettingsNow() {
+  lockSettings();
+  showToast('Settings locked.', 'info');
+  switchTo('dashboard');
+}
+
+function updateSettingsLockUI() {
+  const lockIcon = document.getElementById('sidebarSettingsLockIcon');
+  if (lockIcon) {
+    if (isSettingsUnlocked()) {
+      lockIcon.className = 'fa-solid fa-lock-open';
+      lockIcon.style.color = '#10b981';
+      lockIcon.title = 'Settings Unlocked';
+    } else {
+      lockIcon.className = 'fa-solid fa-lock';
+      lockIcon.style.color = '';
+      lockIcon.title = 'PIN Protected (8181)';
+    }
   }
 }
 
@@ -5341,16 +5569,19 @@ function renderBankAccountsGrid() {
           <div class="bank-card-icon cash-icon">
             <i class="fa-solid fa-money-bill-1-wave"></i>
           </div>
-          <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700;">Physical Cash Drawer</span>
+          <div class="bank-card-tools" style="display:flex; align-items:center; gap:6px;">
+            <button class="bank-card-tool-btn" onclick="openEditCashInHandModal()" title="Edit Cash in Hand" style="color:#059669;"><i class="fas fa-pen"></i></button>
+            <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700;">Physical Cash Drawer</span>
+          </div>
         </div>
         <div class="bank-card-title">Cash in Hand</div>
         <div class="bank-card-sub">Shop counter cash box • Synced with Daybook</div>
         <div class="bank-card-balance" style="color:#059669;">₹${cashBal.toLocaleString('en-IN')}</div>
       </div>
       <div class="bank-card-actions">
-        <button class="btn btn-green btn-sm" onclick="openUnifiedTransactionModal('IN', 'cash_in_hand')" style="flex:1; justify-content:center;"><i class="fas fa-plus"></i> In</button>
-        <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('OUT', 'cash_in_hand')" style="flex:1; justify-content:center;"><i class="fas fa-minus"></i> Out</button>
-        <button class="btn btn-purple btn-sm" onclick="openUnifiedTransactionModal('TRANSFER', 'cash_in_hand')" style="flex:1.2; justify-content:center;" title="Deposit Cash to Bank"><i class="fas fa-right-left"></i> To Bank</button>
+        <button class="btn btn-green btn-sm" onclick="openRecordMoneyInModal('cash_in_hand')" style="flex:1; justify-content:center;"><i class="fas fa-plus"></i> In</button>
+        <button class="btn btn-outline btn-sm" onclick="openLogExpenseModal('cash_in_hand')" style="flex:1.2; justify-content:center; color:#dc2626; border-color:#fca5a5; font-weight:600;"><i class="fas fa-receipt"></i> Expense</button>
+        <button class="btn btn-purple btn-sm" onclick="openMoveMoneyModal('cash_in_hand')" style="flex:1.2; justify-content:center;" title="Deposit Cash to Bank"><i class="fas fa-right-left"></i> To Bank</button>
       </div>
     </div>
   `;
@@ -5375,9 +5606,9 @@ function renderBankAccountsGrid() {
           <div class="bank-card-balance" style="color:#0f172a;">₹${bal.toLocaleString('en-IN')}</div>
         </div>
         <div class="bank-card-actions">
-          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('IN', '${acc.id}')" style="flex:1; justify-content:center;"><i class="fas fa-plus" style="color:#10b981;"></i> In</button>
-          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('OUT', '${acc.id}')" style="flex:1; justify-content:center;"><i class="fas fa-minus" style="color:#ef4444;"></i> Out</button>
-          <button class="btn btn-outline btn-sm" onclick="openUnifiedTransactionModal('TRANSFER', '${acc.id}')" style="flex:1.2; justify-content:center;"><i class="fas fa-right-left" style="color:#7c3aed;"></i> Transfer</button>
+          <button class="btn btn-outline btn-sm" onclick="openRecordMoneyInModal('${acc.id}')" style="flex:1; justify-content:center;"><i class="fas fa-plus" style="color:#10b981;"></i> In</button>
+          <button class="btn btn-outline btn-sm" onclick="openLogExpenseModal('${acc.id}')" style="flex:1.2; justify-content:center; color:#dc2626; border-color:#fca5a5;"><i class="fas fa-receipt"></i> Expense</button>
+          <button class="btn btn-outline btn-sm" onclick="openMoveMoneyModal('${acc.id}')" style="flex:1.2; justify-content:center;"><i class="fas fa-right-left" style="color:#7c3aed;"></i> Transfer</button>
         </div>
       </div>
     `;
@@ -5411,24 +5642,22 @@ function populateBankSelectDropdowns() {
     if (currentVal) filterAcc.value = currentVal;
   }
 
-  const uAccSelect = document.getElementById('uTxnAccountSelect');
-  if (uAccSelect) {
-    let optHtml = `<option value="cash_in_hand">Cash in Hand (Drawer)</option>`;
-    for (const a of (bankingData.accounts || [])) {
-      optHtml += `<option value="${a.id}">${a.accountName} (${a.bankName})</option>`;
-    }
-    uAccSelect.innerHTML = optHtml;
+  let accOptions = `<option value="cash_in_hand">Cash in Hand (Drawer)</option>`;
+  for (const a of (bankingData.accounts || [])) {
+    accOptions += `<option value="${a.id}">${a.accountName} (${a.bankName})</option>`;
   }
 
-  const fromSelect = document.getElementById('uTxnFromAccount');
-  const toSelect = document.getElementById('uTxnToAccount');
+  const expSelect = document.getElementById('mExpAccount');
+  if (expSelect) expSelect.innerHTML = accOptions;
+
+  const inSelect = document.getElementById('mInAccount');
+  if (inSelect) inSelect.innerHTML = accOptions;
+
+  const fromSelect = document.getElementById('mTransferFromAccount');
+  const toSelect = document.getElementById('mTransferToAccount');
   if (fromSelect && toSelect) {
-    let allOptions = `<option value="cash_in_hand">Cash in Hand (Drawer)</option>`;
-    for (const a of (bankingData.accounts || [])) {
-      allOptions += `<option value="${a.id}">${a.accountName} (${a.bankName})</option>`;
-    }
-    fromSelect.innerHTML = allOptions;
-    toSelect.innerHTML = allOptions;
+    fromSelect.innerHTML = accOptions;
+    toSelect.innerHTML = accOptions;
     if ((bankingData.accounts || []).length > 0) {
       toSelect.value = String(bankingData.accounts[0].id);
     }
@@ -5455,147 +5684,194 @@ function handlePayModeChange() {
   }
 }
 
-let activeTxnTab = 'IN';
-
-const TXN_IN_CATEGORIES = [
-  'Customer / Buyer Payment',
-  'Cash Sale Collection',
-  'Owner Capital Inflow',
-  'Bank Interest / Dividend',
-  'General Inflow'
-];
-
-const TXN_OUT_CATEGORIES = [
-  'Ice Crushing & Preservation',
-  'Coolie & Labor Charges',
-  'Harbor Diesel & Transport',
-  'Tea & Mandi Refreshments',
-  'Rent & Mandi Charges',
-  'Dealer Payout',
-  'Owner Drawings',
-  'General Expense'
-];
-
-function switchTxnTab(tab) {
-  activeTxnTab = tab;
-  const tabIn = document.getElementById('tabTxnIn');
-  const tabOut = document.getElementById('tabTxnOut');
-  const tabTransfer = document.getElementById('tabTxnTransfer');
-  const inOutFields = document.getElementById('uTxnInOutFields');
-  const transferFields = document.getElementById('uTxnTransferFields');
-  const submitBtn = document.getElementById('uTxnSubmitBtn');
-  const catSelect = document.getElementById('uTxnCategorySelect');
-  const modalTitle = document.getElementById('uTxnModalTitle');
-
-  [tabIn, tabOut, tabTransfer].forEach(b => {
-    if (b) {
-      b.style.background = 'transparent';
-      b.style.color = '#64748b';
-    }
-  });
-
-  if (tab === 'IN') {
-    if (tabIn) {
-      tabIn.style.background = '#10b981';
-      tabIn.style.color = '#ffffff';
-    }
-    if (inOutFields) inOutFields.style.display = 'block';
-    if (transferFields) transferFields.style.display = 'none';
-    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-arrow-down" style="color:#10b981;"></i> Record Money In`;
-    if (submitBtn) {
-      submitBtn.className = 'btn btn-green';
-      submitBtn.innerHTML = `<i class="fas fa-check"></i> Record Money In`;
-    }
-    if (catSelect) {
-      catSelect.innerHTML = TXN_IN_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-  } else if (tab === 'OUT') {
-    if (tabOut) {
-      tabOut.style.background = '#ef4444';
-      tabOut.style.color = '#ffffff';
-    }
-    if (inOutFields) inOutFields.style.display = 'block';
-    if (transferFields) transferFields.style.display = 'none';
-    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-arrow-up" style="color:#ef4444;"></i> Record Money Out`;
-    if (submitBtn) {
-      submitBtn.className = 'btn btn-danger';
-      submitBtn.innerHTML = `<i class="fas fa-check"></i> Record Money Out`;
-    }
-    if (catSelect) {
-      catSelect.innerHTML = TXN_OUT_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join('');
-    }
-  } else if (tab === 'TRANSFER') {
-    if (tabTransfer) {
-      tabTransfer.style.background = '#7c3aed';
-      tabTransfer.style.color = '#ffffff';
-    }
-    if (inOutFields) inOutFields.style.display = 'none';
-    if (transferFields) transferFields.style.display = 'block';
-    if (modalTitle) modalTitle.innerHTML = `<i class="fas fa-right-left" style="color:#7c3aed;"></i> Move Money`;
-    if (submitBtn) {
-      submitBtn.className = 'btn btn-purple';
-      submitBtn.innerHTML = `<i class="fas fa-check"></i> Complete Transfer`;
-    }
-  }
-}
-
-function openUnifiedTransactionModal(initialTab = 'IN', defaultAccount = null) {
+function openLogExpenseModal(defaultAcc = 'cash_in_hand') {
   populateBankSelectDropdowns();
-  switchTxnTab(initialTab);
-
-  const today = new Date().toISOString().split('T')[0];
-  const amtInput = document.getElementById('uTxnAmount');
+  const amtInput = document.getElementById('mExpAmount');
   if (amtInput) amtInput.value = '';
 
-  const dateInput = document.getElementById('uTxnDate');
-  if (dateInput) dateInput.value = today;
+  const nameInput = document.getElementById('mExpName');
+  if (nameInput) nameInput.value = '';
 
-  const tDateInput = document.getElementById('uTxnTransferDate');
-  if (tDateInput) tDateInput.value = today;
+  const dateInput = document.getElementById('mExpDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
 
-  const partyInput = document.getElementById('uTxnPartyName');
-  if (partyInput) partyInput.value = '';
-
-  const refInput = document.getElementById('uTxnRef');
-  if (refInput) refInput.value = '';
-
-  const notesInput = document.getElementById('uTxnNotes');
-  if (notesInput) notesInput.value = '';
-
-  const tRefInput = document.getElementById('uTxnTransferRef');
-  if (tRefInput) tRefInput.value = '';
-
-  const tNotesInput = document.getElementById('uTxnTransferNotes');
-  if (tNotesInput) tNotesInput.value = '';
-
-  if (initialTab === 'TRANSFER') {
-    const fromSelect = document.getElementById('uTxnFromAccount');
-    const toSelect = document.getElementById('uTxnToAccount');
-    if (defaultAccount && defaultAccount !== 'cash_in_hand') {
-      if (fromSelect) fromSelect.value = String(defaultAccount);
-      if (toSelect) toSelect.value = 'cash_in_hand';
-    } else {
-      if (fromSelect) fromSelect.value = 'cash_in_hand';
-      if (toSelect && (bankingData.accounts || []).length > 0) {
-        toSelect.value = String(bankingData.accounts[0].id);
-      }
-    }
-  } else {
-    const accSelect = document.getElementById('uTxnAccountSelect');
-    if (accSelect && defaultAccount) {
-      accSelect.value = String(defaultAccount);
-    }
+  const accSelect = document.getElementById('mExpAccount');
+  if (accSelect && defaultAcc) {
+    accSelect.value = String(defaultAcc);
   }
 
-  openModal('unifiedTransactionModal');
+  openModal('logOfficeExpenseModal');
   setTimeout(() => {
-    document.getElementById('uTxnAmount')?.focus();
+    amtInput?.focus();
   }, 100);
 }
 
-function swapTransferAccounts() {
-  const fromSelect = document.getElementById('uTxnFromAccount');
-  const toSelect = document.getElementById('uTxnToAccount');
+function setExpenseNamePreset(name) {
+  const inp = document.getElementById('mExpName');
+  if (inp) {
+    inp.value = name;
+    inp.focus();
+  }
+}
+
+async function saveOfficeExpenseEntry() {
+  const amt = Number(document.getElementById('mExpAmount')?.value);
+  if (!amt || amt <= 0) {
+    alert('Please enter a valid expense amount greater than 0.');
+    document.getElementById('mExpAmount')?.focus();
+    return;
+  }
+
+  const name = (document.getElementById('mExpName')?.value || '').trim();
+  if (!name) {
+    alert('Please enter an Expense Name (e.g. Tea & snacks, Electricity, Rent, etc.).');
+    document.getElementById('mExpName')?.focus();
+    return;
+  }
+
+  const accId = document.getElementById('mExpAccount')?.value || 'cash_in_hand';
+  const isBank = accId !== 'cash_in_hand';
+  const date = document.getElementById('mExpDate')?.value || new Date().toISOString().split('T')[0];
+
+  const payload = {
+    date,
+    type: isBank ? 'BANK_OUT' : 'CASH_OUT',
+    accountId: accId,
+    amount: amt,
+    category: 'Office Expense',
+    notes: name,
+    contactName: ''
+  };
+
+  const btn = document.getElementById('mExpSubmitBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/treasury/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      closeModal('logOfficeExpenseModal');
+      showToast(`Expense of ₹${amt.toLocaleString('en-IN')} logged: ${name}`, 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || 'Failed to save expense'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function openRecordMoneyInModal(defaultAcc = 'cash_in_hand') {
+  populateBankSelectDropdowns();
+  const amtInput = document.getElementById('mInAmount');
+  if (amtInput) amtInput.value = '';
+
+  const descInput = document.getElementById('mInDescription');
+  if (descInput) descInput.value = '';
+
+  const dateInput = document.getElementById('mInDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+  const accSelect = document.getElementById('mInAccount');
+  if (accSelect && defaultAcc) {
+    accSelect.value = String(defaultAcc);
+  }
+
+  openModal('recordMoneyInModal');
+  setTimeout(() => {
+    amtInput?.focus();
+  }, 100);
+}
+
+async function saveRecordMoneyInEntry() {
+  const amt = Number(document.getElementById('mInAmount')?.value);
+  if (!amt || amt <= 0) {
+    alert('Please enter a valid amount greater than 0.');
+    document.getElementById('mInAmount')?.focus();
+    return;
+  }
+
+  const desc = (document.getElementById('mInDescription')?.value || '').trim() || 'General Money In';
+  const accId = document.getElementById('mInAccount')?.value || 'cash_in_hand';
+  const isBank = accId !== 'cash_in_hand';
+  const date = document.getElementById('mInDate')?.value || new Date().toISOString().split('T')[0];
+
+  const payload = {
+    date,
+    type: isBank ? 'BANK_IN' : 'CASH_IN',
+    accountId: accId,
+    amount: amt,
+    category: 'Money In',
+    notes: desc,
+    contactName: ''
+  };
+
+  const btn = document.getElementById('mInSubmitBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/treasury/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      closeModal('recordMoneyInModal');
+      showToast(`Recorded inflow of ₹${amt.toLocaleString('en-IN')}`, 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || 'Failed to record entry'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function openMoveMoneyModal(fromAcc = 'cash_in_hand') {
+  populateBankSelectDropdowns();
+  const amtInput = document.getElementById('mTransferAmount');
+  if (amtInput) amtInput.value = '';
+
+  const dateInput = document.getElementById('mTransferDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+  const noteInput = document.getElementById('mTransferNote');
+  if (noteInput) noteInput.value = '';
+
+  const fromSelect = document.getElementById('mTransferFromAccount');
+  const toSelect = document.getElementById('mTransferToAccount');
+
+  if (fromSelect && fromAcc) {
+    fromSelect.value = String(fromAcc);
+  }
+  if (toSelect) {
+    if (fromAcc === 'cash_in_hand') {
+      if ((bankingData.accounts || []).length > 0) {
+        toSelect.value = String(bankingData.accounts[0].id);
+      }
+    } else {
+      toSelect.value = 'cash_in_hand';
+    }
+  }
+
+  openModal('moveMoneyModal');
+  setTimeout(() => {
+    amtInput?.focus();
+  }, 100);
+}
+
+function swapTransferAccountsModal() {
+  const fromSelect = document.getElementById('mTransferFromAccount');
+  const toSelect = document.getElementById('mTransferToAccount');
   if (fromSelect && toSelect) {
     const temp = fromSelect.value;
     fromSelect.value = toSelect.value;
@@ -5603,91 +5879,63 @@ function swapTransferAccounts() {
   }
 }
 
-function validateTransferAccounts() {
-  const from = document.getElementById('uTxnFromAccount')?.value;
-  const to = document.getElementById('uTxnToAccount')?.value;
-  if (from && to && from === to) {
-    alert('Source and destination accounts must be different.');
-  }
-}
-
-async function saveUnifiedTransaction() {
-  const amt = Number(document.getElementById('uTxnAmount')?.value);
+async function saveMoveMoneyEntry() {
+  const amt = Number(document.getElementById('mTransferAmount')?.value);
   if (!amt || amt <= 0) {
-    alert('Please enter a valid amount greater than 0.');
-    document.getElementById('uTxnAmount')?.focus();
+    alert('Please enter a valid transfer amount greater than 0.');
+    document.getElementById('mTransferAmount')?.focus();
     return;
   }
 
-  if (activeTxnTab === 'TRANSFER') {
-    const from = document.getElementById('uTxnFromAccount')?.value;
-    const to = document.getElementById('uTxnToAccount')?.value;
-    if (from === to) {
-      alert('From and To accounts must be different.');
-      return;
-    }
-    const payload = {
-      date: document.getElementById('uTxnTransferDate')?.value || new Date().toISOString().split('T')[0],
-      type: 'CONTRA',
-      accountId: from,
-      toAccountId: to,
-      amount: amt,
-      category: 'Account Transfer',
-      referenceNo: document.getElementById('uTxnTransferRef')?.value.trim() || '',
-      notes: document.getElementById('uTxnTransferNotes')?.value.trim() || 'Transfer between accounts'
-    };
-
-    try {
-      const res = await fetch('/api/treasury/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        closeModal('unifiedTransactionModal');
-        showToast('Transfer completed successfully!', 'success');
-        loadBankingData();
-      } else {
-        const err = await res.json();
-        alert('Error: ' + err.error);
-      }
-    } catch (err) {
-      alert('Network error: ' + err.message);
-    }
-  } else {
-    const accId = document.getElementById('uTxnAccountSelect')?.value || 'cash_in_hand';
-    const isBank = accId !== 'cash_in_hand';
-    const type = activeTxnTab === 'IN' ? (isBank ? 'BANK_IN' : 'CASH_IN') : (isBank ? 'BANK_OUT' : 'CASH_OUT');
-
-    const payload = {
-      date: document.getElementById('uTxnDate')?.value || new Date().toISOString().split('T')[0],
-      type,
-      accountId: accId,
-      amount: amt,
-      category: document.getElementById('uTxnCategorySelect')?.value || (activeTxnTab === 'IN' ? 'Money In' : 'Money Out'),
-      contactName: document.getElementById('uTxnPartyName')?.value.trim() || '',
-      referenceNo: document.getElementById('uTxnRef')?.value.trim() || '',
-      notes: document.getElementById('uTxnNotes')?.value.trim() || ''
-    };
-
-    try {
-      const res = await fetch('/api/treasury/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        closeModal('unifiedTransactionModal');
-        showToast(`Money ${activeTxnTab === 'IN' ? 'In' : 'Out'} recorded successfully!`, 'success');
-        loadBankingData();
-      } else {
-        const err = await res.json();
-        alert('Error: ' + err.error);
-      }
-    } catch (err) {
-      alert('Network error: ' + err.message);
-    }
+  const from = document.getElementById('mTransferFromAccount')?.value;
+  const to = document.getElementById('mTransferToAccount')?.value;
+  if (!from || !to || from === to) {
+    alert('From and To accounts must be different.');
+    return;
   }
+
+  const date = document.getElementById('mTransferDate')?.value || new Date().toISOString().split('T')[0];
+  const note = (document.getElementById('mTransferNote')?.value || '').trim() || 'Internal Account Transfer';
+
+  const payload = {
+    date,
+    type: 'CONTRA',
+    accountId: from,
+    toAccountId: to,
+    amount: amt,
+    category: 'Account Transfer',
+    notes: note
+  };
+
+  const btn = document.getElementById('mTransferSubmitBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/treasury/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      closeModal('moveMoneyModal');
+      showToast(`Transfer of ₹${amt.toLocaleString('en-IN')} completed!`, 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || 'Failed to complete transfer'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// Backward-compatible router
+function openUnifiedTransactionModal(tab = 'IN', acc = null) {
+  if (tab === 'OUT') openLogExpenseModal(acc);
+  else if (tab === 'TRANSFER') openMoveMoneyModal(acc);
+  else openRecordMoneyInModal(acc);
 }
 
 function renderTreasuryTransactions() {
@@ -6005,9 +6253,76 @@ async function deleteBankAccount(id) {
     if (res.ok) {
       showToast('Bank Account deleted.', 'info');
       loadBankingData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert('Error deleting account: ' + (err.error || 'Server error'));
     }
   } catch (e) {
     alert('Error deleting account: ' + e.message);
+  }
+}
+
+function openLogExpenseModal(defaultAcc = 'cash_in_hand') {
+  openUnifiedTransactionModal('OUT', defaultAcc);
+  const modalTitle = document.getElementById('uTxnModalTitle');
+  if (modalTitle) {
+    modalTitle.innerHTML = `<i class="fas fa-receipt" style="color:#ef4444;"></i> Log Office Expense`;
+  }
+  const catSelect = document.getElementById('uTxnCategorySelect');
+  if (catSelect) {
+    catSelect.value = 'Office Expense';
+  }
+}
+
+function openEditCashInHandModal() {
+  const currentBal = (bankingData && bankingData.cashInHand && bankingData.cashInHand.currentBalance !== undefined)
+    ? bankingData.cashInHand.currentBalance
+    : 0;
+  const input = document.getElementById('mEditCashInHandInput');
+  if (input) {
+    input.value = currentBal;
+  }
+  openModal('editCashInHandModal');
+  setTimeout(() => {
+    input?.focus();
+    input?.select();
+  }, 100);
+}
+
+function closeEditCashInHandModal() {
+  closeModal('editCashInHandModal');
+}
+
+async function saveEditCashInHand() {
+  const input = document.getElementById('mEditCashInHandInput');
+  const amount = Number(input?.value);
+  if (isNaN(amount) || amount < 0) {
+    alert('Please enter a valid cash amount (0 or more).');
+    input?.focus();
+    return;
+  }
+
+  const btn = document.getElementById('mEditCashInHandSaveBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/treasury/cash-in-hand', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount })
+    });
+    if (res.ok) {
+      closeEditCashInHandModal();
+      showToast(`Cash in Hand updated to ₹${amount.toLocaleString('en-IN')}`, 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error updating Cash in Hand: ' + (err.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Network error: ' + err.message);
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -6090,9 +6405,20 @@ async function initApp() {
   renderActivityTimeline();
   renderFishStockCards();
   initReportControls();
+  updateSettingsLockUI();
+  renderNeedsAttention();
 }
 
 function switchTo(viewId) {
+  if (viewId === 'settings') {
+    if (!isSettingsUnlocked()) {
+      openSettingsPinModal();
+      return;
+    }
+  } else {
+    // Automatically lock settings immediately upon leaving
+    lockSettings();
+  }
   appState.currentView = viewId;
   document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -6114,6 +6440,7 @@ function switchTo(viewId) {
       updateDashboardMetrics();
       renderActivityTimeline();
       renderFishStockCards();
+      renderNeedsAttention();
     });
   } else if (viewId === 'inventory') {
     loadStockBoard();
@@ -6176,14 +6503,116 @@ async function loadReports() {
     const rbd = document.getElementById('repBadDebtVal'); if (rbd) rbd.textContent = `₹${(data.totalBadDebtLoss || 0).toLocaleString('en-IN')}`;
     const rcp = document.getElementById('repCleanProfit'); if (rcp) rcp.textContent = `₹${(data.netCompanyProfit || 0).toLocaleString('en-IN')}`;
 
-    // Overdue alerts
-    const attT = document.getElementById('attTitleOverdue'); if (attT) attT.textContent = `${data.overdueBuyersCount || 3} overdue payments`;
-    const attS = document.getElementById('attSubOverdue'); if (attS) attS.textContent = `Total amount: ₹${(data.totalOverdueAmount || 142800).toLocaleString('en-IN')}`;
-
+    renderNeedsAttention();
     updateMoneyCardBalances();
     updateDashboardMetrics();
   } catch (err) {
     console.error('Failed to load reports:', err);
+  }
+}
+
+function renderNeedsAttention() {
+  const container = document.getElementById('attentionCardList');
+  const badge = document.getElementById('topNotificationBadge');
+  if (!container) return;
+
+  const rep = appState.reports || {};
+  const contacts = appState.contacts || [];
+  const consignments = appState.consignments || [];
+
+  const items = [];
+
+  // 1. Overdue Buyer Payments
+  const overdueCount = Number(rep.overdueBuyersCount) || 0;
+  const overdueAmount = Number(rep.totalOverdueAmount) || 0;
+  if (overdueCount > 0 && overdueAmount > 0) {
+    items.push(`
+      <div class="attention-item-box item-red" onclick="filterLateBuyers()">
+        <div class="attention-left-group">
+          <div class="attention-icon-tile tile-red">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <div>
+            <div class="attention-title-text red-t">${overdueCount} overdue payment${overdueCount > 1 ? 's' : ''}</div>
+            <div class="attention-sub-text">Total amount: ₹${overdueAmount.toLocaleString('en-IN')}</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+      </div>
+    `);
+  }
+
+  // 2. Low Stock Varieties (only if there is actual positive stock running low < 10 crates)
+  const varietyTotals = {};
+  consignments.forEach(c => {
+    (c.items || []).forEach(it => {
+      const v = (it.variety || 'Fish').trim();
+      const left = it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates);
+      if (left > 0) {
+        varietyTotals[v] = (varietyTotals[v] || 0) + left;
+      }
+    });
+  });
+  const lowStock = Object.entries(varietyTotals).filter(([v, qty]) => qty > 0 && qty < 10);
+  if (lowStock.length > 0) {
+    const detailStr = lowStock.slice(0, 2).map(([v, q]) => `${v}: ${q} crates`).join(' | ');
+    items.push(`
+      <div class="attention-item-box item-orange" onclick="switchTo('inventory')">
+        <div class="attention-left-group">
+          <div class="attention-icon-tile tile-orange">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div>
+            <div class="attention-title-text orange-t">Low stock (${lowStock.length} items)</div>
+            <div class="attention-sub-text">${detailStr}</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+      </div>
+    `);
+  }
+
+  // 3. Pending Dealer Settlements
+  const pendingDealers = contacts.filter(c => c.isDealer && Number(c.payableBalance) > 0);
+  if (pendingDealers.length > 0) {
+    const first = pendingDealers[0];
+    items.push(`
+      <div class="attention-item-box item-blue" onclick="openPatiyaModal('${first.name.replace(/'/g, "\\'")}')">
+        <div class="attention-left-group">
+          <div class="attention-icon-tile tile-blue">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+          <div>
+            <div class="attention-title-text blue-t">${pendingDealers.length} dealer${pendingDealers.length > 1 ? 's' : ''} to settle</div>
+            <div class="attention-sub-text">${first.name}: ₹${Number(first.payableBalance).toLocaleString('en-IN')} payable</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
+      </div>
+    `);
+  }
+
+  // Render items or empty state
+  if (items.length > 0) {
+    container.innerHTML = items.join('');
+    if (badge) {
+      badge.style.display = 'inline-block';
+      badge.textContent = items.length;
+    }
+  } else {
+    container.innerHTML = `
+      <div style="text-align:center; padding:28px 16px; background:#f8fafc; border-radius:10px; border:1px dashed #cbd5e1; margin:4px 0;">
+        <div style="width:38px; height:38px; border-radius:50%; background:#dcfce7; color:#15803d; display:inline-flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:8px;">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div style="font-weight:700; font-size:13px; color:#1e293b;">No Actions Needed</div>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">All consignments settled, no overdue payments.</div>
+      </div>
+    `;
+    if (badge) {
+      badge.style.display = 'none';
+      badge.textContent = '0';
+    }
   }
 }
 
@@ -6233,9 +6662,70 @@ function updateMoneyCardBalances() {
   }
 }
 
+function getPreviousIsoDate(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    d.setDate(d.getDate() - 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  return '';
+}
+
+function updateTrendBadge(elemId, currentVal, prevVal, unit = 'KG') {
+  const el = document.getElementById(elemId);
+  if (!el) return;
+
+  currentVal = Number(currentVal) || 0;
+  prevVal = Number(prevVal) || 0;
+
+  if (currentVal === 0 && prevVal === 0) {
+    el.className = 'trend-badge neutral';
+    el.innerHTML = '0%';
+    el.title = 'No activity recorded';
+    return;
+  }
+
+  if (prevVal === 0 && currentVal > 0) {
+    el.className = 'trend-badge green';
+    el.innerHTML = '<i class="fa-solid fa-arrow-up"></i> 100%';
+    el.title = `100% increase vs yesterday (was 0 ${unit})`;
+    return;
+  }
+
+  if (prevVal > 0 && currentVal === 0) {
+    el.className = 'trend-badge red';
+    el.innerHTML = '<i class="fa-solid fa-arrow-down"></i> 100%';
+    el.title = `100% decrease vs yesterday (${prevVal.toLocaleString('en-IN')} ${unit})`;
+    return;
+  }
+
+  const diff = currentVal - prevVal;
+  const pct = Math.round((diff / prevVal) * 100);
+
+  if (pct > 0) {
+    el.className = 'trend-badge green';
+    el.innerHTML = `<i class="fa-solid fa-arrow-up"></i> ${pct}%`;
+    el.title = `Up ${pct}% vs yesterday (${prevVal.toLocaleString('en-IN')} ${unit})`;
+  } else if (pct < 0) {
+    el.className = 'trend-badge red';
+    el.innerHTML = `<i class="fa-solid fa-arrow-down"></i> ${Math.abs(pct)}%`;
+    el.title = `Down ${Math.abs(pct)}% vs yesterday (${prevVal.toLocaleString('en-IN')} ${unit})`;
+  } else {
+    el.className = 'trend-badge neutral';
+    el.innerHTML = '0%';
+    el.title = `Same volume as yesterday (${prevVal.toLocaleString('en-IN')} ${unit})`;
+  }
+}
+
 function updateDashboardMetrics() {
   const targetDate = appState.selectedDate || getTodayIsoDate();
   const isToday = targetDate === getTodayIsoDate();
+  const prevDate = getPreviousIsoDate(targetDate);
 
   // Dynamic flow titles
   const tIn = document.getElementById('titleFishIn');
@@ -6259,6 +6749,16 @@ function updateDashboardMetrics() {
   const elArrCount = document.getElementById('subFishInArrivals');
   if (elArrCount) elArrCount.textContent = `${arrivalsCount} arrival${arrivalsCount === 1 ? '' : 's'}`;
 
+  // 1b. Previous Day Fish In & Trend
+  let prevFishInKg = 0;
+  const arrivalsForPrevDate = (appState.consignments || []).filter(c => c.date === prevDate);
+  arrivalsForPrevDate.forEach(c => {
+    (c.items || []).forEach(it => {
+      prevFishInKg += (Number(it.weightKg) || 0);
+    });
+  });
+  updateTrendBadge('trendFishIn', fishInKg, prevFishInKg, 'KG');
+
   // 2. Fish Sold (Today / Selected Date)
   let fishSoldKg = 0;
   const salesForDate = (appState.sales || []).filter(s => s.date === targetDate);
@@ -6272,6 +6772,16 @@ function updateDashboardMetrics() {
   if (elFishSold) elFishSold.textContent = `${fishSoldKg.toLocaleString('en-IN')} KG`;
   const elSalesCount = document.getElementById('subFishSoldSales');
   if (elSalesCount) elSalesCount.textContent = `${salesCount} sale${salesCount === 1 ? '' : 's'}`;
+
+  // 2b. Previous Day Fish Sold & Trend
+  let prevFishSoldKg = 0;
+  const salesForPrevDate = (appState.sales || []).filter(s => s.date === prevDate);
+  salesForPrevDate.forEach(s => {
+    (s.lines || []).forEach(l => {
+      prevFishSoldKg += (Number(l.qty) || 0);
+    });
+  });
+  updateTrendBadge('trendFishSold', fishSoldKg, prevFishSoldKg, 'KG');
 
   // 3. In Stock (Now) - Physical godown stock remaining until sold
   let inStockKg = 0;
@@ -6293,6 +6803,26 @@ function updateDashboardMetrics() {
   const elHeaderStock = document.getElementById('headerCurrentStock');
   if (elHeaderStock) elHeaderStock.textContent = `Current Stock (${inStockKg.toLocaleString('en-IN')} KG)`;
 
+  // 3b. Previous Closing Stock & Trend
+  let prevArrivedTotal = 0;
+  (appState.consignments || []).forEach(c => {
+    if (c.date && c.date <= prevDate) {
+      (c.items || []).forEach(it => {
+        prevArrivedTotal += (Number(it.weightKg) || 0);
+      });
+    }
+  });
+  let prevSoldTotal = 0;
+  (appState.sales || []).forEach(s => {
+    if (s.date && s.date <= prevDate) {
+      (s.lines || []).forEach(l => {
+        prevSoldTotal += (Number(l.qty) || 0);
+      });
+    }
+  });
+  const prevClosingStock = Math.max(0, prevArrivedTotal - prevSoldTotal);
+  updateTrendBadge('trendInStock', inStockKg, prevClosingStock, 'KG');
+
   // 4. Commission (Today / Selected Date)
   const settlementsForDate = (appState.settlements || []).filter(st => st.date === targetDate);
   let comm = settlementsForDate.reduce((sum, st) => sum + (Number(st.commissionAmount) || 0), 0);
@@ -6303,14 +6833,31 @@ function updateDashboardMetrics() {
   const elComm = document.getElementById('valCommission');
   if (elComm) elComm.textContent = `₹${comm.toLocaleString('en-IN')}`;
 
+  // 4b. Previous Day Commission & Trend
+  const settlementsForPrevDate = (appState.settlements || []).filter(st => st.date === prevDate);
+  let prevComm = settlementsForPrevDate.reduce((sum, st) => sum + (Number(st.commissionAmount) || 0), 0);
+  if (prevComm === 0 && salesForPrevDate.length > 0) {
+    const prevTurnover = salesForPrevDate.reduce((sum, sl) => sum + (Number(sl.total) || 0), 0);
+    prevComm = Math.round(prevTurnover * 0.05);
+  }
+  updateTrendBadge('trendCommission', comm, prevComm, '₹');
+
+  // 5. Market Insight Text
   const elInsightText = document.getElementById('dashboardMarketInsightText');
   if (elInsightText) {
     if (salesForDate.length > 0) {
-      elInsightText.textContent = `Today's sales volume is active with ${salesCount} transaction${salesCount === 1 ? '' : 's'}. Vanjaram and Seer are in high demand.`;
+      let trendSnippet = '';
+      if (prevFishSoldKg > 0) {
+        const sDiff = Math.round(((fishSoldKg - prevFishSoldKg) / prevFishSoldKg) * 100);
+        if (sDiff > 0) trendSnippet = ` Today's sales are ${sDiff}% higher than yesterday.`;
+        else if (sDiff < 0) trendSnippet = ` Today's sales are ${Math.abs(sDiff)}% lower than yesterday.`;
+        else trendSnippet = ` Sales volume matches yesterday's pace.`;
+      }
+      elInsightText.textContent = `Today's sales volume is active with ${salesCount} transaction${salesCount === 1 ? '' : 's'} (${fishSoldKg.toLocaleString('en-IN')} KG).${trendSnippet}`;
     } else if (arrivalsForDate.length > 0) {
-      elInsightText.textContent = `Fresh consignments arrived today (${fishInKg.toLocaleString('en-IN')} KG). Ready for wholesale booking.`;
+      elInsightText.textContent = `Fresh consignments arrived today (${fishInKg.toLocaleString('en-IN')} KG across ${arrivalsCount} arrival${arrivalsCount === 1 ? '' : 's'}). Ready for wholesale booking.`;
     } else {
-      elInsightText.textContent = `Today's sales are 12% higher than yesterday. Vanjaram and Seer are in high demand.`;
+      elInsightText.textContent = 'No transactions recorded for today yet. Use + Record Fish In or + Record Fish Sold to begin.';
     }
   }
 }
