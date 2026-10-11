@@ -2041,12 +2041,50 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // Bulk Delete Settlements (Patiya)
+  if (req.method === 'POST' && pathname === '/api/settlements/bulk-delete') {
+    try {
+      const body = await readBody(req);
+      const ids = Array.isArray(body.ids) ? body.ids.map(Number).filter(n => !isNaN(n)) : [];
+      if (ids.length === 0) return sendJson(res, { error: 'No IDs provided' }, 400);
+
+      const database = await connectDb();
+      let deletedCount = 0;
+      for (const id of ids) {
+        await database.collection('settlements').deleteOne({ id });
+        await database.collection('payments').deleteMany({ linkedSettlementId: id });
+        deletedCount++;
+      }
+      return sendJson(res, { ok: true, count: deletedCount });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  if (req.method === 'DELETE' && pathname === '/api/settlements') {
+    try {
+      const database = await connectDb();
+      await database.collection('settlements').deleteMany({});
+      if (useLocalStorage) {
+        writeJsonFile('settlements.json', []);
+      }
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   if (req.method === 'DELETE' && pathname.startsWith('/api/settlements/')) {
     try {
       const id = Number(pathname.split('/').pop());
       const database = await connectDb();
       await database.collection('settlements').deleteOne({ id });
       await database.collection('payments').deleteMany({ linkedSettlementId: id });
+      if (useLocalStorage) {
+        let settlements = readJsonFile('settlements.json', []);
+        settlements = settlements.filter(s => Number(s.id) !== id);
+        writeJsonFile('settlements.json', settlements);
+      }
       return sendJson(res, { ok: true });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
@@ -2523,6 +2561,40 @@ const server = http.createServer(async (req, res) => {
         await database.collection('settings').replaceOne({ _id: 'app_settings' }, { _id: 'app_settings', ...updated }, { upsert: true });
       }
       return sendJson(res, updated);
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Reset / Clear All Business Data ──
+  if (req.method === 'POST' && pathname === '/api/system/reset-data') {
+    try {
+      const body = await readBody(req);
+      const pin = String(body.pin || '').trim();
+      const settings = (useLocalStorage ? readJsonFile('settings.json', null) : await (await connectDb()).collection('settings').findOne({ _id: 'app_settings' })) || getDefaultSettings();
+      const validPin = String(settings.settingsPin || '8181').trim();
+      if (pin !== validPin) {
+        return sendJson(res, { error: 'Invalid Security PIN' }, 403);
+      }
+
+      const database = await connectDb();
+      await database.collection('consignments').deleteMany({});
+      await database.collection('sales').deleteMany({});
+      await database.collection('settlements').deleteMany({});
+      await database.collection('payments').deleteMany({});
+      await database.collection('daybook').deleteMany({});
+      await database.collection('treasury_transactions').deleteMany({});
+      await database.collection('contacts').deleteMany({});
+
+      writeJsonFile('consignments.json', []);
+      writeJsonFile('sales.json', []);
+      writeJsonFile('settlements.json', []);
+      writeJsonFile('payments.json', []);
+      writeJsonFile('daybook.json', []);
+      writeJsonFile('treasury_transactions.json', []);
+      writeJsonFile('contacts.json', []);
+
+      return sendJson(res, { ok: true, message: 'All business records wiped successfully' });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }
