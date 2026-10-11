@@ -93,7 +93,9 @@ function getDefaultSettings() {
     enableHourlyQuotes: true,
     quoteRotationFrequency: 'hourly',
     quoteManualCycle: true,
-    soundAlerts: true
+    soundAlerts: true,
+    settingsPin: '8181',
+    openingCashInHand: 0
   };
 }
 
@@ -890,16 +892,18 @@ function getDefaultBankAccounts() {
 
 async function getTreasuryOverview() {
   const database = await connectDb();
-  let accounts = [];
+  let accounts = null;
   if (useLocalStorage) {
     accounts = readJsonFile('bank_accounts.json', null);
   } else {
     accounts = await database.collection('bank_accounts').find({}).toArray();
   }
-  if (!accounts || !Array.isArray(accounts) || accounts.length === 0) {
+  if (accounts === null || !Array.isArray(accounts)) {
     accounts = getDefaultBankAccounts();
     if (useLocalStorage) {
       writeJsonFile('bank_accounts.json', accounts);
+    } else {
+      await database.collection('bank_accounts').insertMany(accounts);
     }
   }
 
@@ -956,7 +960,10 @@ async function getTreasuryOverview() {
     };
   });
 
-  let cashInHandBalance = 65000;
+  const settings = (useLocalStorage ? readJsonFile('settings.json', null) : await database.collection('settings').findOne({ _id: 'app_settings' })) || getDefaultSettings();
+  const openingCash = settings && settings.openingCashInHand !== undefined ? Number(settings.openingCashInHand) : 0;
+
+  let cashInHandBalance = openingCash;
   let cashInTotal = 0;
   let cashOutTotal = 0;
 
@@ -1016,6 +1023,7 @@ async function getTreasuryOverview() {
     cashInHand: {
       id: 'cash_in_hand',
       name: 'Cash in Hand (Physical Drawer)',
+      openingBalance: openingCash,
       currentBalance: cashInHandBalance,
       totalIn: cashInTotal,
       totalOut: cashOutTotal
@@ -2288,16 +2296,47 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === 'DELETE' && pathname.startsWith('/api/bank-accounts/')) {
     try {
-      const id = Number(pathname.split('/').pop());
+      const rawId = pathname.split('/').pop();
+      const numId = Number(rawId);
       const database = await connectDb();
-      if (useLocalStorage) {
-        let accounts = readJsonFile('bank_accounts.json', []);
-        accounts = accounts.filter(a => Number(a.id) !== id);
-        writeJsonFile('bank_accounts.json', accounts);
-      } else {
-        await database.collection('bank_accounts').deleteOne({ id });
-      }
+      await database.collection('bank_accounts').deleteOne({
+        $or: [{ id: numId }, { id: rawId }]
+      });
+      let accounts = readJsonFile('bank_accounts.json', []);
+      accounts = accounts.filter(a => Number(a.id) !== numId && String(a.id) !== rawId);
+      writeJsonFile('bank_accounts.json', accounts);
       return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
+  // ── Edit Cash in Hand (Physical Drawer) Balance ──
+  if (req.method === 'POST' && pathname === '/api/treasury/cash-in-hand') {
+    try {
+      const body = await readBody(req);
+      const targetBalance = Number(body.amount) || 0;
+      const database = await connectDb();
+
+      const overview = await getTreasuryOverview();
+      const netTxns = (overview.cashInHand.totalIn || 0) - (overview.cashInHand.totalOut || 0);
+      const newOpening = targetBalance - netTxns;
+
+      const currentSettings = (useLocalStorage ? readJsonFile('settings.json', null) : await database.collection('settings').findOne({ _id: 'app_settings' })) || getDefaultSettings();
+      const updated = {
+        ...(Array.isArray(currentSettings) ? getDefaultSettings() : currentSettings),
+        openingCashInHand: newOpening,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (useLocalStorage) {
+        writeJsonFile('settings.json', updated);
+      } else {
+        await database.collection('settings').replaceOne({ _id: 'app_settings' }, { _id: 'app_settings', ...updated }, { upsert: true });
+        writeJsonFile('settings.json', updated);
+      }
+
+      return sendJson(res, { ok: true, currentBalance: targetBalance, openingCashInHand: newOpening });
     } catch (err) {
       return sendJson(res, { error: err.message }, 500);
     }

@@ -3120,7 +3120,10 @@ th:last-child {
         <div class="standard-card" style="padding:18px 20px; border-left:4px solid #10b981; background:linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="font-size:11.5px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:0.5px;">Cash in Hand</div>
-            <span style="font-size:18px; color:#10b981;"><i class="fa-solid fa-money-bill-wave"></i></span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="btn btn-ghost btn-xs" onclick="openEditCashInHandModal()" style="font-size:11px; padding:2px 8px; color:#15803d; background:#dcfce7; border-radius:6px;" title="Edit Cash Drawer Balance"><i class="fas fa-pen"></i> Edit</button>
+              <span style="font-size:18px; color:#10b981;"><i class="fa-solid fa-money-bill-wave"></i></span>
+            </div>
           </div>
           <div style="font-size:26px; font-weight:800; color:#065f46; margin:8px 0 4px; font-family:var(--font-mono, monospace);" id="treasuryCashInHand">₹0</div>
           <div style="font-size:11.5px; color:#166534;" id="treasuryCashTodayIn">Physical Cash Drawer</div>
@@ -4443,6 +4446,47 @@ th:last-child {
   </div>
 </div>
 
+<!-- Modal: Edit Cash in Hand -->
+<div class="modal-backdrop" id="editCashInHandModal" onclick="if(event.target===this)closeEditCashInHandModal()">
+  <div class="modal-window modal-sm" style="max-width:440px;">
+    <div class="modal-top-bar">
+      <div>
+        <span class="modal-headline"><i class="fas fa-money-bill-1-wave" style="color:#059669;"></i> Edit Cash in Hand</span>
+        <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Count of physical currency notes & coins in drawer</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeEditCashInHandModal()">✕</button>
+    </div>
+    <div class="modal-scroll-body" style="padding-top:16px;">
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px; margin-bottom:16px;">
+        <div style="font-size:12px; color:#166534; line-height:1.45;">
+          <strong>Physical Drawer Count:</strong> Count the actual currency cash in the shop counter box. Setting the exact cash amount here updates your active cash in hand balance immediately.
+        </div>
+      </div>
+
+      <div class="input-block" style="text-align:center; margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:700; color:#64748b; text-transform:uppercase;">Physical Cash in Drawer (₹) *</label>
+        <div style="position:relative; width:100%; max-width:280px; margin:0 auto;">
+          <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:22px; font-weight:800; color:#94a3b8;">₹</span>
+          <input type="number" id="mEditCashInHandInput" placeholder="0" min="0" autofocus style="font-size:24px; font-weight:800; text-align:center; padding:8px 24px 8px 36px; border-radius:10px; border:2px solid #cbd5e1; width:100%; font-family:var(--font-mono, monospace);" onkeydown="if(event.key==='Enter')saveEditCashInHand()" />
+        </div>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:16px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=0" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹0</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=10000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹10,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=25000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹25,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=50000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹50,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=65000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹65,000</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('mEditCashInHandInput').value=100000" style="background:#f1f5f9; font-size:11px; padding:4px 8px;">₹1,00,000</button>
+      </div>
+    </div>
+    <div class="modal-bottom-actions">
+      <button class="btn btn-outline" onclick="closeEditCashInHandModal()">Cancel</button>
+      <button class="btn btn-green" id="mEditCashInHandSaveBtn" onclick="saveEditCashInHand()"><i class="fas fa-check"></i> Save Cash Balance</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal 10: View Bill & Print Preview -->
 <div class="modal-backdrop" id="viewBillModal" onclick="if(event.target===this)closeModal('viewBillModal')">
   <div class="modal-window modal-lg" style="max-width:840px;">
@@ -5341,7 +5385,10 @@ function renderBankAccountsGrid() {
           <div class="bank-card-icon cash-icon">
             <i class="fa-solid fa-money-bill-1-wave"></i>
           </div>
-          <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700;">Physical Cash Drawer</span>
+          <div class="bank-card-tools" style="display:flex; align-items:center; gap:6px;">
+            <button class="bank-card-tool-btn" onclick="openEditCashInHandModal()" title="Edit Cash in Hand" style="color:#059669;"><i class="fas fa-pen"></i></button>
+            <span class="badge" style="background:#dcfce7; color:#15803d; font-size:11px; font-weight:700;">Physical Cash Drawer</span>
+          </div>
         </div>
         <div class="bank-card-title">Cash in Hand</div>
         <div class="bank-card-sub">Shop counter cash box • Synced with Daybook</div>
@@ -6005,9 +6052,64 @@ async function deleteBankAccount(id) {
     if (res.ok) {
       showToast('Bank Account deleted.', 'info');
       loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error: ' + (err.error || 'Failed to delete account'));
     }
   } catch (e) {
     alert('Error deleting account: ' + e.message);
+  }
+}
+
+function openEditCashInHandModal() {
+  const currentBal = (bankingData && bankingData.cashInHand && bankingData.cashInHand.currentBalance !== undefined)
+    ? bankingData.cashInHand.currentBalance
+    : 0;
+  const input = document.getElementById('mEditCashInHandInput');
+  if (input) {
+    input.value = currentBal;
+  }
+  openModal('editCashInHandModal');
+  setTimeout(() => {
+    input?.focus();
+    input?.select();
+  }, 100);
+}
+
+function closeEditCashInHandModal() {
+  closeModal('editCashInHandModal');
+}
+
+async function saveEditCashInHand() {
+  const input = document.getElementById('mEditCashInHandInput');
+  const amount = Number(input?.value);
+  if (isNaN(amount) || amount < 0) {
+    alert('Please enter a valid cash amount (0 or more).');
+    input?.focus();
+    return;
+  }
+
+  const btn = document.getElementById('mEditCashInHandSaveBtn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/treasury/cash-in-hand', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount })
+    });
+    if (res.ok) {
+      closeEditCashInHandModal();
+      showToast(`Cash in Hand updated to ₹${amount.toLocaleString('en-IN')}`, 'success');
+      loadBankingData();
+    } else {
+      const err = await res.json();
+      alert('Error updating Cash in Hand: ' + (err.error || 'Server error'));
+    }
+  } catch (e) {
+    alert('Failed to update cash in hand: ' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
