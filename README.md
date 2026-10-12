@@ -54,16 +54,30 @@ Billify is a dedicated Commission Brokerage & Consignment ERP tailored for fish 
 
 ---
 
+## Project Structure
+
+```text
+Bill/
+├── backend/            # Server (server.js), database (db/), configuration & dependencies
+├── frontend/           # Single-page client (index.html), logos & visual assets
+├── archive/            # Archived legacy standalone modules (billify-Purchase, billify-Sales)
+├── start.bat           # 1-click Windows launcher
+└── README.md           # Project documentation
+```
+
+---
+
 ## Quick Start
 
 ### Windows Launcher
-Double-click `start_billforge.bat`. It will start the server and open your browser at:
+Double-click `start.bat`. It will start the server and open your browser at:
 ```text
 http://127.0.0.1:8000
 ```
 
 ### Manual Start
 ```bash
+cd backend
 node server.js
 ```
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
