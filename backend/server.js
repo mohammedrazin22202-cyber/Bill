@@ -385,8 +385,8 @@ function normalizeContact(data) {
     phone: String(data.phone || '').trim(),
     address: String(data.address || '').trim(),
     notes: String(data.notes || '').trim(),
-    isDealer: data.isDealer !== undefined ? !!data.isDealer : true,
-    isBuyer: data.isBuyer !== undefined ? !!data.isBuyer : false,
+    isDealer: true,
+    isBuyer: true,
     defaultCommissionType: data.defaultCommissionType || 'percent', // 'percent' or 'flat_per_crate'
     defaultCommissionVal: (data.defaultCommissionVal !== undefined && data.defaultCommissionVal !== null && data.defaultCommissionVal !== '') ? Number(data.defaultCommissionVal) : 0,
     creditLimit: !isNaN(Number(data.creditLimit)) ? Number(data.creditLimit) : 0,

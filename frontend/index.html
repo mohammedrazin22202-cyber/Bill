@@ -8233,8 +8233,8 @@ function searchDealerInward(q) {
   const list = document.getElementById('mArrDealerDropdown');
   const term = q.trim();
   if (!term) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isDealer && c.name.toLowerCase().includes(term.toLowerCase()));
-  const exactMatch = appState.contacts.find(c => c.name.toLowerCase() === term.toLowerCase());
+  const matches = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(term.toLowerCase()));
+  const exactMatch = (appState.contacts || []).find(c => c.name.toLowerCase() === term.toLowerCase());
 
   let html = matches.map(m => `
     <div class="autocomplete-row" onclick="document.getElementById('mArrDealer').value='${m.name.replace(/'/g, "\\'")}'; document.getElementById('mArrDealerDropdown').style.display='none';">${m.name}</div>
@@ -8243,7 +8243,7 @@ function searchDealerInward(q) {
   if (!exactMatch) {
     html += `
       <div class="autocomplete-row" onclick="promptCreateNewParty('${term.replace(/'/g, "\\'")}', 'dealer', 'arrivalModal')" style="color:#0284c7; font-weight:700; background:#f0f9ff; border-top:1px dashed #bae6fd;">
-        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Dealer "${term}"
+        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Party "${term}"
       </div>
     `;
   }
@@ -11301,8 +11301,7 @@ function renderContactsList() {
   }
 
   tbody.innerHTML = filtered.map(c => {
-    const isDual = c.isDealer && c.isBuyer;
-    let badge = isDual ? '<span class="badge badge-purple">Both (2-in-1)</span>' : (c.isDealer ? '<span class="badge badge-green">Dealer</span>' : '<span class="badge badge-blue">Buyer</span>');
+    let badge = '<span class="badge badge-purple" style="font-weight:600;"><i class="fas fa-user-check"></i> Party</span>';
 
     let statusBadge = '';
     const isBypassed = (Number(c.creditLimit) === -1 && Number(c.creditPeriod) === -1) || !!c.bypassCreditCheck;
@@ -11312,7 +11311,7 @@ function renderContactsList() {
       statusBadge = `<span class="badge badge-red" style="font-weight:700;" title="${c.badDebtReason || 'Marked as Bad Debt Defaulter'}"><i class="fas fa-ban"></i> Defaulter (Bad Debt)</span>`;
     } else if (c.isOverdue && !isBypassed) {
       statusBadge = `<span class="badge badge-red" style="font-weight:700;"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>`;
-    } else if (c.isDealer && unsettledLots > 0) {
+    } else if (unsettledLots > 0) {
       statusBadge = `<span class="badge badge-purple" style="font-weight:700;" title="${unsettledLots} consignment(s) awaiting settlement"><i class="fas fa-calculator"></i> ${unsettledLots} ${unsettledLots === 1 ? 'Lot' : 'Lots'} to Settle</span>`;
     } else {
       statusBadge = '<span class="badge badge-green">Clear</span>';
@@ -11346,12 +11345,12 @@ function renderContactsList() {
         <td>${statusBadge}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
-            ${(c.isDealer && unsettledLots > 0) ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates"><i class="fas fa-calculator"></i> Settle</button>` : ''}
-            ${(c.isDealer && (c.payableBalance > 0 || c.netBalance > 0)) ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money to Dealer"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
-            ${(c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.netBalance < 0)) ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
+            ${unsettledLots > 0 ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates"><i class="fas fa-calculator"></i> Settle</button>` : ''}
+            ${(c.payableBalance > 0 || c.netBalance > 0) ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
+            ${(!c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.netBalance < 0)) ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
             <button class="btn btn-outline btn-sm btn-icon" onclick="openBalancePreviewModal(${c.id})" title="Preview Breakdown & Passbook"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             ${c.phone && !c.isBadDebtDefaulter ? `<button class="btn btn-wa btn-sm btn-icon" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name.replace(/'/g, "\\'")}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
-            ${c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.isOverdue) ? `<button class="btn btn-danger btn-sm btn-icon" onclick="openBadDebtModal(${c.id})" title="Consider as Bad Debt"><i class="fas fa-ban"></i></button>` : ''}
+            ${(!c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.isOverdue)) ? `<button class="btn btn-danger btn-sm btn-icon" onclick="openBadDebtModal(${c.id})" title="Consider as Bad Debt"><i class="fas fa-ban"></i></button>` : ''}
             ${c.isBadDebtDefaulter ? `<button class="btn btn-outline btn-sm btn-icon" onclick="openRestoreBadDebtModal(${c.id})" title="Restore Account from Bad Debt" style="color:#0284c7; border-color:#0284c7;"><i class="fas fa-rotate-left"></i></button>` : ''}
             <button class="btn btn-ghost btn-sm btn-icon" onclick="editPartyAccount(${c.id})" title="Edit Party"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm btn-icon" onclick="deleteContactSingle(${c.id})" title="Delete Party"><i class="fas fa-trash"></i></button>
@@ -11655,15 +11654,9 @@ function promptCreateNewParty(name, role = 'dealer', originModal = '', pendingAc
   const dEl = document.getElementById('mContIsDealer');
   const bEl = document.getElementById('mContIsBuyer');
 
-  if (role === 'buyer') {
-    document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#10b981;"></i> New Buyer Account';
-    if (dEl) { dEl.value = 'false'; dEl.checked = false; }
-    if (bEl) { bEl.value = 'true'; bEl.checked = true; }
-  } else {
-    document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#0084ff;"></i> New Dealer Account';
-    if (dEl) { dEl.value = 'true'; dEl.checked = true; }
-    if (bEl) { bEl.value = 'false'; bEl.checked = false; }
-  }
+  document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#0084ff;"></i> New Party Account';
+  if (dEl) { dEl.value = 'true'; dEl.checked = true; }
+  if (bEl) { bEl.value = 'true'; bEl.checked = true; }
 
   document.getElementById('mContCreditLimit').value = '';
   document.getElementById('mContCreditPeriod').value = '';
@@ -11687,10 +11680,8 @@ async function saveContactAccount() {
   const name = document.getElementById('mContName').value.trim();
   const phone = document.getElementById('mContPhone').value.trim();
   const address = document.getElementById('mContAddress').value.trim();
-  const dEl = document.getElementById('mContIsDealer');
-  const bEl = document.getElementById('mContIsBuyer');
-  const isDealer = dEl ? (dEl.type === 'checkbox' ? dEl.checked : dEl.value === 'true') : true;
-  const isBuyer = bEl ? (bEl.type === 'checkbox' ? bEl.checked : bEl.value === 'true') : false;
+  const isDealer = true;
+  const isBuyer = true;
 
   const rawLimit = document.getElementById('mContCreditLimit').value;
   const rawPeriod = document.getElementById('mContCreditPeriod').value;
@@ -12993,7 +12984,7 @@ function searchPayContact(q) {
   if (notice) notice.style.display = 'none';
   const type = document.getElementById('mPayType').value;
   const isDealer = type === 'DEALER_PAYMENT';
-  const candidates = appState.contacts.filter(c => isDealer ? c.isDealer : c.isBuyer);
+  const candidates = appState.contacts || [];
   const filterQ = (q || '').trim().toLowerCase();
   const matches = filterQ ? candidates.filter(c => c.name.toLowerCase().includes(filterQ) || (c.phone && c.phone.includes(filterQ))) : candidates;
   if (matches.length === 0) { list.style.display = 'none'; return; }
@@ -13181,7 +13172,7 @@ function openContraModal() {
 function searchContraParty(q) {
   const list = document.getElementById('mContraPartyDropdown');
   if (!q.trim()) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isDealer && c.isBuyer && c.name.toLowerCase().includes(q.toLowerCase()));
+  const matches = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(q.toLowerCase()));
   if (matches.length === 0) { list.style.display = 'none'; return; }
   list.innerHTML = matches.map(m => `
     <div class="autocomplete-row" onclick="chooseContraParty('${m.name}', ${m.id})">${m.name}</div>

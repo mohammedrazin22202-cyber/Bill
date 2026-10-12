@@ -23,7 +23,7 @@
     "phone": "9840503469",
     "address": "Chennai",
     "notes": "",
-    "isDealer": false,
+    "isDealer": true,
     "isBuyer": true,
     "defaultCommissionType": "percent",
     "defaultCommissionVal": 0,
