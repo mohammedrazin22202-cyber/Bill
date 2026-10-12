@@ -1,1 +1,68 @@
-[]
+[
+  {
+    "id": 1791731581412,
+    "consignmentNo": "INW-1791731581412",
+    "date": "2026-10-11",
+    "dealerId": 1791731573928,
+    "dealerName": "AK Kollam",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Nethili",
+        "crates": 200,
+        "weightKg": 0,
+        "unsoldCrates": 0,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Settled",
+    "isSettled": true,
+    "settlementId": 1791731814317,
+    "settlementNo": "SET-1791731814317",
+    "settledDate": "2026-10-11",
+    "notes": "",
+    "created": 1791731581412,
+    "updated": 1791731814348,
+    "settledAt": 1791731814328
+  },
+  {
+    "id": 1791731895666,
+    "consignmentNo": "INW-1791731895666",
+    "date": "2026-10-11",
+    "dealerId": 1791731573928,
+    "dealerName": "AK Kollam",
+    "vehicleNo": "",
+    "driverPhone": "",
+    "lorryBhada": 0,
+    "lorryBhadaMode": "Cash",
+    "lorryBhadaNotes": "",
+    "items": [
+      {
+        "id": 1,
+        "variety": "Kavalai",
+        "crates": 96,
+        "weightKg": 0,
+        "unsoldCrates": 0,
+        "unsoldWeightKg": 0,
+        "rateExpectation": 0,
+        "notes": ""
+      }
+    ],
+    "status": "Settled",
+    "isSettled": true,
+    "settlementId": 1791735971456,
+    "settlementNo": "SET-1791735971456",
+    "settledDate": "2026-10-11",
+    "notes": "",
+    "created": 1791731895666,
+    "updated": 1791735971476,
+    "settledAt": 1791735971468
+  }
+]

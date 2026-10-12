@@ -1657,6 +1657,20 @@ input[type="text"].global-search-input:focus {
 }
 .data-grid td.num, .data-grid th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
+/* Wholesale Sale Lines Grid Layout & Alignment */
+#saleLinesGrid {
+  table-layout: fixed !important;
+  width: 100% !important;
+}
+#saleLinesGrid th, #saleLinesGrid td {
+  vertical-align: top !important;
+}
+#saleLinesGrid .lineStockPicker {
+  width: 100% !important;
+  display: block !important;
+  box-sizing: border-box !important;
+}
+
 /* Buttons & Badges */
 .btn {
   display: inline-flex;
@@ -1840,7 +1854,7 @@ th:last-child {
   justify-content: space-between;
 }
 .modal-headline { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-.modal-scroll-body { padding: 18px 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; }
+.modal-scroll-body { padding: 18px 20px; overflow-y: auto; flex: 1; display: block; }
 .modal-bottom-actions {
   padding: 12px 20px;
   border-top: 1px solid #f1f5f9;
@@ -2916,11 +2930,10 @@ th:last-child {
       <div>
         <h1 class="view-heading-title">Dealers & Buyers Directory</h1>
         <div class="view-sub-tabs-row">
-          <button class="view-tab-btn active" onclick="filterDirectory('all', this)">All Parties</button>
-          <button class="view-tab-btn" onclick="filterDirectory('dealers', this)">Dealers</button>
-          <button class="view-tab-btn" onclick="filterDirectory('buyers', this)">Buyers</button>
-          <button class="view-tab-btn" style="color:#b91c1c;" onclick="filterDirectory('overdue', this)"><i class="fas fa-clock"></i> Overdue (Late)</button>
-          <button class="view-tab-btn" style="color:#dc2626;" onclick="filterDirectory('baddebt', this)"><i class="fas fa-ban"></i> Bad Debt</button>
+          <button class="view-tab-btn active" id="dirTab_dealers" onclick="filterDirectory('dealers', this)"><i class="fas fa-ship"></i> Dealers</button>
+          <button class="view-tab-btn" id="dirTab_buyers" onclick="filterDirectory('buyers', this)"><i class="fas fa-shopping-bag"></i> Buyers</button>
+          <button class="view-tab-btn" id="dirTab_baddebt" style="color:#dc2626;" onclick="filterDirectory('baddebt', this)"><i class="fas fa-ban"></i> Bad Debt</button>
+          <button class="view-tab-btn" id="dirTab_all" onclick="filterDirectory('all', this)"><i class="fas fa-users"></i> All Parties</button>
         </div>
       </div>
       <button class="btn btn-primary" onclick="openContactModal()"><i class="fas fa-user-plus"></i> New Person</button>
@@ -2931,6 +2944,17 @@ th:last-child {
         <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <span style="font-weight:700;"><i class="fas fa-address-book" style="color:#0084ff;"></i> Address Book & Ledger Status</span>
+            
+            <!-- Overdue Filter within Dealers, Buyers, and All Parties -->
+            <div id="dirSubFilterGroup" style="display:inline-flex; align-items:center; background:#f1f5f9; padding:2px; border-radius:8px; border:1px solid #cbd5e1; gap:2px;">
+              <button type="button" class="btn btn-sm dir-sub-pill active" id="dirSubFilterAllBtn" onclick="setDirectorySubFilter('all')" style="padding:4px 12px; font-weight:700; border-radius:6px; border:none; background:#0084ff; color:#fff; cursor:pointer; font-size:12px; transition:all 0.15s ease;">
+                <span id="dirSubAllLabel">All Dealers</span> (<span id="dirSubCountAll">0</span>)
+              </button>
+              <button type="button" class="btn btn-sm dir-sub-pill" id="dirSubFilterOverdueBtn" onclick="setDirectorySubFilter('overdue')" style="padding:4px 12px; font-weight:700; border-radius:6px; border:none; background:transparent; color:#b91c1c; cursor:pointer; font-size:12px; transition:all 0.15s ease;">
+                <i class="fas fa-clock"></i> Overdue (<span id="dirSubCountOverdue">0</span>)
+              </button>
+            </div>
+
             <div id="contactsBulkActionBar" style="display:none; align-items:center; gap:8px;">
               <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="contactsSelectedCountBadge">
                 0 selected
@@ -3196,7 +3220,10 @@ th:last-child {
         <h1 class="view-heading-title">Reports & Financials</h1>
         <div style="font-size:12px; color:#64748b;">Commission, broking profit, bad debt write-offs and net profits</div>
       </div>
-      <button class="btn btn-primary" onclick="openCustomReportModal()"><i class="fas fa-file-invoice-dollar"></i> Custom Period & Category Report</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" id="btnRefreshReports" onclick="refreshReportsView()" title="Refresh live report data"><i class="fas fa-rotate"></i> Refresh</button>
+        <button class="btn btn-primary" onclick="openCustomReportModal()"><i class="fas fa-file-invoice-dollar"></i> Custom Period & Category Report</button>
+      </div>
     </div>
 
     <div class="view-body-content">
@@ -3699,22 +3726,27 @@ th:last-child {
       </div>
 
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
           <span style="font-weight:700; font-size:12.5px;">Items Sold</span>
           <span class="badge badge-purple" id="mSaleBoxCountBadge" style="font-size:11.5px;"><i class="fas fa-boxes-stacked"></i> P - 0 Boxes</span>
+          <span class="badge badge-blue" id="mSaleAvgRateBadge" style="font-size:11.5px; display:none;"><i class="fas fa-calculator"></i> Avg: ₹0 / Box</span>
+          <label style="font-size:12px; font-weight:700; color:#1e293b; display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:#f8fafc; border:1px solid #cbd5e1; padding:3px 10px; border-radius:6px; margin-left:4px;" title="Group split lots of the same fish into a single combined line with blended average price">
+            <input type="checkbox" id="mSaleUseAverageRate" onchange="toggleAveragePriceMode(this.checked)"/>
+            <span>Bill at Average Price</span>
+          </label>
         </div>
-        <button class="btn btn-outline btn-sm" onclick="addSaleLine()"><i class="fas fa-plus"></i> Add Fish Line</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="addSaleLine()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
-      <div class="table-scroller">
-        <table class="data-grid" id="saleLinesGrid">
+      <div class="table-scroller" style="min-height:120px; border:1.5px solid #cbd5e1; border-radius:8px; margin-bottom:14px; background:#ffffff;">
+        <table class="data-grid" id="saleLinesGrid" style="min-width:600px; width:100%; table-layout:fixed;">
           <thead>
-            <tr>
-              <th style="width:44%">Fish Name</th>
-              <th style="width:16%" class="num">Boxes (P)</th>
-              <th style="width:16%" class="num">Rate (₹)</th>
-              <th style="width:18%" class="num">Amount (₹)</th>
-              <th style="width:6%"></th>
+            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+              <th style="width:42%; padding:10px 10px; color:#1e293b; font-weight:700; text-align:left;">Fish Variety / Inventory</th>
+              <th style="width:18%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Number of boxes/crates (P)">Boxes (P)</th>
+              <th style="width:18%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Rate per Box">Rate (₹)</th>
+              <th style="width:17%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num">Amount (₹)</th>
+              <th style="width:5%; padding:10px 6px; text-align:center;"></th>
             </tr>
           </thead>
           <tbody id="saleLinesTbody"></tbody>
@@ -3735,6 +3767,11 @@ th:last-child {
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
               <span>Goods Subtotal:</span>
               <strong id="mSaleSubtotal">₹0</strong>
+            </div>
+
+            <div id="mSaleAvgRateLedgerRow" style="display:none; justify-content:space-between; align-items:center; font-size:12px; color:#6d28d9; background:#f5f3ff; border:1px dashed #ddd6fe; border-radius:6px; padding:4px 8px;">
+              <span><i class="fas fa-calculator"></i> Price Per Crate (Avg):</span>
+              <strong id="mSaleAvgRateLedgerVal">₹0 / Box</strong>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px;">
@@ -3790,7 +3827,7 @@ th:last-child {
       <div class="three-col-grid" style="align-items:flex-end;">
         <div class="input-block autocomplete-anchor">
           <label>Select Dealer / Supplier *</label>
-          <input type="text" id="mPatDealer" placeholder="Click or type dealer name..." onfocus="searchPatiyaDealer(this.value)" oninput="searchPatiyaDealer(this.value)"/>
+          <input type="text" id="mPatDealer" placeholder="Click or type dealer name..." autocomplete="off" spellcheck="false" onfocus="searchPatiyaDealer(this.value)" oninput="searchPatiyaDealer(this.value)"/>
           <div class="autocomplete-flyout" id="mPatDealerDropdown"></div>
         </div>
         <div class="input-block">
@@ -3814,7 +3851,7 @@ th:last-child {
           Select a supplier or dealer above and click <strong>Fetch Consignment Sales</strong> to load received fish varieties, calculate gross realization, deduct lorry freight & broker commission, and update continuous ledger.
         </div>
         <div style="border-top: 1px dashed #e2e8f0; padding-top: 18px; width: 100%; max-width: 620px;">
-          <div style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+          <div id="mPatQuickDealerLabel" style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
             Quick Select Supplier / Dealer:
           </div>
           <div id="mPatQuickDealerChips" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;"></div>
@@ -3885,7 +3922,7 @@ th:last-child {
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <div>
                 <span style="font-weight:800; font-size:13px; color:#0f172a;">2. Deduct Expenses (One by One)</span>
-                <div style="font-size:11px; color:#64748b;">Transport (MEN), Ice & Coolie (ML), etc.</div>
+                <div style="font-size:11px; color:#64748b;">Transport, ice, coolie, labor, etc.</div>
               </div>
               <button class="btn btn-outline btn-sm" onclick="addPatiyaExpenseLine()"><i class="fas fa-plus"></i> Add Expense</button>
             </div>
@@ -3920,7 +3957,7 @@ th:last-child {
                 </div>
                 <div class="input-block">
                   <label>Comm. Rate / Val</label>
-                  <input type="number" id="mPatCommVal" value="5" oninput="recalculatePatiya()"/>
+                  <input type="number" id="mPatCommVal" value="" placeholder="0" oninput="recalculatePatiya()"/>
                 </div>
               </div>
               <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:6px;">
@@ -3954,19 +3991,19 @@ th:last-child {
             <div style="background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #e2e8f0;">
               <label style="font-size:11.5px; font-weight:700; color:#475569; display:block; margin-bottom:4px;">(+) Previous Balance Owed</label>
               <input type="number" id="mPatPrevBal" value="" placeholder="0" style="width:100%; text-align:right; font-weight:700; font-size:14px;" oninput="recalculatePatiya()"/>
-              <small style="font-size:10.5px; color:#64748b;">What you already owed him before today (e.g. ₹100)</small>
+              <small style="font-size:10.5px; color:#64748b;">What you already owed before today</small>
             </div>
 
             <div style="background:#f0fdf4; padding:10px 12px; border-radius:8px; border:1px solid #bbf7d0;">
               <label style="font-size:11.5px; font-weight:700; color:#166534; display:block; margin-bottom:4px;">(+) Today's Consignment Net</label>
               <div style="font-size:18px; font-weight:800; color:#15803d; margin-top:2px; font-family:var(--font-mono);" id="mPatConsignmentNetSummary">₹0</div>
-              <small style="font-size:10.5px; color:#166534;">Sale Value - Expenses - Comm (e.g. ₹75)</small>
+              <small style="font-size:10.5px; color:#166534;">Gross Sales - Expenses - Commission</small>
             </div>
 
             <div style="background:#eff6ff; padding:10px 12px; border-radius:8px; border:1px solid #bfdbfe;">
               <label style="font-size:11.5px; font-weight:700; color:#1e40af; display:block; margin-bottom:4px;">(=) Total Amount We Owe Him</label>
               <div style="font-size:19px; font-weight:800; color:#1d4ed8; margin-top:2px; font-family:var(--font-mono);" id="mPatTotalDue">₹0</div>
-              <small style="font-size:10.5px; color:#1e40af;">Prev Bal + Today Net (₹100 + ₹75 = ₹175)</small>
+              <small style="font-size:10.5px; color:#1e40af;">Previous Balance + Today's Net</small>
             </div>
           </div>
 
@@ -3975,7 +4012,7 @@ th:last-child {
               <label style="font-size:11.5px; font-weight:700; color:#991b1b; display:block; margin-bottom:2px;">
                 <i class="fas fa-truck"></i> (-) Spot Cash Paid to Driver / Party (Optional)
               </label>
-              <input type="text" id="mPatCashPayee" placeholder="e.g. Cash Paid to DRL (Driver)" style="width:100%; font-size:11.5px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" value="Cash Paid to DRL (Driver)"/>
+              <input type="text" id="mPatCashPayee" placeholder="Driver / DRL" style="width:100%; font-size:11.5px; padding:4px 8px; border:1px solid #fca5a5; border-radius:6px;" value=""/>
             </div>
             <div style="width:160px; text-align:right;">
               <label style="font-size:11px; font-weight:700; color:#991b1b; display:block; margin-bottom:2px;">Cash Given (₹)</label>
@@ -4030,29 +4067,32 @@ th:last-child {
         <input type="text" id="mContAddress" placeholder="e.g. Kasimedu Harbor, Chennai"/>
       </div>
 
-      <div style="background:#f8fafc; padding:10px; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0;">
-        <label style="font-size:11px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">
-          ROLE (TICK BOTH FOR 2-IN-1 PARTIES)
-        </label>
-        <div style="display:flex; gap:16px;">
-          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <input type="checkbox" id="mContIsDealer" checked/> Dealer (Consignor)
-          </label>
-          <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-            <input type="checkbox" id="mContIsBuyer"/> Buyer (Party)
-          </label>
+      <!-- Hidden Role Flags (Auto-managed by context) -->
+      <input type="hidden" id="mContIsDealer" value="true"/>
+      <input type="hidden" id="mContIsBuyer" value="false"/>
+
+      <div class="two-col-grid" style="margin-bottom:6px;">
+        <div class="input-block" style="margin-bottom:0;">
+          <label>Credit Limit (₹)</label>
+          <input type="number" id="mContCreditLimit" value="" placeholder="0" oninput="checkBypassCreditInputs()"/>
+        </div>
+        <div class="input-block" style="margin-bottom:0;">
+          <label>Period (Days)</label>
+          <input type="number" id="mContCreditPeriod" value="" placeholder="0" oninput="checkBypassCreditInputs()"/>
         </div>
       </div>
 
-      <div class="two-col-grid">
-        <div class="input-block">
-          <label>Credit Limit (₹)</label>
-          <input type="number" id="mContCreditLimit" value="" placeholder="0"/>
-        </div>
-        <div class="input-block">
-          <label>Period (Days)</label>
-          <input type="number" id="mContCreditPeriod" value="7"/>
-        </div>
+      <!-- Bypass Active Indicator Badge -->
+      <div id="mContBypassNotice" style="display:none; background:#ecfdf5; border:1px solid #a7f3d0; border-radius:8px; padding:7px 11px; margin-top:8px; margin-bottom:4px; font-size:11.5px; color:#065f46;">
+        <i class="fa-solid fa-infinity" style="color:#059669; margin-right:4px;"></i>
+        <strong>Limit Bypassed:</strong> -1 entered in both. Credit limit & overdue checks will be completely bypassed.
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; margin-bottom:8px;">
+        <span style="font-size:11px; color:#64748b;">Type <code>-1</code> in both to bypass limits</span>
+        <button type="button" class="btn btn-ghost btn-xs" onclick="setBypassUnlimitedCredit()" style="font-size:10.5px; color:#059669; padding:2px 7px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:5px;" title="Set -1 in both fields">
+          <i class="fas fa-infinity"></i> Set -1 (Bypass)
+        </button>
       </div>
     </div>
     <div class="modal-bottom-actions">
@@ -4784,7 +4824,7 @@ th:last-child {
 
       <div class="input-block" style="margin-bottom:6px;">
         <label style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:4px; display:block;">Write-Off Reason</label>
-        <input type="text" id="mBadDebtReason" value="Defaulted on credit payment / Unreachable" placeholder="Enter reason..." style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:12.5px; border:1px solid #cbd5e1; border-radius:6px;"/>
+        <input type="text" id="mBadDebtReason" value="" placeholder="e.g. Defaulted on credit payment / Unreachable" style="width:100%; box-sizing:border-box; padding:8px 10px; font-size:12.5px; border:1px solid #cbd5e1; border-radius:6px;"/>
       </div>
     </div>
     <div class="modal-bottom-actions" style="display:flex; justify-content:flex-end; gap:8px; padding:12px 20px; background:#f8fafc; border-top:1px solid #e2e8f0;">
@@ -4866,7 +4906,8 @@ const appState = {
   activeStatement: null,
   activeViewingBill: null,
   statementFilter: 'all',
-  directoryFilter: 'all',
+  directoryFilter: 'dealers',
+  directorySubFilter: 'all',
   activityFilter: 'all',
   selectedDate: getTodayIsoDate(),
   showAllHistory: false
@@ -6433,6 +6474,10 @@ function switchTo(viewId) {
   } else if (viewId === 'inventory') {
     loadStockBoard();
   } else if (viewId === 'dealers') {
+    if (!appState.directoryFilter) appState.directoryFilter = 'dealers';
+    if (!appState.directorySubFilter) appState.directorySubFilter = 'all';
+    updateDirectoryTabUI();
+    updateDirectorySubFilterUI();
     renderContactsList();
   } else if (viewId === 'payments') {
     renderPaymentsList();
@@ -6440,6 +6485,7 @@ function switchTo(viewId) {
     loadBankingData();
   } else if (viewId === 'reports') {
     initReportControls();
+    loadReports();
   } else if (viewId === 'settings') {
     loadSettingsForm();
   }
@@ -6496,6 +6542,19 @@ async function loadReports() {
     updateDashboardMetrics();
   } catch (err) {
     console.error('Failed to load reports:', err);
+  }
+}
+
+async function refreshReportsView() {
+  const btn = document.getElementById('btnRefreshReports');
+  if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+  try {
+    await loadReports();
+    showToast('Financial reports updated', 'success');
+  } catch (e) {
+    showToast('Failed to refresh: ' + e.message, 'error');
+  } finally {
+    if (btn) btn.innerHTML = '<i class="fas fa-rotate"></i> Refresh';
   }
 }
 
@@ -7179,6 +7238,7 @@ function renderArrivalsList() {
     const left = items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
     const uniqueVarieties = [...new Set(items.map(it => it.variety).filter(Boolean))];
     const desc = uniqueVarieties.length > 0 ? uniqueVarieties.join(', ') : 'Fish';
+    const isSettled = c.status === 'Settled' || !!c.isSettled;
     const isSelected = selectedArrivalIds.has(Number(c.id));
 
     return `
@@ -7189,13 +7249,21 @@ function renderArrivalsList() {
         <td>${c.date}</td>
         <td><strong>${c.dealerName}</strong></td>
         <td>${desc}</td>
-        <td class="num" style="font-family:var(--font-mono); font-weight:700; color:${left > 0 ? '#0084ff' : '#059669'}">
+        <td class="num" style="font-family:var(--font-mono); font-weight:700; color:${isSettled ? '#7c3aed' : (left > 0 ? '#0084ff' : '#059669')}">
           ${left} / ${total}
         </td>
-        <td><span class="badge ${left > 0 ? 'badge-amber' : 'badge-green'}">${left > 0 ? 'In Godown' : 'Sold Out'}</span></td>
+        <td>
+          ${isSettled
+            ? '<span class="badge badge-purple" style="font-weight:700;"><i class="fas fa-check-double"></i> Settled</span>'
+            : `<span class="badge ${left > 0 ? 'badge-amber' : 'badge-green'}">${left > 0 ? 'In Godown' : 'Sold Out'}</span>`
+          }
+        </td>
         <td class="table-action-cell">
           <div class="table-actions-group">
-            <button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer (Patiya)"><i class="fas fa-calculator"></i> Settle</button>
+            ${isSettled
+              ? `<button class="btn btn-outline btn-sm" style="color:#7c3aed; border-color:#ddd6fe; background:#faf5ff;" onclick="viewPatiyaBillForConsignment(${c.id})" title="View Finalized Settlement"><i class="fas fa-file-invoice"></i> Settled</button>`
+              : `<button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer (Patiya)"><i class="fas fa-calculator"></i> Settle</button>`
+            }
             <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
           </div>
@@ -7328,15 +7396,42 @@ async function bulkDeleteSelectedArrivals() {
   }
 }
 
+function viewPatiyaBillForConsignment(consignmentId) {
+  const cons = (appState.consignments || []).find(c => c.id == consignmentId);
+  if (!cons) return showToast('Consignment lot not found', 'error');
+  let settlement = null;
+  if (cons.settlementId) {
+    settlement = (appState.settlements || []).find(s => s.id == cons.settlementId);
+  }
+  if (!settlement) {
+    settlement = (appState.settlements || []).find(s => {
+      const matchDealer = s.dealerId === cons.dealerId || (s.dealerName && s.dealerName.toLowerCase() === cons.dealerName.toLowerCase());
+      const matchDate = s.date === cons.date;
+      const matchCons = Array.isArray(s.consignmentIds) ? s.consignmentIds.includes(cons.id) : (s.consignmentId === cons.id);
+      return matchCons || (matchDealer && matchDate);
+    });
+  }
+  if (settlement) {
+    viewPatiyaBill(settlement.id);
+  } else {
+    showToast(`This consignment is marked Settled, but no settlement chit was found.`, 'info');
+  }
+}
+
 function settleArrivalDealerById(consignmentId) {
   const cons = appState.consignments.find(c => c.id == consignmentId);
   if (!cons) return;
-  openPatiyaModal();
+  if (cons.status === 'Settled' || cons.isSettled) {
+    showToast(`Consignment #${cons.consignmentNo || cons.id} has already been settled! Single purchases cannot be settled more than once.`, 'warning');
+    viewPatiyaBillForConsignment(cons.id);
+    return;
+  }
+  openPatiyaModal(cons.dealerName, cons.id);
   const dInp = document.getElementById('mPatDealer');
   if (dInp) dInp.value = cons.dealerName;
   const dateInp = document.getElementById('mPatDate');
   if (dateInp && cons.date) dateInp.value = cons.date;
-  calculateDealerPatiya();
+  calculateDealerPatiya(cons.id);
 }
 
 function openArrivalModal() {
@@ -7533,7 +7628,11 @@ function renderSalesList() {
           <input type="checkbox" class="batch-chk sale-select-chk" value="${s.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectSale(${s.id}, this.checked)" title="Select bill for deletion"/>
         </td>
         <td>${s.date}</td>
-        <td><strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong></td>
+        <td>
+          <strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong>
+          ${s.useAverageRate ? `<span class="badge badge-purple" style="font-size:9.5px; margin-left:6px;" title="Average price bill"><i class="fas fa-calculator"></i> AVG ₹${(s.averageRate || (s.totalBoxes ? Number((billTotal / s.totalBoxes).toFixed(2)) : 0)).toLocaleString('en-IN')}/bx</span>` : ''}
+          ${s.totalBoxes ? `<div style="font-size:11px; color:#6d28d9; font-weight:700; margin-top:2px;"><i class="fas fa-box" style="font-size:10px;"></i> P - ${s.totalBoxes} Boxes</div>` : ''}
+        </td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700; font-size:14px; color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</td>
         <td>
           <span class="badge ${s.isBadDebt ? 'badge-red' : (s.paymentType === 'Cash' ? 'badge-green' : 'badge-amber')}">
@@ -7706,86 +7805,213 @@ function openSaleModal() {
     saleDateInp.max = today;
     saleDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
-  document.getElementById('mSaleBuyer').value = '';
-  document.getElementById('mSaleBuyerInfo').textContent = '';
-  document.getElementById('mSalePaymentTerms').value = 'Credit';
-  document.getElementById('mSaleDiscount').value = '';
-  document.getElementById('mSalePrevBal').value = '';
-  document.getElementById('mSaleCashPaid').value = '';
-  document.getElementById('mSaleCreditWarning').style.display = 'none';
-  document.getElementById('mSaleBypassBox').checked = false;
-  document.getElementById('saleLinesTbody').innerHTML = '';
+  const buyerInp = document.getElementById('mSaleBuyer');
+  if (buyerInp) buyerInp.value = '';
+  const infoEl = document.getElementById('mSaleBuyerInfo');
+  if (infoEl) infoEl.textContent = '';
+  const termsEl = document.getElementById('mSalePaymentTerms');
+  if (termsEl) termsEl.value = 'Credit';
+  const discEl = document.getElementById('mSaleDiscount');
+  if (discEl) discEl.value = '';
+  const prevBalEl = document.getElementById('mSalePrevBal');
+  if (prevBalEl) prevBalEl.value = '';
+  const cashPaidEl = document.getElementById('mSaleCashPaid');
+  if (cashPaidEl) cashPaidEl.value = '';
+  const warnEl = document.getElementById('mSaleCreditWarning');
+  if (warnEl) warnEl.style.display = 'none';
+  const bypassEl = document.getElementById('mSaleBypassBox');
+  if (bypassEl) bypassEl.checked = false;
+  const avgCheck = document.getElementById('mSaleUseAverageRate');
+  if (avgCheck) avgCheck.checked = false;
+  appState.preMergeSaleLines = null;
+  
+  try {
+    populateSaleStockDatalist();
+  } catch (err) {
+    console.error('Error populating sale stock datalist:', err);
+  }
+
+  const tbody = document.getElementById('saleLinesTbody');
+  if (tbody) tbody.innerHTML = '';
   addSaleLine();
   computeSaleBillTotals();
-  document.getElementById('saleModal').classList.add('open');
+  const modal = document.getElementById('saleModal');
+  if (modal) modal.classList.add('open');
 }
 
-function addSaleLine() {
-  const tbody = document.getElementById('saleLinesTbody');
-  const tr = document.createElement('tr');
+function getInventoryStockOptionsHtml(selectedVal = '') {
+  const invMap = new Map();
 
-  const fishMap = new Map();
+  // Query actual available stock from inward consignments
   for (const c of (appState.consignments || [])) {
     for (const it of (c.items || [])) {
-      const left = it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates;
-      if (left > 0 && it.variety && it.variety.trim()) {
-        const v = it.variety.trim();
+      const left = Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0;
+      const v = (it.variety || '').trim();
+      if (v && left > 0) {
         const key = v.toLowerCase();
-        const current = fishMap.get(key) || { variety: v, totalCrates: 0 };
-        current.totalCrates += Number(left) || 0;
-        fishMap.set(key, current);
+        if (invMap.has(key)) {
+          invMap.get(key).left += left;
+        } else {
+          const avgKgPerBox = (Number(it.crates) > 0 && Number(it.weightKg) > 0) 
+            ? Math.round(Number(it.weightKg) / Number(it.crates)) 
+            : 0;
+          invMap.set(key, {
+            variety: v,
+            left,
+            dealerName: c.dealerName,
+            kgPerBox: avgKgPerBox,
+            rate: Number(it.rateExpectation) || 0
+          });
+        }
       }
     }
   }
 
-  const sortedFish = Array.from(fishMap.values()).sort((a, b) => 
-    a.variety.localeCompare(b.variety, undefined, { sensitivity: 'base' })
-  );
+  let html = '';
+  if (invMap.size === 0) {
+    html = '<option value="" disabled selected>No fish in inventory</option>';
+  } else {
+    const isNoneSel = !selectedVal;
+    html += `<option value="" ${isNoneSel ? 'selected' : ''}>-- Select Item --</option>`;
+    for (const item of invMap.values()) {
+      const isSel = (item.variety.toLowerCase() === (selectedVal || '').toLowerCase()) ? 'selected' : '';
+      html += `<option value="${item.variety}" data-crates="${item.left}" data-kgperbox="${item.kgPerBox}" data-rate="${item.rate}" ${isSel}>${item.variety}</option>`;
+    }
+  }
+  return html;
+}
 
-  let stockOptions = '<option value="">-- Select Fish --</option>';
-  for (const f of sortedFish) {
-    stockOptions += `
-      <option value="${f.variety}" data-crates="${f.totalCrates}">
-        ${f.variety}
-      </option>
-    `;
+function populateSaleStockDatalist() {
+  document.querySelectorAll('.lineStockPicker').forEach(sel => {
+    const curVal = sel.value;
+    sel.innerHTML = getInventoryStockOptionsHtml(curVal);
+  });
+}
+
+function addSaleLine(initialData = null) {
+  const tbody = document.getElementById('saleLinesTbody');
+  if (!tbody) return;
+  const tr = document.createElement('tr');
+
+  const varietyVal = initialData?.variety || '';
+  const cratesVal = initialData?.crates !== undefined ? initialData.crates : '';
+  const rateVal = initialData?.rate !== undefined ? initialData.rate : '';
+  if (initialData?.targetAmount) {
+    tr.dataset.targetAmount = initialData.targetAmount;
   }
 
   tr.innerHTML = `
-    <td>
-      <select class="lineStockPicker" onchange="onSaleStockSelected(this)" style="width:100%; font-size:13px;">
-        ${stockOptions}
-      </select>
-      <div class="lineStockAvailHint" style="font-size:11.5px; margin-top:4px; display:none; line-height:1.3;"></div>
+    <td style="padding:8px 8px; vertical-align:top;">
+      <div class="sale-variety-picker-wrap" style="width:100%;">
+        <select class="lineStockPicker" onchange="onSaleStockSelected(this)" style="display:block; width:100%; box-sizing:border-box; font-size:12.5px; font-weight:700; padding:7px 9px; border-radius:7px; border:1.5px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+          ${getInventoryStockOptionsHtml(varietyVal)}
+        </select>
+        <div class="lineStockAvailHint" style="font-size:11px; margin-top:4px; display:none; line-height:1.2;"></div>
+      </div>
     </td>
-    <td class="num">
-      <input type="number" class="lineCrates" placeholder="Box" min="1" value="1" oninput="computeSaleBillTotals()" style="width:75px; text-align:right; font-weight:700;"/>
+    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right;">
+      <input type="number" class="lineCrates" placeholder="0" min="0" value="${cratesVal}" oninput="onSaleLineBoxesChange(this)" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
     </td>
-    <td class="num">
-      <input type="number" class="lineRate" placeholder="Rate" value="" oninput="computeSaleBillTotals()" style="width:85px; text-align:right; font-weight:700;"/>
+    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right;">
+      <input type="number" class="lineRate" placeholder="Rate" min="0" step="any" value="${rateVal}" oninput="computeSaleBillTotals()" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
     </td>
-    <td class="num" style="font-family:var(--font-mono); font-weight:700;">
+    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right; font-family:var(--font-mono); font-weight:800; color:#0f172a; padding-top:14px;">
       <span class="lineRowSum">₹0</span>
     </td>
-    <td class="num">
-      <button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()"><i class="fas fa-times" style="color:#ef4444"></i></button>
+    <td style="padding:8px 4px; vertical-align:top; text-align:center; padding-top:11px;">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()" title="Remove line"><i class="fas fa-times" style="color:#ef4444"></i></button>
     </td>
   `;
   tbody.appendChild(tr);
+
+  const sel = tr.querySelector('.lineStockPicker');
+  if (sel && sel.value) {
+    onSaleStockSelected(sel);
+  }
+
   computeSaleBillTotals();
 }
 
-function onSaleStockSelected(selectEl) {
-  const tr = selectEl.closest('tr');
-  const opt = selectEl.selectedOptions[0];
-  const cratesInput = tr?.querySelector('.lineCrates');
-  if (opt && opt.value) {
-    const availCrates = Number(opt.dataset.crates) || 0;
-    if (cratesInput) {
-      cratesInput.max = availCrates;
-      if (!cratesInput.value || Number(cratesInput.value) <= 0) {
-        cratesInput.value = availCrates > 0 ? 1 : 0;
+function onSaleStockSelected(sel) {
+  const tr = sel.closest('tr');
+  if (!tr) return;
+  const val = sel.value;
+  const hint = tr.querySelector('.lineStockAvailHint');
+  const opt = sel.selectedOptions[0];
+
+  if (!val) {
+    if (hint) { hint.style.display = 'none'; hint.innerHTML = ''; }
+    const cratesInp = tr.querySelector('.lineCrates');
+    const rateInp = tr.querySelector('.lineRate');
+    if (cratesInp) cratesInp.value = '';
+    if (rateInp) rateInp.value = '';
+    computeSaleBillTotals();
+    return;
+  }
+
+  const avail = Number(opt?.dataset.crates) || 0;
+  const defaultRate = Number(opt?.dataset.rate) || 0;
+
+  if (hint) {
+    hint.style.display = 'block';
+    hint.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fas fa-boxes-stacked"></i> In Stock: <b>${avail} Boxes</b></span>`;
+  }
+
+  const cratesInp = tr.querySelector('.lineCrates');
+  const rateInp = tr.querySelector('.lineRate');
+
+  // Keep input fields completely blank until user explicitly inputs quantity and rate
+  if (cratesInp && !cratesInp.value) cratesInp.placeholder = '0';
+  if (rateInp && !rateInp.value) rateInp.placeholder = defaultRate > 0 ? `₹${defaultRate}` : 'Rate';
+
+  computeSaleBillTotals();
+}
+
+function onSaleLineBoxesChange(input) {
+  computeSaleBillTotals();
+}
+
+function onSaleLineKgPerBoxChange(input) {
+  computeSaleBillTotals();
+}
+
+function onSaleLineTotalKgChange(input) {
+  computeSaleBillTotals();
+}
+
+function onSaleLineVarietyChange(input) {
+  const tr = input.closest('tr');
+  const val = (input.value || '').trim().toLowerCase();
+  const hint = tr.querySelector('.lineStockAvailHint');
+  const crates = Number(tr.querySelector('.lineCrates')?.value) || 0;
+
+  if (!val) {
+    if (hint) { hint.style.display = 'none'; hint.innerHTML = ''; }
+    computeSaleBillTotals();
+    return;
+  }
+
+  // Find matching available consignment stock
+  let availCrates = 0;
+  for (const c of (appState.consignments || [])) {
+    for (const it of (c.items || [])) {
+      const v = (it.variety || '').trim().toLowerCase();
+      if (v === val || v.startsWith(val) || val.startsWith(v)) {
+        availCrates += Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0;
       }
+    }
+  }
+
+  if (hint) {
+    hint.style.display = 'block';
+    if (availCrates > 0) {
+      if (crates > availCrates) {
+        hint.innerHTML = `<span style="color:#ef4444; font-weight:600;"><i class="fas fa-triangle-exclamation"></i> Available: <b>${availCrates} Boxes</b></span>`;
+      } else {
+        hint.innerHTML = `<span style="color:#059669; font-weight:600;"><i class="fas fa-boxes-stacked"></i> In Stock: <b>${availCrates} Boxes</b></span>`;
+      }
+    } else {
+      hint.innerHTML = `<span style="color:#64748b; font-size:11px;"><i class="fas fa-tag"></i> Market Lot / Direct</span>`;
     }
   }
   computeSaleBillTotals();
@@ -7797,53 +8023,166 @@ function computeSaleBillTotals() {
   let totalBoxes = 0;
 
   rows.forEach(r => {
-    const sel = r.querySelector('.lineStockPicker');
-    const opt = sel ? sel.selectedOptions[0] : null;
-    const cratesInput = r.querySelector('.lineCrates');
-    const crates = Number(cratesInput?.value) || 0;
+    const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-    const total = crates * rate;
 
-    const span = r.querySelector('.lineRowSum');
-    if (span) span.textContent = `₹${total.toLocaleString('en-IN')}`;
-
-    const hint = r.querySelector('.lineStockAvailHint');
-    if (hint) {
-      if (opt && opt.value) {
-        const availCrates = Number(opt.dataset.crates) || 0;
-        hint.style.display = 'block';
-        const boxWord = availCrates === 1 ? 'Box' : 'Boxes';
-        if (crates > availCrates) {
-          hint.innerHTML = `<span style="color:#ef4444; font-weight:600;"><i class="fas fa-triangle-exclamation"></i> Available Stock: <b>${availCrates} ${boxWord}</b> (Entered: ${crates})</span>`;
-        } else {
-          hint.innerHTML = `<span style="color:#059669; font-weight:600;"><i class="fas fa-boxes-stacked"></i> Available Stock: <b>${availCrates} ${boxWord}</b></span>`;
-        }
-      } else {
-        hint.style.display = 'none';
-        hint.innerHTML = '';
+    let lineTotal = Math.round(crates * rate);
+    if (r.dataset.targetAmount && Number(r.dataset.targetAmount) > 0) {
+      const expectedFromRate = Math.round(crates * rate);
+      if (Math.abs(expectedFromRate - Number(r.dataset.targetAmount)) <= 3) {
+        lineTotal = Number(r.dataset.targetAmount);
       }
     }
 
+    const span = r.querySelector('.lineRowSum');
+    if (span) span.textContent = `₹${lineTotal.toLocaleString('en-IN')}`;
+
     totalBoxes += crates;
-    subtotal += total;
+    subtotal += lineTotal;
   });
 
   const badgeBoxes = document.getElementById('mSaleBoxCountBadge');
   if (badgeBoxes) badgeBoxes.innerHTML = `<i class="fas fa-boxes-stacked"></i> P - ${totalBoxes} Boxes`;
 
-  const disc = Number(document.getElementById('mSaleDiscount').value) || 0;
+  const badgeWeight = document.getElementById('mSaleWeightBadge');
+  if (badgeWeight) {
+    badgeWeight.style.display = 'none';
+  }
+
+  // Average Price calculation
+  const avgCheck = document.getElementById('mSaleUseAverageRate');
+  const avgBadge = document.getElementById('mSaleAvgRateBadge');
+  const avgLedgerRow = document.getElementById('mSaleAvgRateLedgerRow');
+  const avgLedgerVal = document.getElementById('mSaleAvgRateLedgerVal');
+
+  const avgRate = totalBoxes > 0 ? Number((subtotal / totalBoxes).toFixed(2)) : 0;
+  const avgRateFormatted = avgRate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const avgFormula = totalBoxes > 0 ? `${subtotal.toLocaleString('en-IN')} / ${totalBoxes} = ₹${avgRateFormatted} / Box` : `₹0 / Box`;
+
+  if (avgBadge) {
+    if (avgCheck && avgCheck.checked && totalBoxes > 0) {
+      avgBadge.style.display = 'inline-flex';
+      avgBadge.className = 'badge badge-green';
+      avgBadge.innerHTML = `<i class="fas fa-check-circle"></i> Avg: ${avgFormula}`;
+    } else if (totalBoxes > 1) {
+      avgBadge.style.display = 'inline-flex';
+      avgBadge.className = 'badge badge-purple';
+      avgBadge.style.opacity = '0.85';
+      avgBadge.innerHTML = `<i class="fas fa-calculator"></i> Avg: ₹${avgRateFormatted}/bx`;
+    } else {
+      avgBadge.style.display = 'none';
+    }
+  }
+
+  if (avgLedgerRow) {
+    if (avgCheck && avgCheck.checked && totalBoxes > 0) {
+      avgLedgerRow.style.display = 'flex';
+      if (avgLedgerVal) avgLedgerVal.textContent = avgFormula;
+    } else {
+      avgLedgerRow.style.display = 'none';
+    }
+  }
+
+  const disc = Number(document.getElementById('mSaleDiscount')?.value) || 0;
   const todayNet = Math.max(0, subtotal - disc);
 
-  const prevBal = Number(document.getElementById('mSalePrevBal').value) || 0;
+  const prevBal = Number(document.getElementById('mSalePrevBal')?.value) || 0;
   const totalDue = todayNet + prevBal;
 
-  const cashPaid = Number(document.getElementById('mSaleCashPaid').value) || 0;
+  const cashPaid = Number(document.getElementById('mSaleCashPaid')?.value) || 0;
   const closingBal = totalDue - cashPaid;
 
-  document.getElementById('mSaleSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-  document.getElementById('mSaleNetTotal').textContent = `₹${todayNet.toLocaleString('en-IN')}`;
-  document.getElementById('mSaleTotalDue').textContent = `₹${totalDue.toLocaleString('en-IN')}`;
-  document.getElementById('mSaleClosingBal').textContent = `₹${closingBal.toLocaleString('en-IN')}`;
+  const subtotalEl = document.getElementById('mSaleSubtotal');
+  if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+
+  const netTotalEl = document.getElementById('mSaleNetTotal');
+  if (netTotalEl) netTotalEl.textContent = `₹${todayNet.toLocaleString('en-IN')}`;
+
+  const totalDueEl = document.getElementById('mSaleTotalDue');
+  if (totalDueEl) totalDueEl.textContent = `₹${totalDue.toLocaleString('en-IN')}`;
+
+  const closingBalEl = document.getElementById('mSaleClosingBal');
+  if (closingBalEl) closingBalEl.textContent = `₹${closingBal.toLocaleString('en-IN')}`;
+}
+
+function toggleAveragePriceMode(isChecked) {
+  if (isChecked) {
+    const rows = document.querySelectorAll('#saleLinesTbody tr');
+    const rawLines = [];
+    rows.forEach(r => {
+      let val = '';
+      const sel = r.querySelector('.lineStockPicker');
+      const customBox = r.querySelector('.lineCustomVarietyBox');
+      if (customBox && customBox.style.display !== 'none') {
+        val = (r.querySelector('.lineCustomVarietyInp')?.value || '').trim();
+      } else if (sel && sel.value && sel.value !== '__custom__') {
+        val = sel.value.trim();
+      } else {
+        val = (r.querySelector('.lineVarietyInp')?.value || '').trim();
+      }
+      const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+      const rate = Number(r.querySelector('.lineRate')?.value) || 0;
+      const targetAmt = (r.dataset.targetAmount && Number(r.dataset.targetAmount) > 0) ? Number(r.dataset.targetAmount) : Math.round(crates * rate);
+      if (val && crates > 0 && rate > 0) {
+        rawLines.push({
+          variety: val,
+          crates,
+          rate,
+          amount: targetAmt
+        });
+      }
+    });
+
+    if (rawLines.length > 0) {
+      // Save pre-merged lines so user can uncheck and revert
+      appState.preMergeSaleLines = rawLines;
+
+      // Group by fish variety (case-insensitive)
+      const groupMap = new Map();
+      rawLines.forEach(l => {
+        const k = l.variety.toLowerCase();
+        if (!groupMap.has(k)) {
+          groupMap.set(k, { variety: l.variety, totalCrates: 0, totalAmount: 0 });
+        }
+        const g = groupMap.get(k);
+        g.totalCrates += l.crates;
+        g.totalAmount += l.amount;
+      });
+
+      const tbody = document.getElementById('saleLinesTbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        groupMap.forEach(g => {
+          const avgRate = g.totalCrates > 0 ? Number((g.totalAmount / g.totalCrates).toFixed(2)) : 0;
+          addSaleLine({
+            variety: g.variety,
+            crates: g.totalCrates,
+            rate: avgRate,
+            targetAmount: g.totalAmount
+          });
+        });
+      }
+    }
+  } else {
+    // Unchecked: restore original split lines
+    if (appState.preMergeSaleLines && appState.preMergeSaleLines.length > 0) {
+      const tbody = document.getElementById('saleLinesTbody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        appState.preMergeSaleLines.forEach(l => {
+          addSaleLine({
+            variety: l.variety,
+            crates: l.crates,
+            rate: l.rate,
+            targetAmount: l.amount
+          });
+        });
+      }
+      appState.preMergeSaleLines = null;
+    }
+  }
+
+  computeSaleBillTotals();
 }
 
 function searchSaleBuyer(q) {
@@ -7900,13 +8239,7 @@ function checkBuyerCreditStatus() {
   if (prevBalInp) prevBalInp.value = prevDue ? prevDue : '';
   computeSaleBillTotals();
 
-  infoEl.textContent = `Previous Due: ₹${prevDue.toLocaleString('en-IN')} | Credit Limit: ₹${(contact.creditLimit || 0).toLocaleString('en-IN')}`;
-
-  if (contact.isOverdue) {
-    warnBox.style.display = 'block';
-    warnText.textContent = `Party is overdue by ${contact.daysOverdue} days! Outstanding balance: ₹${prevDue.toLocaleString('en-IN')}.`;
-    return;
-  }
+  infoEl.textContent = `Previous Due: ₹${prevDue.toLocaleString('en-IN')}`;
   warnBox.style.display = 'none';
 }
 
@@ -7935,18 +8268,29 @@ async function saveMorningSale(action = 'save') {
   const consumedMap = new Map();
 
   rows.forEach(r => {
-    const val = r.querySelector('.lineStockPicker')?.value;
+    let val = '';
+    const sel = r.querySelector('.lineStockPicker');
+    const customBox = r.querySelector('.lineCustomVarietyBox');
+    if (customBox && customBox.style.display !== 'none') {
+      val = (r.querySelector('.lineCustomVarietyInp')?.value || '').trim();
+    } else if (sel && sel.value && sel.value !== '__custom__') {
+      val = sel.value.trim();
+    } else {
+      val = (r.querySelector('.lineVarietyInp')?.value || '').trim();
+    }
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
 
-    if (val && crates > 0) {
+    if (val && crates > 0 && rate > 0) {
       // Find matching consignments with unsold stock for this variety (FIFO)
       const matchingCons = [];
       for (const c of (appState.consignments || [])) {
         for (const it of (c.items || [])) {
-          if (it.variety && it.variety.trim().toLowerCase() === val.trim().toLowerCase()) {
+          const itVar = (it.variety || '').trim().toLowerCase();
+          const targetVar = val.toLowerCase();
+          if (itVar === targetVar || itVar.startsWith(targetVar) || targetVar.startsWith(itVar)) {
             const initialLeft = it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates;
-            const consumedKey = `${c.id}_${it.variety.trim().toLowerCase()}`;
+            const consumedKey = `${c.id}_${itVar}`;
             const alreadyConsumed = consumedMap.get(consumedKey) || 0;
             const currentAvail = Math.max(0, initialLeft - alreadyConsumed);
             if (currentAvail > 0) {
@@ -7968,9 +8312,10 @@ async function saveMorningSale(action = 'save') {
         if (remaining <= 0) break;
         const take = Math.min(remaining, mc.left);
         consumedMap.set(mc.consumedKey, (consumedMap.get(mc.consumedKey) || 0) + take);
+        const takeAmt = Math.round(take * rate);
         lines.push({
           consignmentId: Number(mc.consignmentId),
-          variety: mc.variety,
+          variety: mc.variety || val,
           dealerId: Number(mc.dealerId),
           dealerName: mc.dealerName,
           unit: 'Box',
@@ -7978,37 +8323,41 @@ async function saveMorningSale(action = 'save') {
           kgPerCrate: 0,
           qty: take,
           rate,
-          amount: take * rate
+          amount: takeAmt
         });
         remaining -= take;
         totalBoxes += take;
       }
 
-      // Fallback if remaining crates exceed known consignment stock
-      if (remaining > 0) {
-        const fallbackCons = matchingCons[0] || {};
+      // Fallback if remainder or direct market lot without inward consignment
+      if (remaining > 0 || matchingCons.length === 0) {
+        const lineCrates = remaining > 0 ? remaining : crates;
+        const remAmt = Math.round(lineCrates * rate);
         lines.push({
-          consignmentId: Number(fallbackCons.consignmentId) || 0,
+          consignmentId: 0,
           variety: val,
-          dealerId: Number(fallbackCons.dealerId) || 0,
-          dealerName: fallbackCons.dealerName || '',
+          dealerId: 0,
+          dealerName: 'Market Lot',
           unit: 'Box',
-          crates: remaining,
+          crates: lineCrates,
           kgPerCrate: 0,
-          qty: remaining,
+          qty: lineCrates,
           rate,
-          amount: remaining * rate
+          amount: remAmt
         });
-        totalBoxes += remaining;
+        totalBoxes += lineCrates;
       }
     }
   });
 
-  if (lines.length === 0) return showToast('Please select fish and enter quantity', 'error');
+  if (lines.length === 0) return showToast('Please enter at least one fish item with rate', 'error');
   const subtotal = lines.reduce((s, l) => s + l.amount, 0);
   const total = Math.max(0, subtotal - discount);
   const totalBalanceDue = total + previousBalance;
   const closingBalance = totalBalanceDue - amountPaid;
+
+  const useAverageRate = !!document.getElementById('mSaleUseAverageRate')?.checked;
+  const averageRate = totalBoxes > 0 ? Number((subtotal / totalBoxes).toFixed(2)) : 0;
 
   try {
     const res = await fetch('/api/sales', {
@@ -8020,6 +8369,8 @@ async function saveMorningSale(action = 'save') {
         paymentType,
         totalBoxes,
         lines,
+        useAverageRate,
+        averageRate,
         subtotal,
         discount,
         total,
@@ -8027,7 +8378,7 @@ async function saveMorningSale(action = 'save') {
         totalBalanceDue,
         amountPaid,
         closingBalance,
-        bypassCreditCheck: bypass
+        bypassCreditCheck: true
       })
     });
     const data = await res.json();
@@ -8063,6 +8414,61 @@ async function deleteSaleBill(id) {
   }
 }
 
+function getSaleDisplayLines(sale) {
+  if (!sale || !Array.isArray(sale.lines)) return [];
+  if (!sale.useAverageRate) return sale.lines;
+
+  // Group by fish variety (case-insensitive)
+  const groups = new Map();
+  sale.lines.forEach(l => {
+    const key = (l.variety || '').trim().toLowerCase() || 'item';
+    if (!groups.has(key)) {
+      groups.set(key, {
+        variety: (l.variety || '').trim() || 'Fish',
+        unit: l.unit || 'Box',
+        crates: 0,
+        qty: 0,
+        amount: 0,
+        dealers: new Set(),
+        kgPerCrate: Number(l.kgPerCrate) || 0,
+        count: 0
+      });
+    }
+    const g = groups.get(key);
+    g.crates += Number(l.crates) || 0;
+    g.qty += Number(l.qty) || Number(l.crates) || 0;
+    g.amount += Number(l.amount) || 0;
+    if (l.dealerName && l.dealerName !== 'Market Lot') {
+      g.dealers.add(l.dealerName);
+    }
+    g.count++;
+  });
+
+  const displayLines = [];
+  groups.forEach(g => {
+    const totalCrates = g.crates;
+    const avgRate = totalCrates > 0 ? Number((g.amount / totalCrates).toFixed(2)) : 0;
+    const dealersArr = Array.from(g.dealers);
+    const dealerName = dealersArr.length > 0 ? dealersArr.join(', ') : 'Market Lot';
+
+    displayLines.push({
+      variety: g.variety,
+      unit: g.unit,
+      crates: totalCrates,
+      qty: totalCrates,
+      kgPerCrate: g.kgPerCrate,
+      rate: avgRate,
+      amount: g.amount,
+      dealerName: dealerName,
+      isAverage: true,
+      originalLineCount: g.count,
+      formula: totalCrates > 0 ? `${g.amount.toLocaleString('en-IN')}/${totalCrates}` : ''
+    });
+  });
+
+  return displayLines;
+}
+
 function viewSaleBill(saleId, fallbackSale) {
   const sale = (appState.sales && appState.sales.find(s => s.id == saleId)) || fallbackSale;
   if (!sale) {
@@ -8074,6 +8480,7 @@ function viewSaleBill(saleId, fallbackSale) {
   const buyer = (appState.contacts || []).find(c => c.name && c.name.toLowerCase() === (sale.buyerName || '').toLowerCase());
   const phone = sale.buyerPhone || buyer?.phone || '';
   const lines = Array.isArray(sale.lines) ? sale.lines : [];
+  const displayLines = getSaleDisplayLines(sale);
 
   const totalBoxes = sale.totalBoxes || lines.reduce((acc, l) => acc + (Number(l.crates) || Number(l.qty) || 0), 0);
   const prevBal = Number(sale.previousBalance) || 0;
@@ -8087,19 +8494,43 @@ function viewSaleBill(saleId, fallbackSale) {
   if (titleEl) titleEl.innerHTML = `<i class="fas fa-file-invoice" style="color:var(--primary-blue);"></i> Sale Bill: ${sale.billNo || ('#' + sale.id)}`;
   if (subEl) subEl.textContent = `Buyer: ${sale.buyerName} • Date: ${sale.date} ${sale.time || ''}`;
 
-  const rowsHtml = lines.map((l, i) => {
-    const boxCount = (l.crates !== undefined && l.crates !== null && l.crates !== '') ? `${l.crates} Box` : (l.qty ? `${l.qty} ${l.unit || 'Box'}` : '-');
-    const rateVal = Number(l.rate || 0).toLocaleString('en-IN');
+  const hasAnyWeight = displayLines.some(l => (l.unit === 'Kg' || Number(l.kgPerCrate) > 0));
+
+  const rowsHtml = displayLines.map((l, i) => {
+    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const cratesCount = Number(l.crates);
+    const boxDisplay = cratesCount > 0 ? `${cratesCount} Box` : (isKg ? '-' : (l.qty ? `${l.qty} Box` : '-'));
+    
+    let weightDisplay = '-';
+    if (isKg) {
+      const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
+      if (kg > 0) {
+        weightDisplay = (cratesCount > 0 && Number(l.kgPerCrate) > 0)
+          ? `<strong>${kg.toLocaleString('en-IN')}</strong> Kg <span style="font-size:11px; color:#64748b; font-weight:normal;">(${l.kgPerCrate}k/b)</span>`
+          : `<strong>${kg.toLocaleString('en-IN')}</strong> Kg`;
+      }
+    }
+
+    const rateVal = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
+    const rateUnit = isKg ? '/kg' : '/bx';
+    const avgLabel = (l.isAverage && l.formula) ? `<div style="font-size:10.5px; color:#6d28d9; font-weight:700; margin-top:2px;">(${l.formula})</div>` : '';
     const amtVal = Number(l.amount || 0).toLocaleString('en-IN');
     const dealerInfo = l.dealerName ? `From ${l.dealerName}` : 'Market Lot';
 
     return `
       <tr style="border-bottom:1px solid #f1f5f9; ${i % 2 === 1 ? 'background:#fafbfc;' : ''}">
         <td style="padding:10px 12px; text-align:center; color:#64748b; font-weight:600;">${i + 1}</td>
-        <td style="padding:10px 12px; font-weight:700; color:#0f172a;">${l.variety || '-'}</td>
+        <td style="padding:10px 12px; font-weight:700; color:#0f172a;">
+          ${l.variety || '-'}
+          ${l.isAverage ? `<span class="badge badge-purple" style="font-size:9.5px; margin-left:5px; vertical-align:middle;">AVG PRICE</span>` : ''}
+        </td>
         <td style="padding:10px 12px; color:#475569; font-size:12px;"><i class="fas fa-ship" style="font-size:10px; color:#94a3b8; margin-right:4px;"></i>${dealerInfo}</td>
-        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#6d28d9; font-family:var(--font-mono);">${boxCount}</td>
-        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">₹${rateVal}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#6d28d9; font-family:var(--font-mono);">${boxDisplay}</td>
+        ${hasAnyWeight ? `<td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#0284c7;">${weightDisplay}</td>` : ''}
+        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">
+          ₹${rateVal} <span style="font-size:10px; color:#64748b;">${rateUnit}</span>
+          ${avgLabel}
+        </td>
         <td style="padding:10px 12px; text-align:right; font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${amtVal}</td>
       </tr>
     `;
@@ -8152,12 +8583,13 @@ function viewSaleBill(saleId, fallbackSale) {
               <th style="padding:10px 12px;">Item Variety</th>
               <th style="padding:10px 12px;">Dealer Source</th>
               <th style="padding:10px 12px; text-align:right;">Boxes (P)</th>
+              ${hasAnyWeight ? '<th style="padding:10px 12px; text-align:right;">Weight (Kg)</th>' : ''}
               <th style="padding:10px 12px; text-align:right;">Rate (₹)</th>
               <th style="padding:10px 12px; text-align:right;">Amount (₹)</th>
             </tr>
           </thead>
           <tbody>
-            ${rowsHtml || '<tr><td colspan="6" style="padding:20px; text-align:center; color:#94a3b8;">No line items</td></tr>'}
+            ${rowsHtml || `<tr><td colspan="${hasAnyWeight ? 7 : 6}" style="padding:20px; text-align:center; color:#94a3b8;">No line items</td></tr>`}
           </tbody>
         </table>
       </div>
@@ -8186,6 +8618,11 @@ function viewSaleBill(saleId, fallbackSale) {
               <span style="color:#64748b;">Today's Goods Bill:</span>
               <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</span>
             </div>
+            ${sale.useAverageRate ? `
+            <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:7px; color:#6d28d9; background:#f5f3ff; border:1px dashed #ddd6fe; border-radius:6px; padding:3px 8px;">
+              <span><i class="fas fa-calculator"></i> Price / Crate (Avg):</span>
+              <span style="font-weight:700; font-family:var(--font-mono);">₹${(sale.averageRate || (totalBoxes ? Number((billTotal / totalBoxes).toFixed(2)) : 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / Box</span>
+            </div>` : ''}
             <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px;">
               <span style="color:#64748b;">(+) Previous Balance:</span>
               <span style="font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${prevBal.toLocaleString('en-IN')}</span>
@@ -8221,11 +8658,11 @@ function viewPatiyaBill(settlementId) {
   }
   appState.activeViewingBill = { type: 'patiya', id: s.id, data: s };
 
-  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0);
+  const netProceed = Math.ceil(Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0));
   const prevBal = Number(s.previousBalance) || 0;
-  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const totalDue = Math.ceil(Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal));
   const cashPaid = Number(s.cashPaidToday) || 0;
-  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+  const closingBal = Math.ceil(Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid));
 
   const titleEl = document.getElementById('viewBillModalTitle');
   const subEl = document.getElementById('viewBillModalSub');
@@ -8477,23 +8914,50 @@ function downloadA4SalesBill(saleId, fallbackSale) {
   doc.setTextColor(15, 23, 42);
 
   // Table items
-  const lines = Array.isArray(sale.lines) ? sale.lines : [];
-  const tableData = lines.map((l, i) => [
-    i + 1,
-    l.variety,
-    l.dealerName ? `From ${l.dealerName}` : 'Market Lot',
-    l.crates ? `${l.crates} Box` : `${l.qty || 0} Box`,
-    `Rs. ${Number(l.rate || 0).toLocaleString('en-IN')}`,
-    `Rs. ${Number(l.amount || 0).toLocaleString('en-IN')}`
-  ]);
+  const lines = getSaleDisplayLines(sale);
+  const hasAnyWeight = lines.some(l => (l.unit === 'Kg' || Number(l.kgPerCrate) > 0));
+  const headCols = hasAnyWeight
+    ? [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Weight (Kg)', 'Rate (Rs.)', 'Amount (Rs.)']]
+    : [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Rate (Rs.)', 'Amount (Rs.)']];
+  const tableData = lines.map((l, i) => {
+    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const cratesCount = Number(l.crates);
+    const boxStr = cratesCount > 0 ? `${cratesCount} Box` : (isKg ? '-' : `${l.qty || 0} Box`);
+    let wtStr = '-';
+    if (isKg) {
+      const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
+      if (kg > 0) {
+        wtStr = (cratesCount > 0 && Number(l.kgPerCrate) > 0) ? `${kg} Kg (${l.kgPerCrate}k/b)` : `${kg} Kg`;
+      }
+    }
+    const rateFormatted = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
+    let rateStr = `Rs. ${rateFormatted}${isKg ? '/kg' : '/bx'}`;
+    if (l.isAverage && l.formula) {
+      rateStr += `\n(${l.formula})`;
+    }
+    const row = [
+      i + 1,
+      l.isAverage ? `${l.variety} (Avg)` : l.variety,
+      l.dealerName ? `From ${l.dealerName}` : 'Market Lot',
+      boxStr
+    ];
+    if (hasAnyWeight) row.push(wtStr);
+    row.push(rateStr);
+    row.push(`Rs. ${Number(l.amount || 0).toLocaleString('en-IN')}`);
+    return row;
+  });
+
+  const colStyles = hasAnyWeight
+    ? { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' }, 6: { halign: 'right' } }
+    : { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } };
 
   doc.autoTable({
     startY: 54,
-    head: [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Rate (Rs.)', 'Amount (Rs.)']],
+    head: headCols,
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [5, 150, 105] },
-    columnStyles: { 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } }
+    columnStyles: colStyles
   });
 
   const finalY = doc.lastAutoTable.finalY + 8;
@@ -8544,28 +9008,74 @@ function sendSaleWhatsApp(saleId, fallbackSale) {
   if (!sale) return;
   const buyer = appState.contacts.find(c => c.name.toLowerCase() === (sale.buyerName || '').toLowerCase());
   const phone = (buyer?.phone || '').replace(/[^0-9]/g, '');
-  const lines = Array.isArray(sale.lines) ? sale.lines : [];
+  const lines = getSaleDisplayLines(sale);
   const linesText = lines.map(l => {
-    const boxInfo = (l.crates || l.qty) ? `${l.crates || l.qty} Box ` : '';
-    return `• ${boxInfo}${l.variety} @ Rs.${l.rate} = Rs.${Number(l.amount || 0).toLocaleString('en-IN')}`;
-  }).join('%0A');
+    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const cratesCount = Number(l.crates);
+    const kg = isKg ? (Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0)) : 0;
+    const rateFormatted = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
+    const formulaText = (l.isAverage && l.formula) ? ` (${l.formula})` : '';
+    let desc = '';
+    if (cratesCount > 0) {
+      if (Number(l.kgPerCrate) > 0) {
+        desc = `${cratesCount} Box - ${l.variety} ${l.kgPerCrate}kg x Rs.${rateFormatted}/-${formulaText}`;
+      } else {
+        desc = `${cratesCount} Box - ${l.variety}${l.isAverage ? ' (Avg)' : ''} x Rs.${rateFormatted}/-${formulaText}`;
+      }
+    } else {
+      desc = `${l.variety} ${kg}kg x Rs.${rateFormatted}/-${formulaText}`;
+    }
+    return `• ${desc} = Rs.${Number(l.amount || 0).toLocaleString('en-IN')}`;
+  }).join('\n');
 
+  const paymentType = (sale.paymentType || '').toLowerCase();
+  const isCash = paymentType.includes('cash') || (Number(sale.amountPaid) >= Number(sale.total) && !Number(sale.previousBalance));
   const prevBal = Number(sale.previousBalance) || 0;
+  const discount = Number(sale.discount) || 0;
+  const cashPaid = Number(sale.amountPaid) || 0;
   const totalDue = Number(sale.totalBalanceDue) !== undefined ? Number(sale.totalBalanceDue) : (sale.total + prevBal);
+  const closingBal = Number(sale.closingBalance) !== undefined ? Number(sale.closingBalance) : (totalDue - cashPaid);
 
-  const msg = `*Al Haseena Exports - Wholesale Bill #${sale.billNo}*%0A` +
-    `Date: ${sale.date}%0A` +
-    `Buyer: ${sale.buyerName}%0A` +
-    `Packages: *P - ${sale.totalBoxes || 0} Boxes*%0A` +
-    `--------------------------------%0A` +
-    `${linesText}%0A` +
-    `--------------------------------%0A` +
-    `Today's Bill: Rs.${sale.total.toLocaleString('en-IN')}%0A` +
-    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}%0A` +
-    `*TOTAL DUE: Rs.${totalDue.toLocaleString('en-IN')}*%0A` +
-    `--------------------------------%0A` +
-    `Thank you for your business!`;
-  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  const billHeader = isCash ? `*Al Haseena Exports - Wholesale Cash Bill*` : `*Al Haseena Exports - Wholesale Credit Bill*`;
+
+  const msgLines = [
+    billHeader,
+    `Bill No: ${sale.billNo}`,
+    `Date: ${sale.date}`,
+    `Buyer: ${sale.buyerName}`,
+    `Packages: *P - ${sale.totalBoxes || 0} Boxes*`,
+    `--------------------------------`,
+    linesText,
+    `--------------------------------`,
+    `Goods Subtotal: Rs.${(sale.subtotal || sale.total).toLocaleString('en-IN')}`
+  ];
+
+  if (sale.useAverageRate) {
+    const avgR = (sale.averageRate || (sale.totalBoxes ? Number((sale.total / sale.totalBoxes).toFixed(2)) : 0));
+    msgLines.push(`Price Per Crate (Avg): Rs.${avgR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / Box`);
+  }
+
+  if (discount > 0) {
+    msgLines.push(`(-) Discount: Rs.${discount.toLocaleString('en-IN')}`);
+    msgLines.push(`Today's Net Bill: Rs.${sale.total.toLocaleString('en-IN')}`);
+  }
+
+  if (isCash) {
+    msgLines.push(`Cash Paid: Rs.${(cashPaid || sale.total).toLocaleString('en-IN')}`);
+    msgLines.push(`*STATUS: PAID IN FULL (CASH)*`);
+  } else {
+    msgLines.push(`(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}`);
+    if (cashPaid > 0) {
+      msgLines.push(`(-) Cash Paid Today: Rs.${cashPaid.toLocaleString('en-IN')}`);
+    }
+    msgLines.push(`*TOTAL BALANCE DUE: Rs.${closingBal.toLocaleString('en-IN')}*`);
+  }
+
+  msgLines.push(`--------------------------------`);
+  msgLines.push(`Thank you for your business!`);
+
+  const fullMsg = msgLines.filter(Boolean).join('\n');
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(fullMsg)}`, '_blank');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -8633,10 +9143,10 @@ function renderPatiyaList() {
     const arrLot = s.arrivalCrates ? `ARR. ${s.arrivalCrates} (P)` : `${s.totalQtySold || 0} (P)`;
     const gross = Number(s.totalReportedGross) || 0;
     const totalDeductions = (Number(s.totalExpenses) || 0) + (Number(s.commissionAmount) || 0);
-    const netSale = Number(s.netConsignmentAmount) || Number(s.netPayableToDealer) || Math.max(0, gross - totalDeductions);
+    const netSale = Math.ceil(Number(s.netConsignmentAmount) || Number(s.netPayableToDealer) || Math.max(0, gross - totalDeductions));
     const prevBal = Number(s.previousBalance) || 0;
     const cashPaid = Number(s.cashPaidToday) || 0;
-    const closingBal = Number(s.closingBalance) || (netSale + prevBal - cashPaid);
+    const closingBal = Math.ceil(Number(s.closingBalance) !== undefined && Number(s.closingBalance) !== null ? Number(s.closingBalance) : (netSale + prevBal - cashPaid));
 
     return `
       <tr>
@@ -8701,30 +9211,78 @@ function renderPatiyaList() {
   }).join('');
 }
 
+function getDealersLeftToSettle() {
+  const unsettledConsignments = (appState.consignments || []).filter(c => c.status !== 'Settled' && !c.isSettled);
+  const dealerMap = new Map();
+
+  for (const c of unsettledConsignments) {
+    const dName = (c.dealerName || '').trim();
+    if (!dName) continue;
+    const key = dName.toLowerCase();
+    if (!dealerMap.has(key)) {
+      dealerMap.set(key, {
+        name: dName,
+        dealerId: c.dealerId,
+        unsettledCount: 1,
+        totalCrates: (c.items || []).reduce((s, it) => s + (Number(it.crates) || 0), 0)
+      });
+    } else {
+      const entry = dealerMap.get(key);
+      entry.unsettledCount += 1;
+      entry.totalCrates += (c.items || []).reduce((s, it) => s + (Number(it.crates) || 0), 0);
+    }
+  }
+
+  return Array.from(dealerMap.values());
+}
+
 function renderPatiyaQuickDealerChips() {
   const container = document.getElementById('mPatQuickDealerChips');
+  const labelEl = document.getElementById('mPatQuickDealerLabel');
   if (!container) return;
-  const dealers = (appState.contacts || []).filter(c => c.isDealer);
-  if (dealers.length === 0) {
-    container.innerHTML = `<span style="font-size:12px; color:#94a3b8;">No registered dealers yet.</span>`;
+
+  const dealersToSettle = getDealersLeftToSettle();
+
+  if (dealersToSettle.length === 0) {
+    if (labelEl) labelEl.textContent = 'Settlement Status:';
+    container.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 24px; background:#f0fdf4; border:1.5px solid #86efac; border-radius:14px; color:#166534;">
+        <div style="display:inline-flex; align-items:center; gap:8px; font-weight:800; font-size:14px; color:#15803d;">
+          <i class="fas fa-circle-check" style="color:#16a34a; font-size:17px;"></i>
+          <span>No dealers to settle</span>
+        </div>
+        <div style="font-size:12px; color:#475569;">All inward fish consignments have been fully settled & finalized.</div>
+      </div>
+    `;
     return;
   }
-  container.innerHTML = dealers.map(d => `
-    <button type="button" class="btn btn-outline btn-sm" onclick="selectPatiyaDealer('${d.name.replace(/'/g, "\\'")}')" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
-      <i class="fas fa-user-tag" style="color:#0084ff; font-size:11px;"></i>
+
+  if (labelEl) labelEl.textContent = 'Quick Select Supplier / Dealer:';
+  container.innerHTML = dealersToSettle.map(d => `
+    <button type="button" class="btn btn-outline btn-sm" onclick="selectPatiyaDealer('${d.name.replace(/'/g, "\\'")}')" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:20px; padding:6px 14px; font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 2px rgba(0,0,0,0.03);">
+      <i class="fas fa-ship" style="color:#0084ff; font-size:11px;"></i>
       <strong>${d.name}</strong>
+      <span class="badge badge-purple" style="font-size:10px; padding:1px 6px;">${d.unsettledCount} ${d.unsettledCount === 1 ? 'Lot' : 'Lots'}</span>
     </button>
   `).join('');
 }
 
-function openPatiyaModal(prefillDealer) {
+function openPatiyaModal(prefillDealer, prefillConsignmentId = null) {
+  appState.activeSettlingConsignmentId = prefillConsignmentId || null;
   const today = getTodayIsoDate();
   const patDateInp = document.getElementById('mPatDate');
   if (patDateInp) {
     patDateInp.max = today;
     patDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
-  document.getElementById('mPatDealer').value = prefillDealer || '';
+
+  const dealersToSettle = getDealersLeftToSettle();
+  const dInp = document.getElementById('mPatDealer');
+  if (dInp) {
+    dInp.value = prefillDealer || '';
+    dInp.placeholder = dealersToSettle.length === 0 ? 'No dealers to settle' : 'Click or type dealer name...';
+  }
+
   const list = document.getElementById('mPatDealerDropdown');
   if (list) list.style.display = 'none';
 
@@ -8741,24 +9299,45 @@ function openPatiyaModal(prefillDealer) {
 
   document.getElementById('patiyaModal').classList.add('open');
   if (prefillDealer) {
-    calculateDealerPatiya();
+    calculateDealerPatiya(prefillConsignmentId);
   }
-}
-
-function settleKumar() {
-  openPatiyaModal('Kumar Traders');
 }
 
 function searchPatiyaDealer(q) {
   const list = document.getElementById('mPatDealerDropdown');
   if (!list) return;
-  const dealers = (appState.contacts || []).filter(c => c.isDealer);
+
+  const dealersToSettle = getDealersLeftToSettle();
+
+  if (dealersToSettle.length === 0) {
+    list.innerHTML = `
+      <div style="padding:14px 16px; text-align:center; color:#047857; font-weight:700; font-size:13px; background:#f0fdf4;">
+        <i class="fas fa-circle-check" style="color:#10b981; margin-right:6px;"></i> No dealers to settle
+      </div>
+    `;
+    list.style.display = 'block';
+    return;
+  }
+
   const filterQ = (q || '').trim().toLowerCase();
-  const matches = filterQ ? dealers.filter(c => c.name.toLowerCase().includes(filterQ)) : dealers;
-  if (matches.length === 0) { list.style.display = 'none'; return; }
+  const matches = filterQ ? dealersToSettle.filter(d => d.name.toLowerCase().includes(filterQ)) : dealersToSettle;
+
+  if (matches.length === 0) {
+    list.innerHTML = `
+      <div style="padding:12px 14px; text-align:center; color:#64748b; font-size:12px;">
+        <i class="fas fa-info-circle" style="margin-right:5px; color:#94a3b8;"></i> No dealers to settle matching "${filterQ}"
+      </div>
+    `;
+    list.style.display = 'block';
+    return;
+  }
+
   list.innerHTML = matches.map(m => `
-    <div class="autocomplete-row" onclick="selectPatiyaDealer('${m.name.replace(/'/g, "\\'")}')" style="display:flex; justify-content:space-between; align-items:center;">
-      <strong>${m.name}</strong>
+    <div class="autocomplete-row" onclick="selectPatiyaDealer('${m.name.replace(/'/g, "\\'")}')" style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px;">
+      <div>
+        <strong>${m.name}</strong>
+        <div style="font-size:11px; color:#64748b;">${m.unsettledCount} unsettled ${m.unsettledCount === 1 ? 'consignment lot' : 'consignment lots'}</div>
+      </div>
       <span class="badge badge-green" style="font-size:10.5px;">Settle Consignments</span>
     </div>
   `).join('');
@@ -8773,26 +9352,54 @@ function selectPatiyaDealer(name) {
   calculateDealerPatiya();
 }
 
-async function calculateDealerPatiya() {
+async function calculateDealerPatiya(consignmentId = null) {
+  if (consignmentId) appState.activeSettlingConsignmentId = consignmentId;
   const name = document.getElementById('mPatDealer').value.trim();
   const date = document.getElementById('mPatDate').value;
   const dealer = (appState.contacts || []).find(c => c.name.toLowerCase() === name.toLowerCase());
-  if (!dealer) return showToast('Please select a valid dealer', 'error');
+  if (!dealer) {
+    const dealersLeft = getDealersLeftToSettle();
+    if (dealersLeft.length === 0) {
+      return showToast('No dealers to settle — all consignments are finalized', 'info');
+    }
+    return showToast('Please select a valid dealer', 'error');
+  }
+
+  const unsettledCons = (appState.consignments || []).filter(c => 
+    (c.dealerId === dealer.id || (c.dealerName && c.dealerName.trim().toLowerCase() === dealer.name.trim().toLowerCase())) &&
+    (c.status !== 'Settled' && !c.isSettled)
+  );
+  if (unsettledCons.length === 0) {
+    return showToast(`No consignments left to settle for "${dealer.name}". All lots are already finalized!`, 'info');
+  }
+
+  const emptyPlaceholder = document.getElementById('patiyaEmptyPlaceholder');
+  const calcSection = document.getElementById('patiyaCalcSection');
 
   try {
+    const payload = { dealerId: dealer.id, date };
+    if (appState.activeSettlingConsignmentId) {
+      payload.consignmentId = appState.activeSettlingConsignmentId;
+    }
     const res = await fetch('/api/settlements/calculate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealerId: dealer.id, date })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
-    if (!res.ok) return showToast(data.error || 'Failed to fetch sales', 'error');
+    if (!res.ok) {
+      if (emptyPlaceholder) emptyPlaceholder.style.display = 'flex';
+      if (calcSection) calcSection.style.display = 'none';
+      document.getElementById('savePatiyaBtn').style.display = 'none';
+      document.getElementById('patiyaPrintBtn').style.display = 'none';
+      document.getElementById('patiyaShareWaBtn').style.display = 'none';
+      return showToast(data.error || 'Failed to fetch sales', 'warning');
+    }
 
     curPatiyaData = data;
     renderPatiyaView();
-    const emptyPlaceholder = document.getElementById('patiyaEmptyPlaceholder');
     if (emptyPlaceholder) emptyPlaceholder.style.display = 'none';
-    document.getElementById('patiyaCalcSection').style.display = 'block';
+    if (calcSection) calcSection.style.display = 'block';
     document.getElementById('savePatiyaBtn').style.display = 'inline-flex';
     document.getElementById('patiyaPrintBtn').style.display = 'inline-flex';
     document.getElementById('patiyaShareWaBtn').style.display = 'inline-flex';
@@ -8813,7 +9420,7 @@ function renderPatiyaView() {
   document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance ? curPatiyaData.previousBalance : '';
   document.getElementById('mPatCashPaid').value = '';
   document.getElementById('mPatAdjustments').value = '';
-  document.getElementById('mPatCashPayee').value = 'Cash Paid to DRL (Driver)';
+  document.getElementById('mPatCashPayee').value = '';
 
   // Render Received Varieties (You Owe Him Money For)
   const recVars = Array.isArray(curPatiyaData.receivedVarieties) ? curPatiyaData.receivedVarieties : [];
@@ -8877,23 +9484,23 @@ function renderPatiyaView() {
     addPatiyaItemLine('', '', '');
   }
 
-  // Deduct Expenses One by One (Default empty for user input)
+  // Deduct Expenses One by One
   const expTbody = document.getElementById('patExpenseTbody');
-  expTbody.innerHTML = `
-    <tr>
-      <td><input type="text" class="expLabel" value="Transport / Lorry Bhada (MEN)"/></td>
-      <td class="num"><input type="number" class="expCost" value="" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
-      <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
-    </tr>
-    <tr>
-      <td><input type="text" class="expLabel" value="Ice & Coolie Labor (ML)"/></td>
-      <td class="num"><input type="number" class="expCost" value="" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
-      <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
-    </tr>
-  `;
+  const patExpenses = Array.isArray(curPatiyaData.expenses) ? curPatiyaData.expenses : [];
+  if (patExpenses.length > 0) {
+    expTbody.innerHTML = patExpenses.map(e => `
+      <tr>
+        <td><input type="text" class="expLabel" value="${e.name || ''}" placeholder="Expense description"/></td>
+        <td class="num"><input type="number" class="expCost" value="${e.cost !== undefined && e.cost !== null && e.cost !== 0 ? e.cost : ''}" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
+        <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+      </tr>
+    `).join('');
+  } else {
+    expTbody.innerHTML = '';
+  }
 
   document.getElementById('mPatCommType').value = curPatiyaData.defaultCommissionType || 'percent';
-  document.getElementById('mPatCommVal').value = curPatiyaData.defaultCommissionVal !== undefined ? curPatiyaData.defaultCommissionVal : '';
+  document.getElementById('mPatCommVal').value = (curPatiyaData.defaultCommissionVal !== undefined && curPatiyaData.defaultCommissionVal !== null && curPatiyaData.defaultCommissionVal !== 0) ? curPatiyaData.defaultCommissionVal : '';
   document.getElementById('mPatUnsoldCrates').textContent = curPatiyaData.unsoldCratesRemaining || 0;
   recalculatePatiya();
 }
@@ -8924,7 +9531,7 @@ function addPatiyaExpenseLine(name = '', amount = '') {
   if (!tbody) return;
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><input type="text" class="expLabel" value="${name || ''}" placeholder="e.g. Storage / Box charges"/></td>
+    <td><input type="text" class="expLabel" value="${name || ''}" placeholder="Expense description"/></td>
     <td class="num"><input type="number" class="expCost" value="${amount !== undefined && amount !== null && amount !== 0 ? amount : ''}" placeholder="0" oninput="recalculatePatiya()" style="text-align:right; font-weight:600;"/></td>
     <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
   `;
@@ -8945,7 +9552,7 @@ function recalculatePatiya() {
   itemRows.forEach((r) => {
     const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
     const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
-    const lineGross = qty * rate;
+    const lineGross = Math.round(qty * rate);
     const grossEl = r.querySelector('.gross-cell');
     if (grossEl) grossEl.textContent = `₹${lineGross.toLocaleString('en-IN')}`;
     gross += lineGross;
@@ -9028,18 +9635,19 @@ function recalculatePatiya() {
 
   // Net Consignment Proceeds
   const adj = Number(document.getElementById('mPatAdjustments').value) || 0;
-  const netConsignment = Math.max(0, gross - exp - commAmt + adj);
+  const rawNet = Math.max(0, gross - exp - commAmt + adj);
+  const netConsignment = Math.ceil(rawNet);
   document.getElementById('mPatConsignmentNet').textContent = `₹${netConsignment.toLocaleString('en-IN')}`;
   const netSummaryEl = document.getElementById('mPatConsignmentNetSummary');
   if (netSummaryEl) netSummaryEl.textContent = `₹${netConsignment.toLocaleString('en-IN')}`;
 
   // Running Ledger & Final Amount We Owe Him
   const prevBal = Number(document.getElementById('mPatPrevBal').value) || 0;
-  const totalDue = netConsignment + prevBal;
+  const totalDue = Math.ceil(netConsignment + prevBal);
   document.getElementById('mPatTotalDue').textContent = `₹${totalDue.toLocaleString('en-IN')}`;
 
   const cashPaid = Number(document.getElementById('mPatCashPaid').value) || 0;
-  const closingBal = totalDue - cashPaid;
+  const closingBal = Math.ceil(totalDue - cashPaid);
   const closingEl = document.getElementById('mPatClosingBal');
   if (closingEl) closingEl.textContent = `₹${closingBal.toLocaleString('en-IN')}`;
 
@@ -9073,7 +9681,7 @@ async function saveFinalizedPatiya(action = 'save') {
     const variety = r.querySelector('.patItemVariety')?.value.trim() || 'Fish';
     const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
     const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
-    const lineGross = qty * rate;
+    const lineGross = Math.round(qty * rate);
     if (qty > 0) {
       items.push({
         variety,
@@ -9098,22 +9706,23 @@ async function saveFinalizedPatiya(action = 'save') {
   document.querySelectorAll('#patExpenseTbody tr').forEach(r => {
     const name = r.querySelector('.expLabel')?.value.trim();
     const amount = Number(r.querySelector('.expCost')?.value) || 0;
-    if (name && amount > 0) expenses.push({ name, amount });
+    if (name && amount > 0) expenses.push({ name, amount: Math.round(amount) });
   });
   const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
 
   const commType = document.getElementById('mPatCommType').value;
   const commVal = Number(document.getElementById('mPatCommVal').value) || 0;
-  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(totalSold * commVal) : commVal);
+  let commAmt = commType === 'percent' ? Math.round((gross * commVal) / 100) : (commType === 'flat_per_crate' ? Math.round(totalSold * commVal) : Math.round(commVal));
 
   const adj = Number(document.getElementById('mPatAdjustments').value) || 0;
-  const netConsignment = Math.max(0, gross - totalExp - commAmt + adj);
+  const rawNet = Math.max(0, gross - totalExp - commAmt + adj);
+  const netConsignment = Math.ceil(rawNet);
 
   const previousBalance = Number(document.getElementById('mPatPrevBal').value) || 0;
-  const totalBalanceDue = netConsignment + previousBalance;
+  const totalBalanceDue = Math.ceil(netConsignment + previousBalance);
   const cashPaidToday = Number(document.getElementById('mPatCashPaid').value) || 0;
-  const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || 'Paid to Driver on Patiya';
-  const closingBalance = totalBalanceDue - cashPaidToday;
+  const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || (cashPaidToday > 0 ? 'Paid to Driver on Patiya' : '');
+  const closingBalance = Math.ceil(totalBalanceDue - cashPaidToday);
 
   try {
     const res = await fetch('/api/settlements', {
@@ -9123,6 +9732,8 @@ async function saveFinalizedPatiya(action = 'save') {
         dealerId: dealer.id,
         dealerName: dealer.name,
         date,
+        consignmentId: curPatiyaData?.consignmentId || appState.activeSettlingConsignmentId || null,
+        consignmentIds: curPatiyaData?.consignmentIds || (appState.activeSettlingConsignmentId ? [appState.activeSettlingConsignmentId] : []),
         arrivalCrates,
         items,
         totalQtySold: totalSold,
@@ -9243,11 +9854,11 @@ function downloadA4Patiya(id) {
   });
 
   const finalY = doc.lastAutoTable.finalY + 8;
-  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+  const netProceed = Math.ceil(Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0));
   const prevBal = Number(s.previousBalance) || 0;
-  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const totalDue = Math.ceil(Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal));
   const cashPaid = Number(s.cashPaidToday) || 0;
-  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+  const closingBal = Math.ceil(Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid));
 
   // Left Box: Deductions & Expenses Breakdown
   doc.setFillColor(248, 250, 252);
@@ -9334,32 +9945,42 @@ function sendPatiyaWhatsApp(id) {
     reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
     reportedGross: s.totalReportedGross || 0
   }];
-  const itemsText = items.map(it => `• ${it.qtySold} ${it.unit || 'Crate'} ${it.variety} @ Rs.${it.reportedRate} = Rs.${(it.reportedGross || 0).toLocaleString('en-IN')}`).join('%0A');
-  const netProceed = Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer);
+  const itemsText = items.map(it => `• ${it.qtySold} ${it.unit || 'Crate'} ${it.variety} @ Rs.${it.reportedRate} = Rs.${(it.reportedGross || 0).toLocaleString('en-IN')}`).join('\n');
+  const netProceed = Math.ceil(Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0));
   const prevBal = Number(s.previousBalance) || 0;
-  const totalDue = Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal);
+  const totalDue = Math.ceil(Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal));
   const cashPaid = Number(s.cashPaidToday) || 0;
-  const closingBal = Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid);
+  const closingBal = Math.ceil(Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid));
 
-  const msg = `*Al Haseena Exports - Patiya Settlement #${s.settlementNo}*%0A` +
-    `Date: ${s.date}%0A` +
-    `Dealer: ${s.dealerName}%0A` +
-    `Arrival Lot: *ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)*%0A` +
-    `--------------------------------%0A` +
-    `${itemsText}%0A` +
-    `--------------------------------%0A` +
-    `Gross Sales: Rs.${s.totalReportedGross.toLocaleString('en-IN')}%0A` +
-    `Less Expenses: -Rs.${s.totalExpenses.toLocaleString('en-IN')}%0A` +
-    `Less Commission: -Rs.${s.commissionAmount.toLocaleString('en-IN')}%0A` +
-    `*Net Consignment Proceed: Rs.${netProceed.toLocaleString('en-IN')}*%0A` +
-    `--------------------------------%0A` +
-    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}%0A` +
-    `Total Balance Due: Rs.${totalDue.toLocaleString('en-IN')}%0A` +
-    `(-) Cash Paid to Driver (${s.cashPaidPayee || 'DRL'}): -Rs.${cashPaid.toLocaleString('en-IN')}%0A` +
-    `*NET CLOSING BALANCE: Rs.${closingBal.toLocaleString('en-IN')}*%0A` +
-    `--------------------------------%0A` +
-    `Thank you!`;
-  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  const msgLines = [
+    `*Al Haseena Exports - Patiya Settlement*`,
+    `Settlement No: ${s.settlementNo}`,
+    `Date: ${s.date}`,
+    `Dealer: ${s.dealerName}`,
+    `Arrival Lot: *ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)*`,
+    `--------------------------------`,
+    itemsText,
+    `--------------------------------`,
+    `Gross Sales: Rs.${s.totalReportedGross.toLocaleString('en-IN')}`,
+    `Less Expenses: -Rs.${s.totalExpenses.toLocaleString('en-IN')}`,
+    `Less Commission: -Rs.${s.commissionAmount.toLocaleString('en-IN')}`,
+    `*Net Consignment Proceed: Rs.${netProceed.toLocaleString('en-IN')}*`,
+    `--------------------------------`,
+    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}`,
+    `Total Balance Due: Rs.${totalDue.toLocaleString('en-IN')}`
+  ];
+
+  if (cashPaid > 0) {
+    const payee = s.cashPaidPayee ? `(${s.cashPaidPayee})` : '(Driver)';
+    msgLines.push(`(-) Cash Paid to Driver ${payee}: -Rs.${cashPaid.toLocaleString('en-IN')}`);
+  }
+
+  msgLines.push(`*NET CLOSING BALANCE: Rs.${closingBal.toLocaleString('en-IN')}*`);
+  msgLines.push(`--------------------------------`);
+  msgLines.push(`Thank you!`);
+
+  const fullMsg = msgLines.filter(Boolean).join('\n');
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(fullMsg)}`, '_blank');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -9375,6 +9996,8 @@ async function loadContacts() {
     for (const id of Array.from(selectedContactIds)) {
       if (!validIds.has(Number(id))) selectedContactIds.delete(id);
     }
+    updateDirectoryTabUI();
+    updateDirectorySubFilterUI();
     renderContactsList();
     updateMoneyCardBalances();
   } catch (err) {
@@ -9382,26 +10005,177 @@ async function loadContacts() {
   }
 }
 
+function getDealerUnsettledConsignmentsCount(dealerId, dealerName) {
+  const dNameLower = (dealerName || '').trim().toLowerCase();
+  const dId = Number(dealerId);
+  return (appState.consignments || []).filter(con => {
+    if (con.status === 'Settled' || con.isSettled) return false;
+    if (dId && Number(con.dealerId) === dId) return true;
+    if (dNameLower && (con.dealerName || '').trim().toLowerCase() === dNameLower) return true;
+    return false;
+  }).length;
+}
+
+function isDealerOverdue(c) {
+  if (!c.isDealer) return false;
+  // 1. Dual-role overdue balance
+  if (c.isOverdue && Number(c.receivableBalance) > 0 && !c.isBadDebtDefaulter) return true;
+  // 2. Unsettled consignment lots awaiting settlement
+  const unsettled = getDealerUnsettledConsignmentsCount(c.id, c.name);
+  if (unsettled > 0) return true;
+  return false;
+}
+
+function isBuyerOverdue(c) {
+  if (!c.isBuyer) return false;
+  const isBypassed = (Number(c.creditLimit) === -1 && Number(c.creditPeriod) === -1) || !!c.bypassCreditCheck;
+  if (isBypassed) return false;
+  return Boolean(c.isOverdue && Number(c.receivableBalance) > 0 && !c.isBadDebtDefaulter);
+}
+
+function isContactOverdue(c) {
+  return isDealerOverdue(c) || isBuyerOverdue(c);
+}
+
+function getFilteredDirectoryContacts(includeSearch = true) {
+  const q = includeSearch ? (document.getElementById('filterContactsInput')?.value || '').toLowerCase() : '';
+  let filtered = (appState.contacts || []).filter(c => {
+    if (!q) return true;
+    return (c.name || '').toLowerCase().includes(q) || ((c.phone || '').includes(q));
+  });
+
+  // Main Category Tab Filter
+  if (appState.directoryFilter === 'dealers') {
+    filtered = filtered.filter(c => c.isDealer);
+  } else if (appState.directoryFilter === 'buyers') {
+    filtered = filtered.filter(c => c.isBuyer);
+  } else if (appState.directoryFilter === 'baddebt') {
+    filtered = filtered.filter(c => c.isBadDebtDefaulter || (Number(c.badDebtAmount) > 0));
+  } else if (appState.directoryFilter === 'overdue') {
+    filtered = filtered.filter(c => isContactOverdue(c));
+  }
+  // 'all' keeps all parties
+
+  // Sub-filter: Overdue within Dealers, Buyers, or All Parties
+  if (appState.directorySubFilter === 'overdue' && appState.directoryFilter !== 'baddebt') {
+    if (appState.directoryFilter === 'dealers') {
+      filtered = filtered.filter(c => isDealerOverdue(c));
+    } else if (appState.directoryFilter === 'buyers') {
+      filtered = filtered.filter(c => isBuyerOverdue(c));
+    } else {
+      filtered = filtered.filter(c => isContactOverdue(c));
+    }
+  }
+
+  // Sorting: Dealers first, then Buyers next! Alphabetical within each group.
+  filtered.sort((a, b) => {
+    const aDealer = a.isDealer ? 0 : 1;
+    const bDealer = b.isDealer ? 0 : 1;
+    if (aDealer !== bDealer) return aDealer - bDealer;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  return filtered;
+}
+
+function updateDirectoryTabUI() {
+  const mode = appState.directoryFilter || 'dealers';
+  document.querySelectorAll('#view-dealers .view-tab-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.getElementById(`dirTab_${mode}`);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+
+function updateDirectorySubFilterUI() {
+  const group = document.getElementById('dirSubFilterGroup');
+  const allBtn = document.getElementById('dirSubFilterAllBtn');
+  const overdueBtn = document.getElementById('dirSubFilterOverdueBtn');
+  const label = document.getElementById('dirSubAllLabel');
+  const countAll = document.getElementById('dirSubCountAll');
+  const countOverdue = document.getElementById('dirSubCountOverdue');
+
+  if (!group || !allBtn || !overdueBtn) return;
+
+  if (appState.directoryFilter === 'baddebt') {
+    group.style.display = 'none';
+    return;
+  }
+  group.style.display = 'inline-flex';
+
+  const contacts = appState.contacts || [];
+  let scopeList = contacts;
+  if (appState.directoryFilter === 'dealers') {
+    if (label) label.textContent = 'All Dealers';
+    scopeList = contacts.filter(c => c.isDealer);
+  } else if (appState.directoryFilter === 'buyers') {
+    if (label) label.textContent = 'All Buyers';
+    scopeList = contacts.filter(c => c.isBuyer);
+  } else {
+    if (label) label.textContent = 'All Parties';
+    scopeList = contacts;
+  }
+
+  const totalInScope = scopeList.length;
+  let overdueInScope = 0;
+  if (appState.directoryFilter === 'dealers') {
+    overdueInScope = scopeList.filter(c => isDealerOverdue(c)).length;
+  } else if (appState.directoryFilter === 'buyers') {
+    overdueInScope = scopeList.filter(c => isBuyerOverdue(c)).length;
+  } else {
+    overdueInScope = scopeList.filter(c => isContactOverdue(c)).length;
+  }
+
+  if (countAll) countAll.textContent = totalInScope;
+  if (countOverdue) countOverdue.textContent = overdueInScope;
+
+  const isOverdueActive = appState.directorySubFilter === 'overdue';
+  if (isOverdueActive) {
+    allBtn.style.background = 'transparent';
+    allBtn.style.color = '#475569';
+    allBtn.classList.remove('active');
+
+    overdueBtn.style.background = '#dc2626';
+    overdueBtn.style.color = '#ffffff';
+    overdueBtn.classList.add('active');
+  } else {
+    allBtn.style.background = '#0084ff';
+    allBtn.style.color = '#ffffff';
+    allBtn.classList.add('active');
+
+    overdueBtn.style.background = 'transparent';
+    overdueBtn.style.color = overdueInScope > 0 ? '#b91c1c' : '#64748b';
+    overdueBtn.classList.remove('active');
+  }
+}
+
 function filterDirectory(mode, btn) {
   appState.directoryFilter = mode;
+  appState.directorySubFilter = 'all';
+
+  document.querySelectorAll('#view-dealers .view-tab-btn').forEach(b => b.classList.remove('active'));
   if (btn) {
-    document.querySelectorAll('#view-dealers .view-tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+  } else {
+    const tabEl = document.getElementById(`dirTab_${mode}`);
+    if (tabEl) tabEl.classList.add('active');
   }
+
+  updateDirectorySubFilterUI();
+  renderContactsList();
+}
+
+function setDirectorySubFilter(subMode) {
+  appState.directorySubFilter = subMode;
+  updateDirectorySubFilterUI();
   renderContactsList();
 }
 
 function renderContactsList() {
   const tbody = document.getElementById('contactsListTbody');
   if (!tbody) return;
-  const q = (document.getElementById('filterContactsInput')?.value || '').toLowerCase();
-  let filtered = appState.contacts.filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)));
 
-  if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
-  else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
-  else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
-  else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
+  updateDirectorySubFilterUI();
 
+  const filtered = getFilteredDirectoryContacts(true);
   updateContactsSelectionUI(filtered);
 
   if (filtered.length === 0) {
@@ -9414,10 +10188,17 @@ function renderContactsList() {
     let badge = isDual ? '<span class="badge badge-purple">Both (2-in-1)</span>' : (c.isDealer ? '<span class="badge badge-green">Dealer</span>' : '<span class="badge badge-blue">Buyer</span>');
 
     let statusBadge = '';
+    const isBypassed = (Number(c.creditLimit) === -1 && Number(c.creditPeriod) === -1) || !!c.bypassCreditCheck;
+    const unsettledLots = getDealerUnsettledConsignmentsCount(c.id, c.name);
+
     if (c.isBadDebtDefaulter) {
       statusBadge = `<span class="badge badge-red" style="font-weight:700;" title="${c.badDebtReason || 'Marked as Bad Debt Defaulter'}"><i class="fas fa-ban"></i> Defaulter (Bad Debt)</span>`;
-    } else if (c.isOverdue) {
-      statusBadge = `<span class="badge badge-red"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>`;
+    } else if (c.isOverdue && !isBypassed) {
+      statusBadge = `<span class="badge badge-red" style="font-weight:700;"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>`;
+    } else if (c.isDealer && unsettledLots > 0) {
+      statusBadge = `<span class="badge badge-purple" style="font-weight:700;" title="${unsettledLots} consignment(s) awaiting Patiya settlement"><i class="fas fa-calculator"></i> ${unsettledLots} ${unsettledLots === 1 ? 'Lot' : 'Lots'} to Settle</span>`;
+    } else if (isBypassed) {
+      statusBadge = '<span class="badge badge-purple" title="Credit limit and period bypassed (Unlimited)"><i class="fas fa-infinity"></i> Unlimited</span>';
     } else {
       statusBadge = '<span class="badge badge-green">Clear</span>';
     }
@@ -9466,12 +10247,7 @@ function renderContactsList() {
 
 function updateContactsSelectionUI(filtered) {
   if (!filtered) {
-    const q = (document.getElementById('filterContactsInput')?.value || '').toLowerCase();
-    filtered = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)));
-    if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
-    else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
-    else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
-    else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
+    filtered = getFilteredDirectoryContacts(true);
   }
 
   const masterChk = document.getElementById('selectAllContactsChk');
@@ -9523,13 +10299,7 @@ function toggleSelectContact(id, isChecked) {
 }
 
 function toggleSelectAllContacts(isChecked) {
-  const q = (document.getElementById('filterContactsInput')?.value || '').toLowerCase();
-  let filtered = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)));
-  if (appState.directoryFilter === 'dealers') filtered = filtered.filter(c => c.isDealer);
-  else if (appState.directoryFilter === 'buyers') filtered = filtered.filter(c => c.isBuyer);
-  else if (appState.directoryFilter === 'overdue') filtered = filtered.filter(c => c.isOverdue && c.receivableBalance > 0 && !c.isBadDebtDefaulter);
-  else if (appState.directoryFilter === 'baddebt') filtered = filtered.filter(c => c.isBadDebtDefaulter || (c.badDebtAmount > 0));
-
+  const filtered = getFilteredDirectoryContacts(true);
   filtered.forEach(c => {
     const cId = Number(c.id);
     if (isChecked) {
@@ -9692,6 +10462,25 @@ function openPatiyaForDealer(dealerName) {
   openPatiyaModal(dealerName);
 }
 
+function checkBypassCreditInputs() {
+  const limVal = document.getElementById('mContCreditLimit')?.value;
+  const perVal = document.getElementById('mContCreditPeriod')?.value;
+  const l = Number(limVal);
+  const p = Number(perVal);
+  const badge = document.getElementById('mContBypassNotice');
+  if (badge) {
+    badge.style.display = (l === -1 && p === -1) ? 'block' : 'none';
+  }
+}
+
+function setBypassUnlimitedCredit() {
+  const lInp = document.getElementById('mContCreditLimit');
+  const pInp = document.getElementById('mContCreditPeriod');
+  if (lInp) lInp.value = -1;
+  if (pInp) pInp.value = -1;
+  checkBypassCreditInputs();
+}
+
 function openContactModal() {
   appState.pendingTransactionOnContactSaved = null;
   document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus"></i> New Party Account';
@@ -9699,10 +10488,13 @@ function openContactModal() {
   document.getElementById('mContName').value = '';
   document.getElementById('mContPhone').value = '';
   document.getElementById('mContAddress').value = '';
-  document.getElementById('mContIsDealer').checked = true;
-  document.getElementById('mContIsBuyer').checked = false;
+  const dEl = document.getElementById('mContIsDealer');
+  const bEl = document.getElementById('mContIsBuyer');
+  if (dEl) { dEl.value = 'true'; dEl.checked = true; }
+  if (bEl) { bEl.value = 'true'; bEl.checked = true; }
   document.getElementById('mContCreditLimit').value = '';
-  document.getElementById('mContCreditPeriod').value = '7';
+  document.getElementById('mContCreditPeriod').value = '';
+  checkBypassCreditInputs();
   document.getElementById('contactModal').classList.add('open');
 }
 
@@ -9715,10 +10507,13 @@ function editPartyAccount(id) {
   document.getElementById('mContName').value = c.name;
   document.getElementById('mContPhone').value = c.phone || '';
   document.getElementById('mContAddress').value = c.address || '';
-  document.getElementById('mContIsDealer').checked = c.isDealer;
-  document.getElementById('mContIsBuyer').checked = c.isBuyer;
-  document.getElementById('mContCreditLimit').value = c.creditLimit || 0;
-  document.getElementById('mContCreditPeriod').value = c.creditPeriod || 0;
+  const dEl = document.getElementById('mContIsDealer');
+  const bEl = document.getElementById('mContIsBuyer');
+  if (dEl) { dEl.value = String(!!c.isDealer); dEl.checked = !!c.isDealer; }
+  if (bEl) { bEl.value = String(!!c.isBuyer); bEl.checked = !!c.isBuyer; }
+  document.getElementById('mContCreditLimit').value = c.creditLimit !== undefined ? c.creditLimit : 0;
+  document.getElementById('mContCreditPeriod').value = c.creditPeriod !== undefined ? c.creditPeriod : 0;
+  checkBypassCreditInputs();
   document.getElementById('contactModal').classList.add('open');
 }
 
@@ -9740,18 +10535,22 @@ function promptCreateNewParty(name, role = 'dealer', originModal = '', pendingAc
   document.getElementById('mContPhone').value = '';
   document.getElementById('mContAddress').value = '';
 
+  const dEl = document.getElementById('mContIsDealer');
+  const bEl = document.getElementById('mContIsBuyer');
+
   if (role === 'buyer') {
     document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#10b981;"></i> New Buyer Account';
-    document.getElementById('mContIsDealer').checked = false;
-    document.getElementById('mContIsBuyer').checked = true;
+    if (dEl) { dEl.value = 'false'; dEl.checked = false; }
+    if (bEl) { bEl.value = 'true'; bEl.checked = true; }
   } else {
     document.getElementById('contactModalTitle').innerHTML = '<i class="fas fa-user-plus" style="color:#0084ff;"></i> New Dealer Account';
-    document.getElementById('mContIsDealer').checked = true;
-    document.getElementById('mContIsBuyer').checked = false;
+    if (dEl) { dEl.value = 'true'; dEl.checked = true; }
+    if (bEl) { bEl.value = 'false'; bEl.checked = false; }
   }
 
-  document.getElementById('mContCreditLimit').value = '0';
-  document.getElementById('mContCreditPeriod').value = '7';
+  document.getElementById('mContCreditLimit').value = '';
+  document.getElementById('mContCreditPeriod').value = '';
+  checkBypassCreditInputs();
 
   document.getElementById('contactModal').classList.add('open');
 
@@ -9771,10 +10570,16 @@ async function saveContactAccount() {
   const name = document.getElementById('mContName').value.trim();
   const phone = document.getElementById('mContPhone').value.trim();
   const address = document.getElementById('mContAddress').value.trim();
-  const isDealer = document.getElementById('mContIsDealer').checked;
-  const isBuyer = document.getElementById('mContIsBuyer').checked;
-  const creditLimit = Number(document.getElementById('mContCreditLimit').value) || 0;
-  const creditPeriod = Number(document.getElementById('mContCreditPeriod').value) || 0;
+  const dEl = document.getElementById('mContIsDealer');
+  const bEl = document.getElementById('mContIsBuyer');
+  const isDealer = dEl ? (dEl.type === 'checkbox' ? dEl.checked : dEl.value === 'true') : true;
+  const isBuyer = bEl ? (bEl.type === 'checkbox' ? bEl.checked : bEl.value === 'true') : false;
+
+  const rawLimit = document.getElementById('mContCreditLimit').value;
+  const rawPeriod = document.getElementById('mContCreditPeriod').value;
+  const creditLimit = rawLimit === '' ? 0 : (!isNaN(Number(rawLimit)) ? Number(rawLimit) : 0);
+  const creditPeriod = rawPeriod === '' ? 0 : (!isNaN(Number(rawPeriod)) ? Number(rawPeriod) : 0);
+  const bypassCreditCheck = (creditLimit === -1 && creditPeriod === -1);
 
   if (!name) return showToast('Name is required', 'error');
 
@@ -9782,7 +10587,17 @@ async function saveContactAccount() {
     const res = await fetch('/api/contacts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id ? Number(id) : undefined, name, phone, address, isDealer, isBuyer, creditLimit, creditPeriod })
+      body: JSON.stringify({ 
+        id: id ? Number(id) : undefined, 
+        name, 
+        phone, 
+        address, 
+        isDealer, 
+        isBuyer, 
+        creditLimit, 
+        creditPeriod,
+        bypassCreditCheck
+      })
     });
     if (res.ok) {
       const saved = await res.json();
@@ -9843,7 +10658,9 @@ function renderStatementView() {
   if (!d) return;
 
   document.getElementById('mStmtModalTitle').innerHTML = `<i class="fas fa-book-open"></i> ${d.contact.name}`;
-  document.getElementById('mStmtModalSub').textContent = `Phone: ${d.contact.phone || 'N/A'} | Credit Limit: ₹${(d.contact.creditLimit || 0).toLocaleString('en-IN')}`;
+  const isBypassed = (Number(d.contact.creditLimit) === -1 && Number(d.contact.creditPeriod) === -1) || !!d.contact.bypassCreditCheck;
+  const limStr = isBypassed ? 'Unlimited (Bypassed)' : `₹${(d.contact.creditLimit || 0).toLocaleString('en-IN')}`;
+  document.getElementById('mStmtModalSub').textContent = `Phone: ${d.contact.phone || 'N/A'} | Credit Limit: ${limStr}`;
 
   document.getElementById('mStmtPayable').textContent = `₹${(d.financials.payableBalance || 0).toLocaleString('en-IN')}`;
   document.getElementById('mStmtReceivable').textContent = `₹${(d.financials.receivableBalance || 0).toLocaleString('en-IN')}`;
@@ -9915,8 +10732,8 @@ function exportPartyStatementPDF() {
 
 function sendWhatsAppFollowup(phone, name, amount, daysOverdue) {
   const clean = (phone || '').replace(/[^0-9]/g, '');
-  const msg = `Dear *${name}*,%0AGreetings from *Al Haseena Exports*.%0AThis is a reminder that your pending balance of *Rs.${(amount || 0).toLocaleString('en-IN')}* is overdue by *${daysOverdue} days*.%0AKindly arrange the payment at your earliest convenience.%0AThank you!`;
-  window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+  const msg = `Dear *${name}*,\nGreetings from *Al Haseena Exports*.\nThis is a friendly reminder that your pending balance of *Rs.${(amount || 0).toLocaleString('en-IN')}* is overdue by *${daysOverdue} days*.\nKindly arrange the payment at your earliest convenience.\nThank you!`;
+  window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
 function openBadDebtModal(contactId) {
@@ -9927,7 +10744,7 @@ function openBadDebtModal(contactId) {
   document.getElementById('mBadDebtBuyerName').textContent = c.name;
   const bal = Number(c.receivableBalance || 0);
   document.getElementById('mBadDebtAmount').textContent = '₹' + bal.toLocaleString('en-IN');
-  document.getElementById('mBadDebtReason').value = 'Defaulted on credit payment / Unreachable';
+  document.getElementById('mBadDebtReason').value = '';
   openModal('badDebtConfirmModal');
 }
 
@@ -11095,7 +11912,8 @@ function scrollToAttention() {
 
 function filterLateBuyers() {
   switchTo('dealers');
-  filterDirectory('overdue');
+  filterDirectory('buyers');
+  setDirectorySubFilter('overdue');
 }
 
 function showTipNotice() {

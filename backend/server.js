@@ -4,6 +4,7 @@ const path = require('path');
 const { MongoClient } = require('mongodb');
 
 const ROOT = __dirname;
+const FRONTEND_DIR = path.resolve(ROOT, '..', 'frontend');
 loadLocalEnv();
 
 const PORT = parseInt(process.env.PORT, 10) || 8000;
@@ -216,6 +217,23 @@ const localDbWrapper = {
         return { matchedCount: index !== -1 ? 1 : 0, modifiedCount: index !== -1 ? 1 : 0 };
       },
 
+      async updateMany(query, updateDoc) {
+        const data = readJsonFile(filename);
+        let modifiedCount = 0;
+        for (let i = 0; i < data.length; i++) {
+          if (matchItem(data[i], query)) {
+            if (updateDoc.$set) {
+              data[i] = { ...data[i], ...updateDoc.$set };
+              modifiedCount++;
+            }
+          }
+        }
+        if (modifiedCount > 0) {
+          writeJsonFile(filename, data);
+        }
+        return { matchedCount: modifiedCount, modifiedCount };
+      },
+
       async deleteOne(query) {
         const data = readJsonFile(filename);
         const index = data.findIndex(item => matchItem(item, query));
@@ -238,7 +256,9 @@ const localDbWrapper = {
 };
 
 function loadLocalEnv() {
-  const envPath = path.join(ROOT, '.env');
+  const envPath = fs.existsSync(path.join(ROOT, '.env'))
+    ? path.join(ROOT, '.env')
+    : path.resolve(ROOT, '..', '.env');
   if (!fs.existsSync(envPath)) return;
   const content = fs.readFileSync(envPath, 'utf8');
   for (const line of content.split(/\r?\n/)) {
@@ -359,10 +379,10 @@ function normalizeContact(data) {
     isDealer: data.isDealer !== undefined ? !!data.isDealer : true,
     isBuyer: data.isBuyer !== undefined ? !!data.isBuyer : false,
     defaultCommissionType: data.defaultCommissionType || 'percent', // 'percent' or 'flat_per_crate'
-    defaultCommissionVal: Number(data.defaultCommissionVal) || 5, // e.g. 5% or 50/crate
-    creditLimit: Number(data.creditLimit) || 0,
-    creditPeriod: Number(data.creditPeriod) || 0, // days allowed
-    bypassCreditCheck: !!data.bypassCreditCheck,
+    defaultCommissionVal: (data.defaultCommissionVal !== undefined && data.defaultCommissionVal !== null && data.defaultCommissionVal !== '') ? Number(data.defaultCommissionVal) : 0,
+    creditLimit: !isNaN(Number(data.creditLimit)) ? Number(data.creditLimit) : 0,
+    creditPeriod: !isNaN(Number(data.creditPeriod)) ? Number(data.creditPeriod) : 0, // days allowed (-1 for unlimited/bypass)
+    bypassCreditCheck: (Number(data.creditLimit) === -1 && Number(data.creditPeriod) === -1) || !!data.bypassCreditCheck,
     isBadDebtDefaulter: !!data.isBadDebtDefaulter,
     badDebtReason: String(data.badDebtReason || ''),
     created: Number(data.created) || now,
@@ -397,6 +417,10 @@ function normalizeConsignment(data) {
         }))
       : [],
     status: data.status || 'Active', // 'Active', 'Settled'
+    isSettled: !!data.isSettled,
+    settlementId: data.settlementId ? Number(data.settlementId) : null,
+    settlementNo: String(data.settlementNo || '').trim(),
+    settledDate: String(data.settledDate || '').trim(),
     notes: String(data.notes || ''),
     created: Number(data.created) || now,
     updated: now
@@ -423,7 +447,9 @@ function normalizeSale(data) {
           qty = crates * kgPerCrate;
         }
         const rate = Number(l.rate) || 0;
-        const amount = Number(l.amount) !== undefined ? Number(l.amount) : (crates > 0 ? crates * rate : (qty > 0 ? qty * rate : 0));
+        const amount = Number(l.amount) !== undefined
+          ? Number(l.amount)
+          : ((kgPerCrate > 0 || l.unit === 'Kg') && qty > 0 ? qty * rate : (crates > 0 ? crates * rate : (qty > 0 ? qty * rate : 0)));
         return {
           id: Number(l.id) || idx + 1,
           consignmentId: Number(l.consignmentId) || null,
@@ -431,7 +457,7 @@ function normalizeSale(data) {
           dealerId: Number(l.dealerId) || null,
           dealerName: String(l.dealerName || ''),
           variety: String(l.variety || '').trim(),
-          unit: (l.unit === 'Crate' || l.unit === 'Box') ? l.unit : (kgPerCrate > 0 ? 'Kg' : 'Box'),
+          unit: l.unit === 'Kg' ? 'Kg' : ((l.unit === 'Crate' || l.unit === 'Box') ? l.unit : (kgPerCrate > 0 ? 'Kg' : 'Box')),
           crates,
           kgPerCrate,
           qty: qty || crates,
@@ -465,6 +491,8 @@ function normalizeSale(data) {
     amountPaid: paid,
     closingBalance: closingBal,
     notes: String(data.notes || ''),
+    useAverageRate: !!data.useAverageRate,
+    averageRate: Number(data.averageRate) || (totalBoxes > 0 ? Number((subtotal / totalBoxes).toFixed(2)) : 0),
     isBadDebt: !!data.isBadDebt,
     created: Number(data.created) || now,
     updated: now
@@ -473,15 +501,15 @@ function normalizeSale(data) {
 
 function normalizeSettlement(data) {
   const now = Date.now();
-  const gross = Number(data.totalReportedGross) || 0;
-  const totalExp = Number(data.totalExpenses) || 0;
-  const commAmt = Number(data.commissionAmount) || 0;
+  const gross = Math.round(Number(data.totalReportedGross) || 0);
+  const totalExp = Math.round(Number(data.totalExpenses) || 0);
+  const commAmt = Math.round(Number(data.commissionAmount) || 0);
   const adj = Number(data.adjustments) || 0;
-  const netProceed = Math.max(0, gross - totalExp - commAmt + adj);
+  const netProceed = Math.ceil(Math.max(0, gross - totalExp - commAmt + adj));
   const prevBal = Number(data.previousBalance) || 0;
-  const totalBal = Number(data.totalBalanceDue) !== undefined ? Number(data.totalBalanceDue) : (netProceed + prevBal);
+  const totalBal = data.totalBalanceDue !== undefined ? Math.ceil(Number(data.totalBalanceDue)) : (netProceed + prevBal);
   const cashPaid = Number(data.cashPaidToday) || 0;
-  const closingBal = Number(data.closingBalance) !== undefined ? Number(data.closingBalance) : (totalBal - cashPaid);
+  const closingBal = data.closingBalance !== undefined ? Math.ceil(Number(data.closingBalance)) : (totalBal - cashPaid);
 
   const items = Array.isArray(data.items)
     ? data.items.map((it, idx) => ({
@@ -491,10 +519,10 @@ function normalizeSettlement(data) {
         variety: String(it.variety || ''),
         unit: it.unit || 'Crate',
         qtySold: Number(it.qtySold) || 0,
-        realizedRevenue: Number(it.realizedRevenue) || 0,
+        realizedRevenue: Math.round(Number(it.realizedRevenue) || 0),
         systemAvgRate: Number(it.systemAvgRate) || 0,
         reportedRate: Number(it.reportedRate !== undefined ? it.reportedRate : it.systemAvgRate) || 0,
-        reportedGross: Number(it.reportedGross) !== undefined ? Number(it.reportedGross) : (Number(it.qtySold) || 0) * (Number(it.reportedRate) || 0),
+        reportedGross: Number(it.reportedGross) !== undefined ? Math.round(Number(it.reportedGross)) : Math.round((Number(it.qtySold) || 0) * (Number(it.reportedRate) || 0)),
         brokingProfit: Number(it.brokingProfit) !== undefined ? Number(it.brokingProfit) : ((Number(it.realizedRevenue) || 0) - (Number(it.reportedGross) || 0))
       }))
     : [];
@@ -526,9 +554,13 @@ function normalizeSettlement(data) {
       : [],
     totalExpenses: totalExp,
 
+    // Consignment Linkage
+    consignmentId: data.consignmentId ? Number(data.consignmentId) : null,
+    consignmentIds: Array.isArray(data.consignmentIds) ? data.consignmentIds.map(Number).filter(n => !isNaN(n)) : (data.consignmentId ? [Number(data.consignmentId)] : []),
+
     // Commission structure
     commissionType: data.commissionType || 'percent', // 'percent' or 'flat_per_crate' or 'fixed'
-    commissionRate: Number(data.commissionRate) || 5,
+    commissionRate: (data.commissionRate !== undefined && data.commissionRate !== null && data.commissionRate !== '') ? Number(data.commissionRate) : 0,
     commissionAmount: commAmt,
 
     // Adjustments (+ / -) e.g. + 1170
@@ -639,10 +671,11 @@ async function getContactFinancials(contactId) {
 
   // Check Overdue Status
   const creditPeriod = Number(contact?.creditPeriod) || 0;
+  const isBypassed = (Number(contact?.creditLimit) === -1 && Number(contact?.creditPeriod) === -1) || !!contact?.bypassCreditCheck;
   let isOverdue = false;
   let daysOverdue = 0;
 
-  if (receivableBalance > 0 && creditPeriod > 0) {
+  if (!isBypassed && receivableBalance > 0 && creditPeriod > 0) {
     const unpaidCreditSales = sales.filter(s => s.paymentType === 'Credit' && !s.isBadDebt);
     const now = Date.now();
     for (const s of unpaidCreditSales) {
@@ -1369,13 +1402,18 @@ const MIME_TYPES = {
 function serveStatic(req, res, pathname) {
   let safePath = pathname === '/' ? '/index.html' : pathname;
   safePath = path.normalize(safePath).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(ROOT, safePath);
+  const filePath = path.join(FRONTEND_DIR, safePath);
 
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     // Fallback to index.html for SPA
-    const indexPath = path.join(ROOT, 'index.html');
+    const indexPath = path.join(FRONTEND_DIR, 'index.html');
     if (fs.existsSync(indexPath)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
       return fs.createReadStream(indexPath).pipe(res);
     }
     res.writeHead(404);
@@ -1384,7 +1422,12 @@ function serveStatic(req, res, pathname) {
 
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-  res.writeHead(200, { 'Content-Type': contentType });
+  res.writeHead(200, {
+    'Content-Type': contentType,
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
   fs.createReadStream(filePath).pipe(res);
 }
 
@@ -1523,6 +1566,19 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (req.method === 'DELETE' && pathname === '/api/contacts') {
+    try {
+      const database = await connectDb();
+      await database.collection('contacts').deleteMany({});
+      if (useLocalStorage) {
+        writeJsonFile('contacts.json', []);
+      }
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   if (req.method === 'DELETE' && pathname.startsWith('/api/contacts/')) {
     try {
       const id = Number(pathname.split('/').pop());
@@ -1604,6 +1660,19 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (req.method === 'DELETE' && pathname === '/api/consignments') {
+    try {
+      const database = await connectDb();
+      await database.collection('consignments').deleteMany({});
+      if (useLocalStorage) {
+        writeJsonFile('consignments.json', []);
+      }
+      return sendJson(res, { ok: true });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   if (req.method === 'DELETE' && pathname.startsWith('/api/consignments/')) {
     try {
       const id = Number(pathname.split('/').pop());
@@ -1646,16 +1715,10 @@ const server = http.createServer(async (req, res) => {
       }
       sale.buyerId = contact.id;
 
-      // Credit limit & Overdue check (unless cash or explicitly bypassed)
-      if (sale.paymentType === 'Credit' && !body.bypassCreditCheck && !contact.bypassCreditCheck) {
+      // Overdue check (unless cash or explicitly bypassed; credit limit check removed)
+      const isBypassed = (Number(contact.creditLimit) === -1 && Number(contact.creditPeriod) === -1) || !!contact.bypassCreditCheck || !!body.bypassCreditCheck;
+      if (sale.paymentType === 'Credit' && !isBypassed) {
         const fin = await getContactFinancials(contact.id);
-        const newTotalDue = fin.receivableBalance + sale.total;
-        if (contact.creditLimit > 0 && newTotalDue > contact.creditLimit) {
-          return sendJson(res, {
-            error: `Credit limit exceeded! Limit: ₹${contact.creditLimit}, Current Due: ₹${fin.receivableBalance}, Bill Total: ₹${sale.total}. Authorize bypass to proceed.`,
-            creditLimitBreached: true
-          }, 400);
-        }
         if (fin.isOverdue) {
           return sendJson(res, {
             error: `Buyer has overdue bills by ${fin.daysOverdue} days! Outstanding: ₹${fin.receivableBalance}. Authorize bypass to proceed.`,
@@ -1818,12 +1881,59 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const dealerId = Number(body.dealerId);
       const date = body.date || new Date().toISOString().split('T')[0];
+      const consignmentId = body.consignmentId ? Number(body.consignmentId) : null;
 
       if (!dealerId) return sendJson(res, { error: 'dealerId is required' }, 400);
 
       const database = await connectDb();
       const dealer = await database.collection('contacts').findOne({ id: dealerId });
       if (!dealer) return sendJson(res, { error: 'Dealer not found' }, 404);
+
+      // Find arrival crates, varieties, and consignments for this dealer
+      const consignments = await database.collection('consignments').find({
+        $or: [
+          { dealerId },
+          { dealerName: new RegExp(`^${dealer.name.trim()}$`, 'i') }
+        ]
+      }).toArray();
+
+      // If specific consignment was targeted, verify it is not already settled
+      let targetConsignments = [];
+      if (consignmentId) {
+        const found = consignments.find(c => c.id === consignmentId);
+        if (!found) return sendJson(res, { error: 'Consignment lot not found' }, 404);
+        if (found.status === 'Settled' || found.isSettled) {
+          return sendJson(res, {
+            error: `Consignment lot #${found.consignmentNo || found.id} has already been settled and finalized in Settlement #${found.settlementNo || found.settlementId || ''}! A single purchase cannot be settled more than once.`,
+            alreadySettled: true,
+            settlementId: found.settlementId
+          }, 400);
+        }
+        targetConsignments = [found];
+      } else {
+        // Filter by date if provided
+        const dateLots = consignments.filter(c => !date || c.date === date);
+        if (dateLots.length > 0 && dateLots.every(c => c.status === 'Settled' || c.isSettled)) {
+          return sendJson(res, {
+            error: `All purchases / consignments for ${dealer.name} on ${date} have already been settled and finalized! Single purchases cannot be settled more than once.`,
+            alreadySettled: true
+          }, 400);
+        }
+        // Active unsettled consignments
+        targetConsignments = dateLots.filter(c => c.status !== 'Settled' && !c.isSettled);
+        if (targetConsignments.length === 0) {
+          // If no active for this date, check any active unsettled for this dealer
+          targetConsignments = consignments.filter(c => c.status !== 'Settled' && !c.isSettled);
+        }
+        if (targetConsignments.length === 0 && consignments.length > 0) {
+          return sendJson(res, {
+            error: `All purchases / consignments for ${dealer.name} have already been settled and finalized! Single purchases cannot be settled more than once.`,
+            alreadySettled: true
+          }, 400);
+        }
+      }
+
+      const targetConsignmentIds = new Set(targetConsignments.map(c => c.id));
 
       // Find all sales bills that contained fish from this dealer
       const allSales = await database.collection('sales').find({}).toArray();
@@ -1832,7 +1942,12 @@ const server = http.createServer(async (req, res) => {
       for (const s of allSales) {
         if (body.date && s.date !== body.date) continue;
         for (const line of s.lines) {
-          if (line.dealerId === dealerId || (line.dealerName && line.dealerName.toLowerCase() === dealer.name.toLowerCase())) {
+          const isDealerMatch = line.dealerId === dealerId || (line.dealerName && line.dealerName.toLowerCase() === dealer.name.toLowerCase());
+          if (isDealerMatch) {
+            // If line is linked to a specific consignment, only include if it's one of the target unsettled consignments
+            if (line.consignmentId && targetConsignmentIds.size > 0 && !targetConsignmentIds.has(Number(line.consignmentId))) {
+              continue;
+            }
             matchingLines.push({
               saleId: s.id,
               billNo: s.billNo,
@@ -1870,71 +1985,39 @@ const server = http.createServer(async (req, res) => {
       }
 
       const items = Object.values(varietyRateGroups).map((g, idx) => {
+        const rev = Math.round(g.realizedRevenue);
         return {
           id: idx + 1,
           consignmentId: g.consignmentId,
           variety: g.variety,
           unit: g.unit,
           qtySold: g.qtySold,
-          realizedRevenue: g.realizedRevenue,
+          realizedRevenue: rev,
           systemAvgRate: g.rate,
           reportedRate: g.rate,
-          reportedGross: g.realizedRevenue,
+          reportedGross: rev,
           brokingProfit: 0
         };
       });
-
-      // Find arrival crates, varieties, and unsold crates for this dealer
-      const consignments = await database.collection('consignments').find({
-        $or: [
-          { dealerId },
-          { dealerName: new RegExp(`^${dealer.name.trim()}$`, 'i') }
-        ]
-      }).toArray();
 
       const receivedVarietiesMap = {};
       let arrivalCratesToday = 0;
       let unsoldCrates = 0;
 
-      for (const c of consignments) {
-        const isMatchDate = !date || c.date === date;
+      for (const c of targetConsignments) {
         for (const it of (c.items || [])) {
           const varName = (it.variety || 'Fish').trim();
-          if (isMatchDate) {
-            arrivalCratesToday += Number(it.crates) || 0;
-            if (!receivedVarietiesMap[varName]) {
-              receivedVarietiesMap[varName] = {
-                variety: varName,
-                totalCrates: 0,
-                unsoldCrates: 0
-              };
-            }
-            receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
-            receivedVarietiesMap[varName].unsoldCrates += (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
+          arrivalCratesToday += Number(it.crates) || 0;
+          if (!receivedVarietiesMap[varName]) {
+            receivedVarietiesMap[varName] = {
+              variety: varName,
+              totalCrates: 0,
+              unsoldCrates: 0
+            };
           }
+          receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
+          receivedVarietiesMap[varName].unsoldCrates += (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
           unsoldCrates += Number(it.unsoldCrates) || 0;
-        }
-      }
-
-      // If no arrivals on exact date, check any consignments with unsold stock for this dealer
-      if (Object.keys(receivedVarietiesMap).length === 0) {
-        for (const c of consignments) {
-          for (const it of (c.items || [])) {
-            const varName = (it.variety || 'Fish').trim();
-            const left = (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
-            if (left > 0 || (Number(it.crates) > 0)) {
-              if (!receivedVarietiesMap[varName]) {
-                receivedVarietiesMap[varName] = {
-                  variety: varName,
-                  totalCrates: 0,
-                  unsoldCrates: 0
-                };
-              }
-              receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
-              receivedVarietiesMap[varName].unsoldCrates += left;
-              arrivalCratesToday += Number(it.crates) || 0;
-            }
-          }
         }
       }
 
@@ -1945,10 +2028,8 @@ const server = http.createServer(async (req, res) => {
       }
 
       let totalLorryBhada = 0;
-      for (const c of consignments) {
-        if (!date || c.date === date) {
-          totalLorryBhada += Number(c.lorryBhada) || 0;
-        }
+      for (const c of targetConsignments) {
+        totalLorryBhada += Number(c.lorryBhada) || 0;
       }
 
       // Financials / Previous Balance
@@ -1958,10 +2039,12 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, {
         dealer,
         date,
+        consignmentId: targetConsignments[0]?.id || null,
+        consignmentIds: targetConsignments.map(c => c.id),
         items,
         receivedVarieties,
         defaultCommissionType: dealer.defaultCommissionType || 'percent',
-        defaultCommissionVal: dealer.defaultCommissionVal || 5,
+        defaultCommissionVal: (dealer.defaultCommissionVal !== undefined && dealer.defaultCommissionVal !== null && dealer.defaultCommissionVal !== 0) ? dealer.defaultCommissionVal : '',
         arrivalCratesToday,
         unsoldCratesRemaining: unsoldCrates,
         lorryBhada: totalLorryBhada,
@@ -1979,17 +2062,69 @@ const server = http.createServer(async (req, res) => {
       if (!settlement.dealerName) return sendJson(res, { error: 'Dealer name is required' }, 400);
 
       const database = await connectDb();
+
+      // STRICT PREVENT DUPLICATE SETTLEMENT:
+      let targetConsignmentIds = Array.isArray(settlement.consignmentIds) && settlement.consignmentIds.length > 0
+        ? settlement.consignmentIds
+        : (settlement.consignmentId ? [settlement.consignmentId] : []);
+
+      const dealerConsignments = await database.collection('consignments').find({
+        $or: [
+          { dealerId: settlement.dealerId },
+          { dealerName: new RegExp(`^${settlement.dealerName.trim()}$`, 'i') }
+        ]
+      }).toArray();
+
+      if (targetConsignmentIds.length > 0) {
+        for (const cid of targetConsignmentIds) {
+          const c = dealerConsignments.find(item => item.id === cid);
+          if (c && (c.status === 'Settled' || c.isSettled)) {
+            return sendJson(res, {
+              error: `Purchase lot #${c.consignmentNo || c.id} has already been settled and finalized in Settlement #${c.settlementNo || c.settlementId || ''}! Duplicate settlement is strictly prohibited.`
+            }, 400);
+          }
+        }
+      } else {
+        const matchingForDate = dealerConsignments.filter(c => !settlement.date || c.date === settlement.date);
+        if (matchingForDate.length > 0 && matchingForDate.every(c => c.status === 'Settled' || c.isSettled)) {
+          return sendJson(res, {
+            error: `All purchases/consignments for ${settlement.dealerName} on ${settlement.date} have already been settled and finalized! Duplicate settlement is strictly prohibited.`
+          }, 400);
+        }
+        targetConsignmentIds = matchingForDate.filter(c => c.status !== 'Settled' && !c.isSettled).map(c => c.id);
+        if (targetConsignmentIds.length === 0) {
+          const anyActive = dealerConsignments.filter(c => c.status !== 'Settled' && !c.isSettled).map(c => c.id);
+          targetConsignmentIds = anyActive;
+        }
+      }
+
+      settlement.consignmentIds = targetConsignmentIds;
+      if (targetConsignmentIds.length > 0 && !settlement.consignmentId) {
+        settlement.consignmentId = targetConsignmentIds[0];
+      }
+
       await database.collection('settlements').replaceOne({ id: settlement.id }, settlement, { upsert: true });
+
+      // Mark the settled consignments as Settled
+      if (targetConsignmentIds.length > 0) {
+        await database.collection('consignments').updateMany(
+          { id: { $in: targetConsignmentIds } },
+          {
+            $set: {
+              status: 'Settled',
+              isSettled: true,
+              settlementId: settlement.id,
+              settlementNo: settlement.settlementNo,
+              settledDate: settlement.date,
+              settledAt: Date.now(),
+              updated: Date.now()
+            }
+          }
+        );
+      }
 
       // Automatically deduct settled crates from active consignments for this dealer
       if (Array.isArray(settlement.items)) {
-        const dealerConsignments = await database.collection('consignments').find({
-          $or: [
-            { dealerId: settlement.dealerId },
-            { dealerName: new RegExp(`^${settlement.dealerName.trim()}$`, 'i') }
-          ]
-        }).toArray();
-
         for (const it of settlement.items) {
           let toDeduct = Number(it.qtySold) || 0;
           for (const c of dealerConsignments) {
@@ -2007,9 +2142,17 @@ const server = http.createServer(async (req, res) => {
             });
             if (modified) {
               const allSold = updatedItems.every(ci => (ci.unsoldCrates || 0) === 0);
+              const willBeSettled = allSold || targetConsignmentIds.includes(c.id);
               await database.collection('consignments').updateOne(
                 { id: c.id },
-                { $set: { items: updatedItems, status: allSold ? 'Settled' : c.status, updated: Date.now() } }
+                {
+                  $set: {
+                    items: updatedItems,
+                    status: willBeSettled ? 'Settled' : c.status,
+                    isSettled: targetConsignmentIds.includes(c.id) ? true : c.isSettled,
+                    updated: Date.now()
+                  }
+                }
               );
             }
           }
@@ -2061,6 +2204,10 @@ const server = http.createServer(async (req, res) => {
       for (const id of ids) {
         await database.collection('settlements').deleteOne({ id });
         await database.collection('payments').deleteMany({ linkedSettlementId: id });
+        await database.collection('consignments').updateMany(
+          { settlementId: id },
+          { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
+        );
         deletedCount++;
       }
       return sendJson(res, { ok: true, count: deletedCount });
@@ -2073,6 +2220,10 @@ const server = http.createServer(async (req, res) => {
     try {
       const database = await connectDb();
       await database.collection('settlements').deleteMany({});
+      await database.collection('consignments').updateMany(
+        {},
+        { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
+      );
       if (useLocalStorage) {
         writeJsonFile('settlements.json', []);
       }
@@ -2088,6 +2239,10 @@ const server = http.createServer(async (req, res) => {
       const database = await connectDb();
       await database.collection('settlements').deleteOne({ id });
       await database.collection('payments').deleteMany({ linkedSettlementId: id });
+      await database.collection('consignments').updateMany(
+        { settlementId: id },
+        { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
+      );
       if (useLocalStorage) {
         let settlements = readJsonFile('settlements.json', []);
         settlements = settlements.filter(s => Number(s.id) !== id);
