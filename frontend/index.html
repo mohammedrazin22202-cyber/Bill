@@ -3209,7 +3209,20 @@ th:last-child {
       <!-- Sub-view: Patiya -->
       <div id="subViewSalesPatiya" class="data-table-box" style="display:none;">
         <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills</span>
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills (Settlements)</span>
+            <div id="patiyaBulkActionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="patiyaSelectedCountBadge">
+                0 selected
+              </span>
+              <button class="btn btn-danger btn-sm" id="btnBulkDeletePatiya" onclick="bulkDeleteSelectedPatiya()" style="display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 12px;">
+                <i class="fas fa-trash"></i> Delete Selected (<span id="patiyaDeleteCount">0</span>)
+              </button>
+              <button class="btn btn-ghost btn-sm" onclick="clearPatiyaSelection()" style="color:#64748b; font-size:12px; padding:4px 8px;">
+                Deselect
+              </button>
+            </div>
+          </div>
           <div style="display:flex; gap:8px;">
             <button class="btn btn-outline btn-sm" id="btnToggleAllPatiya" onclick="toggleAllPatiyaBreakdowns()"><i class="fas fa-eye"></i> Show All Breakdown</button>
             <button class="btn btn-purple btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer</button>
@@ -3255,8 +3268,11 @@ th:last-child {
           <table class="data-grid">
             <thead>
               <tr>
+                <th style="width:42px; text-align:center;">
+                  <input type="checkbox" id="selectAllPatiyaChk" class="batch-chk" onchange="toggleSelectAllPatiya(this.checked)" title="Select all visible settlements"/>
+                </th>
                 <th>Date</th>
-                <th>Dealer</th>
+                <th>Party / Dealer</th>
                 <th>Breakdown</th>
                 <th class="num">Amount We Owe (Closing Bal)</th>
                 <th>Actions</th>
@@ -5146,6 +5162,7 @@ th:last-child {
         <div id="viewBillModalSub" style="font-size:11.5px; color:#64748b; margin-top:2px;">Invoice Details & Print Preview</div>
       </div>
       <div style="display:flex; gap:6px;">
+        <button class="btn btn-danger btn-sm" id="viewBillTopDeleteSettlementBtn" style="display:none;" onclick="deleteActiveViewingSettlement()" title="Delete Settlement"><i class="fas fa-trash"></i> Delete Settlement</button>
         <button class="btn btn-outline btn-sm" onclick="printCurrentBillView()" title="Print Directly"><i class="fas fa-print"></i> Print</button>
         <button class="btn btn-outline btn-sm" onclick="printOrDownloadActiveBill()" title="Download PDF"><i class="fas fa-file-pdf" style="color:#ef4444;"></i> Download PDF</button>
         <button class="btn btn-wa btn-sm" onclick="whatsAppActiveBill()" title="Share WhatsApp"><i class="fab fa-whatsapp"></i> WhatsApp</button>
@@ -5159,6 +5176,7 @@ th:last-child {
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('viewBillModal')">Close</button>
+      <button class="btn btn-danger" id="viewBillDeleteSettlementBtn" style="display:none;" onclick="deleteActiveViewingSettlement()"><i class="fas fa-trash"></i> Delete Settlement</button>
       <button class="btn btn-wa" onclick="whatsAppActiveBill()"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
       <button class="btn btn-primary" onclick="printOrDownloadActiveBill()"><i class="fas fa-file-pdf"></i> Download PDF</button>
       <button class="btn btn-green" onclick="printCurrentBillView()"><i class="fas fa-print"></i> Print Invoice</button>
@@ -8037,11 +8055,12 @@ function renderArrivalsList() {
         <td class="table-action-cell">
           <div class="table-actions-group">
             ${isSettled
-              ? `<button class="btn btn-outline btn-sm" style="color:#7c3aed; border-color:#ddd6fe; background:#faf5ff;" onclick="viewPatiyaBillForConsignment(${c.id})" title="View Finalized Settlement"><i class="fas fa-file-invoice"></i> Settled</button>`
+              ? `<button class="btn btn-outline btn-sm" style="color:#7c3aed; border-color:#ddd6fe; background:#faf5ff;" onclick="viewPatiyaBillForConsignment(${c.id})" title="View Finalized Settlement"><i class="fas fa-file-invoice"></i> Settled</button>
+                 <button class="btn btn-outline btn-sm" style="color:#dc2626; border-color:#fecaca; background:#fff5f5;" onclick="deleteSettlementForConsignment(${c.id})" title="Delete Settlement & Reopen Lot"><i class="fas fa-rotate-left"></i> Delete Settlement</button>`
               : `<button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer"><i class="fas fa-calculator"></i> Settle</button>`
             }
             <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete Consignment"><i class="fas fa-trash"></i></button>
           </div>
         </td>
       </tr>
@@ -9389,6 +9408,10 @@ function viewSaleBill(saleId, fallbackSale) {
   const subEl = document.getElementById('viewBillModalSub');
   if (titleEl) titleEl.innerHTML = `<i class="fas fa-file-invoice" style="color:var(--primary-blue);"></i> Sale Bill: ${sale.billNo || ('#' + sale.id)}`;
   if (subEl) subEl.textContent = `Buyer: ${sale.buyerName} • Date: ${sale.date} ${sale.time || ''}`;
+  const delBtn = document.getElementById('viewBillDeleteSettlementBtn');
+  if (delBtn) delBtn.style.display = 'none';
+  const delTopBtn = document.getElementById('viewBillTopDeleteSettlementBtn');
+  if (delTopBtn) delTopBtn.style.display = 'none';
 
   const hasAnyWeight = displayLines.some(l => (l.unit === 'Kg' || Number(l.kgPerCrate) > 0));
 
@@ -9564,6 +9587,10 @@ function viewPatiyaBill(settlementId) {
   const subEl = document.getElementById('viewBillModalSub');
   if (titleEl) titleEl.innerHTML = `<i class="fas fa-calculator" style="color:#7c3aed;"></i> Settlement: ${s.settlementNo || ('#' + s.id)}`;
   if (subEl) subEl.textContent = `Dealer: ${s.dealerName} • Date: ${s.date}`;
+  const delBtn = document.getElementById('viewBillDeleteSettlementBtn');
+  if (delBtn) delBtn.style.display = 'inline-flex';
+  const delTopBtn = document.getElementById('viewBillTopDeleteSettlementBtn');
+  if (delTopBtn) delTopBtn.style.display = 'inline-flex';
 
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
     variety: 'Consignment Lot',
@@ -10121,6 +10148,107 @@ function getFilteredPatiyaList() {
   });
 }
 
+const selectedPatiyaIds = new Set();
+
+function toggleSelectPatiya(id, checked) {
+  id = Number(id);
+  if (checked) {
+    selectedPatiyaIds.add(id);
+  } else {
+    selectedPatiyaIds.delete(id);
+  }
+  updatePatiyaSelectionUI();
+  const row = document.getElementById(`patiyaRow_${id}`);
+  if (row) {
+    if (checked) row.classList.add('row-selected');
+    else row.classList.remove('row-selected');
+  }
+}
+
+function toggleSelectAllPatiya(checked) {
+  const filtered = getFilteredPatiyaList();
+  filtered.forEach(s => {
+    const sId = Number(s.id);
+    if (checked) selectedPatiyaIds.add(sId);
+    else selectedPatiyaIds.delete(sId);
+  });
+  renderPatiyaList();
+}
+
+function clearPatiyaSelection() {
+  selectedPatiyaIds.clear();
+  renderPatiyaList();
+}
+
+function updatePatiyaSelectionUI(filtered) {
+  if (!filtered) filtered = getFilteredPatiyaList();
+  const masterChk = document.getElementById('selectAllPatiyaChk');
+  const bar = document.getElementById('patiyaBulkActionBar');
+  const countBadge = document.getElementById('patiyaSelectedCountBadge');
+  const countSpan = document.getElementById('patiyaDeleteCount');
+
+  const visibleIds = filtered.map(s => Number(s.id));
+  const selectedVisible = visibleIds.filter(id => selectedPatiyaIds.has(id));
+
+  if (masterChk) {
+    if (visibleIds.length > 0 && selectedVisible.length === visibleIds.length) {
+      masterChk.checked = true;
+      masterChk.indeterminate = false;
+    } else if (selectedVisible.length > 0) {
+      masterChk.checked = false;
+      masterChk.indeterminate = true;
+    } else {
+      masterChk.checked = false;
+      masterChk.indeterminate = false;
+    }
+  }
+
+  if (bar) {
+    if (selectedPatiyaIds.size > 0) {
+      bar.style.display = 'inline-flex';
+      if (countBadge) countBadge.textContent = `${selectedPatiyaIds.size} selected`;
+      if (countSpan) countSpan.textContent = selectedPatiyaIds.size;
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+}
+
+async function bulkDeleteSelectedPatiya() {
+  const ids = Array.from(selectedPatiyaIds);
+  if (ids.length === 0) return;
+  if (!confirm(`Are you sure you want to delete ${ids.length} selected settlement(s)? This will revert the settled lots back to active and remove any associated payout records.`)) return;
+
+  try {
+    const res = await fetch('/api/settlements/bulk-delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids })
+    });
+    if (res.ok) {
+      selectedPatiyaIds.clear();
+      showToast(`${ids.length} settlement(s) deleted and lots reverted!`, 'success');
+      await Promise.all([
+        loadSettlements(),
+        loadConsignments(),
+        loadContacts(),
+        loadPayments(),
+        loadReports(),
+        loadStockBoard()
+      ]);
+      renderPatiyaList();
+      renderArrivalsList();
+      renderContactsList();
+      renderPaymentsList();
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to bulk delete settlements', 'error');
+    }
+  } catch (e) {
+    showToast('Error: ' + e.message, 'error');
+  }
+}
+
 function renderPatiyaList() {
   const tbody = document.getElementById('patiyaListTbody');
   if (!tbody) return;
@@ -10134,12 +10262,13 @@ function renderPatiyaList() {
   if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
 
   const filtered = getFilteredPatiyaList();
+  updatePatiyaSelectionUI(filtered);
 
   if (filtered.length === 0) {
     if (isFiltered) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No settlement bills match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetPatiyaFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No settlement bills match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetPatiyaFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>';
     } else {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No settlement bills found.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No settlement bills found.</td></tr>';
     }
     return;
   }
@@ -10152,9 +10281,13 @@ function renderPatiyaList() {
     const prevBal = Number(s.previousBalance) || 0;
     const cashPaid = Number(s.cashPaidToday) || 0;
     const closingBal = Math.ceil(Number(s.closingBalance) !== undefined && Number(s.closingBalance) !== null ? Number(s.closingBalance) : (netSale + prevBal - cashPaid));
+    const isSelected = selectedPatiyaIds.has(Number(s.id));
 
     return `
-      <tr>
+      <tr id="patiyaRow_${s.id}" class="${isSelected ? 'row-selected' : ''}">
+        <td style="text-align:center; vertical-align:middle;">
+          <input type="checkbox" class="batch-chk patiya-select-chk" value="${s.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectPatiya(${s.id}, this.checked)" title="Select settlement for deletion"/>
+        </td>
         <td>${s.date}</td>
         <td><strong style="color:#0f172a; font-size:13.5px;">${s.dealerName}</strong></td>
         <td>
@@ -10169,12 +10302,12 @@ function renderPatiyaList() {
           <div class="table-actions-group">
             <button class="btn btn-outline btn-sm" onclick="viewPatiyaBill(${s.id})" title="View Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendPatiyaWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
-            <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})" title="Delete Settlement"><i class="fas fa-trash"></i> Delete</button>
           </div>
         </td>
       </tr>
       <tr id="patiyaRowBreakdown_${s.id}" class="patiya-breakdown-row" style="display:${allPatiyaExpanded ? 'table-row' : 'none'}; background:#faf5ff;">
-        <td colspan="5" style="padding:10px 16px 14px;">
+        <td colspan="6" style="padding:10px 16px 14px;">
           <div style="background:#ffffff; border:1.5px solid #ddd6fe; border-radius:10px; padding:12px 16px; box-shadow:0 2px 8px rgba(124, 58, 237, 0.06);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #f3e8ff; padding-bottom:6px;">
               <span style="font-size:12px; font-weight:700; color:#6d28d9;">
@@ -10873,16 +11006,60 @@ async function saveFinalizedPatiya(action = 'save') {
 }
 
 async function deletePatiyaSettlement(id) {
-  if (!confirm('Revert this settlement?')) return;
+  id = Number(id);
+  if (!confirm('Are you sure you want to delete this settlement? This will revert the settled lots back to active and remove any associated payout records.')) return;
   try {
     const res = await fetch(`/api/settlements/${id}`, { method: 'DELETE' });
     if (res.ok) {
-      showToast('Settlement deleted', 'success');
-      await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadReports()]);
+      showToast('Settlement deleted! Consignment lot is now active.', 'success');
+      closeModal('viewBillModal');
+      await Promise.all([
+        loadSettlements(),
+        loadConsignments(),
+        loadContacts(),
+        loadPayments(),
+        loadReports(),
+        loadStockBoard()
+      ]);
+      renderPatiyaList();
+      renderArrivalsList();
+      renderContactsList();
+      renderPaymentsList();
+      if (document.getElementById('statementModal')?.classList.contains('open') && appState.activeStatement) {
+        openStatementModal(appState.activeStatement.contact.id);
+      }
+    } else {
+      const err = await res.json();
+      showToast(err.error || 'Failed to delete settlement', 'error');
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   }
+}
+
+async function deleteActiveViewingSettlement() {
+  if (!appState.activeViewingBill || appState.activeViewingBill.type !== 'patiya' || !appState.activeViewingBill.id) {
+    return showToast('No active settlement bill to delete', 'error');
+  }
+  await deletePatiyaSettlement(appState.activeViewingBill.id);
+}
+
+async function deleteSettlementForConsignment(consignmentId) {
+  const cons = (appState.consignments || []).find(c => c.id == consignmentId);
+  if (!cons) return showToast('Consignment lot not found', 'error');
+  let stId = cons.settlementId;
+  if (!stId) {
+    const found = (appState.settlements || []).find(s => {
+      if (Array.isArray(s.consignmentIds) && s.consignmentIds.includes(cons.id)) return true;
+      if (s.dealerName && cons.dealerName && s.dealerName.toLowerCase() === cons.dealerName.toLowerCase() && s.date === cons.date) return true;
+      return false;
+    });
+    if (found) stId = found.id;
+  }
+  if (!stId) {
+    return showToast('No linked settlement chit found for this consignment lot', 'error');
+  }
+  await deletePatiyaSettlement(stId);
 }
 
 function downloadA4Patiya(id) {
@@ -12026,15 +12203,19 @@ function renderStatementView() {
           deductionsHtml = `<div style="color:#64748b; font-size:11px; margin-top:3px; padding-top:3px; border-top:1px dashed #e2e8f0;">(-) ${expParts.join(' | ')}</div>`;
         }
 
+        const stId = r.id || r.settlementId;
+        const viewLink = stId ? `<button type="button" class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:11px; color:#7c3aed; margin-left:6px;" onclick="viewPatiyaBill(${stId})" title="View or Delete Settlement Bill"><i class="fas fa-file-invoice"></i> View / Delete</button>` : '';
         descHtml = `
-          <div style="font-weight:700; color:#0f172a;">Fish Sold (${r.crates || 0} Box)</div>
+          <div style="font-weight:700; color:#0f172a; display:flex; align-items:center;">Fish Sold (${r.crates || 0} Box) ${viewLink}</div>
           <div style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; font-size:11.5px; color:#334155; line-height:1.45;">
             ${itemHtmlList}
             ${deductionsHtml}
           </div>
         `;
       } else {
-        descHtml = `<span style="font-weight:600;">Fish Sold (${r.crates || 0} Box)</span>`;
+        const stId = r.id || r.settlementId;
+        const viewLink = stId ? `<button type="button" class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:11px; color:#7c3aed; margin-left:6px;" onclick="viewPatiyaBill(${stId})" title="View or Delete Settlement Bill"><i class="fas fa-file-invoice"></i> View / Delete</button>` : '';
+        descHtml = `<span style="font-weight:600;">Fish Sold (${r.crates || 0} Box)</span> ${viewLink}`;
       }
     } else if (r.type === 'GOODS_PURCHASED') {
       if (isDetailed && Array.isArray(r.lines) && r.lines.length > 0) {

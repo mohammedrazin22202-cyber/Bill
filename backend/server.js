@@ -2303,12 +2303,39 @@ const server = http.createServer(async (req, res) => {
       const database = await connectDb();
       let deletedCount = 0;
       for (const id of ids) {
+        const settlement = await database.collection('settlements').findOne({ id });
         await database.collection('settlements').deleteOne({ id });
         await database.collection('payments').deleteMany({ linkedSettlementId: id });
-        await database.collection('consignments').updateMany(
-          { settlementId: id },
-          { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
-        );
+
+        const targetConsignmentIds = settlement && Array.isArray(settlement.consignmentIds) ? settlement.consignmentIds : [];
+        const query = {
+          $or: [
+            { settlementId: id },
+            ...(targetConsignmentIds.length > 0 ? [{ id: { $in: targetConsignmentIds } }] : [])
+          ]
+        };
+        const matchedConsignments = await database.collection('consignments').find(query).toArray();
+        for (const c of matchedConsignments) {
+          const restoredItems = (c.items || []).map(ci => ({
+            ...ci,
+            unsoldCrates: ci.crates !== undefined ? ci.crates : (ci.unsoldCrates || 0)
+          }));
+          await database.collection('consignments').updateOne(
+            { id: c.id },
+            {
+              $set: {
+                status: 'Active',
+                isSettled: false,
+                settlementId: null,
+                settlementNo: null,
+                settledDate: null,
+                settledAt: null,
+                items: restoredItems,
+                updated: Date.now()
+              }
+            }
+          );
+        }
         deletedCount++;
       }
       return sendJson(res, { ok: true, count: deletedCount });
@@ -2321,10 +2348,28 @@ const server = http.createServer(async (req, res) => {
     try {
       const database = await connectDb();
       await database.collection('settlements').deleteMany({});
-      await database.collection('consignments').updateMany(
-        {},
-        { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
-      );
+      const allCons = await database.collection('consignments').find({}).toArray();
+      for (const c of allCons) {
+        const restoredItems = (c.items || []).map(ci => ({
+          ...ci,
+          unsoldCrates: ci.crates !== undefined ? ci.crates : (ci.unsoldCrates || 0)
+        }));
+        await database.collection('consignments').updateOne(
+          { id: c.id },
+          {
+            $set: {
+              status: 'Active',
+              isSettled: false,
+              settlementId: null,
+              settlementNo: null,
+              settledDate: null,
+              settledAt: null,
+              items: restoredItems,
+              updated: Date.now()
+            }
+          }
+        );
+      }
       if (useLocalStorage) {
         writeJsonFile('settlements.json', []);
       }
@@ -2338,12 +2383,39 @@ const server = http.createServer(async (req, res) => {
     try {
       const id = Number(pathname.split('/').pop());
       const database = await connectDb();
+      const settlement = await database.collection('settlements').findOne({ id });
       await database.collection('settlements').deleteOne({ id });
       await database.collection('payments').deleteMany({ linkedSettlementId: id });
-      await database.collection('consignments').updateMany(
-        { settlementId: id },
-        { $set: { status: 'Active', isSettled: false, settlementId: null, settlementNo: null, settledDate: null, updated: Date.now() } }
-      );
+
+      const targetConsignmentIds = settlement && Array.isArray(settlement.consignmentIds) ? settlement.consignmentIds : [];
+      const query = {
+        $or: [
+          { settlementId: id },
+          ...(targetConsignmentIds.length > 0 ? [{ id: { $in: targetConsignmentIds } }] : [])
+        ]
+      };
+      const matchedConsignments = await database.collection('consignments').find(query).toArray();
+      for (const c of matchedConsignments) {
+        const restoredItems = (c.items || []).map(ci => ({
+          ...ci,
+          unsoldCrates: ci.crates !== undefined ? ci.crates : (ci.unsoldCrates || 0)
+        }));
+        await database.collection('consignments').updateOne(
+          { id: c.id },
+          {
+            $set: {
+              status: 'Active',
+              isSettled: false,
+              settlementId: null,
+              settlementNo: null,
+              settledDate: null,
+              settledAt: null,
+              items: restoredItems,
+              updated: Date.now()
+            }
+          }
+        );
+      }
       if (useLocalStorage) {
         let settlements = readJsonFile('settlements.json', []);
         settlements = settlements.filter(s => Number(s.id) !== id);
