@@ -76,9 +76,13 @@ http://127.0.0.1:8000
 ```
 
 ### Manual Start
+From the project root folder:
 ```bash
-cd backend
-node server.js
+npm start
+```
+Or:
+```bash
+node backend/server.js
 ```
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 

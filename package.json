@@ -1,0 +1,16 @@
+{
+  "name": "billify",
+  "version": "1.0.0",
+  "description": "Billify – Fish Commission Brokerage & Mandi ERP",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backend": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "mongodb": "^7.2.0"
+  }
+}

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: billify-erp
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DB_TYPE
+        value: mongodb
+      - key: MONGODB_URI
+        sync: false

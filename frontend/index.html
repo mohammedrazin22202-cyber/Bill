@@ -74,13 +74,21 @@ body {
   z-index: 100;
   border-right: 1px solid rgba(255,255,255,0.05);
   user-select: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar-header {
-  padding: 22px 18px 16px;
+  padding: 20px 18px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .sidebar-logo-svg,
@@ -115,26 +123,27 @@ body {
 }
 
 .sidebar-menu {
-  padding: 12px 10px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   position: relative;
   z-index: 5;
+  flex-shrink: 0;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 9px 14px;
+  padding: 8px 14px;
   border-radius: 999px;
   background: transparent;
   border: none;
   color: #94a3b8;
   font-family: var(--font-main);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 550;
   cursor: pointer;
   transition: all 0.15s ease;
   width: 100%;
@@ -142,7 +151,7 @@ body {
 }
 
 .menu-item i {
-  font-size: 14px;
+  font-size: 14.5px;
   width: 18px;
   text-align: center;
   color: #64748b;
@@ -175,13 +184,13 @@ body {
   margin-top: auto;
   position: relative;
   flex: 1;
-  min-height: 320px;
   width: 100%;
   background: url('/sidebar_harbor.jpg') center bottom / cover no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 16px 12px 14px;
+  padding: 14px 12px 14px;
+  flex-shrink: 0;
 }
 
 .sidebar-bottom-artwork::before {
@@ -196,19 +205,19 @@ body {
   position: relative;
   z-index: 2;
   font-family: var(--font-cursive);
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.15;
   color: #ffffff;
-  margin-bottom: 14px;
-  padding-left: 4px;
+  margin-bottom: 10px;
+  padding-left: 2px;
   text-shadow: 0 2px 8px rgba(0,0,0,0.85);
 }
 
 .sidebar-cursive-quote svg {
   display: block;
-  margin-top: 4px;
-  width: 90px;
-  height: 10px;
+  margin-top: 3px;
+  width: 80px;
+  height: 8px;
   opacity: 0.9;
 }
 
@@ -226,6 +235,7 @@ body {
   gap: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .sidebar-user-card:hover {
@@ -233,8 +243,8 @@ body {
 }
 
 .sidebar-avatar-circle {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 999px;
   background: #1e3a8a;
   color: #ffffff;
@@ -470,7 +480,11 @@ input[type="text"].global-search-input:focus {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
+  gap: 18px;
+}
+
+.hero-greeting-col {
+  flex-shrink: 0;
 }
 
 .hero-greeting-sub {
@@ -497,6 +511,164 @@ input[type="text"].global-search-input:focus {
   text-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 
+/* Hero Center: Live Harbor Pulse & Trading Snapshot */
+.hero-harbor-pulse-card {
+  background: rgba(10, 20, 38, 0.52);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  color: #ffffff;
+  flex: 1;
+  max-width: 530px;
+  min-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.harbor-pulse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 6px;
+}
+
+.harbor-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pulse-radar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75);
+  animation: pulseRadar 2s infinite;
+  display: inline-block;
+}
+
+@keyframes pulseRadar {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.harbor-pulse-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #e2e8f0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.harbor-sub-loc {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.harbor-stats-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.harbor-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.harbor-stat-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.stat-icon-wrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.stat-icon-wrap.arrival-glow {
+  background: rgba(2, 132, 199, 0.25);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.stat-icon-wrap.stock-glow {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.stat-icon-wrap.turnover-glow {
+  background: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.stat-text-wrap {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
 .hero-weather-quote-box {
   background: rgba(10, 20, 38, 0.52);
   backdrop-filter: blur(14px);
@@ -505,6 +677,7 @@ input[type="text"].global-search-input:focus {
   border-radius: 14px;
   padding: 12px 18px;
   min-width: 220px;
+  flex-shrink: 0;
   box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   text-align: right;
   color: #ffffff;
@@ -1988,9 +2161,16 @@ th:last-child {
 
 @media(max-width: 1200px) {
   .action-cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero-harbor-pulse-card { min-width: 270px; padding: 8px 12px; }
+  .stat-label { font-size: 8.5px; }
+  .stat-val { font-size: 12px; }
 }
 
 @media(max-width: 950px) {
+  .hero-middle-row { flex-direction: column; align-items: stretch; gap: 12px; }
+  .hero-harbor-pulse-card { max-width: 100%; min-width: 0; }
+  .hero-weather-quote-box { text-align: left; }
+  .weather-header { justify-content: flex-start; }
   .dashboard-content-columns { grid-template-columns: 1fr; }
   .flow-cards-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .flow-connector-arrow { display: none; }
@@ -2388,12 +2568,59 @@ th:last-child {
           </div>
         </div>
 
-        <!-- Greeting & Weather Quote -->
+        <!-- Greeting, Live Harbor Pulse & Weather Quote Row -->
         <div class="hero-middle-row">
-          <div>
-            <div class="hero-greeting-sub">Good Evening,</div>
+          <div class="hero-greeting-col">
+            <div class="hero-greeting-sub" id="heroGreetingSub">Good Evening,</div>
             <h1 class="hero-greeting-title">M S Bhathrudeen</h1>
             <div class="hero-greeting-desc">Today's fish trade at a glance.</div>
+          </div>
+
+          <!-- Live Harbor Pulse & Trading Snapshot Widget -->
+          <div class="hero-harbor-pulse-card">
+            <div class="harbor-pulse-header">
+              <div class="harbor-live-badge">
+                <span class="pulse-radar-dot"></span>
+                <span class="harbor-pulse-title">Kasimedu Harbor · Live Mandi</span>
+              </div>
+              <span class="harbor-sub-loc" id="heroHarborGate">Gate 2 · Active Trading</span>
+            </div>
+            
+            <div class="harbor-stats-strip">
+              <div class="harbor-stat-item" onclick="switchTo('arrivals')" title="View Today's Arrivals">
+                <div class="stat-icon-wrap arrival-glow">
+                  <i class="fa-solid fa-truck-ramp-box"></i>
+                </div>
+                <div class="stat-text-wrap">
+                  <div class="stat-label">Arrivals Today</div>
+                  <div class="stat-val" id="heroArrivalLotsCount">0 Lots</div>
+                </div>
+              </div>
+
+              <div class="stat-divider"></div>
+
+              <div class="harbor-stat-item" onclick="switchTo('inventory')" title="View Godown Stock">
+                <div class="stat-icon-wrap stock-glow">
+                  <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <div class="stat-text-wrap">
+                  <div class="stat-label">Godown Stock</div>
+                  <div class="stat-val" id="heroGodownStockCrates">0 Boxes</div>
+                </div>
+              </div>
+
+              <div class="stat-divider"></div>
+
+              <div class="harbor-stat-item" onclick="switchTo('sales')" title="View Today's Sales">
+                <div class="stat-icon-wrap turnover-glow">
+                  <i class="fa-solid fa-indian-rupee-sign"></i>
+                </div>
+                <div class="stat-text-wrap">
+                  <div class="stat-label">Today's Turnover</div>
+                  <div class="stat-val" id="heroDayTurnoverVal">₹0</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="hero-weather-quote-box">
@@ -2589,7 +2816,7 @@ th:last-child {
             <i class="fa-solid fa-calculator"></i>
           </div>
           <div>
-            <div class="action-main-title">Settle Dealer (Patiya)</div>
+            <div class="action-main-title">Settle Dealer</div>
             <div class="action-sub-text">Bill crates & calculate total owed</div>
           </div>
         </div>
@@ -2775,7 +3002,7 @@ th:last-child {
         <div style="font-size:12px; color:#64748b;">Consignments received from boat owners and dealers</div>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-green" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer (Patiya)</button>
+        <button class="btn btn-green" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer</button>
         <button class="btn btn-primary" onclick="openArrivalModal()"><i class="fas fa-plus"></i> Record Fish In</button>
       </div>
     </div>
@@ -2797,7 +3024,58 @@ th:last-child {
               </button>
             </div>
           </div>
-          <input type="text" id="filterArrivalsInput" placeholder="Search dealer, fish variety..." style="width:240px;" oninput="renderArrivalsList()"/>
+        </div>
+
+        <!-- Filter & Date Bar for Fish In (Arrivals) -->
+        <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Status Filter -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-filter" style="color:#0284c7;"></i> Status:
+              </label>
+              <select id="filterArrivalsStatus" onchange="onArrivalsFilterChange()" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Status</option>
+                <option value="in_godown">In Godown (Stock Left)</option>
+                <option value="sold_out">Sold Out (Unsettled)</option>
+                <option value="settled">Settled</option>
+              </select>
+            </div>
+
+            <!-- Separator -->
+            <div style="width:1px; height:20px; background:#cbd5e1;"></div>
+
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="filterArrivalsPreset" onchange="onArrivalsPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs -->
+            <div id="arrivalsCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="filterArrivalsFromDate" onchange="onArrivalsFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="filterArrivalsToDate" onchange="onArrivalsFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetArrivalsFilter" onclick="resetArrivalsFilter()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Right side: Search Box -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="filterArrivalsInput" placeholder="Search dealer, fish variety..." style="width:220px; padding:4px 10px; font-size:12px;" oninput="onArrivalsFilterChange()"/>
+          </div>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
@@ -2830,7 +3108,7 @@ th:last-child {
         <h1 class="view-heading-title">Fish Sold (Morning Market)</h1>
         <div class="view-sub-tabs-row">
           <button class="view-tab-btn active" id="tabBtnSales" onclick="setSalesSubTab('bills')">Sales Bills to Buyers</button>
-          <button class="view-tab-btn" id="tabBtnPatiya" onclick="setSalesSubTab('patiya')">Dealer Bills (Patiya)</button>
+          <button class="view-tab-btn" id="tabBtnPatiya" onclick="setSalesSubTab('patiya')">Dealer Bills</button>
         </div>
       </div>
       <div id="salesBtnHolder">
@@ -2856,7 +3134,58 @@ th:last-child {
               </button>
             </div>
           </div>
-          <input type="text" id="filterSalesInput" placeholder="Search buyer or bill no..." style="width:240px;" oninput="renderSalesList()"/>
+        </div>
+
+        <!-- Filter & Date Bar for Fish Sold (Sales Bills) -->
+        <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Payment Type Filter -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-filter" style="color:#0284c7;"></i> Payment:
+              </label>
+              <select id="filterSalesPaymentType" onchange="onSalesFilterChange()" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Payments</option>
+                <option value="Cash">Cash Bills</option>
+                <option value="Credit">Credit Bills</option>
+                <option value="bad_debt">Bad Debt</option>
+              </select>
+            </div>
+
+            <!-- Separator -->
+            <div style="width:1px; height:20px; background:#cbd5e1;"></div>
+
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="filterSalesPreset" onchange="onSalesPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs -->
+            <div id="salesCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="filterSalesFromDate" onchange="onSalesFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="filterSalesToDate" onchange="onSalesFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetSalesFilter" onclick="resetSalesFilter()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Right side: Search Box -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="filterSalesInput" placeholder="Search buyer or bill no..." style="width:220px; padding:4px 10px; font-size:12px;" oninput="onSalesFilterChange()"/>
+          </div>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
@@ -2879,12 +3208,47 @@ th:last-child {
 
       <!-- Sub-view: Patiya -->
       <div id="subViewSalesPatiya" class="data-table-box" style="display:none;">
-        <div class="table-filter-bar">
-          <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills (Patiya)</span>
+        <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills</span>
           <div style="display:flex; gap:8px;">
-            <input type="text" id="filterPatiyaInput" placeholder="Search dealer..." style="width:200px;" oninput="renderPatiyaList()"/>
             <button class="btn btn-outline btn-sm" id="btnToggleAllPatiya" onclick="toggleAllPatiyaBreakdowns()"><i class="fas fa-eye"></i> Show All Breakdown</button>
-            <button class="btn btn-purple btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer (Patiya)</button>
+            <button class="btn btn-purple btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer</button>
+          </div>
+        </div>
+
+        <!-- Filter & Date Bar for Dealer Bills (Patiya) -->
+        <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="filterPatiyaPreset" onchange="onPatiyaPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs -->
+            <div id="patiyaCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="filterPatiyaFromDate" onchange="onPatiyaFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="filterPatiyaToDate" onchange="onPatiyaFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetPatiyaFilter" onclick="resetPatiyaFilter()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Right side: Search Box -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="filterPatiyaInput" placeholder="Search dealer..." style="width:200px; padding:4px 10px; font-size:12px;" oninput="onPatiyaFilterChange()"/>
           </div>
         </div>
         <div class="table-scroller">
@@ -3004,7 +3368,7 @@ th:last-child {
         </div>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer (Patiya)</button>
+        <button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer</button>
         <button class="btn btn-amber" onclick="openPaymentModal('DEALER_PAYMENT')"><i class="fas fa-hand-holding-dollar"></i> Pay Dealer</button>
         <button class="btn btn-green" onclick="openPaymentModal('BUYER_COLLECTION')"><i class="fas fa-sack-dollar"></i> Collect Buyer</button>
         <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-arrows-split-up-and-left"></i> Contra Offset</button>
@@ -3030,7 +3394,60 @@ th:last-child {
               </button>
             </div>
           </div>
-          <input type="text" id="filterPaymentsInput" placeholder="Search contact, mode..." style="width:240px;" oninput="renderPaymentsList()"/>
+        </div>
+
+        <!-- Payments Filter Bar -->
+        <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <!-- Filter Controls -->
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Type Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-filter" style="color:#0284c7;"></i> Filter:
+              </label>
+              <select id="filterPaymentsType" onchange="onPaymentsFilterChange()" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Payments</option>
+                <option value="payments_paid">Payments Paid</option>
+                <option value="payments_received">Payments Received</option>
+                <option value="discounts">Discounts</option>
+                <option value="contra">Contra Adjustments</option>
+              </select>
+            </div>
+
+            <!-- Separator -->
+            <div style="width:1px; height:20px; background:#cbd5e1;"></div>
+
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="filterPaymentsPreset" onchange="onPaymentsPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs -->
+            <div id="paymentsCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="filterPaymentsFromDate" onchange="onPaymentsFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="filterPaymentsToDate" onchange="onPaymentsFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetPaymentsFilter" onclick="resetPaymentsFilter()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Right side: Search Box -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="filterPaymentsInput" placeholder="Search contact, mode..." style="width:200px; padding:4px 10px; font-size:12px;" oninput="renderPaymentsList()"/>
+          </div>
         </div>
         <div class="table-scroller">
           <table class="data-grid">
@@ -3158,7 +3575,7 @@ th:last-child {
 
       <!-- Recent Transactions Section -->
       <div class="data-table-box" style="margin-top:16px;">
-        <div class="table-filter-bar" style="flex-wrap:wrap; gap:10px; justify-content:space-between;">
+        <div class="table-filter-bar" style="flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <span style="font-weight:700; font-size:13.5px;"><i class="fas fa-clock-rotate-left" style="color:#0084ff;"></i> Recent Transactions</span>
             <div id="treasuryBulkActionBar" style="display:none; align-items:center; gap:8px;">
@@ -3172,20 +3589,72 @@ th:last-child {
                 Deselect
               </button>
             </div>
-            <select id="filterTreasuryAccount" onchange="renderTreasuryTransactions()" style="width:160px; padding:6px 10px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1;">
-              <option value="all">All Accounts</option>
-              <option value="cash_in_hand">Cash in Hand</option>
-            </select>
-            <select id="filterTreasuryFlow" onchange="renderTreasuryTransactions()" style="width:130px; padding:6px 10px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1;">
-              <option value="all">All Flows</option>
-              <option value="IN">Money In (+)</option>
-              <option value="OUT">Money Out (-)</option>
-              <option value="CONTRA">Transfers (⇄)</option>
-            </select>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <input type="text" id="searchTreasuryInput" placeholder="Search party, note, ref..." style="width:200px;" oninput="renderTreasuryTransactions()" />
             <button class="btn btn-outline btn-sm" onclick="exportTreasuryCSV()"><i class="fas fa-download"></i> Export</button>
+          </div>
+        </div>
+
+        <!-- Filter & Date Bar for Banking & Cash -->
+        <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Account Filter -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-building-columns" style="color:#0284c7;"></i> Account:
+              </label>
+              <select id="filterTreasuryAccount" onchange="onTreasuryFilterChange()" style="width:145px; padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;">
+                <option value="all">All Accounts</option>
+                <option value="cash_in_hand">Cash in Hand</option>
+              </select>
+            </div>
+
+            <!-- Flow Filter -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-filter" style="color:#0284c7;"></i> Flow:
+              </label>
+              <select id="filterTreasuryFlow" onchange="onTreasuryFilterChange()" style="width:125px; padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;">
+                <option value="all">All Flows</option>
+                <option value="IN">Money In (+)</option>
+                <option value="OUT">Money Out (-)</option>
+                <option value="CONTRA">Transfers (⇄)</option>
+              </select>
+            </div>
+
+            <!-- Separator -->
+            <div style="width:1px; height:20px; background:#cbd5e1;"></div>
+
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="filterTreasuryPreset" onchange="onTreasuryPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs (Only visible when Custom selected) -->
+            <div id="treasuryCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="filterTreasuryFromDate" onchange="onTreasuryFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="filterTreasuryToDate" onchange="onTreasuryFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetTreasuryFilter" onclick="resetTreasuryFilter()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Right side: Search Box -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="text" id="searchTreasuryInput" placeholder="Search party, note..." style="width:200px; padding:4px 10px; font-size:12px;" oninput="onTreasuryFilterChange()" />
           </div>
         </div>
         <div class="table-scroller">
@@ -3199,7 +3668,7 @@ th:last-child {
                 <th>Account</th>
                 <th>Flow</th>
                 <th>Description / Reason</th>
-                <th>Person / Ref</th>
+                <th>Person</th>
                 <th class="num" style="min-width:110px;">Amount (₹)</th>
                 <th style="width:50px; text-align:center;">Action</th>
               </tr>
@@ -3281,7 +3750,7 @@ th:last-child {
       <!-- Tabs Navigation -->
       <div class="settings-tabs-bar">
         <button class="settings-tab-btn active" onclick="switchSettingsTab('firm', this)"><i class="fas fa-building"></i> Firm Profile</button>
-        <button class="settings-tab-btn" onclick="switchSettingsTab('commission', this)"><i class="fas fa-scale-balanced"></i> Commission & Patiya</button>
+        <button class="settings-tab-btn" onclick="switchSettingsTab('commission', this)"><i class="fas fa-scale-balanced"></i> Commission & Settlement</button>
         <button class="settings-tab-btn" onclick="switchSettingsTab('credit', this)"><i class="fas fa-shield-halved"></i> Credit & Risk</button>
         <button class="settings-tab-btn" onclick="switchSettingsTab('invoicing', this)"><i class="fas fa-receipt"></i> Invoicing & WhatsApp</button>
         <button class="settings-tab-btn" onclick="switchSettingsTab('dashboard', this)"><i class="fas fa-quote-left"></i> Quotes & Dashboard</button>
@@ -3339,7 +3808,7 @@ th:last-child {
         <div class="settings-card">
           <div class="settings-card-header">
             <div>
-              <div class="settings-card-title"><i class="fas fa-scale-balanced" style="color:#059669;"></i> Broker Commission & Patiya Settlement</div>
+              <div class="settings-card-title"><i class="fas fa-scale-balanced" style="color:#059669;"></i> Broker Commission & Consignment Settlement</div>
               <div class="settings-card-desc">Default calculation parameters for consignment sales realization and dealer deductions.</div>
             </div>
           </div>
@@ -3353,7 +3822,7 @@ th:last-child {
               <select id="setCommissionMode">
                 <option value="percent">% of Gross Sales Realized (Standard)</option>
                 <option value="flat_crate">Flat ₹ per Crate Sold</option>
-                <option value="lump_sum">Fixed Lump-Sum per Patiya</option>
+                <option value="lump_sum">Fixed Lump-Sum per Settlement</option>
               </select>
             </div>
           </div>
@@ -3451,6 +3920,7 @@ th:last-child {
                 <input type="checkbox" id="setEnableBadDebtProtection" checked />
                 <span class="switch-slider"></span>
               </label>
+            </div>
             <div class="settings-toggle-row">
               <div class="settings-toggle-info">
                 <h4><i class="fa-solid fa-lock" style="color:#0084ff;"></i> Settings Access Security PIN</h4>
@@ -3694,7 +4164,7 @@ th:last-child {
 <div class="modal-backdrop" id="saleModal">
   <div class="modal-window modal-lg">
     <div class="modal-top-bar">
-      <span class="modal-headline"><i class="fas fa-cart-shopping" style="color:#10b981"></i> Wholesale Sales Bill (Patiya Chit)</span>
+      <span class="modal-headline"><i class="fas fa-cart-shopping" style="color:#10b981"></i> Wholesale Sales Bill</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('saleModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
@@ -3820,7 +4290,7 @@ th:last-child {
 <div class="modal-backdrop" id="patiyaModal">
   <div class="modal-window modal-lg">
     <div class="modal-top-bar">
-      <span class="modal-headline"><i class="fas fa-calculator" style="color:#0084ff"></i> Dealer Consignment Settlement (Patiya)</span>
+      <span class="modal-headline"><i class="fas fa-calculator" style="color:#0084ff"></i> Dealer Consignment Settlement</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('patiyaModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
@@ -3846,7 +4316,7 @@ th:last-child {
         <div style="width: 58px; height: 58px; border-radius: 50%; background: #eff6ff; color: #0084ff; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 14px;">
           <i class="fas fa-calculator"></i>
         </div>
-        <div style="font-weight: 800; font-size: 16px; color: #0f172a; margin-bottom: 6px;">Consignment Settlement (Patiya Builder)</div>
+        <div style="font-weight: 800; font-size: 16px; color: #0f172a; margin-bottom: 6px;">Consignment Settlement Builder</div>
         <div style="font-size: 12.5px; color: #64748b; max-width: 480px; line-height: 1.5; margin-bottom: 22px;">
           Select a supplier or dealer above and click <strong>Fetch Consignment Sales</strong> to load received fish varieties, calculate gross realization, deduct lorry freight & broker commission, and update continuous ledger.
         </div>
@@ -3891,7 +4361,13 @@ th:last-child {
               <span style="font-weight:800; font-size:13px; color:#0f172a;"><i class="fas fa-list-check" style="color:#0084ff;"></i> 1. Bill Fish Sold (Sub-lots & Rates per Crate)</span>
               <span class="badge badge-blue" id="mPatAccountingStatusBadge" style="font-size:11.5px;">0 / 0 Crates Accounted</span>
             </div>
-            <button class="btn btn-outline btn-sm" onclick="addPatiyaItemLine()"><i class="fas fa-plus"></i> Add Sub-Lot</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:12px; font-weight:700; color:#1e293b; display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:#faf5ff; border:1.5px solid #d8b4fe; padding:4px 10px; border-radius:6px; user-select:none;" title="Group sales across all buyers of the same fish variety into a single combined line with blended average price">
+                <input type="checkbox" id="mPatAveragePricingChk" onchange="togglePatiyaAveragePricing(this.checked)" style="width:15px; height:15px; cursor:pointer; accent-color:#7c3aed;"/>
+                <span style="color:#6d28d9;"><i class="fas fa-calculator" style="margin-right:2px;"></i> Average Price Stock</span>
+              </label>
+              <button class="btn btn-outline btn-sm" onclick="addPatiyaItemLine()"><i class="fas fa-plus"></i> Add Sub-Lot</button>
+            </div>
           </div>
           <div class="table-scroller">
             <table class="data-grid">
@@ -4162,27 +4638,20 @@ th:last-child {
         <select id="mPayBankAccount"></select>
       </div>
 
-      <div class="input-block">
-        <label>Amount (₹) *</label>
-        <input type="number" id="mPayAmount" placeholder="0" oninput="updatePaymentLiveBalance()"/>
-      </div>
-
-      <div class="input-block" id="mPayDiscountGroup">
-        <label>Settlement Discount / Kasar (₹)</label>
-        <input type="number" id="mPayDiscount" value="" placeholder="0" oninput="updatePaymentLiveBalance()"/>
-        <small style="color:#64748b; font-size:10.5px;">Agreed round-off discount to settle balance</small>
-      </div>
-
-      <div class="two-col-grid">
+      <div class="two-col-grid" style="margin-bottom:0;">
         <div class="input-block">
-          <label>Ref / UTR / Cheque No</label>
-          <input type="text" id="mPayRef" placeholder="e.g. UTR: 3487 9203 11"/>
+          <label id="mPayAmountLabel">Amount (₹) *</label>
+          <input type="number" id="mPayAmount" placeholder="0" oninput="updatePaymentLiveBalance()"/>
         </div>
-        <div class="input-block">
-          <label>Bank Name</label>
-          <input type="text" id="mPayBank" placeholder="Optional"/>
+
+        <div class="input-block" id="mPayDiscountGroup">
+          <label id="mPayDiscountLabel">Discount / Kasar (₹)</label>
+          <input type="number" id="mPayDiscount" value="" placeholder="0" oninput="updatePaymentLiveBalance()"/>
+          <small id="mPayDiscountSub" style="color:#64748b; font-size:10.5px;">Concession to clear balance</small>
         </div>
       </div>
+
+
     </div>
     <div class="modal-bottom-actions">
       <button class="btn btn-outline" onclick="closeModal('paymentModal')">Cancel</button>
@@ -4245,16 +4714,18 @@ th:last-child {
         <span class="modal-headline" id="mStmtModalTitle"><i class="fas fa-book-open"></i> Party Passbook & Ledger</span>
         <div id="mStmtModalSub" style="font-size:11.5px; color:#64748b;"></div>
       </div>
-      <div style="display:flex; gap:6px; align-items:center;">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; cursor:pointer; color:#0369a1; background:#f0f9ff; padding:4px 10px; border-radius:6px; border:1px solid #bae6fd; user-select:none;" title="Tick to include detailed sale quantities & rates in statement">
+          <input type="checkbox" id="chkStmtDetailed" onchange="toggleStatementDetailed(this.checked)" style="width:15px; height:15px; cursor:pointer; accent-color:#0284c7;"/>
+          <span><i class="fas fa-list-check" style="margin-right:2px;"></i> Detailed Billings</span>
+        </label>
         <div id="stmtBadDebtActionBtn"></div>
-        <button class="btn btn-outline btn-sm" onclick="exportPartyStatementPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="exportPartyStatementPDF()" title="Download PDF statement matching active filters"><i class="fas fa-file-pdf"></i> Filter & Download</button>
         <button class="btn btn-ghost btn-sm" onclick="closeModal('statementModal')">✕</button>
       </div>
     </div>
     <div class="modal-scroll-body">
-      <div style="display:flex; gap:6px; border-bottom:1px solid #e2e8f0; padding-bottom:10px; margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" id="btnStmtAll">Passbook</button>
-      </div>
+
 
       <div class="three-col-grid" style="margin-bottom:14px;">
         <div class="money-sub-card">
@@ -4271,13 +4742,77 @@ th:last-child {
         </div>
       </div>
 
+      <!-- Interactive Filter & Download Bar -->
+      <div class="stmt-filter-container" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:10px 14px; margin-bottom:14px;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+          <!-- Filter Inputs -->
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
+            <!-- Type Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fas fa-filter" style="color:#0284c7;"></i> Filter:
+              </label>
+              <select id="mStmtTypeFilter" onchange="onStatementFilterChange()" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Transactions</option>
+                <option value="payments_paid">Payments Paid</option>
+                <option value="payments_received">Payments Received</option>
+                <option value="discounts">Discounts</option>
+                <option value="payments">All Payments</option>
+                <option value="purchases">Only Purchases</option>
+              </select>
+            </div>
+
+            <!-- Separator -->
+            <div style="width:1px; height:20px; background:#cbd5e1;"></div>
+
+            <!-- Period Preset Selector -->
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="font-size:12px; font-weight:700; color:#475569; display:inline-flex; align-items:center; gap:4px; margin:0;">
+                <i class="fa-regular fa-calendar" style="color:#0284c7;"></i> Period:
+              </label>
+              <select id="mStmtPeriodPreset" onchange="onStatementPresetChange(this.value)" style="padding:4px 8px; font-size:12px; font-weight:600; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; cursor:pointer;">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week (Last 7 Days)</option>
+                <option value="month">This Month (Last 30 Days)</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Date Range Inputs -->
+            <div id="mStmtCustomDateGroup" style="display:none; align-items:center; gap:6px;">
+              <input type="date" id="mStmtFromDate" onchange="onStatementFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="From Date"/>
+              <span style="font-size:12px; color:#64748b; font-weight:600;">to</span>
+              <input type="date" id="mStmtToDate" onchange="onStatementFilterChange()" style="padding:3px 7px; font-size:12px; border-radius:6px; border:1px solid #cbd5e1; background:#ffffff;" title="To Date"/>
+            </div>
+
+            <!-- Reset Filter Button -->
+            <button class="btn btn-ghost btn-sm" id="btnResetStmtFilter" onclick="resetStatementFilters()" style="display:none; font-size:11.5px; padding:3px 8px; color:#64748b;" title="Reset filters">
+              <i class="fas fa-rotate-left"></i> Reset
+            </button>
+          </div>
+
+          <!-- Status Badge & Filter & Download Action -->
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span id="mStmtFilteredSummaryBadge" class="badge" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:11.5px; padding:4px 9px;">
+              All Time · All txns
+            </span>
+            <button class="btn btn-outline btn-sm" onclick="exportPartyStatementPDF()" style="display:inline-flex; align-items:center; gap:5px; font-weight:700; border-color:#0284c7; color:#0284c7;" title="Download PDF statement for this period">
+              <i class="fas fa-download"></i> PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="table-scroller">
         <table class="data-grid">
           <thead>
             <tr>
               <th>Date</th>
               <th>Description</th>
-              <th class="num">Running Net</th>
+              <th class="num" style="color:#dc2626;">Paid (-)</th>
+              <th class="num" style="color:#16a34a;">Billed (+)</th>
+              <th class="num">Balance</th>
             </tr>
           </thead>
           <tbody id="mStmtTbody"></tbody>
@@ -5137,7 +5672,7 @@ let appSettings = {
   invoicePrefix: 'ALH-',
   hideDealerOnBuyerInvoice: true,
   printFormat: 'a4',
-  whatsappTemplate: 'Al Haseena Exports: Bill #{billNo} for Rs.{amount} ({crates} crates {fish}). Balance: Rs.{balance}. Thank you!',
+  whatsappTemplate: 'AL HASEENA EXPORTS: {crates} Box {fish} = Rs.{amount}. Balance to Pay: Rs.{balance}. Thank you!',
   enableHourlyQuotes: true,
   quoteRotationFrequency: 'hourly',
   quoteManualCycle: true,
@@ -5979,15 +6514,102 @@ function openUnifiedTransactionModal(tab = 'IN', acc = null) {
   else openRecordMoneyInModal(acc);
 }
 
-function renderTreasuryTransactions() {
-  const tbody = document.getElementById('treasuryLedgerTbody');
-  if (!tbody) return;
+function onTreasuryPresetChange(preset) {
+  const customGroup = document.getElementById('treasuryCustomDateGroup');
+  const fromInp = document.getElementById('filterTreasuryFromDate');
+  const toInp = document.getElementById('filterTreasuryToDate');
 
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onTreasuryFilterChange();
+}
+
+function onTreasuryFilterChange() {
+  const accVal = document.getElementById('filterTreasuryAccount')?.value || 'all';
+  const flowVal = document.getElementById('filterTreasuryFlow')?.value || 'all';
+  const presetVal = document.getElementById('filterTreasuryPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterTreasuryFromDate')?.value || '';
+  const toVal = document.getElementById('filterTreasuryToDate')?.value || '';
+  const qVal = (document.getElementById('searchTreasuryInput')?.value || '').trim();
+
+  const isFiltered = accVal !== 'all' || flowVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetTreasuryFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderTreasuryTransactions();
+}
+
+function resetTreasuryFilter() {
+  const selAcc = document.getElementById('filterTreasuryAccount');
+  if (selAcc) selAcc.value = 'all';
+
+  const selFlow = document.getElementById('filterTreasuryFlow');
+  if (selFlow) selFlow.value = 'all';
+
+  const selPreset = document.getElementById('filterTreasuryPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('filterTreasuryFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('filterTreasuryToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('treasuryCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetTreasuryFilter');
+  if (btnReset) btnReset.style.display = 'none';
+
+  const qInp = document.getElementById('searchTreasuryInput');
+  if (qInp) qInp.value = '';
+
+  renderTreasuryTransactions();
+}
+
+function getFilteredTreasuryList() {
   const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
   const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
+  const fromDate = document.getElementById('filterTreasuryFromDate')?.value || '';
+  const toDate = document.getElementById('filterTreasuryToDate')?.value || '';
   const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
 
-  const filtered = treasuryTransactions.filter(t => {
+  return (treasuryTransactions || []).filter(t => {
+    // 1. Account Filter
     if (accFilter !== 'all') {
       if (t.flow === 'CONTRA') {
         if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
@@ -5995,22 +6617,53 @@ function renderTreasuryTransactions() {
         if (String(t.accountId) !== String(accFilter)) return false;
       }
     }
+
+    // 2. Flow Filter
     if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
+
+    // 3. Date Range Filter
+    if (fromDate && t.date && t.date < fromDate) return false;
+    if (toDate && t.date && t.date > toDate) return false;
+
+    // 4. Search Filter
     if (searchTerm) {
       const match = (t.description || '').toLowerCase().includes(searchTerm) ||
                     (t.category || '').toLowerCase().includes(searchTerm) ||
                     (t.contactName || '').toLowerCase().includes(searchTerm) ||
                     (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
-                    (t.accountName || '').toLowerCase().includes(searchTerm);
+                    (t.accountName || '').toLowerCase().includes(searchTerm) ||
+                    (t.toAccountName || '').toLowerCase().includes(searchTerm) ||
+                    (t.notes || '').toLowerCase().includes(searchTerm);
       if (!match) return false;
     }
     return true;
   });
+}
 
+function renderTreasuryTransactions() {
+  const tbody = document.getElementById('treasuryLedgerTbody');
+  if (!tbody) return;
+
+  const accVal = document.getElementById('filterTreasuryAccount')?.value || 'all';
+  const flowVal = document.getElementById('filterTreasuryFlow')?.value || 'all';
+  const presetVal = document.getElementById('filterTreasuryPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterTreasuryFromDate')?.value || '';
+  const toVal = document.getElementById('filterTreasuryToDate')?.value || '';
+  const qVal = (document.getElementById('searchTreasuryInput')?.value || '').trim();
+
+  const isFiltered = accVal !== 'all' || flowVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetTreasuryFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  const filtered = getFilteredTreasuryList();
   updateTreasurySelectionUI(filtered);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-inbox" style="font-size:24px; margin-bottom:8px; display:block;"></i>No transactions found matching criteria.</td></tr>`;
+    if (isFiltered) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No transactions match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetTreasuryFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>`;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-inbox" style="font-size:24px; margin-bottom:8px; display:block;"></i>No transactions found matching criteria.</td></tr>`;
+    }
     return;
   }
 
@@ -6031,7 +6684,7 @@ function renderTreasuryTransactions() {
     const isSelected = selectedTreasuryIds.has(String(t.id));
     const deleteBtn = `<button class="btn btn-ghost btn-sm" style="color:#ef4444;" onclick="deleteTreasuryTxn('${t.id}')" title="Delete entry"><i class="fas fa-trash"></i></button>`;
 
-    const partyRefText = [t.contactName, t.referenceNo].filter(Boolean).join(' • ');
+    const personText = t.contactName || '<span style="color:#cbd5e1;">-</span>';
 
     return `
       <tr id="treasuryRow_${t.id}" class="${isSelected ? 'row-selected' : ''}">
@@ -6051,7 +6704,7 @@ function renderTreasuryTransactions() {
           <div style="font-weight:600; color:#0f172a;">${t.category}</div>
           ${t.notes ? `<div style="font-size:11px; color:#64748b;">${t.notes}</div>` : ''}
         </td>
-        <td style="font-size:12px; color:#475569;">${partyRefText || '<span style="color:#cbd5e1;">-</span>'}</td>
+        <td style="font-size:12px; color:#475569;">${personText}</td>
         <td class="num">${amtDisplay}</td>
         <td style="text-align:center;">${deleteBtn}</td>
       </tr>
@@ -6061,29 +6714,7 @@ function renderTreasuryTransactions() {
 
 function updateTreasurySelectionUI(filtered) {
   if (!filtered) {
-    const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
-    const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
-    const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
-
-    filtered = (treasuryTransactions || []).filter(t => {
-      if (accFilter !== 'all') {
-        if (t.flow === 'CONTRA') {
-          if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
-        } else {
-          if (String(t.accountId) !== String(accFilter)) return false;
-        }
-      }
-      if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
-      if (searchTerm) {
-        const match = (t.description || '').toLowerCase().includes(searchTerm) ||
-                      (t.category || '').toLowerCase().includes(searchTerm) ||
-                      (t.contactName || '').toLowerCase().includes(searchTerm) ||
-                      (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
-                      (t.accountName || '').toLowerCase().includes(searchTerm);
-        if (!match) return false;
-      }
-      return true;
-    });
+    filtered = getFilteredTreasuryList();
   }
 
   const masterChk = document.getElementById('selectAllTreasuryChk');
@@ -6135,29 +6766,7 @@ function toggleSelectTreasury(id, isChecked) {
 }
 
 function toggleSelectAllTreasury(isChecked) {
-  const accFilter = document.getElementById('filterTreasuryAccount')?.value || 'all';
-  const flowFilter = document.getElementById('filterTreasuryFlow')?.value || 'all';
-  const searchTerm = (document.getElementById('searchTreasuryInput')?.value || '').trim().toLowerCase();
-
-  const filtered = (treasuryTransactions || []).filter(t => {
-    if (accFilter !== 'all') {
-      if (t.flow === 'CONTRA') {
-        if (String(t.accountId) !== String(accFilter) && String(t.toAccountId) !== String(accFilter)) return false;
-      } else {
-        if (String(t.accountId) !== String(accFilter)) return false;
-      }
-    }
-    if (flowFilter !== 'all' && t.flow !== flowFilter) return false;
-    if (searchTerm) {
-      const match = (t.description || '').toLowerCase().includes(searchTerm) ||
-                    (t.category || '').toLowerCase().includes(searchTerm) ||
-                    (t.contactName || '').toLowerCase().includes(searchTerm) ||
-                    (t.referenceNo || '').toLowerCase().includes(searchTerm) ||
-                    (t.accountName || '').toLowerCase().includes(searchTerm);
-      if (!match) return false;
-    }
-    return true;
-  });
+  const filtered = getFilteredTreasuryList();
 
   filtered.forEach(t => {
     const tId = String(t.id);
@@ -6379,12 +6988,13 @@ async function deleteTreasuryTxn(id) {
 }
 
 function exportTreasuryCSV() {
-  if (!treasuryTransactions || treasuryTransactions.length === 0) {
-    alert('No transactions to export.');
+  const list = typeof getFilteredTreasuryList === 'function' ? getFilteredTreasuryList() : (treasuryTransactions || []);
+  if (!list || list.length === 0) {
+    alert('No transactions found matching your filters to export.');
     return;
   }
   let csv = 'Date,Time,Account,To Account,Flow,Category,Party,Reference,Inflow (INR),Outflow (INR),Notes\n';
-  for (const t of treasuryTransactions) {
+  for (const t of list) {
     const row = [
       t.date,
       t.time,
@@ -6620,9 +7230,9 @@ function renderNeedsAttention() {
   }
 
   // 3. Pending Dealer Settlements
-  const pendingDealers = contacts.filter(c => c.isDealer && Number(c.payableBalance) > 0);
-  if (pendingDealers.length > 0) {
-    const first = pendingDealers[0];
+  const dealersToSettle = typeof getDealersLeftToSettle === 'function' ? getDealersLeftToSettle() : [];
+  if (dealersToSettle.length > 0) {
+    const first = dealersToSettle[0];
     items.push(`
       <div class="attention-item-box item-blue" onclick="openPatiyaModal('${first.name.replace(/'/g, "\\'")}')">
         <div class="attention-left-group">
@@ -6630,8 +7240,8 @@ function renderNeedsAttention() {
             <i class="fa-solid fa-user-check"></i>
           </div>
           <div>
-            <div class="attention-title-text blue-t">${pendingDealers.length} dealer${pendingDealers.length > 1 ? 's' : ''} to settle</div>
-            <div class="attention-sub-text">${first.name}: ₹${Number(first.payableBalance).toLocaleString('en-IN')} payable</div>
+            <div class="attention-title-text blue-t">${dealersToSettle.length} dealer${dealersToSettle.length > 1 ? 's' : ''} to settle</div>
+            <div class="attention-sub-text">${first.name}: ${first.unsettledCount} lot(s) awaiting Patiya</div>
           </div>
         </div>
         <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
@@ -6906,6 +7516,45 @@ function updateDashboardMetrics() {
     } else {
       elInsightText.textContent = 'No transactions recorded for today yet. Use + Record Fish In or + Record Fish Sold to begin.';
     }
+  }
+
+  // 6. Center Hero Banner Widget: Live Harbor Pulse & Trading Snapshot
+  const hr = new Date().getHours();
+  const greetText = hr < 12 ? 'Good Morning,' : (hr < 17 ? 'Good Afternoon,' : 'Good Evening,');
+  const elGreet = document.getElementById('heroGreetingSub');
+  if (elGreet) elGreet.textContent = greetText;
+
+  let arrivalsCratesCount = 0;
+  arrivalsForDate.forEach(c => {
+    (c.items || []).forEach(it => { arrivalsCratesCount += (Number(it.crates) || 0); });
+  });
+  const elHeroArr = document.getElementById('heroArrivalLotsCount');
+  if (elHeroArr) {
+    elHeroArr.textContent = arrivalsCount > 0 ? `${arrivalsCount} Lots (${arrivalsCratesCount} Box)` : '0 Lots';
+  }
+
+  let inStockBoxesTotal = 0;
+  (appState.consignments || []).forEach(c => {
+    (c.items || []).forEach(it => {
+      const leftCrates = it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates);
+      if (leftCrates > 0) inStockBoxesTotal += leftCrates;
+    });
+  });
+  const elHeroStock = document.getElementById('heroGodownStockCrates');
+  if (elHeroStock) {
+    elHeroStock.textContent = `${inStockBoxesTotal.toLocaleString('en-IN')} Boxes`;
+  }
+
+  const dayTurnoverTotal = salesForDate.reduce((sum, sl) => sum + (Number(sl.total) || 0), 0);
+  const elHeroTurnover = document.getElementById('heroDayTurnoverVal');
+  if (elHeroTurnover) {
+    elHeroTurnover.textContent = `₹${dayTurnoverTotal.toLocaleString('en-IN')}`;
+  }
+
+  const elHarborGate = document.getElementById('heroHarborGate');
+  if (elHarborGate) {
+    const loc = appSettings?.harborLocation || 'Gate 2 · Active Trading';
+    elHarborGate.textContent = loc.includes('Gate') ? (loc.split('-').pop() || loc).trim() : 'Gate 2 · Active Trading';
   }
 }
 
@@ -7208,6 +7857,7 @@ async function loadConsignments() {
       if (!validIds.has(Number(id))) selectedArrivalIds.delete(id);
     }
     renderArrivalsList();
+    if (typeof renderContactsList === 'function') renderContactsList();
     updateDashboardMetrics();
     renderActivityTimeline();
     renderFishStockCards();
@@ -7216,19 +7866,147 @@ async function loadConsignments() {
   }
 }
 
+function onArrivalsPresetChange(preset) {
+  const customGroup = document.getElementById('arrivalsCustomDateGroup');
+  const fromInp = document.getElementById('filterArrivalsFromDate');
+  const toInp = document.getElementById('filterArrivalsToDate');
+
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onArrivalsFilterChange();
+}
+
+function onArrivalsFilterChange() {
+  const statusVal = document.getElementById('filterArrivalsStatus')?.value || 'all';
+  const presetVal = document.getElementById('filterArrivalsPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterArrivalsFromDate')?.value || '';
+  const toVal = document.getElementById('filterArrivalsToDate')?.value || '';
+  const qVal = (document.getElementById('filterArrivalsInput')?.value || '').trim();
+
+  const isFiltered = statusVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetArrivalsFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderArrivalsList();
+}
+
+function resetArrivalsFilter() {
+  const selStatus = document.getElementById('filterArrivalsStatus');
+  if (selStatus) selStatus.value = 'all';
+
+  const selPreset = document.getElementById('filterArrivalsPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('filterArrivalsFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('filterArrivalsToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('arrivalsCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetArrivalsFilter');
+  if (btnReset) btnReset.style.display = 'none';
+
+  const qInp = document.getElementById('filterArrivalsInput');
+  if (qInp) qInp.value = '';
+
+  renderArrivalsList();
+}
+
+function getFilteredArrivalsList() {
+  const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase().trim();
+  const statusFilter = document.getElementById('filterArrivalsStatus')?.value || 'all';
+  const fromDate = document.getElementById('filterArrivalsFromDate')?.value || '';
+  const toDate = document.getElementById('filterArrivalsToDate')?.value || '';
+
+  return (appState.consignments || []).filter(c => {
+    // 1. Keyword search
+    if (q) {
+      const matchDealer = (c.dealerName || '').toLowerCase().includes(q);
+      const matchItems = c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q));
+      const matchNo = (c.consignmentNo || '').toLowerCase().includes(q);
+      if (!matchDealer && !matchItems && !matchNo) return false;
+    }
+
+    // 2. Date Range
+    if (fromDate && c.date && c.date < fromDate) return false;
+    if (toDate && c.date && c.date > toDate) return false;
+
+    // 3. Status Filter
+    const items = Array.isArray(c.items) ? c.items : [];
+    const left = items.reduce((s, it) => s + (Number(it.unsoldCrates) || 0), 0);
+    const isSettled = c.status === 'Settled' || !!c.isSettled;
+
+    if (statusFilter === 'in_godown') {
+      if (isSettled || left <= 0) return false;
+    } else if (statusFilter === 'sold_out') {
+      if (isSettled || left > 0) return false;
+    } else if (statusFilter === 'settled') {
+      if (!isSettled) return false;
+    }
+
+    return true;
+  });
+}
+
 function renderArrivalsList() {
   const tbody = document.getElementById('arrivalsListTbody');
   if (!tbody) return;
-  const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
-  const filtered = appState.consignments.filter(c => 
-    c.dealerName.toLowerCase().includes(q) || 
-    (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
-  );
 
+  const statusVal = document.getElementById('filterArrivalsStatus')?.value || 'all';
+  const presetVal = document.getElementById('filterArrivalsPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterArrivalsFromDate')?.value || '';
+  const toVal = document.getElementById('filterArrivalsToDate')?.value || '';
+  const qVal = (document.getElementById('filterArrivalsInput')?.value || '').trim();
+  const isFiltered = statusVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetArrivalsFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  const filtered = getFilteredArrivalsList();
   updateArrivalsSelectionUI(filtered);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
+    if (isFiltered) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No inward arrivals match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetArrivalsFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>';
+    } else {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No matching arrivals found.</td></tr>';
+    }
     return;
   }
 
@@ -7262,7 +8040,7 @@ function renderArrivalsList() {
           <div class="table-actions-group">
             ${isSettled
               ? `<button class="btn btn-outline btn-sm" style="color:#7c3aed; border-color:#ddd6fe; background:#faf5ff;" onclick="viewPatiyaBillForConsignment(${c.id})" title="View Finalized Settlement"><i class="fas fa-file-invoice"></i> Settled</button>`
-              : `<button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer (Patiya)"><i class="fas fa-calculator"></i> Settle</button>`
+              : `<button class="btn btn-purple btn-sm" onclick="settleArrivalDealerById(${c.id})" title="Settle Dealer"><i class="fas fa-calculator"></i> Settle</button>`
             }
             <button class="btn btn-outline btn-sm" onclick="printArrivalGatepass(${c.id})" title="Print Gatepass"><i class="fas fa-print"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteInwardArrival(${c.id})" title="Delete"><i class="fas fa-trash"></i></button>
@@ -7275,11 +8053,7 @@ function renderArrivalsList() {
 
 function updateArrivalsSelectionUI(filtered) {
   if (!filtered) {
-    const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
-    filtered = (appState.consignments || []).filter(c => 
-      c.dealerName.toLowerCase().includes(q) || 
-      (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
-    );
+    filtered = getFilteredArrivalsList();
   }
 
   const masterChk = document.getElementById('selectAllArrivalsChk');
@@ -7331,11 +8105,7 @@ function toggleSelectArrival(id, isChecked) {
 }
 
 function toggleSelectAllArrivals(isChecked) {
-  const q = (document.getElementById('filterArrivalsInput')?.value || '').toLowerCase();
-  const filtered = (appState.consignments || []).filter(c => 
-    c.dealerName.toLowerCase().includes(q) || 
-    (c.items && c.items.some(it => it.variety && it.variety.toLowerCase().includes(q)))
-  );
+  const filtered = getFilteredArrivalsList();
 
   filtered.forEach(c => {
     const cId = Number(c.id);
@@ -7603,18 +8373,142 @@ async function loadSales() {
   }
 }
 
+function onSalesPresetChange(preset) {
+  const customGroup = document.getElementById('salesCustomDateGroup');
+  const fromInp = document.getElementById('filterSalesFromDate');
+  const toInp = document.getElementById('filterSalesToDate');
+
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onSalesFilterChange();
+}
+
+function onSalesFilterChange() {
+  const payVal = document.getElementById('filterSalesPaymentType')?.value || 'all';
+  const presetVal = document.getElementById('filterSalesPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterSalesFromDate')?.value || '';
+  const toVal = document.getElementById('filterSalesToDate')?.value || '';
+  const qVal = (document.getElementById('filterSalesInput')?.value || '').trim();
+
+  const isFiltered = payVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetSalesFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderSalesList();
+}
+
+function resetSalesFilter() {
+  const selPay = document.getElementById('filterSalesPaymentType');
+  if (selPay) selPay.value = 'all';
+
+  const selPreset = document.getElementById('filterSalesPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('filterSalesFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('filterSalesToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('salesCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetSalesFilter');
+  if (btnReset) btnReset.style.display = 'none';
+
+  const qInp = document.getElementById('filterSalesInput');
+  if (qInp) qInp.value = '';
+
+  renderSalesList();
+}
+
+function getFilteredSalesList() {
+  const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase().trim();
+  const payFilter = document.getElementById('filterSalesPaymentType')?.value || 'all';
+  const fromDate = document.getElementById('filterSalesFromDate')?.value || '';
+  const toDate = document.getElementById('filterSalesToDate')?.value || '';
+
+  return (appState.sales || []).filter(s => {
+    // 1. Keyword search
+    if (q) {
+      const matchBuyer = (s.buyerName || '').toLowerCase().includes(q);
+      const matchBillNo = (s.billNo || '').toLowerCase().includes(q);
+      if (!matchBuyer && !matchBillNo) return false;
+    }
+
+    // 2. Date Range
+    if (fromDate && s.date && s.date < fromDate) return false;
+    if (toDate && s.date && s.date > toDate) return false;
+
+    // 3. Payment Filter
+    if (payFilter === 'Cash') {
+      if (s.paymentType !== 'Cash' || s.isBadDebt) return false;
+    } else if (payFilter === 'Credit') {
+      if (s.paymentType !== 'Credit' || s.isBadDebt) return false;
+    } else if (payFilter === 'bad_debt') {
+      if (!s.isBadDebt) return false;
+    }
+
+    return true;
+  });
+}
+
 function renderSalesList() {
   const tbody = document.getElementById('salesListTbody');
   if (!tbody) return;
-  const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
-  const filtered = appState.sales.filter(s => 
-    (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
-  );
 
+  const payVal = document.getElementById('filterSalesPaymentType')?.value || 'all';
+  const presetVal = document.getElementById('filterSalesPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterSalesFromDate')?.value || '';
+  const toVal = document.getElementById('filterSalesToDate')?.value || '';
+  const qVal = (document.getElementById('filterSalesInput')?.value || '').trim();
+  const isFiltered = payVal !== 'all' || presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetSalesFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  const filtered = getFilteredSalesList();
   updateSalesSelectionUI(filtered);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
+    if (isFiltered) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No sales bills match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetSalesFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>';
+    } else {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No sales bills recorded.</td></tr>';
+    }
     return;
   }
 
@@ -7630,7 +8524,6 @@ function renderSalesList() {
         <td>${s.date}</td>
         <td>
           <strong style="color:#0f172a; font-size:13.5px; cursor:pointer;" onclick="viewSaleBill(${s.id})" title="View bill">${s.buyerName}</strong>
-          ${s.useAverageRate ? `<span class="badge badge-purple" style="font-size:9.5px; margin-left:6px;" title="Average price bill"><i class="fas fa-calculator"></i> AVG ₹${(s.averageRate || (s.totalBoxes ? Number((billTotal / s.totalBoxes).toFixed(2)) : 0)).toLocaleString('en-IN')}/bx</span>` : ''}
           ${s.totalBoxes ? `<div style="font-size:11px; color:#6d28d9; font-weight:700; margin-top:2px;"><i class="fas fa-box" style="font-size:10px;"></i> P - ${s.totalBoxes} Boxes</div>` : ''}
         </td>
         <td class="num" style="font-family:var(--font-mono); font-weight:700; font-size:14px; color:#0f172a;">₹${billTotal.toLocaleString('en-IN')}</td>
@@ -7642,7 +8535,6 @@ function renderSalesList() {
         <td class="table-action-cell">
           <div class="table-actions-group">
             <button class="btn btn-outline btn-sm" onclick="viewSaleBill(${s.id})" title="View Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
-            <button class="btn btn-outline btn-sm" onclick="downloadA4SalesBill(${s.id})" title="Print A4 Bill"><i class="fas fa-print"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendSaleWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
             ${s.paymentType === 'Credit' && !s.isBadDebt ? `<button class="btn btn-outline btn-sm" onclick="markSaleBadDebtPrompt(${s.id}, '${(s.buyerName || '').replace(/'/g, "\\'")}', ${billTotal})" title="Write Off as Bad Debt" style="color:#ef4444; border-color:#fca5a5;"><i class="fas fa-ban"></i></button>` : ''}
             ${s.isBadDebt ? `<button class="btn btn-outline btn-sm" onclick="restoreSaleBadDebtPrompt(${s.id}, '${(s.buyerName || '').replace(/'/g, "\\'")}')" title="Restore Sale" style="color:#0284c7; border-color:#bfdbfe;"><i class="fas fa-rotate-left"></i></button>` : ''}
@@ -7656,10 +8548,7 @@ function renderSalesList() {
 
 function updateSalesSelectionUI(filtered) {
   if (!filtered) {
-    const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
-    filtered = (appState.sales || []).filter(s => 
-      (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
-    );
+    filtered = getFilteredSalesList();
   }
 
   const masterChk = document.getElementById('selectAllSalesChk');
@@ -7711,10 +8600,7 @@ function toggleSelectSale(id, isChecked) {
 }
 
 function toggleSelectAllSales(isChecked) {
-  const q = (document.getElementById('filterSalesInput')?.value || '').toLowerCase();
-  const filtered = (appState.sales || []).filter(s => 
-    (s.buyerName || '').toLowerCase().includes(q) || (s.billNo || '').toLowerCase().includes(q)
-  );
+  const filtered = getFilteredSalesList();
 
   filtered.forEach(s => {
     const sId = Number(s.id);
@@ -7794,7 +8680,7 @@ function setSalesSubTab(tab) {
     patiya.style.display = 'block';
     bBills.classList.remove('active');
     bPatiya.classList.add('active');
-    btnHolder.innerHTML = '<button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer (Patiya)</button>';
+    btnHolder.innerHTML = '<button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer</button>';
   }
 }
 
@@ -8044,10 +8930,7 @@ function computeSaleBillTotals() {
   const badgeBoxes = document.getElementById('mSaleBoxCountBadge');
   if (badgeBoxes) badgeBoxes.innerHTML = `<i class="fas fa-boxes-stacked"></i> P - ${totalBoxes} Boxes`;
 
-  const badgeWeight = document.getElementById('mSaleWeightBadge');
-  if (badgeWeight) {
-    badgeWeight.style.display = 'none';
-  }
+
 
   // Average Price calculation
   const avgCheck = document.getElementById('mSaleUseAverageRate');
@@ -8666,7 +9549,7 @@ function viewPatiyaBill(settlementId) {
 
   const titleEl = document.getElementById('viewBillModalTitle');
   const subEl = document.getElementById('viewBillModalSub');
-  if (titleEl) titleEl.innerHTML = `<i class="fas fa-calculator" style="color:#7c3aed;"></i> Patiya Settlement: ${s.settlementNo || ('#' + s.id)}`;
+  if (titleEl) titleEl.innerHTML = `<i class="fas fa-calculator" style="color:#7c3aed;"></i> Settlement: ${s.settlementNo || ('#' + s.id)}`;
   if (subEl) subEl.textContent = `Dealer: ${s.dealerName} • Date: ${s.date}`;
 
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
@@ -9014,16 +9897,15 @@ function sendSaleWhatsApp(saleId, fallbackSale) {
     const cratesCount = Number(l.crates);
     const kg = isKg ? (Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0)) : 0;
     const rateFormatted = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
-    const formulaText = (l.isAverage && l.formula) ? ` (${l.formula})` : '';
     let desc = '';
     if (cratesCount > 0) {
       if (Number(l.kgPerCrate) > 0) {
-        desc = `${cratesCount} Box - ${l.variety} ${l.kgPerCrate}kg x Rs.${rateFormatted}/-${formulaText}`;
+        desc = `${cratesCount} Box ${l.variety} (${l.kgPerCrate}kg) @ Rs.${rateFormatted}`;
       } else {
-        desc = `${cratesCount} Box - ${l.variety}${l.isAverage ? ' (Avg)' : ''} x Rs.${rateFormatted}/-${formulaText}`;
+        desc = `${cratesCount} Box ${l.variety} @ Rs.${rateFormatted}`;
       }
     } else {
-      desc = `${l.variety} ${kg}kg x Rs.${rateFormatted}/-${formulaText}`;
+      desc = `${kg}kg ${l.variety} @ Rs.${rateFormatted}`;
     }
     return `• ${desc} = Rs.${Number(l.amount || 0).toLocaleString('en-IN')}`;
   }).join('\n');
@@ -9036,43 +9918,41 @@ function sendSaleWhatsApp(saleId, fallbackSale) {
   const totalDue = Number(sale.totalBalanceDue) !== undefined ? Number(sale.totalBalanceDue) : (sale.total + prevBal);
   const closingBal = Number(sale.closingBalance) !== undefined ? Number(sale.closingBalance) : (totalDue - cashPaid);
 
-  const billHeader = isCash ? `*Al Haseena Exports - Wholesale Cash Bill*` : `*Al Haseena Exports - Wholesale Credit Bill*`;
+  const formattedDate = sale.date ? sale.date.split('-').reverse().join('-') : '';
 
   const msgLines = [
-    billHeader,
-    `Bill No: ${sale.billNo}`,
-    `Date: ${sale.date}`,
-    `Buyer: ${sale.buyerName}`,
-    `Packages: *P - ${sale.totalBoxes || 0} Boxes*`,
-    `--------------------------------`,
+    `*AL HASEENA EXPORTS*`,
+    `Date: ${formattedDate || sale.date}`,
+    `Buyer: *${sale.buyerName}*`,
+    `Total: *${sale.totalBoxes || 0} Box*`,
+    ``,
     linesText,
-    `--------------------------------`,
-    `Goods Subtotal: Rs.${(sale.subtotal || sale.total).toLocaleString('en-IN')}`
+    ``
   ];
 
-  if (sale.useAverageRate) {
-    const avgR = (sale.averageRate || (sale.totalBoxes ? Number((sale.total / sale.totalBoxes).toFixed(2)) : 0));
-    msgLines.push(`Price Per Crate (Avg): Rs.${avgR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / Box`);
-  }
-
   if (discount > 0) {
-    msgLines.push(`(-) Discount: Rs.${discount.toLocaleString('en-IN')}`);
-    msgLines.push(`Today's Net Bill: Rs.${sale.total.toLocaleString('en-IN')}`);
+    msgLines.push(`Bill: Rs.${Number(sale.subtotal || sale.total).toLocaleString('en-IN')}`);
+    msgLines.push(`Discount: -Rs.${discount.toLocaleString('en-IN')}`);
+    msgLines.push(`Today Bill: Rs.${sale.total.toLocaleString('en-IN')}`);
+  } else {
+    msgLines.push(`Today Bill: Rs.${sale.total.toLocaleString('en-IN')}`);
   }
 
   if (isCash) {
-    msgLines.push(`Cash Paid: Rs.${(cashPaid || sale.total).toLocaleString('en-IN')}`);
-    msgLines.push(`*STATUS: PAID IN FULL (CASH)*`);
+    msgLines.push(`Paid (Cash): Rs.${(cashPaid || sale.total).toLocaleString('en-IN')}`);
+    msgLines.push(`*Balance: Rs.0 (PAID)*`);
   } else {
-    msgLines.push(`(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}`);
-    if (cashPaid > 0) {
-      msgLines.push(`(-) Cash Paid Today: Rs.${cashPaid.toLocaleString('en-IN')}`);
+    if (prevBal > 0) {
+      msgLines.push(`Old Balance: Rs.${prevBal.toLocaleString('en-IN')}`);
     }
-    msgLines.push(`*TOTAL BALANCE DUE: Rs.${closingBal.toLocaleString('en-IN')}*`);
+    if (cashPaid > 0) {
+      msgLines.push(`Paid Today: -Rs.${cashPaid.toLocaleString('en-IN')}`);
+    }
+    msgLines.push(`*Balance to Pay: Rs.${closingBal.toLocaleString('en-IN')}*`);
   }
 
-  msgLines.push(`--------------------------------`);
-  msgLines.push(`Thank you for your business!`);
+  msgLines.push(``);
+  msgLines.push(`Thank you!`);
 
   const fullMsg = msgLines.filter(Boolean).join('\n');
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(fullMsg)}`, '_blank');
@@ -9128,14 +10008,126 @@ function togglePatiyaRowBreakdown(id) {
   }
 }
 
+function onPatiyaPresetChange(preset) {
+  const customGroup = document.getElementById('patiyaCustomDateGroup');
+  const fromInp = document.getElementById('filterPatiyaFromDate');
+  const toInp = document.getElementById('filterPatiyaToDate');
+
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onPatiyaFilterChange();
+}
+
+function onPatiyaFilterChange() {
+  const presetVal = document.getElementById('filterPatiyaPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterPatiyaFromDate')?.value || '';
+  const toVal = document.getElementById('filterPatiyaToDate')?.value || '';
+  const qVal = (document.getElementById('filterPatiyaInput')?.value || '').trim();
+
+  const isFiltered = presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetPatiyaFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderPatiyaList();
+}
+
+function resetPatiyaFilter() {
+  const selPreset = document.getElementById('filterPatiyaPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('filterPatiyaFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('filterPatiyaToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('patiyaCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetPatiyaFilter');
+  if (btnReset) btnReset.style.display = 'none';
+
+  const qInp = document.getElementById('filterPatiyaInput');
+  if (qInp) qInp.value = '';
+
+  renderPatiyaList();
+}
+
+function getFilteredPatiyaList() {
+  const q = (document.getElementById('filterPatiyaInput')?.value || '').toLowerCase().trim();
+  const fromDate = document.getElementById('filterPatiyaFromDate')?.value || '';
+  const toDate = document.getElementById('filterPatiyaToDate')?.value || '';
+
+  return (appState.settlements || []).filter(s => {
+    // 1. Keyword search
+    if (q) {
+      const matchDealer = (s.dealerName || '').toLowerCase().includes(q);
+      const matchSettlementNo = (s.settlementNo || '').toLowerCase().includes(q);
+      if (!matchDealer && !matchSettlementNo) return false;
+    }
+
+    // 2. Date Range
+    if (fromDate && s.date && s.date < fromDate) return false;
+    if (toDate && s.date && s.date > toDate) return false;
+
+    return true;
+  });
+}
+
 function renderPatiyaList() {
   const tbody = document.getElementById('patiyaListTbody');
   if (!tbody) return;
-  const q = (document.getElementById('filterPatiyaInput')?.value || '').toLowerCase();
-  const filtered = appState.settlements.filter(s => (s.dealerName || '').toLowerCase().includes(q) || (s.settlementNo || '').toLowerCase().includes(q));
+
+  const presetVal = document.getElementById('filterPatiyaPreset')?.value || 'all';
+  const fromVal = document.getElementById('filterPatiyaFromDate')?.value || '';
+  const toVal = document.getElementById('filterPatiyaToDate')?.value || '';
+  const qVal = (document.getElementById('filterPatiyaInput')?.value || '').trim();
+  const isFiltered = presetVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetPatiyaFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  const filtered = getFilteredPatiyaList();
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No Patiya bills found.</td></tr>';
+    if (isFiltered) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:36px; color:#94a3b8;"><i class="fas fa-filter-circle-xmark" style="font-size:24px; margin-bottom:8px; display:block; color:#cbd5e1;"></i>No settlement bills match the selected filters.<div style="margin-top:10px;"><button class="btn btn-outline btn-sm" onclick="resetPatiyaFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button></div></td></tr>';
+    } else {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:32px; color:#64748b;">No settlement bills found.</td></tr>';
+    }
     return;
   }
 
@@ -9162,8 +10154,7 @@ function renderPatiyaList() {
         </td>
         <td class="table-action-cell">
           <div class="table-actions-group">
-            <button class="btn btn-outline btn-sm" onclick="viewPatiyaBill(${s.id})" title="View Patiya Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
-            <button class="btn btn-outline btn-sm" onclick="downloadA4Patiya(${s.id})" title="Print A4 Patiya"><i class="fas fa-print"></i></button>
+            <button class="btn btn-outline btn-sm" onclick="viewPatiyaBill(${s.id})" title="View Bill"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             <button class="btn btn-wa btn-sm" onclick="sendPatiyaWhatsApp(${s.id})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deletePatiyaSettlement(${s.id})" title="Delete"><i class="fas fa-trash"></i></button>
           </div>
@@ -9410,6 +10401,11 @@ async function calculateDealerPatiya(consignmentId = null) {
 
 function renderPatiyaView() {
   if (!curPatiyaData) return;
+  curPatiyaData.rawItems = JSON.parse(JSON.stringify(curPatiyaData.items || []));
+  curPatiyaData.preMergeItems = null;
+  const avgChk = document.getElementById('mPatAveragePricingChk');
+  if (avgChk) avgChk.checked = false;
+
   const tbody = document.getElementById('patItemsTbody');
 
   const totalArr = curPatiyaData.arrivalCratesToday || 0;
@@ -9457,7 +10453,7 @@ function renderPatiyaView() {
       <tr>
         <td><input type="text" list="patVarietyDatalist" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
         <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><span style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
+        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
         <td class="num" style="background:#fffbeb;">
           <input type="number" value="${it.reportedRate ? it.reportedRate : ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
@@ -9471,7 +10467,7 @@ function renderPatiyaView() {
       <tr>
         <td><input type="text" list="patVarietyDatalist" value="${rv.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
         <td class="num"><input type="number" value="${rv.totalCrates}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><span style="font-size:12px; color:#64748b;">Crate</span></td>
+        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">Crate</span></td>
         <td class="num" style="background:#fffbeb;">
           <input type="number" value="" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
@@ -9515,7 +10511,7 @@ function addPatiyaItemLine(variety = '', qty = '', rate = '') {
   tr.innerHTML = `
     <td><input type="text" list="patVarietyDatalist" placeholder="Fish Variety" value="${variety || ''}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
     <td class="num"><input type="number" value="${qty || ''}" placeholder="Crates" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-    <td class="num"><span style="font-size:12px; color:#64748b;">Crate</span></td>
+    <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">Crate</span></td>
     <td class="num" style="background:#fffbeb;">
       <input type="number" value="${rate || ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
     </td>
@@ -9541,6 +10537,94 @@ function addPatiyaExpenseLine(name = '', amount = '') {
 
 function onPatiyaLineChange(idx) {
   recalculatePatiya();
+}
+
+function togglePatiyaAveragePricing(isChecked) {
+  if (!curPatiyaData) return;
+  const tbody = document.getElementById('patItemsTbody');
+  if (!tbody) return;
+
+  if (isChecked) {
+    const rows = tbody.querySelectorAll('tr');
+    const rawLines = [];
+    rows.forEach(r => {
+      const variety = (r.querySelector('.patItemVariety')?.value || '').trim();
+      const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
+      const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
+      const unit = (r.querySelector('.patItemUnit')?.textContent || 'Crate').trim();
+      if (variety && qty > 0) {
+        const lineGross = Math.round(qty * rate);
+        rawLines.push({
+          variety,
+          qtySold: qty,
+          unit,
+          reportedRate: rate,
+          reportedGross: lineGross,
+          realizedRevenue: lineGross
+        });
+      }
+    });
+
+    if (rawLines.length === 0 && Array.isArray(curPatiyaData.items) && curPatiyaData.items.length > 0) {
+      rawLines.push(...JSON.parse(JSON.stringify(curPatiyaData.items)));
+    }
+
+    if (rawLines.length > 0) {
+      curPatiyaData.preMergeItems = JSON.parse(JSON.stringify(rawLines));
+
+      const groupMap = new Map();
+      rawLines.forEach(l => {
+        const k = l.variety.toLowerCase();
+        if (!groupMap.has(k)) {
+          groupMap.set(k, {
+            variety: l.variety,
+            unit: l.unit || 'Crate',
+            totalCrates: 0,
+            totalGross: 0
+          });
+        }
+        const g = groupMap.get(k);
+        g.totalCrates += l.qtySold;
+        g.totalGross += (l.reportedGross || Math.round(l.qtySold * (l.reportedRate || 0)));
+      });
+
+      tbody.innerHTML = '';
+      groupMap.forEach(g => {
+        const avgRate = g.totalCrates > 0 ? Math.round((g.totalGross / g.totalCrates) * 100) / 100 : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text" list="patVarietyDatalist" value="${g.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
+          <td class="num"><input type="number" value="${g.totalCrates}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+          <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${g.unit}</span></td>
+          <td class="num" style="background:#fffbeb;">
+            <input type="number" value="${avgRate || ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+          </td>
+          <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹${Math.round(g.totalGross).toLocaleString('en-IN')}</td>
+          <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      recalculatePatiya();
+    }
+  } else {
+    const restoreLines = curPatiyaData.preMergeItems || curPatiyaData.rawItems;
+    if (restoreLines && restoreLines.length > 0) {
+      tbody.innerHTML = restoreLines.map(it => `
+        <tr>
+          <td><input type="text" list="patVarietyDatalist" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
+          <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+          <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
+          <td class="num" style="background:#fffbeb;">
+            <input type="number" value="${it.reportedRate ? it.reportedRate : ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
+          </td>
+          <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹${Math.round(it.reportedGross || (it.qtySold * (it.reportedRate || 0))).toLocaleString('en-IN')}</td>
+          <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+        </tr>
+      `).join('');
+      curPatiyaData.preMergeItems = null;
+      recalculatePatiya();
+    }
+  }
 }
 
 function recalculatePatiya() {
@@ -9721,7 +10805,7 @@ async function saveFinalizedPatiya(action = 'save') {
   const previousBalance = Number(document.getElementById('mPatPrevBal').value) || 0;
   const totalBalanceDue = Math.ceil(netConsignment + previousBalance);
   const cashPaidToday = Number(document.getElementById('mPatCashPaid').value) || 0;
-  const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || (cashPaidToday > 0 ? 'Paid to Driver on Patiya' : '');
+  const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || (cashPaidToday > 0 ? 'Paid to Driver on Settlement' : '');
   const closingBalance = Math.ceil(totalBalanceDue - cashPaidToday);
 
   try {
@@ -9759,7 +10843,7 @@ async function saveFinalizedPatiya(action = 'save') {
     });
     const saved = await res.json();
     if (res.ok) {
-      showToast('Patiya finalized & credited!', 'success');
+      showToast('Settlement finalized & credited!', 'success');
       closeModal('patiyaModal');
       await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadConsignments(), loadStockBoard(), loadReports()]);
       if (action === 'print') {
@@ -9776,11 +10860,11 @@ async function saveFinalizedPatiya(action = 'save') {
 }
 
 async function deletePatiyaSettlement(id) {
-  if (!confirm('Revert this Patiya settlement?')) return;
+  if (!confirm('Revert this settlement?')) return;
   try {
     const res = await fetch(`/api/settlements/${id}`, { method: 'DELETE' });
     if (res.ok) {
-      showToast('Patiya deleted', 'success');
+      showToast('Settlement deleted', 'success');
       await Promise.all([loadSettlements(), loadContacts(), loadPayments(), loadReports()]);
     }
   } catch (e) {
@@ -9815,7 +10899,7 @@ function downloadA4Patiya(id) {
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(15, 23, 42);
-  doc.text(`Patiya #: ${s.settlementNo}`, 110, 24);
+  doc.text(`Settlement #: ${s.settlementNo}`, 110, 24);
   doc.text(`Date: ${s.date}`, 110, 29);
 
   // Dealer & Arrival Lot Banner
@@ -9929,7 +11013,7 @@ function downloadA4Patiya(id) {
   doc.text('Driver / Lorry (DRL)', 80, finalY + 62);
   doc.text('For Al Haseena Exports', 145, finalY + 62);
 
-  doc.save(`Patiya_${s.settlementNo}.pdf`);
+  doc.save(`Settlement_${s.settlementNo}.pdf`);
 }
 
 function sendPatiyaWhatsApp(id) {
@@ -9939,44 +11023,60 @@ function sendPatiyaWhatsApp(id) {
   const phone = (dealer?.phone || '').replace(/[^0-9]/g, '');
 
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
-    variety: 'Consignment Lot',
+    variety: 'Fish Lot',
     qtySold: s.totalQtySold || 0,
-    unit: 'Crate',
+    unit: 'Box',
     reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
     reportedGross: s.totalReportedGross || 0
   }];
-  const itemsText = items.map(it => `• ${it.qtySold} ${it.unit || 'Crate'} ${it.variety} @ Rs.${it.reportedRate} = Rs.${(it.reportedGross || 0).toLocaleString('en-IN')}`).join('\n');
+  const itemsText = items.map(it => `• ${it.qtySold} Box ${it.variety} @ Rs.${Number(it.reportedRate || 0).toLocaleString('en-IN')} = Rs.${Number(it.reportedGross || 0).toLocaleString('en-IN')}`).join('\n');
   const netProceed = Math.ceil(Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0));
   const prevBal = Number(s.previousBalance) || 0;
   const totalDue = Math.ceil(Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal));
   const cashPaid = Number(s.cashPaidToday) || 0;
   const closingBal = Math.ceil(Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid));
 
+  const formattedDate = s.date ? s.date.split('-').reverse().join('-') : '';
+  const totalBoxes = s.arrivalCrates || s.totalQtySold || 0;
+
   const msgLines = [
-    `*Al Haseena Exports - Patiya Settlement*`,
-    `Settlement No: ${s.settlementNo}`,
-    `Date: ${s.date}`,
-    `Dealer: ${s.dealerName}`,
-    `Arrival Lot: *ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)*`,
-    `--------------------------------`,
+    `*AL HASEENA EXPORTS*`,
+    `Date: ${formattedDate || s.date}`,
+    `Dealer: *${s.dealerName}*`,
+    `Total: *${totalBoxes} Box*`,
+    ``,
     itemsText,
-    `--------------------------------`,
-    `Gross Sales: Rs.${s.totalReportedGross.toLocaleString('en-IN')}`,
-    `Less Expenses: -Rs.${s.totalExpenses.toLocaleString('en-IN')}`,
-    `Less Commission: -Rs.${s.commissionAmount.toLocaleString('en-IN')}`,
-    `*Net Consignment Proceed: Rs.${netProceed.toLocaleString('en-IN')}*`,
-    `--------------------------------`,
-    `(+) Previous Balance: Rs.${prevBal.toLocaleString('en-IN')}`,
-    `Total Balance Due: Rs.${totalDue.toLocaleString('en-IN')}`
+    ``,
+    `Sales: Rs.${Number(s.totalReportedGross || 0).toLocaleString('en-IN')}`
   ];
 
-  if (cashPaid > 0) {
-    const payee = s.cashPaidPayee ? `(${s.cashPaidPayee})` : '(Driver)';
-    msgLines.push(`(-) Cash Paid to Driver ${payee}: -Rs.${cashPaid.toLocaleString('en-IN')}`);
+  // Break down expenses item by item
+  const expList = Array.isArray(s.expenses) ? s.expenses.filter(e => Number(e.amount) > 0) : [];
+  if (expList.length > 0) {
+    expList.forEach(e => {
+      msgLines.push(`${e.name || 'Expense'}: -Rs.${Number(e.amount).toLocaleString('en-IN')}`);
+    });
+  } else if (Number(s.totalExpenses) > 0) {
+    msgLines.push(`Expenses: -Rs.${Number(s.totalExpenses).toLocaleString('en-IN')}`);
   }
 
-  msgLines.push(`*NET CLOSING BALANCE: Rs.${closingBal.toLocaleString('en-IN')}*`);
-  msgLines.push(`--------------------------------`);
+  if (Number(s.commissionAmount) > 0) {
+    msgLines.push(`Commission: -Rs.${Number(s.commissionAmount).toLocaleString('en-IN')}`);
+  }
+
+  msgLines.push(`Net Amount: Rs.${netProceed.toLocaleString('en-IN')}`);
+
+  if (prevBal > 0) {
+    msgLines.push(`Old Balance: Rs.${prevBal.toLocaleString('en-IN')}`);
+  }
+
+  if (cashPaid > 0) {
+    msgLines.push(`Paid to Driver: -Rs.${cashPaid.toLocaleString('en-IN')}`);
+  }
+
+  msgLines.push(``);
+  msgLines.push(`*We Pay You: Rs.${closingBal.toLocaleString('en-IN')}*`);
+  msgLines.push(``);
   msgLines.push(`Thank you!`);
 
   const fullMsg = msgLines.filter(Boolean).join('\n');
@@ -10196,9 +11296,7 @@ function renderContactsList() {
     } else if (c.isOverdue && !isBypassed) {
       statusBadge = `<span class="badge badge-red" style="font-weight:700;"><i class="fas fa-clock"></i> ${c.daysOverdue}d late</span>`;
     } else if (c.isDealer && unsettledLots > 0) {
-      statusBadge = `<span class="badge badge-purple" style="font-weight:700;" title="${unsettledLots} consignment(s) awaiting Patiya settlement"><i class="fas fa-calculator"></i> ${unsettledLots} ${unsettledLots === 1 ? 'Lot' : 'Lots'} to Settle</span>`;
-    } else if (isBypassed) {
-      statusBadge = '<span class="badge badge-purple" title="Credit limit and period bypassed (Unlimited)"><i class="fas fa-infinity"></i> Unlimited</span>';
+      statusBadge = `<span class="badge badge-purple" style="font-weight:700;" title="${unsettledLots} consignment(s) awaiting settlement"><i class="fas fa-calculator"></i> ${unsettledLots} ${unsettledLots === 1 ? 'Lot' : 'Lots'} to Settle</span>`;
     } else {
       statusBadge = '<span class="badge badge-green">Clear</span>';
     }
@@ -10207,10 +11305,12 @@ function renderContactsList() {
     if (c.isBadDebtDefaulter && (c.badDebtAmount > 0 || c.rawReceivable > 0)) {
       const writtenOffAmt = c.badDebtAmount || c.rawReceivable || 0;
       netPosHtml = `<span style="color:#dc2626; font-weight:700;">₹${writtenOffAmt.toLocaleString('en-IN')} (Bad Debt)</span>`;
-    } else if (c.netBalance >= 0) {
+    } else if (c.netBalance > 0) {
       netPosHtml = `<span style="color:#047857; font-weight:700;">We Pay ₹${c.netBalance.toLocaleString('en-IN')}</span>`;
-    } else {
+    } else if (c.netBalance < 0) {
       netPosHtml = `<span style="color:#0084ff; font-weight:700;">They Owe ₹${Math.abs(c.netBalance).toLocaleString('en-IN')}</span>`;
+    } else {
+      netPosHtml = `<span style="color:#64748b; font-weight:700;">₹0 (Clear)</span>`;
     }
 
     const isSelected = selectedContactIds.has(Number(c.id));
@@ -10229,9 +11329,9 @@ function renderContactsList() {
         <td>${statusBadge}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
-            ${c.isDealer ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates (Patiya)"><i class="fas fa-calculator"></i> Settle</button>` : ''}
-            ${c.isDealer ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money to Dealer"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
-            ${c.isBuyer && !c.isBadDebtDefaulter ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
+            ${(c.isDealer && unsettledLots > 0) ? `<button class="btn btn-purple btn-sm" onclick="openPatiyaForDealer('${c.name.replace(/'/g, "\\'")}')" title="Settle Crates"><i class="fas fa-calculator"></i> Settle</button>` : ''}
+            ${(c.isDealer && (c.payableBalance > 0 || c.netBalance > 0)) ? `<button class="btn btn-outline btn-sm" onclick="openPaymentForDealer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Pay Money to Dealer"><i class="fas fa-hand-holding-dollar" style="color:#d97706;"></i> Pay</button>` : ''}
+            ${(c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.netBalance < 0)) ? `<button class="btn btn-green btn-sm" onclick="openPaymentForBuyer('${c.name.replace(/'/g, "\\'")}', ${c.id})" title="Collect Money from Buyer"><i class="fas fa-sack-dollar"></i> Collect</button>` : ''}
             <button class="btn btn-outline btn-sm btn-icon" onclick="openBalancePreviewModal(${c.id})" title="Preview Breakdown & Passbook"><i class="fas fa-eye" style="color:#0284c7;"></i></button>
             ${c.phone && !c.isBadDebtDefaulter ? `<button class="btn btn-wa btn-sm btn-icon" onclick="sendWhatsAppFollowup('${c.phone}', '${c.name.replace(/'/g, "\\'")}', ${c.receivableBalance}, ${c.daysOverdue})" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>` : ''}
             ${c.isBuyer && !c.isBadDebtDefaulter && (c.receivableBalance > 0 || c.isOverdue) ? `<button class="btn btn-danger btn-sm btn-icon" onclick="openBadDebtModal(${c.id})" title="Consider as Bad Debt"><i class="fas fa-ban"></i></button>` : ''}
@@ -10630,13 +11730,210 @@ async function saveContactAccount() {
   }
 }
 
+function resetStatementFiltersState() {
+  appState.statementTypeFilter = 'all';
+  appState.statementPeriodPreset = 'all';
+  appState.statementFromDate = '';
+  appState.statementToDate = '';
+
+  const selType = document.getElementById('mStmtTypeFilter');
+  if (selType) selType.value = 'all';
+
+  const selPreset = document.getElementById('mStmtPeriodPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('mStmtFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('mStmtToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('mStmtCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetStmtFilter');
+  if (btnReset) btnReset.style.display = 'none';
+}
+
+function resetStatementFilters() {
+  resetStatementFiltersState();
+  renderStatementView();
+}
+
+function onStatementPresetChange(preset) {
+  appState.statementPeriodPreset = preset;
+  const customGroup = document.getElementById('mStmtCustomDateGroup');
+  const fromInp = document.getElementById('mStmtFromDate');
+  const toInp = document.getElementById('mStmtToDate');
+
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onStatementFilterChange();
+}
+
+function onStatementFilterChange() {
+  const selType = document.getElementById('mStmtTypeFilter');
+  const fromInp = document.getElementById('mStmtFromDate');
+  const toInp = document.getElementById('mStmtToDate');
+
+  appState.statementTypeFilter = selType?.value || 'all';
+  appState.statementFromDate = fromInp?.value || '';
+  appState.statementToDate = toInp?.value || '';
+
+  const isFiltered = appState.statementTypeFilter !== 'all' || !!appState.statementFromDate || !!appState.statementToDate;
+  const btnReset = document.getElementById('btnResetStmtFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderStatementView();
+}
+
+function getStatementFilteredData() {
+  const d = appState.activeStatement;
+  if (!d || !Array.isArray(d.rows)) {
+    return { rows: [], inPeriodRawCount: 0, openingBalance: 0, hasPriorRows: false, totalDebit: 0, totalCredit: 0, closingBalance: 0 };
+  }
+
+  const validRows = d.rows.filter(r => (Number(r.debit) > 0 || Number(r.credit) > 0 || r.type === 'CONSIGNMENT_INWARD'));
+  const typeFilter = appState.statementTypeFilter || 'all';
+  const fromDate = appState.statementFromDate || '';
+  const toDate = appState.statementToDate || '';
+
+  // Calculate opening balance for transactions strictly before fromDate
+  let openingBalance = 0;
+  let hasPriorRows = false;
+  if (fromDate) {
+    for (const r of validRows) {
+      if (r.date && r.date < fromDate) {
+        hasPriorRows = true;
+        if (r.type !== 'CONSIGNMENT_INWARD') {
+          openingBalance += ((Number(r.credit) || 0) - (Number(r.debit) || 0));
+        }
+      }
+    }
+  }
+
+  // Filter rows within selected period & transaction category
+  const inPeriodRows = validRows.filter(r => {
+    if (fromDate && r.date && r.date < fromDate) return false;
+    if (toDate && r.date && r.date > toDate) return false;
+
+    if (typeFilter === 'payments_paid') {
+      return r.type === 'DEALER_PAYMENT' || (r.description && /paid/i.test(r.description) && !/discount/i.test(r.description));
+    }
+
+    if (typeFilter === 'payments_received') {
+      return r.type === 'BUYER_COLLECTION' || (r.description && /received/i.test(r.description) && !/discount/i.test(r.description));
+    }
+
+    if (typeFilter === 'discounts') {
+      return r.type === 'DISCOUNT' || (r.description && /discount/i.test(r.description));
+    }
+
+    if (typeFilter === 'payments') {
+      const isPay = r.type === 'DEALER_PAYMENT' || r.type === 'BUYER_COLLECTION' || r.type === 'DISCOUNT' ||
+                    (r.description && /paid|received|discount/i.test(r.description));
+      return isPay;
+    }
+
+    if (typeFilter === 'purchases') {
+      const isPurch = r.type === 'CONSIGNMENT_INWARD' || r.type === 'SETTLEMENT_PATIYA' || r.type === 'GOODS_PURCHASED' ||
+                      (r.description && /fish arrival|fish sold|fish bought|patiya/i.test(r.description));
+      return isPurch;
+    }
+
+    return true; // 'all'
+  });
+
+  let runningBal = (typeFilter === 'all') ? openingBalance : 0;
+  let totalDebit = 0;
+  let totalCredit = 0;
+  const processedRows = [];
+
+  // Prepend Opening Balance if filtering by date in 'all' transactions mode
+  if (fromDate && hasPriorRows && typeFilter === 'all') {
+    processedRows.push({
+      id: 'OPENING_BAL',
+      date: fromDate,
+      isOpeningBal: true,
+      description: 'Opening Balance (B/F)',
+      debit: 0,
+      credit: 0,
+      periodBalance: openingBalance
+    });
+  }
+
+  for (const r of inPeriodRows) {
+    const isArrival = r.type === 'CONSIGNMENT_INWARD';
+    const debit = Number(r.debit) || 0;
+    const credit = Number(r.credit) || 0;
+    totalDebit += debit;
+    totalCredit += credit;
+
+    if (!isArrival) {
+      runningBal += (credit - debit);
+    }
+
+    processedRows.push({
+      ...r,
+      periodDebit: debit,
+      periodCredit: credit,
+      periodBalance: runningBal
+    });
+  }
+
+  return {
+    rows: processedRows,
+    inPeriodRawCount: inPeriodRows.length,
+    openingBalance,
+    hasPriorRows,
+    totalDebit,
+    totalCredit,
+    closingBalance: runningBal
+  };
+}
+
 async function openStatementModal(contactId) {
   try {
-    const res = await fetch(`/api/contacts/${contactId}/statement?mode=${appState.statementFilter}`);
+    const res = await fetch(`/api/contacts/${contactId}/statement?mode=all`);
     const data = await res.json();
     if (!res.ok) return showToast(data.error || 'Failed to load statement', 'error');
 
     appState.activeStatement = data;
+    resetStatementFiltersState();
     renderStatementView();
     document.getElementById('statementModal').classList.add('open');
   } catch (e) {
@@ -10646,8 +11943,6 @@ async function openStatementModal(contactId) {
 
 function changeStmtFilter(mode = 'all') {
   appState.statementFilter = 'all';
-  const btnAll = document.getElementById('btnStmtAll');
-  if (btnAll) btnAll.className = 'btn btn-sm btn-primary';
   if (appState.activeStatement?.contact?.id) {
     openStatementModal(appState.activeStatement.contact.id);
   }
@@ -10658,9 +11953,7 @@ function renderStatementView() {
   if (!d) return;
 
   document.getElementById('mStmtModalTitle').innerHTML = `<i class="fas fa-book-open"></i> ${d.contact.name}`;
-  const isBypassed = (Number(d.contact.creditLimit) === -1 && Number(d.contact.creditPeriod) === -1) || !!d.contact.bypassCreditCheck;
-  const limStr = isBypassed ? 'Unlimited (Bypassed)' : `₹${(d.contact.creditLimit || 0).toLocaleString('en-IN')}`;
-  document.getElementById('mStmtModalSub').textContent = `Phone: ${d.contact.phone || 'N/A'} | Credit Limit: ${limStr}`;
+  document.getElementById('mStmtModalSub').textContent = `Phone: ${d.contact.phone || 'N/A'}`;
 
   document.getElementById('mStmtPayable').textContent = `₹${(d.financials.payableBalance || 0).toLocaleString('en-IN')}`;
   document.getElementById('mStmtReceivable').textContent = `₹${(d.financials.receivableBalance || 0).toLocaleString('en-IN')}`;
@@ -10682,21 +11975,158 @@ function renderStatementView() {
     }
   }
 
+  const chk = document.getElementById('chkStmtDetailed');
+  if (chk) chk.checked = !!appState.statementDetailed;
+  const isDetailed = !!appState.statementDetailed;
+
+  // Apply active period & type filters
+  const filterData = getStatementFilteredData();
+  const summaryBadge = document.getElementById('mStmtFilteredSummaryBadge');
+  if (summaryBadge) {
+    const type = appState.statementTypeFilter || 'all';
+    const count = filterData.inPeriodRawCount;
+    if (type === 'payments_paid') {
+      summaryBadge.textContent = `${count} Payment(s) Paid · Total: ₹${filterData.totalDebit.toLocaleString('en-IN')}`;
+    } else if (type === 'payments_received') {
+      summaryBadge.textContent = `${count} Payment(s) Received · Total: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+    } else if (type === 'discounts') {
+      const discTotal = filterData.totalDebit + filterData.totalCredit;
+      summaryBadge.textContent = `${count} Discount(s) · Total: ₹${discTotal.toLocaleString('en-IN')}`;
+    } else if (type === 'payments') {
+      summaryBadge.textContent = `${count} Payment(s) · Paid: ₹${filterData.totalDebit.toLocaleString('en-IN')} · Recv: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+    } else if (type === 'purchases') {
+      summaryBadge.textContent = `${count} Billing(s) · Billed: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+    } else {
+      const from = appState.statementFromDate;
+      const to = appState.statementToDate;
+      if (from || to) {
+        summaryBadge.textContent = `${count} Txns · Paid: ₹${filterData.totalDebit.toLocaleString('en-IN')} · Billed: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+      } else {
+        summaryBadge.textContent = `All Time · ${count} Txns`;
+      }
+    }
+  }
+
   const tbody = document.getElementById('mStmtTbody');
-  if (!d.rows || d.rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:32px; color:#64748b;">No ledger transactions found.</td></tr>';
+  if (!filterData.rows || filterData.rows.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center; padding:36px 16px; color:#64748b;">
+          <i class="fas fa-filter-circle-xmark" style="font-size:26px; color:#94a3b8; margin-bottom:8px; display:block;"></i>
+          No transactions found for the selected filter & period.
+          <div style="margin-top:8px;">
+            <button class="btn btn-outline btn-sm" onclick="resetStatementFilters()"><i class="fas fa-rotate-left"></i> Reset Filters</button>
+          </div>
+        </td>
+      </tr>
+    `;
     return;
   }
 
-  tbody.innerHTML = d.rows.map(r => `
-    <tr>
-      <td>${r.date}</td>
-      <td>${r.description}</td>
-      <td class="num" style="font-family:var(--font-mono); font-weight:700;">
-        ₹${r.runningBalance.toLocaleString('en-IN')}
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filterData.rows.map(r => {
+    const formattedDate = r.date ? r.date.split('-').reverse().join('-') : '';
+
+    if (r.isOpeningBal) {
+      return `
+        <tr style="background:#f1f5f9; font-weight:700;">
+          <td style="vertical-align:top; padding:10px; color:#475569;">${formattedDate}</td>
+          <td style="vertical-align:top; padding:10px; color:#1e293b;"><i class="fas fa-wallet" style="color:#0284c7; margin-right:6px;"></i> Opening Balance (B/F)</td>
+          <td class="num" style="vertical-align:top; padding:10px; color:#64748b;">-</td>
+          <td class="num" style="vertical-align:top; padding:10px; color:#64748b;">-</td>
+          <td class="num" style="vertical-align:top; padding:10px; font-family:var(--font-mono); font-weight:800; color:#0f172a;">₹${Number(r.periodBalance || 0).toLocaleString('en-IN')}</td>
+        </tr>
+      `;
+    }
+
+    const isArrival = r.type === 'CONSIGNMENT_INWARD';
+    let descHtml = '';
+    if (isArrival) {
+      descHtml = `<span style="font-weight:600;">${r.description || `Fish Arrival (${r.crates || 0} Box)`}</span>`;
+    } else if (r.type === 'SETTLEMENT_PATIYA' || (r.description && r.description.toLowerCase().includes('patiya'))) {
+      if (isDetailed && Array.isArray(r.items) && r.items.length > 0) {
+        const itemHtmlList = r.items.map(it => {
+          const qty = it.qtySold || it.crates || 0;
+          const rate = Number(it.reportedRate || it.rate || 0);
+          const gross = Number(it.reportedGross || (qty * rate) || 0);
+          const varName = it.variety ? ` ${it.variety}` : '';
+          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>• ${qty} Box${varName} @ ₹${rate.toLocaleString('en-IN')}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${gross.toLocaleString('en-IN')}</span></div>`;
+        }).join('');
+
+        let deductionsHtml = '';
+        const expParts = [];
+        if (Array.isArray(r.expenses) && r.expenses.length > 0) {
+          expParts.push(`Exp: ${r.expenses.map(e => `${e.name} ₹${Number(e.amount).toLocaleString('en-IN')}`).join(', ')}`);
+        }
+        if (Number(r.commissionAmount) > 0) {
+          expParts.push(`Comm (${r.commissionRate || ''}%): ₹${Number(r.commissionAmount).toLocaleString('en-IN')}`);
+        }
+        if (expParts.length > 0) {
+          deductionsHtml = `<div style="color:#64748b; font-size:11px; margin-top:3px; padding-top:3px; border-top:1px dashed #e2e8f0;">(-) ${expParts.join(' | ')}</div>`;
+        }
+
+        descHtml = `
+          <div style="font-weight:700; color:#0f172a;">Fish Sold (${r.crates || 0} Box)</div>
+          <div style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; font-size:11.5px; color:#334155; line-height:1.45;">
+            ${itemHtmlList}
+            ${deductionsHtml}
+          </div>
+        `;
+      } else {
+        descHtml = `<span style="font-weight:600;">Fish Sold (${r.crates || 0} Box)</span>`;
+      }
+    } else if (r.type === 'GOODS_PURCHASED') {
+      if (isDetailed && Array.isArray(r.lines) && r.lines.length > 0) {
+        const lineHtmlList = r.lines.map(l => {
+          const qty = Number(l.crates || l.qty || 0);
+          const unit = l.unit || 'Box';
+          const rate = Number(l.rate || 0);
+          const total = Number(l.total || (qty * rate) || 0);
+          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>• ${qty} ${unit} ${l.variety || 'Fish'} @ ₹${rate.toLocaleString('en-IN')}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${total.toLocaleString('en-IN')}</span></div>`;
+        }).join('');
+        descHtml = `
+          <div style="font-weight:700; color:#0f172a;">Fish Bought (${r.crates || 0} Box)</div>
+          <div style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; font-size:11.5px; color:#334155; line-height:1.45;">
+            ${lineHtmlList}
+          </div>
+        `;
+      } else {
+        descHtml = `<span style="font-weight:600;">Fish Bought (${r.crates || 0} Box)</span>`;
+      }
+    } else if (r.type === 'DEALER_PAYMENT') {
+      descHtml = `<span style="font-weight:600;">${r.description && r.description.includes('Paid') ? r.description : 'Cash Paid'}</span>`;
+    } else if (r.type === 'DISCOUNT' || (r.description && r.description.toLowerCase().includes('discount'))) {
+      descHtml = `<span style="font-weight:600; color:#d97706;">Discount</span>`;
+    } else if (r.type === 'BUYER_COLLECTION') {
+      descHtml = `<span style="font-weight:600;">${r.description && r.description.includes('Received') ? r.description : 'Payment Received'}</span>`;
+    } else {
+      descHtml = `<span style="font-weight:600;">${r.description || ''}</span>`;
+    }
+
+    const debit = Number(r.periodDebit !== undefined ? r.periodDebit : r.debit) || 0;
+    const credit = Number(r.periodCredit !== undefined ? r.periodCredit : r.credit) || 0;
+    const balanceVal = r.periodBalance !== undefined ? r.periodBalance : (r.runningBalance || 0);
+
+    return `
+      <tr>
+        <td style="vertical-align:top; padding-top:10px;">${formattedDate || r.date}</td>
+        <td style="vertical-align:top; padding-top:10px;">${descHtml}</td>
+        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${debit > 0 ? '#dc2626' : '#64748b'};">
+          ${debit > 0 ? `₹${debit.toLocaleString('en-IN')}` : '-'}
+        </td>
+        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${credit > 0 ? '#16a34a' : '#64748b'};">
+          ${credit > 0 ? `₹${credit.toLocaleString('en-IN')}` : '-'}
+        </td>
+        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700;">
+          ${isArrival ? '-' : `₹${Number(balanceVal).toLocaleString('en-IN')}`}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function toggleStatementDetailed(isChecked) {
+  appState.statementDetailed = !!isChecked;
+  renderStatementView();
 }
 
 function exportPartyStatementPDF() {
@@ -10705,34 +12135,259 @@ function exportPartyStatementPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF('p', 'mm', 'a4');
 
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.text('Al Haseena Exports', 14, 20);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Fish Commission Agent & Wholesale Mandi Brokerage', 14, 26);
-  doc.text(`Account Statement: ${d.contact.name}`, 14, 32);
+  const isDetailed = !!document.getElementById('chkStmtDetailed')?.checked || !!appState.statementDetailed;
+  const filterData = getStatementFilteredData();
+  const validRows = filterData.rows;
+  const totalDebit = filterData.totalDebit;
+  const totalCredit = filterData.totalCredit;
+  const runningBal = filterData.closingBalance;
 
-  const tableData = d.rows.map(r => [
-    r.date,
-    r.description,
-    `Rs. ${r.runningBalance.toLocaleString('en-IN')}`
-  ]);
+  const tableData = validRows.map(r => {
+    const formattedDate = r.date ? r.date.split('-').reverse().join('-') : '';
 
-  doc.autoTable({
-    startY: 40,
-    head: [['Date', 'Description', 'Running Net']],
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [0, 132, 255] }
+    if (r.isOpeningBal) {
+      return [
+        formattedDate,
+        'Opening Balance (B/F)',
+        '-',
+        '-',
+        `Rs. ${Number(r.periodBalance || 0).toLocaleString('en-IN')}`
+      ];
+    }
+
+    const isArrival = r.type === 'CONSIGNMENT_INWARD';
+    const debit = Number(r.periodDebit !== undefined ? r.periodDebit : r.debit) || 0;
+    const credit = Number(r.periodCredit !== undefined ? r.periodCredit : r.credit) || 0;
+
+    let desc = r.description || '';
+    if (isArrival) {
+      desc = r.description || `Fish Arrival (${r.crates || 0} Box)`;
+    } else if (r.type === 'SETTLEMENT_PATIYA' || (desc && desc.toLowerCase().includes('patiya'))) {
+      desc = `Fish Sold (${r.crates || 0} Box)`;
+      if (isDetailed && Array.isArray(r.items) && r.items.length > 0) {
+        const itemLines = r.items.map(it => {
+          const qty = it.qtySold || it.crates || 0;
+          const rate = Number(it.reportedRate || it.rate || 0);
+          const gross = Number(it.reportedGross || (qty * rate) || 0);
+          const varName = it.variety ? ` ${it.variety}` : '';
+          return `  - ${qty} Box${varName} @ Rs. ${rate.toLocaleString('en-IN')} = Rs. ${gross.toLocaleString('en-IN')}`;
+        });
+        const expParts = [];
+        if (Array.isArray(r.expenses) && r.expenses.length > 0) {
+          expParts.push(`Exp: ${r.expenses.map(e => `${e.name} Rs. ${Number(e.amount).toLocaleString('en-IN')}`).join(', ')}`);
+        }
+        if (Number(r.commissionAmount) > 0) {
+          expParts.push(`Comm (${r.commissionRate || ''}%): Rs. ${Number(r.commissionAmount).toLocaleString('en-IN')}`);
+        }
+        const expStr = expParts.length > 0 ? `  (${expParts.join(' | ')})` : '';
+        desc = [desc, ...itemLines, expStr].filter(Boolean).join('\n');
+      }
+    } else if (r.type === 'GOODS_PURCHASED') {
+      desc = `Fish Bought (${r.crates || 0} Box)`;
+      if (isDetailed && Array.isArray(r.lines) && r.lines.length > 0) {
+        const lineLines = r.lines.map(l => {
+          const qty = Number(l.crates || l.qty || 0);
+          const unit = l.unit || 'Box';
+          const rate = Number(l.rate || 0);
+          const total = Number(l.total || (qty * rate) || 0);
+          return `  - ${qty} ${unit} ${l.variety || 'Fish'} @ Rs. ${rate.toLocaleString('en-IN')} = Rs. ${total.toLocaleString('en-IN')}`;
+        });
+        desc = [desc, ...lineLines].filter(Boolean).join('\n');
+      }
+    } else if (r.type === 'DEALER_PAYMENT') {
+      desc = r.description && r.description.includes('Paid') ? r.description : `Cash Paid`;
+    } else if (r.type === 'DISCOUNT' || (desc && desc.toLowerCase().includes('discount'))) {
+      desc = `Discount`;
+    } else if (r.type === 'BUYER_COLLECTION') {
+      desc = r.description && r.description.includes('Received') ? r.description : `Payment Received`;
+    }
+
+    const bal = r.periodBalance !== undefined ? r.periodBalance : (r.runningBalance || 0);
+
+    return [
+      formattedDate || r.date,
+      desc,
+      debit > 0 ? `Rs. ${debit.toLocaleString('en-IN')}` : '-',
+      credit > 0 ? `Rs. ${credit.toLocaleString('en-IN')}` : '-',
+      isArrival ? '-' : `Rs. ${bal.toLocaleString('en-IN')}`
+    ];
   });
 
-  doc.save(`Statement_${d.contact.name}.pdf`);
+  // Header Branding - Centered, 26pt, simplified address
+  const pageWidth = doc.internal.pageSize.width;
+  const centerX = pageWidth / 2;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(26);
+  doc.setTextColor(15, 23, 42);
+  doc.text('AL HASEENA EXPORTS', centerX, 19, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Kasimedu, Chennai | Phone: 98410 21203', centerX, 26, { align: 'center' });
+
+  // Divider Line
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.4);
+  doc.line(14, 30, 196, 30);
+
+  // Party Information
+  const contactName = d.contact?.name || 'Party';
+  const currentNet = d.financials?.netBalance !== undefined ? Number(d.financials.netBalance) : runningBal;
+  const balanceLabel = currentNet >= 0 ? `We Pay: Rs. ${currentNet.toLocaleString('en-IN')}` : `They Owe: Rs. ${Math.abs(currentNet).toLocaleString('en-IN')}`;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(15, 23, 42);
+  doc.text(contactName, 14, 37);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Phone: ${d.contact?.phone || '-'}`, 14, 42);
+
+  // Right-aligned Balance & Date & Filter info
+  const todayDate = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+  const typeFilter = appState.statementTypeFilter || 'all';
+  const fromDate = appState.statementFromDate;
+  const toDate = appState.statementToDate;
+
+  let filterLabel = 'All Transactions';
+  if (typeFilter === 'payments_paid') filterLabel = 'Payments Paid';
+  else if (typeFilter === 'payments_received') filterLabel = 'Payments Received';
+  else if (typeFilter === 'discounts') filterLabel = 'Discounts';
+  else if (typeFilter === 'payments') filterLabel = 'All Payments';
+  else if (typeFilter === 'purchases') filterLabel = 'Only Purchases';
+
+  const formatDisplayDate = dStr => dStr ? dStr.split('-').reverse().join('-') : '';
+  let periodLabel = 'All Time';
+  if (fromDate && toDate) {
+    periodLabel = `${formatDisplayDate(fromDate)} to ${formatDisplayDate(toDate)}`;
+  } else if (fromDate) {
+    periodLabel = `From ${formatDisplayDate(fromDate)}`;
+  } else if (toDate) {
+    periodLabel = `Up to ${formatDisplayDate(toDate)}`;
+  }
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Date: ${todayDate}`, 196, 36, { align: 'right' });
+  doc.text(`Period: ${periodLabel}`, 196, 40, { align: 'right' });
+  doc.text(`Filter: ${filterLabel}`, 196, 44, { align: 'right' });
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(currentNet >= 0 ? 5 : 220, currentNet >= 0 ? 150 : 38, currentNet >= 0 ? 105 : 38);
+  doc.text(`Overall Net: ${balanceLabel}`, 196, 49, { align: 'right' });
+
+  // Summary box background
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(14, 52, 182, 11, 2, 2, 'F');
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(14, 52, 182, 11, 2, 2, 'S');
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(220, 38, 38); // Red for deductions
+  doc.text(`Period Paid: Rs. ${totalDebit.toLocaleString('en-IN')}`, 20, 59);
+  doc.setTextColor(22, 163, 74); // Green for additions
+  doc.text(`Period Billed: Rs. ${totalCredit.toLocaleString('en-IN')}`, 85, 59);
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Period Net: Rs. ${runningBal.toLocaleString('en-IN')}`, 145, 59);
+
+  // Table with Red Deductions and Green Additions
+  doc.autoTable({
+    startY: 66,
+    head: [['Date', 'Description', 'Paid (-)', 'Billed (+)', 'Balance']],
+    body: tableData.length > 0 ? tableData : [['-', 'No transactions matching active filter in this period', '-', '-', '-']],
+    foot: tableData.length > 0 ? [[
+      '',
+      'Total',
+      `Rs. ${totalDebit.toLocaleString('en-IN')}`,
+      `Rs. ${totalCredit.toLocaleString('en-IN')}`,
+      `Rs. ${runningBal.toLocaleString('en-IN')}`
+    ]] : undefined,
+    theme: 'grid',
+    headStyles: {
+      fillColor: [2, 132, 199],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 9.5,
+      halign: 'left'
+    },
+    footStyles: {
+      fillColor: [241, 245, 249],
+      textColor: [15, 23, 42],
+      fontStyle: 'bold',
+      fontSize: 9.5
+    },
+    columnStyles: {
+      0: { cellWidth: 26, halign: 'center' },
+      1: { cellWidth: 'auto', halign: 'left' },
+      2: { cellWidth: 32, halign: 'right' },
+      3: { cellWidth: 32, halign: 'right' },
+      4: { cellWidth: 34, halign: 'right', fontStyle: 'bold' }
+    },
+    styles: {
+      font: 'helvetica',
+      fontSize: 9,
+      cellPadding: 3.5,
+      overflow: 'linebreak'
+    },
+    didParseCell: function(data) {
+      if (data.section === 'body') {
+        if (data.column.index === 2 && data.cell.raw !== '-') {
+          data.cell.styles.textColor = [220, 38, 38]; // Red for deductions (Paid)
+          data.cell.styles.fontStyle = 'bold';
+        } else if (data.column.index === 3 && data.cell.raw !== '-') {
+          data.cell.styles.textColor = [22, 163, 74]; // Green for additions (Billed)
+          data.cell.styles.fontStyle = 'bold';
+        }
+      } else if (data.section === 'foot') {
+        if (data.column.index === 2) {
+          data.cell.styles.textColor = [220, 38, 38]; // Red for Total Paid
+          data.cell.styles.fontStyle = 'bold';
+        } else if (data.column.index === 3) {
+          data.cell.styles.textColor = [22, 163, 74]; // Green for Total Billed
+          data.cell.styles.fontStyle = 'bold';
+        }
+      }
+    },
+    margin: { left: 14, right: 14 }
+  });
+
+  // Footer Signatures
+  const finalY = doc.lastAutoTable.finalY + 20;
+  const pageHeight = doc.internal.pageSize.height;
+  const signY = (finalY > pageHeight - 18) ? (pageHeight - 18) : finalY;
+
+  doc.setFontSize(8.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(100, 116, 139);
+  doc.text('Party Signature', 24, signY);
+  doc.text('For Al Haseena Exports', 150, signY);
+
+  const filterSuffix = typeFilter !== 'all' ? `_${typeFilter}` : '';
+  const dateSuffix = fromDate || toDate ? `_${fromDate || 'start'}_to_${toDate || 'end'}` : '';
+  doc.save(`Statement_${contactName.replace(/\s+/g, '_')}${filterSuffix}${dateSuffix}.pdf`);
 }
 
 function sendWhatsAppFollowup(phone, name, amount, daysOverdue) {
   const clean = (phone || '').replace(/[^0-9]/g, '');
-  const msg = `Dear *${name}*,\nGreetings from *Al Haseena Exports*.\nThis is a friendly reminder that your pending balance of *Rs.${(amount || 0).toLocaleString('en-IN')}* is overdue by *${daysOverdue} days*.\nKindly arrange the payment at your earliest convenience.\nThank you!`;
+  const msgLines = [
+    `*AL HASEENA EXPORTS*`,
+    `Payment Reminder`,
+    ``,
+    `Name: *${name}*`,
+    `Balance to Pay: *Rs.${(amount || 0).toLocaleString('en-IN')}*`,
+    daysOverdue > 0 ? `Late: ${daysOverdue} days` : '',
+    ``,
+    `Please send payment soon.`,
+    `Thank you!`
+  ];
+  const msg = msgLines.filter(Boolean).join('\n');
   window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
@@ -10892,11 +12547,136 @@ async function loadPayments() {
   }
 }
 
+function onPaymentsPresetChange(preset) {
+  const customGroup = document.getElementById('paymentsCustomDateGroup');
+  const fromInp = document.getElementById('filterPaymentsFromDate');
+  const toInp = document.getElementById('filterPaymentsToDate');
+
+  const today = new Date();
+  const formatYMD = d => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  if (preset === 'today') {
+    const tStr = formatYMD(today);
+    if (fromInp) fromInp.value = tStr;
+    if (toInp) toInp.value = tStr;
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'week') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'month') {
+    const from = new Date(today);
+    from.setDate(today.getDate() - 29);
+    if (fromInp) fromInp.value = formatYMD(from);
+    if (toInp) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'none';
+  } else if (preset === 'custom') {
+    if (fromInp && !fromInp.value) fromInp.value = formatYMD(today);
+    if (toInp && !toInp.value) toInp.value = formatYMD(today);
+    if (customGroup) customGroup.style.display = 'flex';
+  } else {
+    // 'all'
+    if (fromInp) fromInp.value = '';
+    if (toInp) toInp.value = '';
+    if (customGroup) customGroup.style.display = 'none';
+  }
+
+  onPaymentsFilterChange();
+}
+
+function onPaymentsFilterChange() {
+  const typeVal = document.getElementById('filterPaymentsType')?.value || 'all';
+  const fromVal = document.getElementById('filterPaymentsFromDate')?.value || '';
+  const toVal = document.getElementById('filterPaymentsToDate')?.value || '';
+  const qVal = document.getElementById('filterPaymentsInput')?.value || '';
+
+  const isFiltered = typeVal !== 'all' || !!fromVal || !!toVal || !!qVal;
+  const btnReset = document.getElementById('btnResetPaymentsFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  renderPaymentsList();
+}
+
+function resetPaymentsFilter() {
+  const selType = document.getElementById('filterPaymentsType');
+  if (selType) selType.value = 'all';
+
+  const selPreset = document.getElementById('filterPaymentsPreset');
+  if (selPreset) selPreset.value = 'all';
+
+  const fromInp = document.getElementById('filterPaymentsFromDate');
+  if (fromInp) fromInp.value = '';
+
+  const toInp = document.getElementById('filterPaymentsToDate');
+  if (toInp) toInp.value = '';
+
+  const customGroup = document.getElementById('paymentsCustomDateGroup');
+  if (customGroup) customGroup.style.display = 'none';
+
+  const btnReset = document.getElementById('btnResetPaymentsFilter');
+  if (btnReset) btnReset.style.display = 'none';
+
+  const qInp = document.getElementById('filterPaymentsInput');
+  if (qInp) qInp.value = '';
+
+  renderPaymentsList();
+}
+
 function renderPaymentsList() {
   const tbody = document.getElementById('paymentsListTbody');
   if (!tbody) return;
-  const q = (document.getElementById('filterPaymentsInput')?.value || '').toLowerCase();
-  const filtered = appState.payments.filter(p => p.contactName.toLowerCase().includes(q) || (p.referenceNo && p.referenceNo.toLowerCase().includes(q)));
+
+  const q = (document.getElementById('filterPaymentsInput')?.value || '').toLowerCase().trim();
+  const typeFilter = document.getElementById('filterPaymentsType')?.value || 'all';
+  const fromDate = document.getElementById('filterPaymentsFromDate')?.value || '';
+  const toDate = document.getElementById('filterPaymentsToDate')?.value || '';
+
+  const isFiltered = typeFilter !== 'all' || !!fromDate || !!toDate || !!q;
+  const btnReset = document.getElementById('btnResetPaymentsFilter');
+  if (btnReset) btnReset.style.display = isFiltered ? 'inline-flex' : 'none';
+
+  const filtered = (appState.payments || []).filter(p => {
+    // 1. Text search filter
+    if (q) {
+      const contactMatch = (p.contactName || '').toLowerCase().includes(q);
+      const modeMatch = (p.paymentMode || '').toLowerCase().includes(q);
+      const notesMatch = (p.notes || '').toLowerCase().includes(q);
+      const refMatch = (p.referenceNo || '').toLowerCase().includes(q);
+      if (!contactMatch && !modeMatch && !notesMatch && !refMatch) return false;
+    }
+
+    // 2. Date Range filter
+    if (fromDate && p.date && p.date < fromDate) return false;
+    if (toDate && p.date && p.date > toDate) return false;
+
+    // 3. Type Filter
+    const isContra = p.type === 'CONTRA_ADJUSTMENT';
+    const isReceived = !isContra && (
+      p.type === 'BUYER_COLLECTION' || 
+      (!p.type && (appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isBuyer && !(appState.contacts || []).find(c => c.name.toLowerCase() === (p.contactName || '').toLowerCase())?.isDealer)
+    );
+    const isPaid = !isContra && !isReceived;
+    const hasDiscount = Number(p.settlementDiscount) > 0;
+
+    if (typeFilter === 'payments_paid') {
+      if (!isPaid) return false;
+    } else if (typeFilter === 'payments_received') {
+      if (!isReceived) return false;
+    } else if (typeFilter === 'discounts') {
+      if (!hasDiscount) return false;
+    } else if (typeFilter === 'contra') {
+      if (!isContra) return false;
+    }
+
+    return true;
+  });
 
   // Calculate summary for chips
   let sumReceived = 0;
@@ -10928,7 +12708,17 @@ function renderPaymentsList() {
   updatePaymentsSelectionUI(filtered);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No payment records found.</td></tr>';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:32px; color:#64748b;">
+          <i class="fas fa-filter-circle-xmark" style="font-size:24px; color:#cbd5e1; margin-bottom:8px; display:block;"></i>
+          No payment records found matching active filter & period.
+          <div style="margin-top:6px;">
+            <button class="btn btn-outline btn-sm" onclick="resetPaymentsFilter()"><i class="fas fa-rotate-left"></i> Reset Filters</button>
+          </div>
+        </td>
+      </tr>
+    `;
     return;
   }
 
@@ -10972,7 +12762,7 @@ function renderPaymentsList() {
         <td class="num" style="font-family:var(--font-mono); color:#d97706;">
           ${p.settlementDiscount > 0 ? `₹${p.settlementDiscount.toLocaleString('en-IN')}` : '-'}
         </td>
-        <td>${p.paymentMode} ${p.referenceNo ? `<small>(${p.referenceNo})</small>` : ''}</td>
+        <td>${p.paymentMode} ${p.referenceNo && !p.referenceNo.startsWith('PAY-') ? `<small>(${p.referenceNo})</small>` : ''}</td>
         <td class="table-action-cell">
           <div class="table-actions-group">
             <button class="btn btn-danger btn-sm" onclick="deletePaymentEntry(${p.id})" title="Delete"><i class="fas fa-trash"></i></button>
@@ -11135,19 +12925,24 @@ function openPaymentModal(type) {
   }
   document.getElementById('mPayAmount').value = '';
   document.getElementById('mPayDiscount').value = '';
-  document.getElementById('mPayRef').value = '';
-  document.getElementById('mPayBank').value = '';
+
   document.getElementById('mPayBalanceInfo').textContent = '';
 
   const isDealer = type === 'DEALER_PAYMENT';
   const notice = document.getElementById('mPayDealerSettlementNotice');
-  if (notice) notice.style.display = isDealer ? 'flex' : 'none';
+  if (notice) notice.style.display = 'none';
 
   document.getElementById('paymentModalTitle').innerHTML = isDealer 
     ? '<i class="fas fa-hand-holding-dollar" style="color:#d97706"></i> Pay Dealer (Reduce Balance)' 
     : '<i class="fas fa-sack-dollar" style="color:#059669"></i> Collect from Buyer';
   document.getElementById('mPayContactLabel').textContent = isDealer ? 'Dealer Name *' : 'Buyer Name *';
-  document.getElementById('mPayDiscountGroup').style.display = isDealer ? 'block' : 'none';
+  document.getElementById('mPayDiscountGroup').style.display = 'block';
+  const amtLabel = document.getElementById('mPayAmountLabel');
+  if (amtLabel) amtLabel.textContent = isDealer ? 'Amount Paid (₹) *' : 'Amount Collected (₹) *';
+  const discLabel = document.getElementById('mPayDiscountLabel');
+  const discSub = document.getElementById('mPayDiscountSub');
+  if (discLabel) discLabel.textContent = isDealer ? 'Settlement Discount / Kasar (₹)' : 'Discount / Kasar Allowed (₹)';
+  if (discSub) discSub.textContent = isDealer ? 'Agreed discount to reduce payable' : 'Round-off concession to clear buyer balance';
 
   const submitBtn = document.getElementById('mPaySubmitBtn');
   if (submitBtn) {
@@ -11177,6 +12972,8 @@ function switchPayToSettlement() {
 function searchPayContact(q) {
   const list = document.getElementById('mPayContactDropdown');
   if (!list) return;
+  const notice = document.getElementById('mPayDealerSettlementNotice');
+  if (notice) notice.style.display = 'none';
   const type = document.getElementById('mPayType').value;
   const isDealer = type === 'DEALER_PAYMENT';
   const candidates = appState.contacts.filter(c => isDealer ? c.isDealer : c.isBuyer);
@@ -11207,6 +13004,11 @@ function updatePaymentLiveBalance() {
   const cId = Number(document.getElementById('mPayContactName').dataset.contactId);
   const contact = appState.contacts.find(c => (cId && c.id === cId) || c.name.toLowerCase() === cName.toLowerCase());
   const box = document.getElementById('mPayLiveBalanceImpact');
+  const notice = document.getElementById('mPayDealerSettlementNotice');
+  if (notice) {
+    const hasUnsettled = isDealer && contact && typeof getDealerUnsettledConsignmentsCount === 'function' && getDealerUnsettledConsignmentsCount(contact.id, contact.name) > 0;
+    notice.style.display = hasUnsettled ? 'flex' : 'none';
+  }
   if (!contact || !box) {
     if (box) box.style.display = 'none';
     return;
@@ -11246,14 +13048,18 @@ function choosePayContact(name, id) {
   if (c) {
     const isDealer = document.getElementById('mPayType').value === 'DEALER_PAYMENT';
     const due = isDealer ? c.payableBalance : c.receivableBalance;
+    const notice = document.getElementById('mPayDealerSettlementNotice');
     if (isDealer) {
+      const hasUnsettledLots = typeof getDealerUnsettledConsignmentsCount === 'function' && getDealerUnsettledConsignmentsCount(c.id, c.name) > 0;
+      if (notice) notice.style.display = hasUnsettledLots ? 'flex' : 'none';
       document.getElementById('mPayBalanceInfo').innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
           <span>Current Amount We Owe Dealer: <strong style="color:#059669;">₹${(due || 0).toLocaleString('en-IN')}</strong></span>
-          <button type="button" class="btn btn-purple btn-sm" style="padding:2px 8px; font-size:11px;" onclick="switchPayToSettlement()"><i class="fas fa-calculator"></i> Settle (Patiya)</button>
+          ${hasUnsettledLots ? `<button type="button" class="btn btn-purple btn-sm" style="padding:2px 8px; font-size:11px;" onclick="switchPayToSettlement()"><i class="fas fa-calculator"></i> Settle Dealer</button>` : ''}
         </div>
       `;
     } else {
+      if (notice) notice.style.display = 'none';
       document.getElementById('mPayBalanceInfo').innerHTML = `Current balance buyer owes: <strong style="color:#0084ff;">₹${(due || 0).toLocaleString('en-IN')}</strong>`;
     }
     const payAmtInp = document.getElementById('mPayAmount');
@@ -11270,7 +13076,12 @@ function openPaymentForDealer(dealerName, contactId) {
   const inp = document.getElementById('mPayContactName');
   if (inp) {
     inp.value = dealerName;
-    if (contactId) choosePayContact(dealerName, contactId);
+    if (contactId) {
+      choosePayContact(dealerName, contactId);
+    } else {
+      const match = appState.contacts.find(c => c.name.toLowerCase() === dealerName.toLowerCase());
+      if (match) choosePayContact(match.name, match.id);
+    }
   }
 }
 
@@ -11293,8 +13104,8 @@ async function savePaymentEntry() {
   const paymentMode = document.getElementById('mPayMode').value;
   const amount = Number(document.getElementById('mPayAmount').value) || 0;
   const settlementDiscount = Number(document.getElementById('mPayDiscount').value) || 0;
-  const referenceNo = document.getElementById('mPayRef').value.trim();
-  const bankName = document.getElementById('mPayBank').value.trim();
+  const referenceNo = '';
+  const bankName = '';
   const bankAccountId = (paymentMode !== 'Cash') ? (Number(document.getElementById('mPayBankAccount')?.value) || null) : null;
 
   if (!contactName) return showToast('Party name is required', 'error');
@@ -11761,7 +13572,7 @@ function handleCtrlKSearch(q) {
         <span class="badge badge-green">Action</span>
       </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPatiyaModal();">
-        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> Settle Dealer (Patiya Bill)</div>
+        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> Settle Dealer</div>
         <span class="badge badge-purple">Action</span>
       </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPaymentModal('DEALER_PAYMENT');">

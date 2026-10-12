@@ -90,7 +90,7 @@ function getDefaultSettings() {
     invoicePrefix: 'ALH-',
     hideDealerOnBuyerInvoice: true,
     printFormat: 'a4',
-    whatsappTemplate: 'Al Haseena Exports: Bill #{billNo} for Rs.{amount} ({crates} crates {fish}). Balance: Rs.{balance}. Thank you!',
+    whatsappTemplate: 'AL HASEENA EXPORTS: {crates} Box {fish} = Rs.{amount}. Balance to Pay: Rs.{balance}. Thank you!',
     enableHourlyQuotes: true,
     quoteRotationFrequency: 'hourly',
     quoteManualCycle: true,
@@ -644,6 +644,7 @@ async function getContactFinancials(contactId) {
   let totalPaidToDealer = 0;
   let totalDealerDiscounts = 0;
   let totalCollectedFromBuyer = 0;
+  let totalBuyerDiscounts = 0;
   let totalContraAdjustments = 0;
 
   for (const p of payments) {
@@ -654,6 +655,7 @@ async function getContactFinancials(contactId) {
       totalDealerDiscounts += disc;
     } else if (p.type === 'BUYER_COLLECTION') {
       totalCollectedFromBuyer += amt;
+      totalBuyerDiscounts += disc;
     } else if (p.type === 'CONTRA_ADJUSTMENT') {
       totalContraAdjustments += amt;
     }
@@ -663,7 +665,7 @@ async function getContactFinancials(contactId) {
   const payableBalance = Math.max(0, totalSettlementCredited - totalPaidToDealer - totalDealerDiscounts - totalContraAdjustments);
 
   // Buyer Balance: What they owe us (active receivable excluding written off bad debt)
-  const rawReceivable = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalContraAdjustments);
+  const rawReceivable = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalBuyerDiscounts - totalContraAdjustments);
   const receivableBalance = Math.max(0, rawReceivable - totalBadDebtLoss);
 
   // Net Balance: (+ve means we owe them, -ve means they owe us)
@@ -701,7 +703,9 @@ async function getContactFinancials(contactId) {
     totalSettlementCredited,
     totalPurchasedGoods,
     totalPaidToDealer,
+    totalDealerDiscounts,
     totalCollectedFromBuyer,
+    totalBuyerDiscounts,
     totalContraAdjustments
   };
 }
@@ -1145,7 +1149,7 @@ async function getTreasuryTransactions() {
       inflow: isBuyerCol ? amt : 0,
       outflow: isDealerPay ? amt : 0,
       category: isBuyerCol ? 'Buyer Collection' : 'Dealer Payout',
-      referenceNo: p.referenceNo || p.paymentNo || '',
+      referenceNo: p.referenceNo || '',
       contactName: p.contactName || '',
       notes: p.notes || (isBuyerCol ? `Collection from ${p.contactName} (${p.paymentMode})` : `Payout to ${p.contactName} (${p.paymentMode})`),
       isManual: false,
@@ -1229,23 +1233,31 @@ async function getContactFullStatement(contactId, mode = 'all') {
 
   const rows = [];
 
-  // Consignments Received
+  // Inward Consignments (Fish Arrivals) - For Dealers
   if (mode === 'all' || mode === 'sales_only') {
-    const consignments = await database.collection('consignments').find({ dealerId: cId }).toArray();
+    const consignments = await database.collection('consignments').find({
+      $or: [
+        { dealerId: cId },
+        { dealerName: new RegExp(`^${contact.name.trim()}$`, 'i') }
+      ]
+    }).toArray();
     for (const c of consignments) {
       const items = Array.isArray(c.items) ? c.items : [];
       const totalCrates = items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
+      const uniqueVarieties = [...new Set(items.map(it => it.variety).filter(Boolean))];
+      const fishText = uniqueVarieties.length > 0 ? ` (${uniqueVarieties.join(', ')})` : '';
       rows.push({
         id: `CON-${c.id}`,
         date: c.date,
         type: 'CONSIGNMENT_INWARD',
         ref: c.consignmentNo,
-        description: `Inward Consignment: ${totalCrates} crates (Veh: ${c.vehicleNo || 'N/A'})`,
+        description: `Fish Arrival: ${totalCrates} Box${fishText}`,
         crates: totalCrates,
-        rate: '-',
+        rate: 0,
         debit: 0,
         credit: 0,
-        notes: c.lorryBhada > 0 ? `Lorry Bhada paid: ₹${c.lorryBhada}` : ''
+        brokingProfit: 0,
+        notes: ''
       });
     }
 
@@ -1254,19 +1266,25 @@ async function getContactFullStatement(contactId, mode = 'all') {
     for (const s of settlements) {
       const items = Array.isArray(s.items) ? s.items : [];
       const repRate = (items[0] && items[0].reportedRate) || (s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0);
-      const netCredit = Number(s.netPayableToDealer) || Number(s.netConsignmentAmount) || 0;
+      const netCredit = Math.ceil(Number(s.netPayableToDealer) || Number(s.netConsignmentAmount) || 0);
+      const totalBoxes = s.totalQtySold || items.reduce((sum, it) => sum + (Number(it.qtySold) || 0), 0);
       rows.push({
         id: `SET-${s.id}`,
         date: s.date,
         type: 'SETTLEMENT_PATIYA',
         ref: s.settlementNo,
-        description: `Patiya: ${s.totalQtySold || 0} crates sold @ ₹${repRate || '-'} (Gross: ₹${s.totalReportedGross || 0} - Exp: ₹${s.totalExpenses || 0} - Comm: ₹${s.commissionAmount || 0})`,
-        crates: s.totalQtySold || 0,
+        description: `Fish Sold (${totalBoxes} Box)`,
+        crates: totalBoxes,
         rate: repRate || 0,
         debit: 0,
         credit: netCredit,
         brokingProfit: s.totalBrokingProfit || 0,
-        notes: `Unsold carried forward: ${s.unsoldCratesCarriedForward || 0} crates`
+        notes: '',
+        items: items,
+        expenses: s.expenses || [],
+        commissionAmount: s.commissionAmount || 0,
+        commissionRate: s.commissionRate || 0,
+        totalReportedGross: s.totalReportedGross || 0
       });
     }
   }
@@ -1277,58 +1295,96 @@ async function getContactFullStatement(contactId, mode = 'all') {
     for (const s of sales) {
       const lines = Array.isArray(s.lines) ? s.lines : [];
       const isBad = !!s.isBadDebt;
+      const totalBoxes = lines.reduce((acc, l) => acc + (Number(l.crates) || Number(l.qty) || 0), 0);
       rows.push({
         id: `SAL-${s.id}`,
         date: s.date,
         type: 'GOODS_PURCHASED',
         ref: s.billNo,
-        description: `Fish Bought: ${lines.map(l => `${l.qty} ${l.unit} ${l.variety}`).join(', ') || 'Fish'}`,
-        crates: lines.reduce((acc, l) => acc + (l.unit === 'Crate' ? l.qty : 0), 0),
+        description: `Fish Bought (${totalBoxes} Box)`,
+        crates: totalBoxes,
         rate: lines[0]?.rate || 0,
         debit: Number(s.total) || 0,
         credit: 0,
         isBadDebt: isBad,
-        notes: isBad ? 'MARKED AS BAD DEBT (Loss absorbed by broker)' : (s.paymentType || '')
+        notes: isBad ? 'MARKED AS BAD DEBT' : (s.paymentType || ''),
+        lines: lines
       });
     }
   }
 
-  // Payments & Collections
+  // Payments & Collections (Separate cash paid from discount)
   const payments = await database.collection('payments').find({ contactId: cId }).toArray();
   for (const p of payments) {
     if (p.type === 'DEALER_PAYMENT' && (mode === 'all' || mode === 'sales_only')) {
-      rows.push({
-        id: `PAY-${p.id}`,
-        date: p.date,
-        type: 'DEALER_PAYMENT',
-        ref: p.paymentNo,
-        description: `Payment paid to dealer (${p.paymentMode}${p.referenceNo ? ' Ref:' + p.referenceNo : ''})`,
-        crates: 0,
-        rate: 0,
-        debit: Number(p.amount) + (Number(p.settlementDiscount) || 0),
-        credit: 0,
-        notes: p.settlementDiscount > 0 ? `Paid ₹${p.amount} + Kasar/Discount ₹${p.settlementDiscount}` : ''
-      });
+      const paidAmt = Number(p.amount) || 0;
+      const discountAmt = Number(p.settlementDiscount) || 0;
+      if (paidAmt > 0) {
+        rows.push({
+          id: `PAY-${p.id}`,
+          date: p.date,
+          type: 'DEALER_PAYMENT',
+          ref: p.paymentNo,
+          description: p.paymentMode === 'Cash' ? 'Cash Paid' : `Payment Paid (${p.paymentMode || 'Cash'})`,
+          crates: 0,
+          rate: 0,
+          debit: paidAmt,
+          credit: 0,
+          notes: ''
+        });
+      }
+      if (discountAmt > 0) {
+        rows.push({
+          id: `DISC-${p.id}`,
+          date: p.date,
+          type: 'DISCOUNT',
+          ref: p.paymentNo,
+          description: 'Discount',
+          crates: 0,
+          rate: 0,
+          debit: discountAmt,
+          credit: 0,
+          notes: ''
+        });
+      }
     } else if (p.type === 'BUYER_COLLECTION' && (mode === 'all' || mode === 'purchases_only')) {
-      rows.push({
-        id: `COL-${p.id}`,
-        date: p.date,
-        type: 'BUYER_COLLECTION',
-        ref: p.paymentNo,
-        description: `Collection received from buyer (${p.paymentMode})`,
-        crates: 0,
-        rate: 0,
-        debit: 0,
-        credit: Number(p.amount),
-        notes: p.notes
-      });
+      const collectedAmt = Number(p.amount) || 0;
+      const discountAmt = Number(p.settlementDiscount) || 0;
+      if (collectedAmt > 0) {
+        rows.push({
+          id: `COL-${p.id}`,
+          date: p.date,
+          type: 'BUYER_COLLECTION',
+          ref: p.paymentNo,
+          description: p.paymentMode === 'Cash' ? 'Cash Received' : `Payment Received (${p.paymentMode || 'Cash'})`,
+          crates: 0,
+          rate: 0,
+          debit: 0,
+          credit: collectedAmt,
+          notes: ''
+        });
+      }
+      if (discountAmt > 0) {
+        rows.push({
+          id: `DISC-${p.id}`,
+          date: p.date,
+          type: 'DISCOUNT',
+          ref: p.paymentNo,
+          description: 'Discount Given',
+          crates: 0,
+          rate: 0,
+          debit: 0,
+          credit: discountAmt,
+          notes: ''
+        });
+      }
     } else if (p.type === 'CONTRA_ADJUSTMENT' && mode === 'all') {
       rows.push({
         id: `CNT-${p.id}`,
         date: p.date,
         type: 'CONTRA_ADJUSTMENT',
         ref: p.paymentNo,
-        description: `Contra Balance Adjustment (Offsetting goods bought against consignment credit)`,
+        description: `Balance Adjustment (Contra)`,
         crates: 0,
         rate: 0,
         debit: Number(p.amount),
@@ -1338,15 +1394,33 @@ async function getContactFullStatement(contactId, mode = 'all') {
     }
   }
 
-  // Sort rows chronologically
-  rows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  // Sort rows chronologically, keeping arrivals before sales, sales before payments
+  const typePriority = {
+    'CONSIGNMENT_INWARD': 1,
+    'SETTLEMENT_PATIYA': 2,
+    'GOODS_PURCHASED': 3,
+    'DEALER_PAYMENT': 4,
+    'DISCOUNT': 5,
+    'BUYER_COLLECTION': 6,
+    'CONTRA_ADJUSTMENT': 7
+  };
+
+  rows.sort((a, b) => {
+    const timeA = new Date(a.date).getTime() || 0;
+    const timeB = new Date(b.date).getTime() || 0;
+    if (timeA !== timeB) return timeA - timeB;
+    return (typePriority[a.type] || 9) - (typePriority[b.type] || 9);
+  });
 
   // Compute running balance
   let runningBalance = 0;
   for (const r of rows) {
-    // Credit increases what we owe (+), Debit decreases it (-)
-    runningBalance += (r.credit - r.debit);
-    r.runningBalance = runningBalance;
+    if (r.type === 'CONSIGNMENT_INWARD') {
+      r.runningBalance = runningBalance;
+    } else {
+      runningBalance += (r.credit - r.debit);
+      r.runningBalance = runningBalance;
+    }
   }
 
   const financials = await getContactFinancials(cId);
@@ -1948,28 +2022,35 @@ const server = http.createServer(async (req, res) => {
             if (line.consignmentId && targetConsignmentIds.size > 0 && !targetConsignmentIds.has(Number(line.consignmentId))) {
               continue;
             }
+            const lineQty = Number(line.crates) || Number(line.qty) || 0;
+            const lineRate = Number(line.rate) || 0;
+            const lineAmount = (line.amount !== undefined && line.amount !== null && !isNaN(line.amount) && Number(line.amount) > 0)
+              ? Number(line.amount)
+              : Math.round(lineQty * lineRate);
+
             matchingLines.push({
               saleId: s.id,
               billNo: s.billNo,
               date: s.date,
               consignmentId: line.consignmentId,
               variety: line.variety,
-              unit: line.unit,
-              qty: line.qty,
-              rate: line.rate,
-              amount: line.amount
+              unit: line.unit || (line.crates ? 'Crate' : 'Kg'),
+              qty: lineQty,
+              rate: lineRate,
+              amount: lineAmount
             });
           }
         }
       }
 
       // Group by variety + rate so different rates (e.g. 70 @ 3000, 26 @ 2500) appear cleanly as sub-lots
+      // If averagePricing is requested, group by variety + unit across all rates
       const varietyRateGroups = {};
       for (const l of matchingLines) {
         const v = l.variety || 'Fish';
         const r = Number(l.rate) || 0;
         const u = l.unit || 'Crate';
-        const key = `${v}___${r}___${u}`;
+        const key = body.averagePricing ? `${v}___${u}` : `${v}___${r}___${u}`;
         if (!varietyRateGroups[key]) {
           varietyRateGroups[key] = {
             variety: v,
@@ -1986,6 +2067,9 @@ const server = http.createServer(async (req, res) => {
 
       const items = Object.values(varietyRateGroups).map((g, idx) => {
         const rev = Math.round(g.realizedRevenue);
+        const effectiveRate = body.averagePricing
+          ? (g.qtySold > 0 ? Math.round((rev / g.qtySold) * 100) / 100 : 0)
+          : g.rate;
         return {
           id: idx + 1,
           consignmentId: g.consignmentId,
@@ -1993,8 +2077,8 @@ const server = http.createServer(async (req, res) => {
           unit: g.unit,
           qtySold: g.qtySold,
           realizedRevenue: rev,
-          systemAvgRate: g.rate,
-          reportedRate: g.rate,
+          systemAvgRate: effectiveRate,
+          reportedRate: effectiveRate,
           reportedGross: rev,
           brokingProfit: 0
         };
@@ -2174,9 +2258,9 @@ const server = http.createServer(async (req, res) => {
             amount: settlement.cashPaidToday,
             settlementDiscount: 0,
             paymentMode: 'Cash',
-            referenceNo: settlement.cashPaidPayee || 'Cash to Driver on Patiya',
+            referenceNo: settlement.cashPaidPayee || 'Cash to Driver on Settlement',
             linkedSettlementId: settlement.id,
-            notes: `Patiya #${settlement.settlementNo} on-the-spot payout: ${settlement.cashPaidPayee || 'Cash to Driver'}`,
+            notes: `Settlement #${settlement.settlementNo} on-the-spot payout: ${settlement.cashPaidPayee || 'Cash to Driver'}`,
             created: settlement.created || Date.now(),
             updated: Date.now()
           },

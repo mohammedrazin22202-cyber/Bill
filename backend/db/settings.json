@@ -23,7 +23,7 @@
   "invoicePrefix": "ALH-",
   "hideDealerOnBuyerInvoice": true,
   "printFormat": "a4",
-  "whatsappTemplate": "Al Haseena Exports: Bill #{billNo} for Rs.{amount} ({crates} crates {fish}). Balance: Rs.{balance}. Thank you!",
+  "whatsappTemplate": "AL HASEENA EXPORTS: {crates} Box {fish} = Rs.{amount}. Balance to Pay: Rs.{balance}. Thank you!",
   "enableHourlyQuotes": true,
   "quoteRotationFrequency": "hourly",
   "quoteManualCycle": true,
