@@ -6,7 +6,7 @@
     "address": "Kollam",
     "notes": "",
     "isDealer": true,
-    "isBuyer": false,
+    "isBuyer": true,
     "defaultCommissionType": "percent",
     "defaultCommissionVal": 0,
     "creditLimit": -1,

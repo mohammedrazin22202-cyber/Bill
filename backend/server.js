@@ -1779,13 +1779,21 @@ const server = http.createServer(async (req, res) => {
       const database = await connectDb();
 
       // Ensure Buyer exists in contacts
-      let contact = await database.collection('contacts').findOne({ name: sale.buyerName });
+      let contact = await database.collection('contacts').findOne({
+        name: new RegExp(`^${sale.buyerName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i')
+      });
       if (!contact && sale.buyerId) {
         contact = await database.collection('contacts').findOne({ id: sale.buyerId });
       }
       if (!contact) {
         contact = normalizeContact({ name: sale.buyerName, isBuyer: true, phone: sale.buyerPhone });
         await database.collection('contacts').insertOne(contact);
+      } else if (!contact.isBuyer) {
+        await database.collection('contacts').updateOne(
+          { id: contact.id },
+          { $set: { isBuyer: true, updated: Date.now() } }
+        );
+        contact.isBuyer = true;
       }
       sale.buyerId = contact.id;
 

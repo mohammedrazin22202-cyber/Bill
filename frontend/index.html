@@ -4171,7 +4171,7 @@ th:last-child {
       <div class="three-col-grid">
         <div class="input-block autocomplete-anchor">
           <label>Name *</label>
-          <input type="text" id="mSaleBuyer" placeholder="Type name" oninput="searchSaleBuyer(this.value)"/>
+          <input type="text" id="mSaleBuyer" placeholder="Type name" oninput="searchSaleBuyer(this.value)" onchange="checkBuyerCreditStatus()" onblur="setTimeout(checkBuyerCreditStatus, 250)"/>
           <div class="autocomplete-flyout" id="mSaleBuyerDropdown"></div>
           <small id="mSaleBuyerInfo" style="font-size:11px; color:#64748b; margin-top:2px;"></small>
         </div>
@@ -9072,15 +9072,20 @@ function searchSaleBuyer(q) {
   const list = document.getElementById('mSaleBuyerDropdown');
   const term = q.trim();
   if (!term) { list.style.display = 'none'; return; }
-  const matches = appState.contacts.filter(c => c.isBuyer && c.name.toLowerCase().includes(term.toLowerCase()));
-  const exactMatch = appState.contacts.find(c => c.name.toLowerCase() === term.toLowerCase());
+  const matches = (appState.contacts || []).filter(c => c.name.toLowerCase().includes(term.toLowerCase()));
+  const exactMatch = (appState.contacts || []).find(c => c.name.toLowerCase() === term.toLowerCase());
 
-  let html = matches.map(m => `
-    <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name.replace(/'/g, "\\'")}')">
-      ${m.name} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
-      <span style="font-size:11px; color:#64748b; float:right;">Due: ₹${(m.receivableBalance || 0).toLocaleString('en-IN')}</span>
-    </div>
-  `).join('');
+  let html = matches.map(m => {
+    const roleTag = m.isDealer && m.isBuyer ? '<span class="badge" style="font-size:10px; background:#eff6ff; color:#1d4ed8;">Both</span>' : 
+                    (m.isDealer ? '<span class="badge" style="font-size:10px; background:#f1f5f9; color:#475569;">Dealer</span>' : '');
+    const dueAmt = Number(m.receivableBalance) || 0;
+    return `
+      <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name.replace(/'/g, "\\'")}')">
+        ${m.name} ${roleTag} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
+        <span style="font-size:11px; color:#64748b; float:right;">Due: ₹${dueAmt.toLocaleString('en-IN')}</span>
+      </div>
+    `;
+  }).join('');
 
   if (!exactMatch) {
     html += `
@@ -9092,6 +9097,10 @@ function searchSaleBuyer(q) {
 
   list.innerHTML = html;
   list.style.display = 'block';
+
+  if (exactMatch) {
+    checkBuyerCreditStatus();
+  }
 }
 
 function selectSaleBuyer(name) {
@@ -9102,28 +9111,36 @@ function selectSaleBuyer(name) {
 
 function checkBuyerCreditStatus() {
   const name = document.getElementById('mSaleBuyer').value.trim();
-  const contact = appState.contacts.find(c => c.name.toLowerCase() === name.toLowerCase());
+  const contact = (appState.contacts || []).find(c => c.name.toLowerCase() === name.toLowerCase());
   const infoEl = document.getElementById('mSaleBuyerInfo');
   const warnBox = document.getElementById('mSaleCreditWarning');
   const warnText = document.getElementById('mSaleCreditWarningText');
   const prevBalInp = document.getElementById('mSalePrevBal');
 
   if (!contact) {
-    infoEl.innerHTML = name
-      ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New buyer — click to enter phone & wharf location</span>`
-      : '';
-    warnBox.style.display = 'none';
+    if (infoEl) {
+      infoEl.innerHTML = name
+        ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New buyer — click to enter phone & wharf location</span>`
+        : '';
+    }
+    if (warnBox) warnBox.style.display = 'none';
     if (prevBalInp) prevBalInp.value = '';
     computeSaleBillTotals();
     return;
   }
 
-  const prevDue = contact.receivableBalance || 0;
-  if (prevBalInp) prevBalInp.value = prevDue ? prevDue : '';
+  const prevDue = Number(contact.receivableBalance) || 0;
+  if (prevBalInp) prevBalInp.value = prevDue > 0 ? prevDue : '';
   computeSaleBillTotals();
 
-  infoEl.textContent = `Previous Due: ₹${prevDue.toLocaleString('en-IN')}`;
-  warnBox.style.display = 'none';
+  if (infoEl) {
+    let infoText = `Previous Due: ₹${prevDue.toLocaleString('en-IN')}`;
+    if (contact.isDealer && (contact.payableBalance || 0) > 0) {
+      infoText += ` <span style="color:#16a34a; font-size:10.5px;">(We owe dealer: ₹${Number(contact.payableBalance).toLocaleString('en-IN')})</span>`;
+    }
+    infoEl.innerHTML = infoText;
+  }
+  if (warnBox) warnBox.style.display = 'none';
 }
 
 async function saveMorningSale(action = 'save') {
