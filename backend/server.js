@@ -323,6 +323,15 @@ function hybridDbWrapper(mongoDb) {
           }
           return res;
         },
+        async updateMany(query, updateDoc) {
+          const res = await mongoCol.updateMany(query, updateDoc);
+          try {
+            await localCol.updateMany(query, updateDoc);
+          } catch (e) {
+            console.error('Failed to sync updateMany to local storage:', e);
+          }
+          return res;
+        },
         async deleteOne(query) {
           const res = await mongoCol.deleteOne(query);
           try {
