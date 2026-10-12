@@ -2485,7 +2485,7 @@ th:last-child {
     </button>
     <button class="menu-item" data-view="dealers">
       <i class="fa-solid fa-user-group"></i>
-      <span>Dealers</span>
+      <span>Parties</span>
     </button>
     <button class="menu-item" data-view="payments">
       <i class="fa-solid fa-wallet"></i>
@@ -3292,12 +3292,11 @@ th:last-child {
   <div class="view-container" id="view-dealers">
     <div class="view-sub-header-bar">
       <div>
-        <h1 class="view-heading-title">Dealers & Buyers Directory</h1>
+        <h1 class="view-heading-title">Parties Directory</h1>
         <div class="view-sub-tabs-row">
-          <button class="view-tab-btn active" id="dirTab_dealers" onclick="filterDirectory('dealers', this)"><i class="fas fa-ship"></i> Dealers</button>
-          <button class="view-tab-btn" id="dirTab_buyers" onclick="filterDirectory('buyers', this)"><i class="fas fa-shopping-bag"></i> Buyers</button>
+          <button class="view-tab-btn active" id="dirTab_all" onclick="filterDirectory('all', this)"><i class="fas fa-users"></i> All Parties</button>
+          <button class="view-tab-btn" id="dirTab_overdue" style="color:#b91c1c;" onclick="filterDirectory('overdue', this)"><i class="fas fa-clock"></i> Overdue</button>
           <button class="view-tab-btn" id="dirTab_baddebt" style="color:#dc2626;" onclick="filterDirectory('baddebt', this)"><i class="fas fa-ban"></i> Bad Debt</button>
-          <button class="view-tab-btn" id="dirTab_all" onclick="filterDirectory('all', this)"><i class="fas fa-users"></i> All Parties</button>
         </div>
       </div>
       <button class="btn btn-primary" onclick="openContactModal()"><i class="fas fa-user-plus"></i> New Person</button>
@@ -3309,10 +3308,10 @@ th:last-child {
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <span style="font-weight:700;"><i class="fas fa-address-book" style="color:#0084ff;"></i> Address Book & Ledger Status</span>
             
-            <!-- Overdue Filter within Dealers, Buyers, and All Parties -->
+            <!-- Overdue Filter within All Parties -->
             <div id="dirSubFilterGroup" style="display:inline-flex; align-items:center; background:#f1f5f9; padding:2px; border-radius:8px; border:1px solid #cbd5e1; gap:2px;">
               <button type="button" class="btn btn-sm dir-sub-pill active" id="dirSubFilterAllBtn" onclick="setDirectorySubFilter('all')" style="padding:4px 12px; font-weight:700; border-radius:6px; border:none; background:#0084ff; color:#fff; cursor:pointer; font-size:12px; transition:all 0.15s ease;">
-                <span id="dirSubAllLabel">All Dealers</span> (<span id="dirSubCountAll">0</span>)
+                <span id="dirSubAllLabel">All Parties</span> (<span id="dirSubCountAll">0</span>)
               </button>
               <button type="button" class="btn btn-sm dir-sub-pill" id="dirSubFilterOverdueBtn" onclick="setDirectorySubFilter('overdue')" style="padding:4px 12px; font-weight:700; border-radius:6px; border:none; background:transparent; color:#b91c1c; cursor:pointer; font-size:12px; transition:all 0.15s ease;">
                 <i class="fas fa-clock"></i> Overdue (<span id="dirSubCountOverdue">0</span>)
@@ -3341,10 +3340,9 @@ th:last-child {
                   <input type="checkbox" id="selectAllContactsChk" class="batch-chk" onchange="toggleSelectAllContacts(this.checked)" title="Select all visible contacts"/>
                 </th>
                 <th>Name</th>
-                <th>Role</th>
                 <th>Phone</th>
                 <th class="num">Net Position</th>
-                <th>Payment Details</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -5301,12 +5299,12 @@ th:last-child {
       <div style="display:flex; flex-direction:column; gap:8px;">
         
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-          <span style="font-size:13px; color:#475569; font-weight:500;">We Owe (Dealer)</span>
+          <span style="font-size:13px; color:#475569; font-weight:500;">We Owe (Supplied / Payable)</span>
           <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#059669;" id="mPrevWeOweVal">₹0</span>
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
-          <span style="font-size:13px; color:#475569; font-weight:500;">They Owe (Buyer)</span>
+          <span style="font-size:13px; color:#475569; font-weight:500;">They Owe (Purchased / Receivable)</span>
           <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#0084ff;" id="mPrevTheyOweVal">₹0</span>
         </div>
 
@@ -9076,12 +9074,10 @@ function searchSaleBuyer(q) {
   const exactMatch = (appState.contacts || []).find(c => c.name.toLowerCase() === term.toLowerCase());
 
   let html = matches.map(m => {
-    const roleTag = m.isDealer && m.isBuyer ? '<span class="badge" style="font-size:10px; background:#eff6ff; color:#1d4ed8;">Both</span>' : 
-                    (m.isDealer ? '<span class="badge" style="font-size:10px; background:#f1f5f9; color:#475569;">Dealer</span>' : '');
     const dueAmt = Number(m.receivableBalance) || 0;
     return `
       <div class="autocomplete-row" onclick="selectSaleBuyer('${m.name.replace(/'/g, "\\'")}')">
-        ${m.name} ${roleTag} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
+        ${m.name} ${m.isOverdue ? '<span class="badge badge-red" style="font-size:10px;">LATE</span>' : ''}
         <span style="font-size:11px; color:#64748b; float:right;">Due: ₹${dueAmt.toLocaleString('en-IN')}</span>
       </div>
     `;
@@ -9090,7 +9086,7 @@ function searchSaleBuyer(q) {
   if (!exactMatch) {
     html += `
       <div class="autocomplete-row" onclick="promptCreateNewParty('${term.replace(/'/g, "\\'")}', 'buyer', 'saleModal')" style="color:#0284c7; font-weight:700; background:#f0f9ff; border-top:1px dashed #bae6fd;">
-        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Buyer "${term}"
+        <i class="fas fa-user-plus" style="margin-right:6px;"></i> + Create Party "${term}"
       </div>
     `;
   }
@@ -9120,7 +9116,7 @@ function checkBuyerCreditStatus() {
   if (!contact) {
     if (infoEl) {
       infoEl.innerHTML = name
-        ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New buyer — click to enter phone & wharf location</span>`
+        ? `<span style="color:#0284c7; cursor:pointer;" onclick="promptCreateNewParty('${name.replace(/'/g, "\\'")}', 'buyer', 'saleModal')"><i class="fas fa-user-plus"></i> New party — click to enter phone & wharf location</span>`
         : '';
     }
     if (warnBox) warnBox.style.display = 'none';
@@ -9135,8 +9131,8 @@ function checkBuyerCreditStatus() {
 
   if (infoEl) {
     let infoText = `Previous Due: ₹${prevDue.toLocaleString('en-IN')}`;
-    if (contact.isDealer && (contact.payableBalance || 0) > 0) {
-      infoText += ` <span style="color:#16a34a; font-size:10.5px;">(We owe dealer: ₹${Number(contact.payableBalance).toLocaleString('en-IN')})</span>`;
+    if ((contact.payableBalance || 0) > 0) {
+      infoText += ` <span style="color:#16a34a; font-size:10.5px;">(We owe party: ₹${Number(contact.payableBalance).toLocaleString('en-IN')})</span>`;
     }
     infoEl.innerHTML = infoText;
   }
@@ -11162,41 +11158,21 @@ function getFilteredDirectoryContacts(includeSearch = true) {
   });
 
   // Main Category Tab Filter
-  if (appState.directoryFilter === 'dealers') {
-    filtered = filtered.filter(c => c.isDealer);
-  } else if (appState.directoryFilter === 'buyers') {
-    filtered = filtered.filter(c => c.isBuyer);
-  } else if (appState.directoryFilter === 'baddebt') {
+  if (appState.directoryFilter === 'baddebt') {
     filtered = filtered.filter(c => c.isBadDebtDefaulter || (Number(c.badDebtAmount) > 0));
-  } else if (appState.directoryFilter === 'overdue') {
+  } else if (appState.directoryFilter === 'overdue' || appState.directorySubFilter === 'overdue') {
     filtered = filtered.filter(c => isContactOverdue(c));
   }
   // 'all' keeps all parties
 
-  // Sub-filter: Overdue within Dealers, Buyers, or All Parties
-  if (appState.directorySubFilter === 'overdue' && appState.directoryFilter !== 'baddebt') {
-    if (appState.directoryFilter === 'dealers') {
-      filtered = filtered.filter(c => isDealerOverdue(c));
-    } else if (appState.directoryFilter === 'buyers') {
-      filtered = filtered.filter(c => isBuyerOverdue(c));
-    } else {
-      filtered = filtered.filter(c => isContactOverdue(c));
-    }
-  }
-
-  // Sorting: Dealers first, then Buyers next! Alphabetical within each group.
-  filtered.sort((a, b) => {
-    const aDealer = a.isDealer ? 0 : 1;
-    const bDealer = b.isDealer ? 0 : 1;
-    if (aDealer !== bDealer) return aDealer - bDealer;
-    return (a.name || '').localeCompare(b.name || '');
-  });
+  // Alphabetical sort by name
+  filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
   return filtered;
 }
 
 function updateDirectoryTabUI() {
-  const mode = appState.directoryFilter || 'dealers';
+  const mode = appState.directoryFilter || 'all';
   document.querySelectorAll('#view-dealers .view-tab-btn').forEach(b => b.classList.remove('active'));
   const activeBtn = document.getElementById(`dirTab_${mode}`);
   if (activeBtn) activeBtn.classList.add('active');
@@ -11219,32 +11195,15 @@ function updateDirectorySubFilterUI() {
   group.style.display = 'inline-flex';
 
   const contacts = appState.contacts || [];
-  let scopeList = contacts;
-  if (appState.directoryFilter === 'dealers') {
-    if (label) label.textContent = 'All Dealers';
-    scopeList = contacts.filter(c => c.isDealer);
-  } else if (appState.directoryFilter === 'buyers') {
-    if (label) label.textContent = 'All Buyers';
-    scopeList = contacts.filter(c => c.isBuyer);
-  } else {
-    if (label) label.textContent = 'All Parties';
-    scopeList = contacts;
-  }
+  if (label) label.textContent = 'All Parties';
 
-  const totalInScope = scopeList.length;
-  let overdueInScope = 0;
-  if (appState.directoryFilter === 'dealers') {
-    overdueInScope = scopeList.filter(c => isDealerOverdue(c)).length;
-  } else if (appState.directoryFilter === 'buyers') {
-    overdueInScope = scopeList.filter(c => isBuyerOverdue(c)).length;
-  } else {
-    overdueInScope = scopeList.filter(c => isContactOverdue(c)).length;
-  }
+  const totalInScope = contacts.length;
+  const overdueInScope = contacts.filter(c => isContactOverdue(c)).length;
 
   if (countAll) countAll.textContent = totalInScope;
   if (countOverdue) countOverdue.textContent = overdueInScope;
 
-  const isOverdueActive = appState.directorySubFilter === 'overdue';
+  const isOverdueActive = appState.directorySubFilter === 'overdue' || appState.directoryFilter === 'overdue';
   if (isOverdueActive) {
     allBtn.style.background = 'transparent';
     allBtn.style.color = '#475569';
@@ -11296,13 +11255,11 @@ function renderContactsList() {
   updateContactsSelectionUI(filtered);
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:32px; color:#64748b;">No matching contacts found.</td></tr>';
     return;
   }
 
   tbody.innerHTML = filtered.map(c => {
-    let badge = '<span class="badge badge-purple" style="font-weight:600;"><i class="fas fa-user-check"></i> Party</span>';
-
     let statusBadge = '';
     const isBypassed = (Number(c.creditLimit) === -1 && Number(c.creditPeriod) === -1) || !!c.bypassCreditCheck;
     const unsettledLots = getDealerUnsettledConsignmentsCount(c.id, c.name);
@@ -11337,7 +11294,6 @@ function renderContactsList() {
           <input type="checkbox" class="batch-chk contact-select-chk" value="${c.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectContact(${c.id}, this.checked)" title="Select person for deletion"/>
         </td>
         <td><strong style="cursor:pointer; color:#0f172a;" onclick="openStatementModal(${c.id})">${c.name}</strong></td>
-        <td>${badge}</td>
         <td>${c.phone || '-'}</td>
         <td class="num">
           ${netPosHtml}
@@ -11500,10 +11456,8 @@ function openBalancePreviewModal(contactId) {
   const c = appState.contacts.find(x => x.id === contactId);
   if (!c) return showToast('Contact not found', 'error');
 
-  const isDual = c.isDealer && c.isBuyer;
-  const roleName = isDual ? 'Both (Dealer & Buyer)' : (c.isDealer ? 'Dealer' : 'Buyer');
   document.getElementById('mPrevContactName').textContent = c.name;
-  document.getElementById('mPrevContactRole').textContent = `${roleName} • ${c.phone || 'No Phone'}`;
+  document.getElementById('mPrevContactRole').textContent = c.phone ? `Phone: ${c.phone}` : 'Party Account';
 
   // We Owe & They Owe
   const weOwe = Number(c.payableBalance || 0);
@@ -11719,12 +11673,12 @@ async function saveContactAccount() {
         if (pending.originModal === 'arrivalModal') {
           const dealerInp = document.getElementById('mArrDealer');
           if (dealerInp) dealerInp.value = saved.name;
-          showToast(`Dealer "${saved.name}" saved! Click Save Arrival to finish.`, 'success');
+          showToast(`Party "${saved.name}" saved! Click Save Arrival to finish.`, 'success');
         } else if (pending.originModal === 'saleModal') {
           const buyerInp = document.getElementById('mSaleBuyer');
           if (buyerInp) buyerInp.value = saved.name;
           checkBuyerCreditStatus();
-          showToast(`Buyer "${saved.name}" saved! Click Save to finish bill.`, 'success');
+          showToast(`Party "${saved.name}" saved! Click Save to finish bill.`, 'success');
         }
       } else {
         showToast('Party saved!', 'success');
