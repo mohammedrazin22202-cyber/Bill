@@ -2479,6 +2479,10 @@ th:last-child {
       <i class="fa-solid fa-arrow-up-long"></i>
       <span>Fish Sold (Sales)</span>
     </button>
+    <button class="menu-item" data-view="settlements">
+      <i class="fa-solid fa-calculator"></i>
+      <span>Settlements</span>
+    </button>
     <button class="menu-item" data-view="inventory">
       <i class="fa-solid fa-cube"></i>
       <span>Inventory</span>
@@ -3100,16 +3104,13 @@ th:last-child {
   </div>
 
   <!-- ══════════════════════════════════════════════════════════════
-       VIEW: FISH SOLD (SALES & PATIYA)
+       VIEW: FISH SOLD (SALES)
   ══════════════════════════════════════════════════════════════ -->
   <div class="view-container" id="view-sales">
     <div class="view-sub-header-bar">
       <div>
         <h1 class="view-heading-title">Fish Sold (Morning Market)</h1>
-        <div class="view-sub-tabs-row">
-          <button class="view-tab-btn active" id="tabBtnSales" onclick="setSalesSubTab('bills')">Sales Bills to Buyers</button>
-          <button class="view-tab-btn" id="tabBtnPatiya" onclick="setSalesSubTab('patiya')">Dealer Bills</button>
-        </div>
+        <div style="font-size:12px; color:#64748b;">Daily auction and wholesale sales bills issued to buyers</div>
       </div>
       <div id="salesBtnHolder">
         <button class="btn btn-green" onclick="openSaleModal()"><i class="fas fa-plus"></i> New Sale Bill</button>
@@ -3117,7 +3118,6 @@ th:last-child {
     </div>
 
     <div class="view-body-content">
-      <!-- Sub-view: Bills -->
       <div id="subViewSalesBills" class="data-table-box">
         <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
@@ -3205,12 +3205,29 @@ th:last-child {
           </table>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Sub-view: Patiya -->
-      <div id="subViewSalesPatiya" class="data-table-box" style="display:none;">
+  <!-- ══════════════════════════════════════════════════════════════
+       VIEW: SETTLEMENTS (DEALER CONSIGNMENT SETTLEMENTS / PATIYA)
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="view-container" id="view-settlements">
+    <div class="view-sub-header-bar">
+      <div>
+        <h1 class="view-heading-title">Settlements (Patiya)</h1>
+        <div style="font-size:12px; color:#64748b;">Consignment settlements, profit breakdown, expenses and net payable to dealers</div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" id="btnToggleAllPatiya" onclick="toggleAllPatiyaBreakdowns()"><i class="fas fa-eye"></i> Show All Breakdown</button>
+        <button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer</button>
+      </div>
+    </div>
+
+    <div class="view-body-content">
+      <div class="data-table-box">
         <div class="table-filter-bar" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
           <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> Finalized Dealer Bills (Settlements)</span>
+            <span style="font-weight:700;"><i class="fas fa-calculator" style="color:#7c3aed;"></i> All Settlement Bills</span>
             <div id="patiyaBulkActionBar" style="display:none; align-items:center; gap:8px;">
               <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="patiyaSelectedCountBadge">
                 0 selected
@@ -3222,10 +3239,6 @@ th:last-child {
                 Deselect
               </button>
             </div>
-          </div>
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-outline btn-sm" id="btnToggleAllPatiya" onclick="toggleAllPatiyaBreakdowns()"><i class="fas fa-eye"></i> Show All Breakdown</button>
-            <button class="btn btn-purple btn-sm" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer</button>
           </div>
         </div>
 
@@ -3261,7 +3274,7 @@ th:last-child {
 
           <!-- Right side: Search Box -->
           <div style="display:flex; align-items:center; gap:8px;">
-            <input type="text" id="filterPatiyaInput" placeholder="Search dealer..." style="width:200px; padding:4px 10px; font-size:12px;" oninput="onPatiyaFilterChange()"/>
+            <input type="text" id="filterPatiyaInput" placeholder="Search dealer or settlement no..." style="width:230px; padding:4px 10px; font-size:12px;" oninput="onPatiyaFilterChange()"/>
           </div>
         </div>
         <div class="table-scroller">
@@ -7124,6 +7137,9 @@ function switchTo(viewId) {
       renderFishStockCards();
       renderNeedsAttention();
     });
+  } else if (viewId === 'settlements') {
+    renderPatiyaList();
+    loadSettlements().then(() => renderPatiyaList());
   } else if (viewId === 'inventory') {
     loadStockBoard();
   } else if (viewId === 'dealers') {
@@ -8707,25 +8723,14 @@ async function bulkDeleteSelectedSales() {
 }
 
 function setSalesSubTab(tab) {
-  const bills = document.getElementById('subViewSalesBills');
-  const patiya = document.getElementById('subViewSalesPatiya');
-  const bBills = document.getElementById('tabBtnSales');
-  const bPatiya = document.getElementById('tabBtnPatiya');
-  const btnHolder = document.getElementById('salesBtnHolder');
-
-  if (tab === 'bills') {
-    bills.style.display = 'block';
-    patiya.style.display = 'none';
-    bBills.classList.add('active');
-    bPatiya.classList.remove('active');
-    btnHolder.innerHTML = '<button class="btn btn-green" onclick="openSaleModal()"><i class="fas fa-plus"></i> New Sale Bill</button>';
-  } else {
-    bills.style.display = 'none';
-    patiya.style.display = 'block';
-    bBills.classList.remove('active');
-    bPatiya.classList.add('active');
-    btnHolder.innerHTML = '<button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-plus"></i> Settle Dealer</button>';
+  if (tab === 'patiya') {
+    switchTo('settlements');
+    return;
   }
+  const bills = document.getElementById('subViewSalesBills');
+  if (bills) bills.style.display = 'block';
+  const btnHolder = document.getElementById('salesBtnHolder');
+  if (btnHolder) btnHolder.innerHTML = '<button class="btn btn-green" onclick="openSaleModal()"><i class="fas fa-plus"></i> New Sale Bill</button>';
 }
 
 function openSaleModal() {
@@ -13831,6 +13836,10 @@ function handleCtrlKSearch(q) {
         <div><i class="fas fa-cart-shopping" style="margin-right:8px; color:#10b981;"></i> New Morning Sale Bill</div>
         <span class="badge badge-green">Action</span>
       </div>
+      <div class="ctrl-k-item" onclick="closeModal('searchModal'); switchTo('settlements');">
+        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> View All Settlements (Patiya)</div>
+        <span class="badge badge-purple">View</span>
+      </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPatiyaModal();">
         <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> Settle Dealer</div>
         <span class="badge badge-purple">Action</span>
@@ -13888,6 +13897,20 @@ function handleCtrlKSearch(q) {
         title: `Sale Bill ${s.billNo || ('#' + s.id)} - ${s.buyerName}`,
         sub: `₹${(s.total || 0).toLocaleString('en-IN')} (${s.date}) · ${fishDesc}`,
         action: () => viewSaleBill(s.id)
+      });
+    }
+  });
+
+  // Settlements (Patiya)
+  (appState.settlements || []).forEach(st => {
+    if (
+      (st.settlementNo && st.settlementNo.toLowerCase().includes(term)) ||
+      (st.dealerName && st.dealerName.toLowerCase().includes(term))
+    ) {
+      matches.push({
+        title: `Settlement ${st.settlementNo || ('#' + st.id)} - ${st.dealerName}`,
+        sub: `Net: ₹${(st.netPayable || 0).toLocaleString('en-IN')} (${st.settlementDate || st.date || ''})`,
+        action: () => { switchTo('settlements'); viewPatiyaBill(st.id); }
       });
     }
   });
