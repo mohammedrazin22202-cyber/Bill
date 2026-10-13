@@ -4195,7 +4195,7 @@ th:last-child {
         </div>
         <div class="input-block">
           <label>Mode</label>
-          <select id="mSalePaymentTerms" onchange="checkBuyerCreditStatus()">
+          <select id="mSalePaymentTerms" onchange="onSalePaymentTermsChange()">
             <option value="Credit">Credit Sale (Pay Later)</option>
             <option value="Cash">Cash Sale (Paid Now)</option>
           </select>
@@ -4849,11 +4849,11 @@ th:last-child {
         <table class="data-grid">
           <thead>
             <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th class="num" style="color:#dc2626;">Paid (-)</th>
-              <th class="num" style="color:#16a34a;">Billed (+)</th>
-              <th class="num">Balance</th>
+              <th style="width:14%;">Date</th>
+              <th style="width:40%;">Description</th>
+              <th class="num" style="width:15%; color:#0284c7;" title="Fish purchased by buyer or payments made to dealer">Debit (Dr)</th>
+              <th class="num" style="width:15%; color:#059669;" title="Fish sold credited to dealer or payments received from buyer">Credit (Cr)</th>
+              <th class="num" style="width:16%;">Net Balance</th>
             </tr>
           </thead>
           <tbody id="mStmtTbody"></tbody>
@@ -9016,6 +9016,16 @@ function computeSaleBillTotals() {
   const prevBal = Number(document.getElementById('mSalePrevBal')?.value) || 0;
   const totalDue = todayNet + prevBal;
 
+  const terms = document.getElementById('mSalePaymentTerms')?.value || 'Credit';
+  const cashPaidEl = document.getElementById('mSaleCashPaid');
+  if (terms === 'Cash' && cashPaidEl && (!cashPaidEl.value || cashPaidEl.dataset.autoFilled === 'true')) {
+    cashPaidEl.value = todayNet > 0 ? todayNet : '';
+    cashPaidEl.dataset.autoFilled = 'true';
+  } else if (terms === 'Credit' && cashPaidEl && cashPaidEl.dataset.autoFilled === 'true') {
+    cashPaidEl.value = '';
+    cashPaidEl.dataset.autoFilled = 'false';
+  }
+
   const cashPaid = Number(document.getElementById('mSaleCashPaid')?.value) || 0;
   const closingBal = totalDue - cashPaid;
 
@@ -9151,6 +9161,19 @@ function selectSaleBuyer(name) {
   checkBuyerCreditStatus();
 }
 
+function onSalePaymentTermsChange() {
+  const terms = document.getElementById('mSalePaymentTerms')?.value || 'Credit';
+  const cashPaidEl = document.getElementById('mSaleCashPaid');
+  if (terms === 'Cash' && cashPaidEl) {
+    cashPaidEl.dataset.autoFilled = 'true';
+  } else if (terms === 'Credit' && cashPaidEl) {
+    cashPaidEl.value = '';
+    cashPaidEl.dataset.autoFilled = 'false';
+  }
+  checkBuyerCreditStatus();
+  computeSaleBillTotals();
+}
+
 function checkBuyerCreditStatus() {
   const name = document.getElementById('mSaleBuyer').value.trim();
   const contact = (appState.contacts || []).find(c => c.name.toLowerCase() === name.toLowerCase());
@@ -9186,6 +9209,10 @@ function checkBuyerCreditStatus() {
 }
 
 async function saveMorningSale(action = 'save') {
+  const btns = document.querySelectorAll('#saleModal .modal-bottom-actions button');
+  if (Array.from(btns).some(b => b.disabled)) return;
+  btns.forEach(b => b.disabled = true);
+
   const buyerName = document.getElementById('mSaleBuyer').value.trim();
   const date = document.getElementById('mSaleDate').value;
   const today = getTodayIsoDate();
@@ -9338,6 +9365,9 @@ async function saveMorningSale(action = 'save') {
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
+  } finally {
+    const btns = document.querySelectorAll('#saleModal .modal-bottom-actions button');
+    btns.forEach(b => b.disabled = false);
   }
 }
 
@@ -10981,6 +11011,10 @@ async function saveFinalizedPatiya(action = 'save') {
   const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || (cashPaidToday > 0 ? 'Paid to Driver on Settlement' : '');
   const closingBalance = Math.ceil(totalBalanceDue - cashPaidToday);
 
+  const saveBtn = document.getElementById('savePatiyaBtn');
+  if (saveBtn && saveBtn.disabled) return;
+  if (saveBtn) saveBtn.disabled = true;
+
   try {
     const res = await fetch('/api/settlements', {
       method: 'POST',
@@ -11029,6 +11063,8 @@ async function saveFinalizedPatiya(action = 'save') {
     }
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
+  } finally {
+    if (saveBtn) saveBtn.disabled = false;
   }
 }
 
@@ -12191,12 +12227,12 @@ function renderStatementView() {
     } else if (type === 'payments') {
       summaryBadge.textContent = `${count} Payment(s) · Paid: ₹${filterData.totalDebit.toLocaleString('en-IN')} · Recv: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
     } else if (type === 'purchases') {
-      summaryBadge.textContent = `${count} Billing(s) · Billed: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+      summaryBadge.textContent = `${count} Billing(s) · Total: ₹${filterData.totalDebit.toLocaleString('en-IN')}`;
     } else {
       const from = appState.statementFromDate;
       const to = appState.statementToDate;
       if (from || to) {
-        summaryBadge.textContent = `${count} Txns · Paid: ₹${filterData.totalDebit.toLocaleString('en-IN')} · Billed: ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
+        summaryBadge.textContent = `${count} Txns · Debit (Dr): ₹${filterData.totalDebit.toLocaleString('en-IN')} · Credit (Cr): ₹${filterData.totalCredit.toLocaleString('en-IN')}`;
       } else {
         summaryBadge.textContent = `All Time · ${count} Txns`;
       }
@@ -12223,13 +12259,22 @@ function renderStatementView() {
     const formattedDate = r.date ? r.date.split('-').reverse().join('-') : '';
 
     if (r.isOpeningBal) {
+      const openVal = Number(r.periodBalance || 0);
+      let openBalHtml = '₹0';
+      if (openVal > 0) {
+        openBalHtml = `<span style="color:#059669; font-weight:800;">₹${Math.abs(openVal).toLocaleString('en-IN')} Cr</span> <small style="color:#059669; font-size:10px;">(We Owe)</small>`;
+      } else if (openVal < 0) {
+        openBalHtml = `<span style="color:#0284c7; font-weight:800;">₹${Math.abs(openVal).toLocaleString('en-IN')} Dr</span> <small style="color:#0284c7; font-size:10px;">(They Owe)</small>`;
+      } else {
+        openBalHtml = `<span style="color:#64748b; font-weight:800;">₹0</span>`;
+      }
       return `
         <tr style="background:#f1f5f9; font-weight:700;">
           <td style="vertical-align:top; padding:10px; color:#475569;">${formattedDate}</td>
           <td style="vertical-align:top; padding:10px; color:#1e293b;"><i class="fas fa-wallet" style="color:#0284c7; margin-right:6px;"></i> Opening Balance (B/F)</td>
           <td class="num" style="vertical-align:top; padding:10px; color:#64748b;">-</td>
           <td class="num" style="vertical-align:top; padding:10px; color:#64748b;">-</td>
-          <td class="num" style="vertical-align:top; padding:10px; font-family:var(--font-mono); font-weight:800; color:#0f172a;">₹${Number(r.periodBalance || 0).toLocaleString('en-IN')}</td>
+          <td class="num" style="vertical-align:top; padding:10px; font-family:var(--font-mono); font-weight:800;">${openBalHtml}</td>
         </tr>
       `;
     }
@@ -12306,18 +12351,29 @@ function renderStatementView() {
     const credit = Number(r.periodCredit !== undefined ? r.periodCredit : r.credit) || 0;
     const balanceVal = r.periodBalance !== undefined ? r.periodBalance : (r.runningBalance || 0);
 
+    let balanceHtml = '-';
+    if (!isArrival) {
+      if (balanceVal > 0) {
+        balanceHtml = `<span style="color:#059669; font-weight:700;">₹${Math.abs(balanceVal).toLocaleString('en-IN')} Cr</span> <small style="color:#059669; font-size:10px; font-weight:600;">(We Owe)</small>`;
+      } else if (balanceVal < 0) {
+        balanceHtml = `<span style="color:#0284c7; font-weight:700;">₹${Math.abs(balanceVal).toLocaleString('en-IN')} Dr</span> <small style="color:#0284c7; font-size:10px; font-weight:600;">(They Owe)</small>`;
+      } else {
+        balanceHtml = `<span style="color:#64748b; font-weight:700;">₹0</span> <small style="color:#64748b; font-size:10px;">(Settled)</small>`;
+      }
+    }
+
     return `
       <tr>
         <td style="vertical-align:top; padding-top:10px;">${formattedDate || r.date}</td>
         <td style="vertical-align:top; padding-top:10px;">${descHtml}</td>
-        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${debit > 0 ? '#dc2626' : '#64748b'};">
+        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${debit > 0 ? '#0284c7' : '#64748b'};">
           ${debit > 0 ? `₹${debit.toLocaleString('en-IN')}` : '-'}
         </td>
-        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${credit > 0 ? '#16a34a' : '#64748b'};">
+        <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700; color:${credit > 0 ? '#059669' : '#64748b'};">
           ${credit > 0 ? `₹${credit.toLocaleString('en-IN')}` : '-'}
         </td>
         <td class="num" style="vertical-align:top; padding-top:10px; font-family:var(--font-mono); font-weight:700;">
-          ${isArrival ? '-' : `₹${Number(balanceVal).toLocaleString('en-IN')}`}
+          ${balanceHtml}
         </td>
       </tr>
     `;
@@ -12346,12 +12402,14 @@ function exportPartyStatementPDF() {
     const formattedDate = r.date ? r.date.split('-').reverse().join('-') : '';
 
     if (r.isOpeningBal) {
+      const openVal = Number(r.periodBalance || 0);
+      const openText = openVal > 0 ? `Rs. ${Math.abs(openVal).toLocaleString('en-IN')} Cr (We Owe)` : (openVal < 0 ? `Rs. ${Math.abs(openVal).toLocaleString('en-IN')} Dr (They Owe)` : 'Rs. 0');
       return [
         formattedDate,
         'Opening Balance (B/F)',
         '-',
         '-',
-        `Rs. ${Number(r.periodBalance || 0).toLocaleString('en-IN')}`
+        openText
       ];
     }
 
@@ -12403,13 +12461,14 @@ function exportPartyStatementPDF() {
     }
 
     const bal = r.periodBalance !== undefined ? r.periodBalance : (r.runningBalance || 0);
+    const balText = isArrival ? '-' : (bal > 0 ? `Rs. ${Math.abs(bal).toLocaleString('en-IN')} Cr (We Owe)` : (bal < 0 ? `Rs. ${Math.abs(bal).toLocaleString('en-IN')} Dr (They Owe)` : 'Rs. 0'));
 
     return [
       formattedDate || r.date,
       desc,
       debit > 0 ? `Rs. ${debit.toLocaleString('en-IN')}` : '-',
       credit > 0 ? `Rs. ${credit.toLocaleString('en-IN')}` : '-',
-      isArrival ? '-' : `Rs. ${bal.toLocaleString('en-IN')}`
+      balText
     ];
   });
 
@@ -12490,24 +12549,25 @@ function exportPartyStatementPDF() {
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 38, 38); // Red for deductions
-  doc.text(`Period Paid: Rs. ${totalDebit.toLocaleString('en-IN')}`, 20, 59);
-  doc.setTextColor(22, 163, 74); // Green for additions
-  doc.text(`Period Billed: Rs. ${totalCredit.toLocaleString('en-IN')}`, 85, 59);
+  doc.setTextColor(2, 132, 199);
+  doc.text(`Period Debit: Rs. ${totalDebit.toLocaleString('en-IN')}`, 20, 59);
+  doc.setTextColor(22, 163, 74);
+  doc.text(`Period Credit: Rs. ${totalCredit.toLocaleString('en-IN')}`, 85, 59);
   doc.setTextColor(15, 23, 42);
-  doc.text(`Period Net: Rs. ${runningBal.toLocaleString('en-IN')}`, 145, 59);
+  const closingPdfBalText = runningBal > 0 ? `Rs. ${Math.abs(runningBal).toLocaleString('en-IN')} Cr (We Owe)` : (runningBal < 0 ? `Rs. ${Math.abs(runningBal).toLocaleString('en-IN')} Dr (They Owe)` : 'Rs. 0 (Settled)');
+  doc.text(`Period Net: ${closingPdfBalText}`, 145, 59);
 
-  // Table with Red Deductions and Green Additions
+  // Table with Debit (Dr) and Credit (Cr)
   doc.autoTable({
     startY: 66,
-    head: [['Date', 'Description', 'Paid (-)', 'Billed (+)', 'Balance']],
+    head: [['Date', 'Description', 'Debit (Dr)', 'Credit (Cr)', 'Net Balance']],
     body: tableData.length > 0 ? tableData : [['-', 'No transactions matching active filter in this period', '-', '-', '-']],
     foot: tableData.length > 0 ? [[
       '',
       'Total',
       `Rs. ${totalDebit.toLocaleString('en-IN')}`,
       `Rs. ${totalCredit.toLocaleString('en-IN')}`,
-      `Rs. ${runningBal.toLocaleString('en-IN')}`
+      closingPdfBalText
     ]] : undefined,
     theme: 'grid',
     headStyles: {

@@ -634,6 +634,12 @@ function normalizePayment(data) {
 // BALANCE RECOMPUTATION & DUAL-ROLE LEDGER LOGIC
 // ─────────────────────────────────────────────────────────────────────────────
 
+function getSaleImmediateCashPaid(s) {
+  if (Number(s.amountPaid) > 0) return Number(s.amountPaid);
+  if (s.paymentType === 'Cash' && Number(s.closingBalance) === 0) return Number(s.total) || 0;
+  return 0;
+}
+
 async function getContactFinancials(contactId) {
   const database = await connectDb();
   const cId = Number(contactId);
@@ -655,9 +661,7 @@ async function getContactFinancials(contactId) {
   }).toArray();
 
   const totalPurchasedGoods = sales.reduce((sum, s) => sum + (Number(s.total) || 0), 0);
-  const totalImmediateCashPaid = sales.reduce((sum, s) => {
-    return sum + (s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0));
-  }, 0);
+  const totalImmediateCashPaid = sales.reduce((sum, s) => sum + getSaleImmediateCashPaid(s), 0);
   const totalBadDebtLoss = sales.reduce((sum, s) => {
     if (s.isBadDebt) return sum + (Number(s.total) || 0);
     return sum;
@@ -841,8 +845,8 @@ async function getDaybook(dateStr) {
   // 2. Daily Sales (Cash In for cash sales)
   const sales = await database.collection('sales').find({ date: targetDate }).toArray();
   for (const s of sales) {
-    if (s.paymentType === 'Cash' || Number(s.amountPaid) > 0) {
-      const amt = s.paymentType === 'Cash' ? Number(s.total) : Number(s.amountPaid);
+    const amt = getSaleImmediateCashPaid(s);
+    if (amt > 0) {
       entries.push({
         id: `SALE-${s.id}`,
         time: s.time || '06:00',
@@ -1034,8 +1038,8 @@ async function getTreasuryOverview() {
   let cashOutTotal = 0;
 
   for (const s of sales) {
-    if (s.paymentType === 'Cash' || (s.paymentMode === 'Cash' && Number(s.amountPaid) > 0)) {
-      const amt = s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0);
+    const amt = getSaleImmediateCashPaid(s);
+    if (amt > 0) {
       cashInHandBalance += amt;
       cashInTotal += amt;
     }
@@ -1216,10 +1220,9 @@ async function getTreasuryTransactions() {
   }
 
   for (const s of sales) {
-    if (s.paymentType === 'Cash' || (s.paymentMode === 'Cash' && Number(s.amountPaid) > 0)) {
-      const amt = s.paymentType === 'Cash' ? (Number(s.total) || 0) : (Number(s.amountPaid) || 0);
-      if (amt > 0) {
-        allList.push({
+    const amt = getSaleImmediateCashPaid(s);
+    if (amt > 0) {
+      allList.push({
           id: `SALE-${s.id}`,
           rawId: s.id,
           date: s.date,
@@ -1238,7 +1241,6 @@ async function getTreasuryTransactions() {
           isManual: false,
           created: s.created || Date.now()
         });
-      }
     }
   }
 
@@ -1372,6 +1374,22 @@ async function getContactFullStatement(contactId, mode = 'all') {
         notes: isBad ? 'MARKED AS BAD DEBT' : (s.paymentType || ''),
         lines: lines
       });
+
+      const immPaid = getSaleImmediateCashPaid(s);
+      if (immPaid > 0) {
+        rows.push({
+          id: `SAL-PAY-${s.id}`,
+          date: s.date,
+          type: 'BUYER_COLLECTION',
+          ref: s.billNo,
+          description: `Cash Paid on Bill #${s.billNo}`,
+          crates: 0,
+          rate: 0,
+          debit: 0,
+          credit: immPaid,
+          notes: 'Immediate payment at sale'
+        });
+      }
     }
   }
 
