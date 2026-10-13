@@ -4559,7 +4559,34 @@ th:last-child {
 
       <!-- Hidden Role Flags (Auto-managed by context) -->
       <input type="hidden" id="mContIsDealer" value="true"/>
-      <input type="hidden" id="mContIsBuyer" value="false"/>
+      <input type="hidden" id="mContIsBuyer" value="true"/>
+
+      <!-- Previous / Opening Balance (For Inputting Existing Ledger Data) -->
+      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px; margin-bottom:12px;">
+        <label style="font-size:12px; font-weight:700; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+          <i class="fas fa-wallet" style="color:#0284c7;"></i> Previous / Opening Balance
+          <span style="font-size:10.5px; font-weight:500; color:#0284c7; background:#e0f2fe; padding:1px 6px; border-radius:4px;">Existing Ledger</span>
+        </label>
+        
+        <div class="two-col-grid" style="margin-bottom:4px;">
+          <div class="input-block" style="margin-bottom:0;">
+            <label style="font-size:11px; color:#475569; font-weight:600;">Opening Amount (₹)</label>
+            <input type="number" id="mContOpeningBalance" placeholder="0" min="0" step="any" style="font-weight:700; font-family:var(--font-mono);"/>
+          </div>
+          <div class="input-block" style="margin-bottom:0;">
+            <label style="font-size:11px; color:#475569; font-weight:600;">Balance Direction</label>
+            <select id="mContOpeningBalanceType" style="height:38px; font-size:12px; font-weight:700; color:#0f172a;">
+              <option value="receivable">They Owe Us (Receivable / Due)</option>
+              <option value="payable">We Owe Them (Payable / Credit)</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size:10.5px; color:#64748b; line-height:1.4; margin-top:6px;">
+          <i class="fas fa-info-circle" style="color:#0284c7; margin-right:3px;"></i>
+          <strong>They Owe Us</strong>: Previous dues from purchases (auto-added to sale bills).<br/>
+          &nbsp;&nbsp;&nbsp;&nbsp;<strong>We Owe Them</strong>: Money we owe for prior fish lots (credited in settlements).
+        </div>
+      </div>
 
       <div class="two-col-grid" style="margin-bottom:6px;">
         <div class="input-block" style="margin-bottom:0;">
@@ -11739,6 +11766,10 @@ function openContactModal() {
   const bEl = document.getElementById('mContIsBuyer');
   if (dEl) { dEl.value = 'true'; dEl.checked = true; }
   if (bEl) { bEl.value = 'true'; bEl.checked = true; }
+  const openBalInp = document.getElementById('mContOpeningBalance');
+  if (openBalInp) openBalInp.value = '';
+  const openBalType = document.getElementById('mContOpeningBalanceType');
+  if (openBalType) openBalType.value = 'receivable';
   document.getElementById('mContCreditLimit').value = '';
   document.getElementById('mContCreditPeriod').value = '';
   checkBypassCreditInputs();
@@ -11758,6 +11789,17 @@ function editPartyAccount(id) {
   const bEl = document.getElementById('mContIsBuyer');
   if (dEl) { dEl.value = String(!!c.isDealer); dEl.checked = !!c.isDealer; }
   if (bEl) { bEl.value = String(!!c.isBuyer); bEl.checked = !!c.isBuyer; }
+  const openBalInp = document.getElementById('mContOpeningBalance');
+  const openBalType = document.getElementById('mContOpeningBalanceType');
+  const opRec = Number(c.openingReceivable) || (c.openingBalanceType === 'receivable' ? Number(c.openingBalance) : 0) || 0;
+  const opPay = Number(c.openingPayable) || (c.openingBalanceType === 'payable' ? Number(c.openingBalance) : 0) || 0;
+  if (openBalInp) {
+    const val = Math.max(opRec, opPay);
+    openBalInp.value = val > 0 ? val : '';
+  }
+  if (openBalType) {
+    openBalType.value = opPay > 0 ? 'payable' : (c.openingBalanceType || 'receivable');
+  }
   document.getElementById('mContCreditLimit').value = c.creditLimit !== undefined ? c.creditLimit : 0;
   document.getElementById('mContCreditPeriod').value = c.creditPeriod !== undefined ? c.creditPeriod : 0;
   checkBypassCreditInputs();
@@ -11789,6 +11831,11 @@ function promptCreateNewParty(name, role = 'dealer', originModal = '', pendingAc
   if (dEl) { dEl.value = 'true'; dEl.checked = true; }
   if (bEl) { bEl.value = 'true'; bEl.checked = true; }
 
+  const openBalInp = document.getElementById('mContOpeningBalance');
+  if (openBalInp) openBalInp.value = '';
+  const openBalType = document.getElementById('mContOpeningBalanceType');
+  if (openBalType) openBalType.value = (originModal === 'arrivalModal' || role === 'dealer') ? 'payable' : 'receivable';
+
   document.getElementById('mContCreditLimit').value = '';
   document.getElementById('mContCreditPeriod').value = '';
   checkBypassCreditInputs();
@@ -11814,6 +11861,12 @@ async function saveContactAccount() {
   const isDealer = true;
   const isBuyer = true;
 
+  const rawOpeningBal = document.getElementById('mContOpeningBalance')?.value;
+  const openingBalance = rawOpeningBal === '' ? 0 : (!isNaN(Number(rawOpeningBal)) ? Number(rawOpeningBal) : 0);
+  const openingBalanceType = document.getElementById('mContOpeningBalanceType')?.value || 'receivable';
+  const openingReceivable = openingBalanceType === 'receivable' ? openingBalance : 0;
+  const openingPayable = openingBalanceType === 'payable' ? openingBalance : 0;
+
   const rawLimit = document.getElementById('mContCreditLimit').value;
   const rawPeriod = document.getElementById('mContCreditPeriod').value;
   const creditLimit = rawLimit === '' ? 0 : (!isNaN(Number(rawLimit)) ? Number(rawLimit) : 0);
@@ -11835,7 +11888,11 @@ async function saveContactAccount() {
         isBuyer, 
         creditLimit, 
         creditPeriod,
-        bypassCreditCheck
+        bypassCreditCheck,
+        openingBalance,
+        openingBalanceType,
+        openingReceivable,
+        openingPayable
       })
     });
     if (res.ok) {

@@ -379,6 +379,15 @@ async function connectDb() {
 
 function normalizeContact(data) {
   const now = Date.now();
+  const rawOpening = !isNaN(Number(data.openingBalance)) ? Number(data.openingBalance) : 0;
+  const rawType = data.openingBalanceType === 'payable' ? 'payable' : 'receivable';
+  const opRec = data.openingReceivable !== undefined && !isNaN(Number(data.openingReceivable))
+    ? Number(data.openingReceivable)
+    : (rawType === 'receivable' ? rawOpening : 0);
+  const opPay = data.openingPayable !== undefined && !isNaN(Number(data.openingPayable))
+    ? Number(data.openingPayable)
+    : (rawType === 'payable' ? rawOpening : 0);
+
   return {
     id: Number(data.id) || now,
     name: String(data.name || '').trim(),
@@ -387,6 +396,10 @@ function normalizeContact(data) {
     notes: String(data.notes || '').trim(),
     isDealer: true,
     isBuyer: true,
+    openingBalance: Math.max(opRec, opPay),
+    openingBalanceType: opPay > 0 ? 'payable' : (opRec > 0 ? 'receivable' : rawType),
+    openingReceivable: opRec,
+    openingPayable: opPay,
     defaultCommissionType: data.defaultCommissionType || 'percent', // 'percent' or 'flat_per_crate'
     defaultCommissionVal: (data.defaultCommissionVal !== undefined && data.defaultCommissionVal !== null && data.defaultCommissionVal !== '') ? Number(data.defaultCommissionVal) : 0,
     creditLimit: !isNaN(Number(data.creditLimit)) ? Number(data.creditLimit) : 0,
@@ -625,12 +638,15 @@ async function getContactFinancials(contactId) {
   const database = await connectDb();
   const cId = Number(contactId);
 
-  // 1. Dealer Payable: Generated from Dealer Settlements (Patiya)
+  const contact = await database.collection('contacts').findOne({ id: cId });
+  const openingPayable = Number(contact?.openingPayable || (contact?.openingBalanceType === 'payable' ? contact?.openingBalance : 0)) || 0;
+  const openingReceivable = Number(contact?.openingReceivable || (contact?.openingBalanceType === 'receivable' ? contact?.openingBalance : 0)) || 0;
+
+  // 1. Dealer Payable: Generated from Dealer Settlements (Patiya) + Opening Payable (We Owe Them)
   const settlements = await database.collection('settlements').find({ dealerId: cId }).toArray();
   const totalSettlementCredited = settlements.reduce((sum, s) => sum + (Number(s.netPayableToDealer) || 0), 0);
 
-  // 2. Buyer Receivable: Generated from Sales where this contact bought items
-  const contact = await database.collection('contacts').findOne({ id: cId });
+  // 2. Buyer Receivable: Generated from Sales where this contact bought items + Opening Receivable (They Owe Us)
   const sales = await database.collection('sales').find({
     $or: [
       { buyerId: cId },
@@ -671,10 +687,10 @@ async function getContactFinancials(contactId) {
   }
 
   // Dealer Balance: What we owe them
-  const payableBalance = Math.max(0, totalSettlementCredited - totalPaidToDealer - totalDealerDiscounts - totalContraAdjustments);
+  const payableBalance = Math.max(0, (totalSettlementCredited + openingPayable) - totalPaidToDealer - totalDealerDiscounts - totalContraAdjustments);
 
   // Buyer Balance: What they owe us (active receivable excluding written off bad debt)
-  const rawReceivable = Math.max(0, totalPurchasedGoods - totalImmediateCashPaid - totalCollectedFromBuyer - totalBuyerDiscounts - totalContraAdjustments);
+  const rawReceivable = Math.max(0, (totalPurchasedGoods + openingReceivable) - totalImmediateCashPaid - totalCollectedFromBuyer - totalBuyerDiscounts - totalContraAdjustments);
   const receivableBalance = Math.max(0, rawReceivable - totalBadDebtLoss);
 
   // Net Balance: (+ve means we owe them, -ve means they owe us)
@@ -703,6 +719,10 @@ async function getContactFinancials(contactId) {
     payableBalance,
     receivableBalance,
     rawReceivable,
+    openingPayable,
+    openingReceivable,
+    openingBalance: contact?.openingBalance || Math.max(openingReceivable, openingPayable),
+    openingBalanceType: contact?.openingBalanceType || (openingPayable > 0 ? 'payable' : 'receivable'),
     badDebtAmount: totalBadDebtLoss,
     isBadDebtDefaulter: !!contact?.isBadDebtDefaulter,
     badDebtReason: contact?.badDebtReason || '',
@@ -1241,6 +1261,39 @@ async function getContactFullStatement(contactId, mode = 'all') {
   if (!contact) return null;
 
   const rows = [];
+  const openingPayable = Number(contact?.openingPayable || (contact?.openingBalanceType === 'payable' ? contact?.openingBalance : 0)) || 0;
+  const openingReceivable = Number(contact?.openingReceivable || (contact?.openingBalanceType === 'receivable' ? contact?.openingBalance : 0)) || 0;
+  const createdDateStr = contact.created ? new Date(contact.created).toISOString().split('T')[0] : '2026-01-01';
+
+  if (openingReceivable > 0 && (mode === 'all' || mode === 'purchases_only')) {
+    rows.push({
+      id: `OPN-${contact.id}`,
+      date: createdDateStr,
+      type: 'OPENING_BALANCE',
+      ref: 'OPENING',
+      description: 'Opening Balance (B/F - Previous Balance Owed to Us)',
+      crates: 0,
+      rate: 0,
+      debit: openingReceivable,
+      credit: 0,
+      notes: 'Initial opening balance'
+    });
+  }
+
+  if (openingPayable > 0 && (mode === 'all' || mode === 'sales_only')) {
+    rows.push({
+      id: `OPN-${contact.id}`,
+      date: createdDateStr,
+      type: 'OPENING_BALANCE',
+      ref: 'OPENING',
+      description: 'Opening Balance (B/F - Previous Balance We Owe)',
+      crates: 0,
+      rate: 0,
+      debit: 0,
+      credit: openingPayable,
+      notes: 'Initial opening balance'
+    });
+  }
 
   // Inward Consignments (Fish Arrivals) - For Dealers
   if (mode === 'all' || mode === 'sales_only') {
@@ -1405,6 +1458,7 @@ async function getContactFullStatement(contactId, mode = 'all') {
 
   // Sort rows chronologically, keeping arrivals before sales, sales before payments
   const typePriority = {
+    'OPENING_BALANCE': 0,
     'CONSIGNMENT_INWARD': 1,
     'SETTLEMENT_PATIYA': 2,
     'GOODS_PURCHASED': 3,
