@@ -1,16 +1,1 @@
-[
-  {
-    "id": 1791736201356,
-    "accountName": "HDFC Purasaiwalkam Branch",
-    "bankName": "HDFC",
-    "accountNumber": "100",
-    "ifscCode": "HDFC00001274",
-    "accountType": "Current",
-    "upiId": "",
-    "branch": "Purasaiwalkam",
-    "openingBalance": 1000,
-    "isActive": true,
-    "created": 1791736201361,
-    "updated": 1791736201361
-  }
-]
+[]

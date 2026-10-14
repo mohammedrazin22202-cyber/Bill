@@ -1,17 +1,1 @@
-[
-  {
-    "id": 1791788383617,
-    "date": "2026-10-12",
-    "time": "12:29 PM",
-    "type": "CONTRA",
-    "accountId": "1791736201356",
-    "toAccountId": "cash_in_hand",
-    "amount": 75000,
-    "category": "Account Transfer",
-    "referenceNo": "",
-    "contactId": null,
-    "contactName": "",
-    "notes": "Internal Account Transfer",
-    "created": 1791788383956
-  }
-]
+[]
