@@ -50,8 +50,16 @@ echo Starting Billify Unified Server...
 echo App URL: http://127.0.0.1:8000
 echo.
 
-:: 3. Launch browser in background after 2 seconds
-start "" cmd /c "ping 127.0.0.1 -n 3 >nul & start http://127.0.0.1:8000"
+:: 3. Launch Chrome (or default browser) in background after 5 seconds
+set "BROWSER_CMD=start http://127.0.0.1:8000"
+if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (
+    set "BROWSER_CMD=start chrome http://127.0.0.1:8000"
+) else if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" (
+    set "BROWSER_CMD=start chrome http://127.0.0.1:8000"
+) else if exist "%LocalAppData%\Google\Chrome\Application\chrome.exe" (
+    set "BROWSER_CMD=start chrome http://127.0.0.1:8000"
+)
+start "" cmd /c "ping 127.0.0.1 -n 6 >nul & %BROWSER_CMD%"
 
 :: 4. Run server in this window
 "%NODE_CMD%" backend/server.js

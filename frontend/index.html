@@ -2019,6 +2019,14 @@ th:last-child {
 .modal-lg { width: 900px; min-height: 480px; }
 .modal-sm { width: 440px; min-height: 280px; }
 
+#customDeleteModal.open #customDeleteModalWindow {
+  animation: deleteModalPop 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes deleteModalPop {
+  0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 .modal-top-bar {
   padding: 16px 20px;
   border-bottom: 1px solid #f1f5f9;
@@ -2585,9 +2593,8 @@ th:last-child {
             <div class="harbor-pulse-header">
               <div class="harbor-live-badge">
                 <span class="pulse-radar-dot"></span>
-                <span class="harbor-pulse-title">Kasimedu Harbor · Live Mandi</span>
+                <span class="harbor-pulse-title">Today Insights</span>
               </div>
-              <span class="harbor-sub-loc" id="heroHarborGate">Gate 2 · Active Trading</span>
             </div>
             
             <div class="harbor-stats-strip">
@@ -3800,7 +3807,7 @@ th:last-child {
             </div>
             <div class="input-block">
               <label>Wholesale Mandi Harbor Location</label>
-              <input type="text" id="setHarborLocation" placeholder="e.g. Kasimedu Fishing Harbor, Chennai - Gate 2" />
+              <input type="text" id="setHarborLocation" placeholder="e.g. Kasimedu Fishing Harbor, Chennai" />
             </div>
             <div class="input-block">
               <label>Managing Broker / Proprietor</label>
@@ -4162,17 +4169,26 @@ th:last-child {
         </div>
       </div>
 
+      <div style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; background:#f0f9ff; border:1px solid #bae6fd; padding:7px 12px; border-radius:8px;">
+        <label style="font-size:12.5px; font-weight:700; color:#0369a1; display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="mArrIsKgOption" onchange="toggleInwardKgMode(this.checked)"/>
+          <span><i class="fas fa-weight-hanging" style="color:#0284c7;"></i> Track & Settle by KG (Weight)</span>
+        </label>
+        <span style="font-size:11px; color:#64748b;">Check this if this arrival is priced and sold in KG</span>
+      </div>
+
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
-        <span style="font-weight:700; font-size:12.5px;">Crates & Fish Varieties</span>
+        <span style="font-weight:700; font-size:12.5px;" id="inwardItemsTitle">Crates & Fish Varieties</span>
         <button class="btn btn-outline btn-sm" onclick="addInwardRow()"><i class="fas fa-plus"></i> Add Fish Line</button>
       </div>
 
       <div class="table-scroller">
         <table class="data-grid" id="inwardItemsTable">
           <thead>
-            <tr>
-              <th style="width:140px;">Crate</th>
-              <th>Fish Variety</th>
+            <tr id="inwardHeadRow">
+              <th style="width:130px;" id="thInwardMainQty">Crates *</th>
+              <th style="width:120px; display:none;" id="thInwardOptCrates">Crates (Opt)</th>
+              <th>Fish Variety *</th>
               <th class="num" style="width:40px;"></th>
             </tr>
           </thead>
@@ -4236,14 +4252,15 @@ th:last-child {
       </div>
 
       <div class="table-scroller" style="min-height:120px; border:1.5px solid #cbd5e1; border-radius:8px; margin-bottom:14px; background:#ffffff;">
-        <table class="data-grid" id="saleLinesGrid" style="min-width:600px; width:100%; table-layout:fixed;">
+        <table class="data-grid" id="saleLinesGrid" style="min-width:640px; width:100%; table-layout:fixed;">
           <thead>
             <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
-              <th style="width:42%; padding:10px 10px; color:#1e293b; font-weight:700; text-align:left;">Fish Variety / Inventory</th>
-              <th style="width:18%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Number of boxes/crates (P)">Boxes (P)</th>
-              <th style="width:18%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Rate per Box">Rate (₹)</th>
-              <th style="width:17%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num">Amount (₹)</th>
-              <th style="width:5%; padding:10px 6px; text-align:center;"></th>
+              <th style="width:36%; padding:10px 10px; color:#1e293b; font-weight:700; text-align:left;">Fish Variety / Inventory</th>
+              <th style="width:15%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Number of boxes/crates (P)">Boxes (P)</th>
+              <th style="width:15%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Kilograms per Box (Weight)">Kg / Box</th>
+              <th style="width:15%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num" title="Rate per Box or per KG">Rate (₹)</th>
+              <th style="width:15%; padding:10px 8px; color:#1e293b; font-weight:700; text-align:right;" class="num">Amount (₹)</th>
+              <th style="width:4%; padding:10px 4px; text-align:center;"></th>
             </tr>
           </thead>
           <tbody id="saleLinesTbody"></tbody>
@@ -4544,6 +4561,27 @@ th:last-child {
       <button class="btn btn-wa" id="patiyaShareWaBtn" style="display:none;" onclick="saveFinalizedPatiya('whatsapp')"><i class="fab fa-whatsapp"></i> Share WhatsApp</button>
       <button class="btn btn-green" id="patiyaPrintBtn" style="display:none;" onclick="saveFinalizedPatiya('print')"><i class="fas fa-print"></i> Print</button>
       <button class="btn btn-primary" id="savePatiyaBtn" style="display:none;" onclick="saveFinalizedPatiya('save')"><i class="fas fa-check"></i> Finalize Bill & Credit Dealer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Warning when settling arrival before items are fully sold -->
+<div class="modal-backdrop" id="unsoldPatiyaWarningModal" style="z-index: 10500;">
+  <div class="modal-window" style="max-width: 480px; text-align: center; padding: 24px;">
+    <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(217,119,6,0.15);">
+      <i class="fas fa-triangle-exclamation"></i>
+    </div>
+    <h3 style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">Arrival Items Not Fully Sold</h3>
+    <div id="unsoldPatiyaWarningText" style="font-size: 13.5px; color: #475569; line-height: 1.5; margin-bottom: 22px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 8px; padding: 12px 14px; text-align: left;">
+      This arrival has unsold crates remaining in godown.
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button type="button" class="btn btn-outline" onclick="closeModal('unsoldPatiyaWarningModal')" style="padding: 9px 18px;">
+        <i class="fas fa-arrow-left"></i> Review Sales
+      </button>
+      <button type="button" class="btn btn-amber" id="btnAcknowledgeUnsoldPatiya" onclick="onAcknowledgeUnsoldPatiya()" style="padding: 9px 20px; font-weight: 700;">
+        <i class="fas fa-check"></i> I Acknowledge & Settle
+      </button>
     </div>
   </div>
 </div>
@@ -5453,6 +5491,35 @@ th:last-child {
   </div>
 </div>
 
+<!-- Modal 13: Custom Deleter / Confirmation Popup -->
+<div class="modal-backdrop" id="customDeleteModal" style="z-index: 12000;" onclick="if(event.target===this)closeCustomDeleteModal(false)">
+  <div class="modal-window modal-sm" id="customDeleteModalWindow" style="max-width: 440px; min-height: auto; border-radius: 14px; border: 1px solid #e2e8f0; box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.35); overflow: hidden;">
+    <div style="padding: 22px 22px 16px; display: flex; align-items: flex-start; gap: 14px;">
+      <div id="customDeleteIconWrap" style="width: 44px; height: 44px; min-width: 44px; border-radius: 12px; background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+        <i class="fas fa-trash" id="customDeleteIcon"></i>
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <h3 id="customDeleteTitle" style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a; line-height: 1.3;">Confirm Deletion</h3>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="closeCustomDeleteModal(false)" style="padding: 2px 6px; font-size: 14px; color: #94a3b8; border-radius: 6px; line-height: 1;" title="Close">✕</button>
+        </div>
+        <p id="customDeleteMessage" style="margin: 0 0 10px 0; font-size: 13.5px; color: #334155; line-height: 1.5; font-weight: 500;">Are you sure you want to delete this?</p>
+        <div id="customDeleteSubtextBox" style="display: none; background: #fef2f2; border: 1px solid #fee2e2; border-left: 3px solid #dc2626; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #991b1b; line-height: 1.45; margin-top: 8px;">
+          <i class="fas fa-triangle-exclamation" id="customDeleteSubtextIcon" style="margin-right: 6px; color: #dc2626; font-size: 12px;"></i>
+          <span id="customDeleteSubtext">This action cannot be undone.</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-bottom-actions" style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px;">
+      <button type="button" class="btn btn-outline btn-sm" id="customDeleteCancelBtn" onclick="closeCustomDeleteModal(false)">Cancel</button>
+      <button type="button" class="btn btn-sm" id="customDeleteConfirmBtn" onclick="closeCustomDeleteModal(true)" style="background: #dc2626; color: #ffffff; border: 1px solid #b91c1c; padding: 6px 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+        <i class="fas fa-trash" id="customDeleteBtnIcon"></i>
+        <span id="customDeleteConfirmText">Delete</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Container -->
 <div id="toastBox"></div>
 
@@ -5517,16 +5584,23 @@ document.addEventListener('DOMContentLoaded', () => {
       openGlobalSearch();
     } else if (e.key === 'Escape') {
       const openModals = Array.from(document.querySelectorAll('.modal-backdrop.open'));
-      if (openModals.length > 1) {
-        // If contact modal is open on top of another modal, cancel it specifically
-        const contModal = document.getElementById('contactModal');
-        if (contModal && contModal.classList.contains('open')) {
-          cancelPendingContactModal();
-        } else {
-          openModals[openModals.length - 1].classList.remove('open');
+      if (openModals.length > 0) {
+        const topModal = openModals[openModals.length - 1];
+        if (topModal.id === 'customDeleteModal') {
+          closeCustomDeleteModal(false);
+          return;
         }
-      } else if (openModals.length === 1) {
-        openModals[0].classList.remove('open');
+        if (openModals.length > 1) {
+          // If contact modal is open on top of another modal, cancel it specifically
+          const contModal = document.getElementById('contactModal');
+          if (contModal && contModal.classList.contains('open')) {
+            cancelPendingContactModal();
+          } else {
+            topModal.classList.remove('open');
+          }
+        } else {
+          openModals[0].classList.remove('open');
+        }
       }
     }
   });
@@ -5534,7 +5608,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Clicking outside modal window on backdrop closes it, and clicking outside autocomplete closes flyouts
   document.addEventListener('click', e => {
     if (e.target && e.target.classList && e.target.classList.contains('modal-backdrop')) {
-      e.target.classList.remove('open');
+      if (e.target.id === 'customDeleteModal') {
+        closeCustomDeleteModal(false);
+      } else {
+        e.target.classList.remove('open');
+      }
     }
     if (!e.target.closest || !e.target.closest('.autocomplete-anchor')) {
       document.querySelectorAll('.autocomplete-flyout').forEach(f => {
@@ -5707,7 +5785,7 @@ let currentQuoteManualOffset = 0;
 
 let appSettings = {
   companyName: 'Al Haseena Exports',
-  harborLocation: 'Kasimedu Fishing Harbor, Chennai - Gate 2',
+  harborLocation: 'Kasimedu Fishing Harbor, Chennai',
   proprietorName: 'M S Bhathrudeen',
   contactPhone: '+91 9841021203',
   contactEmail: 'alhaseenaexports@gmail.com',
@@ -5894,7 +5972,15 @@ async function saveSettingsForm() {
 }
 
 async function resetSettingsToDefault() {
-  if (!confirm('Are you sure you want to reset all settings to company defaults?')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Reset Company Settings?',
+    message: 'Are you sure you want to reset all settings to company defaults?',
+    subtext: 'All custom commission rates, bill prefix, and contact details will revert to defaults.',
+    confirmText: 'Reset Settings',
+    icon: 'fas fa-triangle-exclamation',
+    danger: true
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch('/api/settings');
     let defaults = {};
@@ -6041,7 +6127,15 @@ async function exportFullBackup() {
 async function handleRestoreFileSelected(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
-  if (!confirm(`Restore database from file "${file.name}"? This will synchronize imported trade records.`)) {
+  const confirmed = await showDeleteModal({
+    title: 'Restore Database Backup?',
+    message: `Restore database from file "${file.name}"?`,
+    subtext: 'This will synchronize imported trade records into your local database.',
+    confirmText: 'Restore Database',
+    icon: 'fas fa-file-import',
+    danger: false
+  });
+  if (!confirmed) {
     event.target.value = '';
     return;
   }
@@ -6069,8 +6163,16 @@ async function handleRestoreFileSelected(event) {
   reader.readAsText(file);
 }
 
-function clearLocalAppCache() {
-  if (confirm('Clear local browser cache and reload? Your saved trade database will remain safe.')) {
+async function clearLocalAppCache() {
+  const confirmed = await showDeleteModal({
+    title: 'Clear Local Cache?',
+    message: 'Clear local browser cache and reload?',
+    subtext: 'Your saved trade database will remain completely safe.',
+    confirmText: 'Clear & Reload',
+    icon: 'fas fa-arrows-rotate',
+    danger: false
+  });
+  if (confirmed) {
     localStorage.clear();
     showToast('Local cache cleared. Reloading...', 'info');
     setTimeout(() => location.reload(), 800);
@@ -6850,9 +6952,13 @@ async function bulkDeleteSelectedTreasury() {
 
   const count = ids.length;
   const label = count > 1 ? `${count} transactions` : '1 transaction';
-  if (!confirm(`Are you sure you want to delete ${label}?`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Transactions' : 'Transaction'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'This will remove the selected transactions and recalculate cash balances.',
+    confirmText: 'Delete Transactions'
+  });
+  if (!confirmed) return;
 
   showToast(`Deleting ${label}...`, 'info');
 
@@ -6953,7 +7059,13 @@ async function saveBankAccount() {
 }
 
 async function deleteBankAccount(id) {
-  if (!confirm('Are you sure you want to delete this bank account? Its transaction history will be preserved.')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Delete Bank Account?',
+    message: 'Are you sure you want to delete this bank account?',
+    subtext: 'Its transaction history will be preserved in your ledgers.',
+    confirmText: 'Delete Account'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/bank-accounts/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -7030,7 +7142,13 @@ function openContraTransferModal(fromAcc = 'cash_in_hand') {
 }
 
 async function deleteTreasuryTxn(id) {
-  if (!confirm('Are you sure you want to delete this manual treasury transaction?')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Delete Treasury Transaction?',
+    message: 'Are you sure you want to delete this manual treasury transaction?',
+    subtext: 'This will remove the entry and update cash in hand.',
+    confirmText: 'Delete Entry'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/treasury/transactions/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -7179,12 +7297,154 @@ function openModal(id) {
 }
 
 function closeModal(id) {
+  if (id === 'customDeleteModal') {
+    closeCustomDeleteModal(false);
+    return;
+  }
   const m = document.getElementById(id);
   if (m) m.classList.remove('open');
 }
 
-function handleLogout() {
-  if (confirm('Log out from Billify?')) {
+let customDeleteResolver = null;
+
+function showDeleteModal(options = {}) {
+  return new Promise((resolve) => {
+    if (customDeleteResolver) {
+      customDeleteResolver(false);
+      customDeleteResolver = null;
+    }
+
+    let title = 'Confirm Deletion';
+    let message = 'Are you sure you want to delete this?';
+    let subtext = '';
+    let confirmText = 'Delete';
+    let cancelText = 'Cancel';
+    let icon = 'fas fa-trash';
+    let danger = true;
+
+    if (typeof options === 'string') {
+      const raw = options.trim();
+      if (raw.includes('\n\n')) {
+        const parts = raw.split('\n\n');
+        message = parts[0].trim();
+        subtext = parts.slice(1).join('\n\n').trim();
+      } else {
+        const qIndex = raw.indexOf('?');
+        if (qIndex !== -1 && qIndex < raw.length - 1) {
+          message = raw.substring(0, qIndex + 1).trim();
+          subtext = raw.substring(qIndex + 1).trim();
+        } else {
+          message = raw;
+        }
+      }
+    } else if (options && typeof options === 'object') {
+      if (options.title) title = options.title;
+      if (options.message) message = options.message;
+      if (options.subtext) subtext = options.subtext;
+      if (options.confirmText) confirmText = options.confirmText;
+      if (options.cancelText) cancelText = options.cancelText;
+      if (options.icon) icon = options.icon;
+      if (typeof options.danger === 'boolean') danger = options.danger;
+    }
+
+    const modal = document.getElementById('customDeleteModal');
+    if (!modal) {
+      const fallbackMsg = message + (subtext ? '\n\n' + subtext : '');
+      return resolve(window.confirm(fallbackMsg));
+    }
+
+    document.getElementById('customDeleteTitle').textContent = title;
+    document.getElementById('customDeleteMessage').textContent = message;
+
+    const subBox = document.getElementById('customDeleteSubtextBox');
+    const subEl = document.getElementById('customDeleteSubtext');
+    if (subtext) {
+      subEl.textContent = subtext;
+      subBox.style.display = 'flex';
+    } else {
+      subBox.style.display = 'none';
+      subEl.textContent = '';
+    }
+
+    document.getElementById('customDeleteConfirmText').textContent = confirmText;
+    document.getElementById('customDeleteCancelBtn').textContent = cancelText;
+
+    const iconWrap = document.getElementById('customDeleteIconWrap');
+    const iconEl = document.getElementById('customDeleteIcon');
+    const btnIcon = document.getElementById('customDeleteBtnIcon');
+    const confirmBtn = document.getElementById('customDeleteConfirmBtn');
+
+    if (iconEl) iconEl.className = icon;
+    if (btnIcon) btnIcon.className = icon;
+
+    if (danger) {
+      if (iconWrap) {
+        iconWrap.style.background = '#fee2e2';
+        iconWrap.style.borderColor = '#fecaca';
+        iconWrap.style.color = '#dc2626';
+      }
+      if (confirmBtn) {
+        confirmBtn.style.background = '#dc2626';
+        confirmBtn.style.borderColor = '#b91c1c';
+        confirmBtn.style.color = '#ffffff';
+      }
+      if (subBox) {
+        subBox.style.background = '#fef2f2';
+        subBox.style.borderColor = '#fee2e2';
+        subBox.style.borderLeftColor = '#dc2626';
+        subBox.style.color = '#991b1b';
+      }
+    } else {
+      if (iconWrap) {
+        iconWrap.style.background = '#eff6ff';
+        iconWrap.style.borderColor = '#bfdbfe';
+        iconWrap.style.color = '#2563eb';
+      }
+      if (confirmBtn) {
+        confirmBtn.style.background = '#2563eb';
+        confirmBtn.style.borderColor = '#1d4ed8';
+        confirmBtn.style.color = '#ffffff';
+      }
+      if (subBox) {
+        subBox.style.background = '#f0fdf4';
+        subBox.style.borderColor = '#dcfce7';
+        subBox.style.borderLeftColor = '#16a34a';
+        subBox.style.color = '#166534';
+      }
+    }
+
+    customDeleteResolver = resolve;
+    modal.classList.add('open');
+
+    setTimeout(() => {
+      const cancelBtn = document.getElementById('customDeleteCancelBtn');
+      if (cancelBtn) cancelBtn.focus();
+    }, 50);
+  });
+}
+
+function closeCustomDeleteModal(result = false) {
+  const modal = document.getElementById('customDeleteModal');
+  if (modal) modal.classList.remove('open');
+  if (customDeleteResolver) {
+    const res = customDeleteResolver;
+    customDeleteResolver = null;
+    res(Boolean(result));
+  }
+}
+
+const showConfirmModal = showDeleteModal;
+
+async function handleLogout() {
+  const confirmed = await showDeleteModal({
+    title: 'Log Out from Billify?',
+    message: 'Are you sure you want to log out?',
+    subtext: 'Your current session will end and you will be returned to the main screen.',
+    confirmText: 'Log Out',
+    icon: 'fas fa-right-from-bracket',
+    danger: false
+  });
+  if (confirmed) {
     location.reload();
   }
 }
@@ -7608,12 +7868,6 @@ function updateDashboardMetrics() {
   const elHeroTurnover = document.getElementById('heroDayTurnoverVal');
   if (elHeroTurnover) {
     elHeroTurnover.textContent = `₹${dayTurnoverTotal.toLocaleString('en-IN')}`;
-  }
-
-  const elHarborGate = document.getElementById('heroHarborGate');
-  if (elHarborGate) {
-    const loc = appSettings?.harborLocation || 'Gate 2 · Active Trading';
-    elHarborGate.textContent = loc.includes('Gate') ? (loc.split('-').pop() || loc).trim() : 'Gate 2 · Active Trading';
   }
 }
 
@@ -8193,9 +8447,13 @@ async function bulkDeleteSelectedArrivals() {
 
   const count = ids.length;
   const label = count > 1 ? `${count} inward arrivals` : '1 inward arrival';
-  if (!confirm(`Are you sure you want to delete ${label}?`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Arrivals' : 'Arrival'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'This will permanently remove the inward arrival entries from your ledger.',
+    confirmText: 'Delete Arrivals'
+  });
+  if (!confirmed) return;
 
   showToast(`Deleting ${label}...`, 'info');
 
@@ -8273,20 +8531,78 @@ function openArrivalModal() {
     arrDateInp.value = (appState.selectedDate && appState.selectedDate <= today) ? appState.selectedDate : today;
   }
   document.getElementById('mArrDealer').value = '';
+  const kgChk = document.getElementById('mArrIsKgOption');
+  if (kgChk) kgChk.checked = false;
+  toggleInwardKgMode(false);
   document.getElementById('inwardItemsTbody').innerHTML = '';
-  addInwardRow('', '');
+  addInwardRow('', '', '');
   document.getElementById('arrivalModal').classList.add('open');
 }
 
-function addInwardRow(variety = '', crates = '') {
+function toggleInwardKgMode(isKg) {
+  const thMain = document.getElementById('thInwardMainQty');
+  const thOpt = document.getElementById('thInwardOptCrates');
+  const titleEl = document.getElementById('inwardItemsTitle');
+  if (thMain) thMain.textContent = 'Crates *';
+  if (thOpt) {
+    thOpt.textContent = 'Kg / Box *';
+    thOpt.style.display = isKg ? 'table-cell' : 'none';
+  }
+  if (titleEl) titleEl.textContent = isKg ? 'Crates & Kg/Box Fish Varieties' : 'Crates & Fish Varieties';
+
+  document.querySelectorAll('#inwardItemsTbody tr').forEach(tr => {
+    const mainInp = tr.querySelector('.rowItemMainQty');
+    const optTd = tr.querySelector('.tdOptCrates');
+    const optInp = tr.querySelector('.rowItemOptCrates');
+    if (mainInp) {
+      mainInp.placeholder = '0 Crates';
+      mainInp.step = 'any';
+    }
+    if (optTd) optTd.style.display = isKg ? 'table-cell' : 'none';
+    if (optInp) optInp.placeholder = 'Kg / Box';
+    updateInwardRowHint(tr);
+  });
+}
+
+function updateInwardRowHint(tr) {
+  if (!tr) return;
+  const isKg = !!document.getElementById('mArrIsKgOption')?.checked;
+  const hint = tr.querySelector('.rowInwardTotalHint');
+  const crates = Number(tr.querySelector('.rowItemMainQty')?.value) || 0;
+  const kgPerBox = Number(tr.querySelector('.rowItemOptCrates')?.value) || 0;
+  if (hint) {
+    if (isKg && crates > 0 && kgPerBox > 0) {
+      const totKg = crates * kgPerBox;
+      hint.style.display = 'block';
+      hint.innerHTML = `<i class="fas fa-weight-hanging"></i> Total: <b>${totKg.toLocaleString('en-IN')} KG</b> (${crates} bxs × ${kgPerBox} kg)`;
+    } else {
+      hint.style.display = 'none';
+      hint.innerHTML = '';
+    }
+  }
+}
+
+function addInwardRow(variety = '', cratesVal = '', kgPerBoxVal = '') {
   const tbody = document.getElementById('inwardItemsTbody');
+  const isKg = !!document.getElementById('mArrIsKgOption')?.checked;
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td style="width:140px;"><input type="number" class="rowItemCrates" value="${crates}" placeholder="0" min="1"/></td>
-    <td><input type="text" class="rowItemVariety" value="${variety}" placeholder="e.g. Vanjaram / Seer / Sardine"/></td>
-    <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
+    <td style="width:130px;">
+      <input type="number" class="rowItemMainQty" value="${cratesVal || ''}" placeholder="0 Crates" min="1" step="any" oninput="updateInwardRowHint(this.closest('tr'))"/>
+    </td>
+    <td class="tdOptCrates" style="width:120px; display:${isKg ? 'table-cell' : 'none'};">
+      <input type="number" class="rowItemOptCrates" value="${kgPerBoxVal || ''}" placeholder="Kg / Box" min="0" step="any" oninput="updateInwardRowHint(this.closest('tr'))"/>
+    </td>
+    <td>
+      <input type="text" class="rowItemVariety" value="${variety || ''}" placeholder="e.g. Vanjaram / Seer / Sardine"/>
+      <div class="rowInwardTotalHint" style="font-size:11px; color:#0284c7; font-weight:700; margin-top:3px; display:none;"></div>
+    </td>
+    <td class="num">
+      <button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove()"><i class="fas fa-times" style="color:#ef4444"></i></button>
+    </td>
   `;
   tbody.appendChild(tr);
+  updateInwardRowHint(tr);
 }
 
 function searchDealerInward(q) {
@@ -8326,21 +8642,48 @@ async function saveInwardArrival() {
     return;
   }
 
+  const isKg = !!document.getElementById('mArrIsKgOption')?.checked;
   const rows = document.querySelectorAll('#inwardItemsTbody tr');
   const items = [];
   rows.forEach(r => {
     const variety = r.querySelector('.rowItemVariety')?.value.trim();
-    const crates = Number(r.querySelector('.rowItemCrates')?.value) || 0;
-    if (variety && crates > 0) items.push({ variety, crates, weightKg: 0, notes: '' });
+    const crates = Number(r.querySelector('.rowItemMainQty')?.value) || 0;
+    const kgPerBox = Number(r.querySelector('.rowItemOptCrates')?.value) || 0;
+    if (variety && crates > 0) {
+      if (isKg) {
+        const totalKg = kgPerBox > 0 ? Math.round(crates * kgPerBox * 100) / 100 : crates;
+        items.push({
+          variety,
+          unit: 'KG',
+          crates: crates,
+          kgPerCrate: kgPerBox,
+          weightKg: totalKg,
+          unsoldCrates: crates,
+          unsoldWeightKg: totalKg,
+          notes: ''
+        });
+      } else {
+        items.push({
+          variety,
+          unit: 'Crate',
+          crates: crates,
+          kgPerCrate: 0,
+          weightKg: 0,
+          unsoldCrates: crates,
+          unsoldWeightKg: 0,
+          notes: ''
+        });
+      }
+    }
   });
 
-  if (items.length === 0) return showToast('Please add at least one variety with crates', 'error');
+  if (items.length === 0) return showToast(isKg ? 'Please add at least one variety with weight in KG' : 'Please add at least one variety with crates', 'error');
 
   try {
     const res = await fetch('/api/consignments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dealerName: existingContact.name, date, vehicleNo: '', lorryBhada: 0, lorryBhadaMode: 'Cash', driverPhone: '', items })
+      body: JSON.stringify({ isKg, dealerName: existingContact.name, date, vehicleNo: '', lorryBhada: 0, lorryBhadaMode: 'Cash', driverPhone: '', items })
     });
     if (res.ok) {
       showToast('Arrival saved & stock added!', 'success');
@@ -8357,7 +8700,13 @@ async function saveInwardArrival() {
 
 async function deleteInwardArrival(id) {
   id = Number(id);
-  if (!confirm('Delete this consignment arrival?')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Delete Consignment Arrival?',
+    message: 'Are you sure you want to delete this consignment arrival?',
+    subtext: 'This will permanently remove the arrival entry and associated stock.',
+    confirmText: 'Delete Arrival'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/consignments/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -8387,14 +8736,32 @@ function printArrivalGatepass(id) {
   doc.setFont('helvetica', 'bold');
   doc.text(`Dealer (Consignor): ${cons.dealerName}`, 14, 40);
 
-  const tableData = (Array.isArray(cons.items) ? cons.items : []).map((it, idx) => [
-    idx + 1,
-    `${it.crates} Crates`,
-    it.variety
-  ]);
+  const hasAnyKg = (cons.items || []).some(it => cons.isKg || it.unit === 'KG' || it.unit === 'Kg' || Number(it.kgPerCrate) > 0 || Number(it.weightKg) > 0);
+  const headCols = hasAnyKg
+    ? [['#', 'Crates Received', 'Kg / Box', 'Total Weight (Kg)', 'Fish Variety']]
+    : [['#', 'Crates Received', 'Fish Variety']];
+  const tableData = (Array.isArray(cons.items) ? cons.items : []).map((it, idx) => {
+    const crates = Number(it.crates) || 0;
+    const kgPerCrate = Number(it.kgPerCrate) || 0;
+    const totalKg = Number(it.weightKg) || (crates > 0 && kgPerCrate > 0 ? crates * kgPerCrate : 0);
+    if (hasAnyKg) {
+      return [
+        idx + 1,
+        `${crates} Crates`,
+        kgPerCrate > 0 ? `${kgPerCrate} Kg` : '-',
+        totalKg > 0 ? `${totalKg.toLocaleString('en-IN')} Kg` : '-',
+        it.variety
+      ];
+    }
+    return [
+      idx + 1,
+      `${crates} Crates`,
+      it.variety
+    ];
+  });
   doc.autoTable({
     startY: 46,
-    head: [['#', 'Crates Received', 'Fish Variety']],
+    head: headCols,
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [0, 132, 255] }
@@ -8688,9 +9055,13 @@ async function bulkDeleteSelectedSales() {
 
   const count = ids.length;
   const label = count > 1 ? `${count} sales bills` : '1 sales bill';
-  if (!confirm(`Are you sure you want to delete ${label}?\n\nConsignment crates & weights will be restored back to unsold godown stock.`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Sales Bills' : 'Sales Bill'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'Consignment crates & weights will be restored back to unsold godown stock.',
+    confirmText: 'Delete Sales Bills'
+  });
+  if (!confirmed) return;
 
   showToast(`Deleting ${label}...`, 'info');
 
@@ -8780,21 +9151,39 @@ function getInventoryStockOptionsHtml(selectedVal = '') {
   // Query actual available stock from inward consignments
   for (const c of (appState.consignments || [])) {
     for (const it of (c.items || [])) {
-      const left = Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0;
+      const isKgItem = !!(c.isKg || it.unit === 'KG' || it.unit === 'Kg');
+      const leftCrates = Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0;
+      let leftKg = Number(it.unsoldWeightKg !== undefined ? it.unsoldWeightKg : it.weightKg) || 0;
+      let kgPerBox = Number(it.kgPerCrate) || 0;
+
+      if (isKgItem) {
+        if (kgPerBox > 0 && leftCrates > 0 && leftKg <= kgPerBox) {
+          leftKg = leftCrates * kgPerBox;
+        } else if (!kgPerBox && leftKg > 0 && leftCrates > 0 && leftKg < 100 && leftCrates >= 10) {
+          kgPerBox = leftKg;
+          leftKg = leftCrates * kgPerBox;
+        } else if (!kgPerBox && leftKg > 0 && leftCrates > 0) {
+          kgPerBox = Math.round((leftKg / leftCrates) * 100) / 100;
+        }
+      }
+
       const v = (it.variety || '').trim();
-      if (v && left > 0) {
-        const key = v.toLowerCase();
+      if (v && (leftCrates > 0 || leftKg > 0)) {
+        const key = `${v.toLowerCase()}___${isKgItem ? 'kg' : 'crate'}`;
         if (invMap.has(key)) {
-          invMap.get(key).left += left;
+          const itemObj = invMap.get(key);
+          itemObj.leftCrates += leftCrates;
+          itemObj.leftKg += leftKg;
+          if (!itemObj.kgPerBox && kgPerBox) itemObj.kgPerBox = kgPerBox;
         } else {
-          const avgKgPerBox = (Number(it.crates) > 0 && Number(it.weightKg) > 0) 
-            ? Math.round(Number(it.weightKg) / Number(it.crates)) 
-            : 0;
           invMap.set(key, {
             variety: v,
-            left,
+            leftCrates,
+            leftKg,
+            kgPerBox,
+            unit: isKgItem ? 'KG' : 'Box',
+            isKg: isKgItem,
             dealerName: c.dealerName,
-            kgPerBox: avgKgPerBox,
             rate: Number(it.rateExpectation) || 0
           });
         }
@@ -8809,8 +9198,20 @@ function getInventoryStockOptionsHtml(selectedVal = '') {
     const isNoneSel = !selectedVal;
     html += `<option value="" ${isNoneSel ? 'selected' : ''}>-- Select Item --</option>`;
     for (const item of invMap.values()) {
+      let displayName = '';
+      if (item.isKg) {
+        if (item.leftCrates > 0 && item.kgPerBox > 0) {
+          displayName = `${item.variety} (${item.leftCrates} Boxes · ${item.kgPerBox} Kg/bx)`;
+        } else if (item.leftKg > 0) {
+          displayName = `${item.variety} (${item.leftKg} KG)`;
+        } else {
+          displayName = `${item.variety} (${item.leftCrates} Boxes)`;
+        }
+      } else {
+        displayName = `${item.variety} (${item.leftCrates} Boxes)`;
+      }
       const isSel = (item.variety.toLowerCase() === (selectedVal || '').toLowerCase()) ? 'selected' : '';
-      html += `<option value="${item.variety}" data-crates="${item.left}" data-kgperbox="${item.kgPerBox}" data-rate="${item.rate}" ${isSel}>${item.variety}</option>`;
+      html += `<option value="${item.variety}" data-unit="${item.unit}" data-is-kg="${item.isKg ? '1' : '0'}" data-crates="${item.leftCrates}" data-kg="${item.leftKg}" data-kg-per-box="${item.kgPerBox || ''}" data-rate="${item.rate}" ${isSel}>${displayName}</option>`;
     }
   }
   return html;
@@ -8830,9 +9231,13 @@ function addSaleLine(initialData = null) {
 
   const varietyVal = initialData?.variety || '';
   const cratesVal = initialData?.crates !== undefined ? initialData.crates : '';
+  const kgPerBoxVal = initialData?.kgPerBox !== undefined ? initialData.kgPerBox : (initialData?.kgPerCrate !== undefined ? initialData.kgPerCrate : '');
   const rateVal = initialData?.rate !== undefined ? initialData.rate : '';
   if (initialData?.targetAmount) {
     tr.dataset.targetAmount = initialData.targetAmount;
+  }
+  if (initialData?.unit) {
+    tr.dataset.unit = initialData.unit;
   }
 
   tr.innerHTML = `
@@ -8845,13 +9250,17 @@ function addSaleLine(initialData = null) {
       </div>
     </td>
     <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right;">
-      <input type="number" class="lineCrates" placeholder="0" min="0" value="${cratesVal}" oninput="onSaleLineBoxesChange(this)" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
+      <input type="number" class="lineCrates" placeholder="0" min="0" step="any" value="${cratesVal}" oninput="onSaleLineBoxesChange(this)" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
+    </td>
+    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right;">
+      <input type="number" class="lineKgPerBox" placeholder="-" min="0" step="any" value="${kgPerBoxVal}" oninput="onSaleLineKgPerBoxChange(this)" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
     </td>
     <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right;">
       <input type="number" class="lineRate" placeholder="Rate" min="0" step="any" value="${rateVal}" oninput="computeSaleBillTotals()" style="display:block; width:100%; box-sizing:border-box; text-align:right; font-weight:700; padding:7px 8px; border-radius:7px; border:1.5px solid #cbd5e1;"/>
     </td>
-    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right; font-family:var(--font-mono); font-weight:800; color:#0f172a; padding-top:14px;">
+    <td class="num" style="padding:8px 8px; vertical-align:top; text-align:right; font-family:var(--font-mono); font-weight:800; color:#0f172a; padding-top:10px;">
       <span class="lineRowSum">₹0</span>
+      <div class="lineRowFormula" style="font-size:10px; color:#64748b; font-weight:normal; margin-top:2px;"></div>
     </td>
     <td style="padding:8px 4px; vertical-align:top; text-align:center; padding-top:11px;">
       <button type="button" class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); computeSaleBillTotals()" title="Remove line"><i class="fas fa-times" style="color:#ef4444"></i></button>
@@ -8877,27 +9286,53 @@ function onSaleStockSelected(sel) {
   if (!val) {
     if (hint) { hint.style.display = 'none'; hint.innerHTML = ''; }
     const cratesInp = tr.querySelector('.lineCrates');
+    const kgPerBoxInp = tr.querySelector('.lineKgPerBox');
     const rateInp = tr.querySelector('.lineRate');
     if (cratesInp) cratesInp.value = '';
+    if (kgPerBoxInp) { kgPerBoxInp.value = ''; kgPerBoxInp.placeholder = '-'; }
     if (rateInp) rateInp.value = '';
     computeSaleBillTotals();
     return;
   }
 
-  const avail = Number(opt?.dataset.crates) || 0;
+  const isKg = opt?.dataset.isKg === '1' || opt?.dataset.unit === 'KG';
+  const availCrates = Number(opt?.dataset.crates) || 0;
+  const availKg = Number(opt?.dataset.kg) || 0;
+  const kgPerBox = Number(opt?.dataset.kgPerBox) || 0;
   const defaultRate = Number(opt?.dataset.rate) || 0;
 
   if (hint) {
     hint.style.display = 'block';
-    hint.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fas fa-boxes-stacked"></i> In Stock: <b>${avail} Boxes</b></span>`;
+    if (isKg && kgPerBox > 0) {
+      hint.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fas fa-boxes-stacked"></i> In Stock: <b>${availCrates} Boxes @ ${kgPerBox} KG (${availKg.toLocaleString('en-IN')} KG)</b></span>`;
+    } else if (isKg) {
+      hint.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fas fa-weight-hanging"></i> In Stock: <b>${availKg} KG</b></span>`;
+    } else {
+      hint.innerHTML = `<span style="color:#059669; font-weight:700;"><i class="fas fa-boxes-stacked"></i> In Stock: <b>${availCrates} Boxes</b></span>`;
+    }
   }
 
   const cratesInp = tr.querySelector('.lineCrates');
+  const kgPerBoxInp = tr.querySelector('.lineKgPerBox');
   const rateInp = tr.querySelector('.lineRate');
 
-  // Keep input fields completely blank until user explicitly inputs quantity and rate
-  if (cratesInp && !cratesInp.value) cratesInp.placeholder = '0';
-  if (rateInp && !rateInp.value) rateInp.placeholder = defaultRate > 0 ? `₹${defaultRate}` : 'Rate';
+  tr.dataset.unit = isKg ? 'KG' : 'Crate';
+  if (kgPerBoxInp) {
+    if (kgPerBox > 0) {
+      kgPerBoxInp.value = kgPerBox;
+    } else if (isKg) {
+      kgPerBoxInp.placeholder = 'Kg/bx';
+    } else {
+      kgPerBoxInp.value = '';
+      kgPerBoxInp.placeholder = '-';
+    }
+  }
+  if (cratesInp && !cratesInp.value) {
+    cratesInp.placeholder = '0 Boxes';
+  }
+  if (rateInp && !rateInp.value) {
+    rateInp.placeholder = defaultRate > 0 ? `₹${defaultRate}` : (isKg ? '₹ / KG' : 'Rate / Box');
+  }
 
   computeSaleBillTotals();
 }
@@ -8956,14 +9391,23 @@ function computeSaleBillTotals() {
   const rows = document.querySelectorAll('#saleLinesTbody tr');
   let subtotal = 0;
   let totalBoxes = 0;
+  let totalKgAll = 0;
 
   rows.forEach(r => {
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+    const kgPerBox = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
 
-    let lineTotal = Math.round(crates * rate);
+    let lineTotal = 0;
+    if (kgPerBox > 0) {
+      lineTotal = Math.round(crates * kgPerBox * rate);
+      totalKgAll += (crates * kgPerBox);
+    } else {
+      lineTotal = Math.round(crates * rate);
+    }
+
     if (r.dataset.targetAmount && Number(r.dataset.targetAmount) > 0) {
-      const expectedFromRate = Math.round(crates * rate);
+      const expectedFromRate = lineTotal;
       if (Math.abs(expectedFromRate - Number(r.dataset.targetAmount)) <= 3) {
         lineTotal = Number(r.dataset.targetAmount);
       }
@@ -8971,6 +9415,18 @@ function computeSaleBillTotals() {
 
     const span = r.querySelector('.lineRowSum');
     if (span) span.textContent = `₹${lineTotal.toLocaleString('en-IN')}`;
+
+    const formulaEl = r.querySelector('.lineRowFormula');
+    if (formulaEl) {
+      if (kgPerBox > 0 && crates > 0 && rate > 0) {
+        const totKg = crates * kgPerBox;
+        formulaEl.textContent = `${crates} bxs × ${kgPerBox} kg (${totKg.toLocaleString('en-IN')} kg) @ ₹${rate}`;
+      } else if (crates > 0 && rate > 0) {
+        formulaEl.textContent = `${crates} bxs @ ₹${rate}`;
+      } else {
+        formulaEl.textContent = '';
+      }
+    }
 
     totalBoxes += crates;
     subtotal += lineTotal;
@@ -9063,12 +9519,16 @@ function toggleAveragePriceMode(isChecked) {
         val = (r.querySelector('.lineVarietyInp')?.value || '').trim();
       }
       const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+      const kgPerBox = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
       const rate = Number(r.querySelector('.lineRate')?.value) || 0;
-      const targetAmt = (r.dataset.targetAmount && Number(r.dataset.targetAmount) > 0) ? Number(r.dataset.targetAmount) : Math.round(crates * rate);
+      const targetAmt = (r.dataset.targetAmount && Number(r.dataset.targetAmount) > 0)
+        ? Number(r.dataset.targetAmount)
+        : (kgPerBox > 0 ? Math.round(crates * kgPerBox * rate) : Math.round(crates * rate));
       if (val && crates > 0 && rate > 0) {
         rawLines.push({
           variety: val,
           crates,
+          kgPerBox,
           rate,
           amount: targetAmt
         });
@@ -9084,21 +9544,24 @@ function toggleAveragePriceMode(isChecked) {
       rawLines.forEach(l => {
         const k = l.variety.toLowerCase();
         if (!groupMap.has(k)) {
-          groupMap.set(k, { variety: l.variety, totalCrates: 0, totalAmount: 0 });
+          groupMap.set(k, { variety: l.variety, totalCrates: 0, kgPerBox: l.kgPerBox, totalAmount: 0 });
         }
         const g = groupMap.get(k);
         g.totalCrates += l.crates;
         g.totalAmount += l.amount;
+        if (!g.kgPerBox && l.kgPerBox) g.kgPerBox = l.kgPerBox;
       });
 
       const tbody = document.getElementById('saleLinesTbody');
       if (tbody) {
         tbody.innerHTML = '';
         groupMap.forEach(g => {
-          const avgRate = g.totalCrates > 0 ? Number((g.totalAmount / g.totalCrates).toFixed(2)) : 0;
+          const totKg = (g.kgPerBox > 0) ? (g.totalCrates * g.kgPerBox) : g.totalCrates;
+          const avgRate = totKg > 0 ? Number((g.totalAmount / totKg).toFixed(2)) : 0;
           addSaleLine({
             variety: g.variety,
             crates: g.totalCrates,
+            kgPerBox: g.kgPerBox,
             rate: avgRate,
             targetAmount: g.totalAmount
           });
@@ -9115,6 +9578,7 @@ function toggleAveragePriceMode(isChecked) {
           addSaleLine({
             variety: l.variety,
             crates: l.crates,
+            kgPerBox: l.kgPerBox,
             rate: l.rate,
             targetAmount: l.amount
           });
@@ -9253,6 +9717,7 @@ async function saveMorningSale(action = 'save') {
       val = (r.querySelector('.lineVarietyInp')?.value || '').trim();
     }
     const crates = Number(r.querySelector('.lineCrates')?.value) || 0;
+    const kgPerBox = Number(r.querySelector('.lineKgPerBox')?.value) || 0;
     const rate = Number(r.querySelector('.lineRate')?.value) || 0;
 
     if (val && crates > 0 && rate > 0) {
@@ -9274,7 +9739,8 @@ async function saveMorningSale(action = 'save') {
                 dealerName: c.dealerName,
                 variety: it.variety,
                 left: currentAvail,
-                consumedKey
+                consumedKey,
+                kgPerCrate: Number(it.kgPerCrate) || kgPerBox
               });
             }
           }
@@ -9286,16 +9752,17 @@ async function saveMorningSale(action = 'save') {
         if (remaining <= 0) break;
         const take = Math.min(remaining, mc.left);
         consumedMap.set(mc.consumedKey, (consumedMap.get(mc.consumedKey) || 0) + take);
-        const takeAmt = Math.round(take * rate);
+        const lineKg = kgPerBox > 0 ? kgPerBox : (Number(mc.kgPerCrate) || 0);
+        const takeAmt = lineKg > 0 ? Math.round(take * lineKg * rate) : Math.round(take * rate);
         lines.push({
           consignmentId: Number(mc.consignmentId),
           variety: mc.variety || val,
           dealerId: Number(mc.dealerId),
           dealerName: mc.dealerName,
-          unit: 'Box',
+          unit: lineKg > 0 ? 'KG' : 'Box',
           crates: take,
-          kgPerCrate: 0,
-          qty: take,
+          kgPerCrate: lineKg,
+          qty: lineKg > 0 ? (take * lineKg) : take,
           rate,
           amount: takeAmt
         });
@@ -9306,16 +9773,16 @@ async function saveMorningSale(action = 'save') {
       // Fallback if remainder or direct market lot without inward consignment
       if (remaining > 0 || matchingCons.length === 0) {
         const lineCrates = remaining > 0 ? remaining : crates;
-        const remAmt = Math.round(lineCrates * rate);
+        const remAmt = kgPerBox > 0 ? Math.round(lineCrates * kgPerBox * rate) : Math.round(lineCrates * rate);
         lines.push({
           consignmentId: 0,
           variety: val,
           dealerId: 0,
           dealerName: 'Market Lot',
-          unit: 'Box',
+          unit: kgPerBox > 0 ? 'KG' : 'Box',
           crates: lineCrates,
-          kgPerCrate: 0,
-          qty: lineCrates,
+          kgPerCrate: kgPerBox,
+          qty: kgPerBox > 0 ? (lineCrates * kgPerBox) : lineCrates,
           rate,
           amount: remAmt
         });
@@ -9378,7 +9845,13 @@ async function saveMorningSale(action = 'save') {
 
 async function deleteSaleBill(id) {
   id = Number(id);
-  if (!confirm('Revert this sale bill?')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Revert Sale Bill?',
+    message: 'Are you sure you want to revert this sale bill?',
+    subtext: 'Consignment crates & weights will be restored back to unsold godown stock.',
+    confirmText: 'Revert Sale'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -9413,8 +9886,13 @@ function getSaleDisplayLines(sale) {
     }
     const g = groups.get(key);
     g.crates += Number(l.crates) || 0;
-    g.qty += Number(l.qty) || Number(l.crates) || 0;
+    const isKgLine = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+    const lineKg = isKgLine ? (Number(l.qty) || ((Number(l.crates) || 0) * (Number(l.kgPerCrate) || 0)) || 0) : 0;
+    g.qty += isKgLine ? lineKg : (Number(l.crates) || Number(l.qty) || 0);
     g.amount += Number(l.amount) || 0;
+    if (Number(l.kgPerCrate) > 0 && !g.kgPerCrate) {
+      g.kgPerCrate = Number(l.kgPerCrate);
+    }
     if (l.dealerName && l.dealerName !== 'Market Lot') {
       g.dealers.add(l.dealerName);
     }
@@ -9424,22 +9902,25 @@ function getSaleDisplayLines(sale) {
   const displayLines = [];
   groups.forEach(g => {
     const totalCrates = g.crates;
-    const avgRate = totalCrates > 0 ? Number((g.amount / totalCrates).toFixed(2)) : 0;
+    const isKg = String(g.unit || '').toUpperCase() === 'KG' || g.kgPerCrate > 0;
+    const totalKg = isKg ? (g.kgPerCrate > 0 && totalCrates > 0 ? totalCrates * g.kgPerCrate : g.qty) : 0;
+    const effectiveQty = isKg ? (totalKg || totalCrates) : totalCrates;
+    const avgRate = effectiveQty > 0 ? Number((g.amount / effectiveQty).toFixed(2)) : 0;
     const dealersArr = Array.from(g.dealers);
     const dealerName = dealersArr.length > 0 ? dealersArr.join(', ') : 'Market Lot';
 
     displayLines.push({
       variety: g.variety,
-      unit: g.unit,
+      unit: isKg ? 'KG' : g.unit,
       crates: totalCrates,
-      qty: totalCrates,
+      qty: isKg ? (totalKg || totalCrates) : totalCrates,
       kgPerCrate: g.kgPerCrate,
       rate: avgRate,
       amount: g.amount,
       dealerName: dealerName,
       isAverage: true,
       originalLineCount: g.count,
-      formula: totalCrates > 0 ? `${g.amount.toLocaleString('en-IN')}/${totalCrates}` : ''
+      formula: effectiveQty > 0 ? (isKg ? `${g.amount.toLocaleString('en-IN')}/${effectiveQty}kg` : `${g.amount.toLocaleString('en-IN')}/${effectiveQty}`) : ''
     });
   });
 
@@ -9460,6 +9941,15 @@ function viewSaleBill(saleId, fallbackSale) {
   const displayLines = getSaleDisplayLines(sale);
 
   const totalBoxes = sale.totalBoxes || lines.reduce((acc, l) => acc + (Number(l.crates) || Number(l.qty) || 0), 0);
+  const totalWeight = displayLines.reduce((acc, l) => {
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+    if (isKg) {
+      const cratesCount = Number(l.crates);
+      const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
+      return acc + kg;
+    }
+    return acc;
+  }, 0);
   const prevBal = Number(sale.previousBalance) || 0;
   const billTotal = Number(sale.total) || 0;
   const totalDue = (sale.totalBalanceDue !== undefined && sale.totalBalanceDue !== null) ? Number(sale.totalBalanceDue) : (billTotal + prevBal);
@@ -9475,10 +9965,10 @@ function viewSaleBill(saleId, fallbackSale) {
   const delTopBtn = document.getElementById('viewBillTopDeleteSettlementBtn');
   if (delTopBtn) delTopBtn.style.display = 'none';
 
-  const hasAnyWeight = displayLines.some(l => (l.unit === 'Kg' || Number(l.kgPerCrate) > 0));
+  const hasAnyWeight = displayLines.some(l => (String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0));
 
   const rowsHtml = displayLines.map((l, i) => {
-    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
     const cratesCount = Number(l.crates);
     const boxDisplay = cratesCount > 0 ? `${cratesCount} Box` : (isKg ? '-' : (l.qty ? `${l.qty} Box` : '-'));
     
@@ -9517,6 +10007,8 @@ function viewSaleBill(saleId, fallbackSale) {
     `;
   }).join('');
 
+  const packageText = totalWeight > 0 ? `P - ${totalBoxes} Boxes (${totalWeight.toLocaleString('en-IN')} Kg)` : `P - ${totalBoxes} Boxes`;
+
   const contentHtml = `
     <div style="font-family:var(--font-main); color:#0f172a;">
       <!-- Header Branding -->
@@ -9550,7 +10042,7 @@ function viewSaleBill(saleId, fallbackSale) {
         <div style="text-align:right;">
           <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#64748b; font-weight:700;">TOTAL PACKAGES</div>
           <div style="display:inline-flex; align-items:center; gap:6px; background:#ede9fe; color:#6d28d9; border:1px solid #ddd6fe; padding:5px 14px; border-radius:20px; font-weight:800; font-size:13px; margin-top:2px;">
-            <i class="fas fa-box" style="font-size:12px;"></i> P - ${totalBoxes} Boxes
+            <i class="fas fa-box" style="font-size:12px;"></i> ${packageText}
           </div>
         </div>
       </div>
@@ -9654,21 +10146,29 @@ function viewPatiyaBill(settlementId) {
   const delTopBtn = document.getElementById('viewBillTopDeleteSettlementBtn');
   if (delTopBtn) delTopBtn.style.display = 'inline-flex';
 
+  const isKg = !!(s.isKg || (Array.isArray(s.items) && s.items.some(it => String(it.unit || '').toUpperCase() === 'KG' || it.isKg)));
+  const unitLabel = isKg ? 'KG' : 'Crates (P)';
+  const rateLabel = isKg ? 'Settled Rate (₹/KG)' : 'Settled Rate / Box (₹)';
+  const qtyColLabel = isKg ? 'Quantity Sold (KG)' : 'Quantity Sold';
+
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
     variety: 'Consignment Lot',
     qtySold: s.totalQtySold || 0,
-    unit: 'Crate',
+    unit: isKg ? 'KG' : 'Crate',
     reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
     reportedGross: s.totalReportedGross || 0
   }];
 
   const rowsHtml = items.map((it, idx) => {
+    const itIsKg = String(it.unit || '').toUpperCase() === 'KG' || it.isKg || isKg;
+    const itUnit = itIsKg ? 'KG' : (it.unit || 'Crate');
+    const rateUnit = itIsKg ? '/kg' : '/bx';
     return `
       <tr style="border-bottom:1px solid #f1f5f9; ${idx % 2 === 1 ? 'background:#fafbfc;' : ''}">
         <td style="padding:10px 12px; text-align:center; color:#64748b; font-weight:600;">${idx + 1}</td>
         <td style="padding:10px 12px; font-weight:700; color:#0f172a;">${it.variety || '-'}</td>
-        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#0284c7; font-family:var(--font-mono);">${it.qtySold} ${it.unit || 'Crate'}</td>
-        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">₹${Number(it.reportedRate || 0).toLocaleString('en-IN')}</td>
+        <td style="padding:10px 12px; text-align:right; font-weight:700; color:#0284c7; font-family:var(--font-mono);">${Number(it.qtySold || 0).toLocaleString('en-IN')} ${itUnit}</td>
+        <td style="padding:10px 12px; text-align:right; font-family:var(--font-mono); color:#334155;">₹${Number(it.reportedRate || 0).toLocaleString('en-IN')} <span style="font-size:10px; color:#64748b;">${rateUnit}</span></td>
         <td style="padding:10px 12px; text-align:right; font-weight:700; font-family:var(--font-mono); color:#0f172a;">₹${Number(it.reportedGross || 0).toLocaleString('en-IN')}</td>
       </tr>
     `;
@@ -9680,6 +10180,8 @@ function viewPatiyaBill(settlementId) {
       <span style="font-weight:600; font-family:var(--font-mono); color:#dc2626;">-₹${Number(e.amount || 0).toLocaleString('en-IN')}</span>
     </div>
   `).join('');
+
+  const arrivalBadgeText = s.arrivalCrates ? (isKg ? `${s.arrivalCrates} Box (${Number(s.totalQtySold || 0).toLocaleString('en-IN')} KG)` : `${s.arrivalCrates} Crates (P)`) : `${Number(s.totalQtySold || 0).toLocaleString('en-IN')} ${unitLabel}`;
 
   const contentHtml = `
     <div style="font-family:var(--font-main); color:#0f172a;">
@@ -9710,7 +10212,7 @@ function viewPatiyaBill(settlementId) {
         <div style="text-align:right;">
           <div style="font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#0284c7; font-weight:700;">ARRIVAL CONSIGNMENT LOT</div>
           <div style="display:inline-flex; align-items:center; gap:6px; background:#e0f2fe; color:#0369a1; border:1px solid #bae6fd; padding:5px 14px; border-radius:20px; font-weight:800; font-size:13px; margin-top:2px;">
-            <i class="fas fa-boxes-stacked" style="font-size:12px;"></i> ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)
+            <i class="fas fa-boxes-stacked" style="font-size:12px;"></i> ARR. ${arrivalBadgeText}
           </div>
         </div>
       </div>
@@ -9722,8 +10224,8 @@ function viewPatiyaBill(settlementId) {
             <tr style="background:#0284c7; color:#ffffff; font-weight:700; text-align:left;">
               <th style="padding:10px 12px; width:40px; text-align:center;">#</th>
               <th style="padding:10px 12px;">Fish Variety</th>
-              <th style="padding:10px 12px; text-align:right;">Quantity Sold</th>
-              <th style="padding:10px 12px; text-align:right;">Settled Rate / Box (₹)</th>
+              <th style="padding:10px 12px; text-align:right;">${qtyColLabel}</th>
+              <th style="padding:10px 12px; text-align:right;">${rateLabel}</th>
               <th style="padding:10px 12px; text-align:right;">Gross Total (₹)</th>
             </tr>
           </thead>
@@ -9889,30 +10391,41 @@ function downloadA4SalesBill(saleId, fallbackSale) {
   doc.text(`Terms: ${sale.paymentType}`, 135, 34);
 
   // Billed To & Package Bar
+  const lines = getSaleDisplayLines(sale);
+  const totalWeight = lines.reduce((acc, l) => {
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+    if (isKg) {
+      const cratesCount = Number(l.crates);
+      const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
+      return acc + kg;
+    }
+    return acc;
+  }, 0);
+
   doc.setFillColor(241, 245, 249);
   doc.rect(14, 38, 182, 12, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text(`Billed To: ${sale.buyerName}`, 18, 46);
   doc.setTextColor(109, 40, 217);
-  doc.text(`Packages: P - ${sale.totalBoxes || 0} Boxes`, 135, 46);
+  const packageText = totalWeight > 0 ? `Packages: P - ${sale.totalBoxes || 0} Boxes (${totalWeight.toLocaleString('en-IN')} Kg)` : `Packages: P - ${sale.totalBoxes || 0} Boxes`;
+  doc.text(packageText, 130, 46);
   doc.setTextColor(15, 23, 42);
 
   // Table items
-  const lines = getSaleDisplayLines(sale);
-  const hasAnyWeight = lines.some(l => (l.unit === 'Kg' || Number(l.kgPerCrate) > 0));
+  const hasAnyWeight = lines.some(l => (String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0));
   const headCols = hasAnyWeight
     ? [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Weight (Kg)', 'Rate (Rs.)', 'Amount (Rs.)']]
     : [['#', 'Item Variety', 'Dealer Source', 'Boxes (P)', 'Rate (Rs.)', 'Amount (Rs.)']];
   const tableData = lines.map((l, i) => {
-    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
     const cratesCount = Number(l.crates);
     const boxStr = cratesCount > 0 ? `${cratesCount} Box` : (isKg ? '-' : `${l.qty || 0} Box`);
     let wtStr = '-';
     if (isKg) {
       const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
       if (kg > 0) {
-        wtStr = (cratesCount > 0 && Number(l.kgPerCrate) > 0) ? `${kg} Kg (${l.kgPerCrate}k/b)` : `${kg} Kg`;
+        wtStr = (cratesCount > 0 && Number(l.kgPerCrate) > 0) ? `${kg.toLocaleString('en-IN')} Kg (${l.kgPerCrate}k/b)` : `${kg.toLocaleString('en-IN')} Kg`;
       }
     }
     const rateFormatted = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
@@ -9994,20 +10507,30 @@ function sendSaleWhatsApp(saleId, fallbackSale) {
   const buyer = appState.contacts.find(c => c.name.toLowerCase() === (sale.buyerName || '').toLowerCase());
   const phone = (buyer?.phone || '').replace(/[^0-9]/g, '');
   const lines = getSaleDisplayLines(sale);
+  const totalWeight = lines.reduce((acc, l) => {
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+    if (isKg) {
+      const cratesCount = Number(l.crates);
+      const kg = Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0);
+      return acc + kg;
+    }
+    return acc;
+  }, 0);
+
   const linesText = lines.map(l => {
-    const isKg = l.unit === 'Kg' || Number(l.kgPerCrate) > 0;
+    const isKg = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
     const cratesCount = Number(l.crates);
     const kg = isKg ? (Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0)) : 0;
     const rateFormatted = Number(l.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: l.isAverage ? 2 : 0, maximumFractionDigits: 2 });
     let desc = '';
     if (cratesCount > 0) {
       if (Number(l.kgPerCrate) > 0) {
-        desc = `${cratesCount} Box ${l.variety} (${l.kgPerCrate}kg) @ Rs.${rateFormatted}`;
+        desc = `${cratesCount} Box ${l.variety} (${l.kgPerCrate}kg/b - ${kg.toLocaleString('en-IN')}kg) @ Rs.${rateFormatted}/kg`;
       } else {
-        desc = `${cratesCount} Box ${l.variety} @ Rs.${rateFormatted}`;
+        desc = `${cratesCount} Box ${l.variety} @ Rs.${rateFormatted}/bx`;
       }
     } else {
-      desc = `${kg}kg ${l.variety} @ Rs.${rateFormatted}`;
+      desc = `${kg.toLocaleString('en-IN')}kg ${l.variety} @ Rs.${rateFormatted}/kg`;
     }
     return `• ${desc} = Rs.${Number(l.amount || 0).toLocaleString('en-IN')}`;
   }).join('\n');
@@ -10021,12 +10544,15 @@ function sendSaleWhatsApp(saleId, fallbackSale) {
   const closingBal = Number(sale.closingBalance) !== undefined ? Number(sale.closingBalance) : (totalDue - cashPaid);
 
   const formattedDate = sale.date ? sale.date.split('-').reverse().join('-') : '';
+  const totalHeader = totalWeight > 0
+    ? `Total: *${sale.totalBoxes || 0} Box (${totalWeight.toLocaleString('en-IN')} KG)*`
+    : `Total: *${sale.totalBoxes || 0} Box*`;
 
   const msgLines = [
     `*AL HASEENA EXPORTS*`,
     `Date: ${formattedDate || sale.date}`,
     `Buyer: *${sale.buyerName}*`,
-    `Total: *${sale.totalBoxes || 0} Box*`,
+    totalHeader,
     ``,
     linesText,
     ``
@@ -10279,7 +10805,16 @@ function updatePatiyaSelectionUI(filtered) {
 async function bulkDeleteSelectedPatiya() {
   const ids = Array.from(selectedPatiyaIds);
   if (ids.length === 0) return;
-  if (!confirm(`Are you sure you want to delete ${ids.length} selected settlement(s)? This will revert the settled lots back to active and remove any associated payout records.`)) return;
+  const count = ids.length;
+  const label = count > 1 ? `${count} selected settlements` : '1 selected settlement';
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Settlements' : 'Settlement'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'This will revert the settled lots back to active and remove any associated payout records.',
+    confirmText: 'Delete Settlements',
+    danger: true
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch('/api/settlements/bulk-delete', {
@@ -10616,10 +11151,12 @@ function renderPatiyaView() {
 
   const tbody = document.getElementById('patItemsTbody');
 
+  const isKg = !!(curPatiyaData.isKg || curPatiyaData.items?.some(it => it.unit === 'KG'));
+  const unitLabel = isKg ? 'KG' : 'Crates';
   const totalArr = curPatiyaData.arrivalCratesToday || 0;
   document.getElementById('mPatArrivalCrates').value = totalArr;
   const arrBadge = document.getElementById('mPatTotalArrivalBadge');
-  if (arrBadge) arrBadge.textContent = `Total: ${totalArr} Crates`;
+  if (arrBadge) arrBadge.textContent = `Total: ${totalArr} ${unitLabel}`;
 
   document.getElementById('mPatPrevBal').value = curPatiyaData.previousBalance ? curPatiyaData.previousBalance : '';
   document.getElementById('mPatCashPaid').value = '';
@@ -10638,13 +11175,15 @@ function renderPatiyaView() {
     if (recVars.length > 0) {
       recListEl.innerHTML = recVars.map(rv => {
         const safeId = 'patPill_' + rv.variety.replace(/[^a-zA-Z0-9]/g, '_');
+        const rvUnit = rv.unit || unitLabel;
+        const totalQty = rv.totalQty !== undefined ? rv.totalQty : rv.totalCrates;
         return `
           <div style="background:#ffffff; border:1.5px solid #cbd5e1; border-radius:8px; padding:6px 12px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
             <div style="font-size:12.5px;">
               <strong style="color:#0f172a; font-size:13px;">${rv.variety}</strong>:
-              <span style="color:#0284c7; font-weight:800;">${rv.totalCrates} Crates</span>
+              <span style="color:#0284c7; font-weight:800;">${totalQty} ${rvUnit}</span>
             </div>
-            <span class="badge badge-gray pat-var-pill" id="${safeId}" style="font-size:11px;">0 / ${rv.totalCrates} Accounted</span>
+            <span class="badge badge-gray pat-var-pill" id="${safeId}" style="font-size:11px;">0 / ${totalQty} Accounted</span>
             <button class="btn btn-ghost btn-sm" style="padding:2px 6px; font-size:11px;" onclick="addPatiyaItemLine('${rv.variety.replace(/'/g, "\\'")}', '')" title="Add sub-lot for ${rv.variety}"><i class="fas fa-plus"></i> Bill Lot</button>
           </div>
         `;
@@ -10660,8 +11199,8 @@ function renderPatiyaView() {
     tbody.innerHTML = patItems.map((it, idx) => `
       <tr>
         <td><input type="text" list="patVarietyDatalist" value="${it.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${it.unit || 'Crate'}</span></td>
+        <td class="num"><input type="number" value="${it.qtySold}" class="patItemQty" min="0.1" step="any" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${it.unit || (isKg ? 'KG' : 'Crate')}</span></td>
         <td class="num" style="background:#fffbeb;">
           <input type="number" value="${it.reportedRate ? it.reportedRate : ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
@@ -10671,18 +11210,22 @@ function renderPatiyaView() {
     `).join('');
   } else if (recVars.length > 0) {
     // Automatically generate initial lines from received varieties
-    tbody.innerHTML = recVars.map((rv, idx) => `
+    tbody.innerHTML = recVars.map((rv, idx) => {
+      const lineUnit = rv.unit || (isKg ? 'KG' : 'Crate');
+      const totalQty = rv.totalQty !== undefined ? rv.totalQty : rv.totalCrates;
+      return `
       <tr>
         <td><input type="text" list="patVarietyDatalist" value="${rv.variety}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><input type="number" value="${rv.totalCrates}" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">Crate</span></td>
+        <td class="num"><input type="number" value="${totalQty}" class="patItemQty" min="0.1" step="any" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+        <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${lineUnit}</span></td>
         <td class="num" style="background:#fffbeb;">
           <input type="number" value="" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
         </td>
         <td class="num gross-cell" style="font-family:var(--font-mono); font-weight:700;">₹0</td>
         <td class="num"><button class="btn btn-ghost btn-sm" onclick="this.closest('tr').remove(); recalculatePatiya()"><i class="fas fa-times" style="color:#ef4444"></i></button></td>
       </tr>
-    `).join('');
+      `;
+    }).join('');
   } else {
     tbody.innerHTML = '';
     addPatiyaItemLine('', '', '');
@@ -10709,17 +11252,20 @@ function renderPatiyaView() {
   recalculatePatiya();
 }
 
-function addPatiyaItemLine(variety = '', qty = '', rate = '') {
+function addPatiyaItemLine(variety = '', qty = '', rate = '', unit = '') {
   const tbody = document.getElementById('patItemsTbody');
   const recVars = curPatiyaData?.receivedVarieties || [];
   if (!variety && recVars.length > 0) {
     variety = recVars[0].variety;
   }
+  const isKg = !!(curPatiyaData?.isKg || curPatiyaData?.items?.some(it => it.unit === 'KG'));
+  const foundRv = recVars.find(r => r.variety.toLowerCase() === (variety || '').toLowerCase());
+  const itemUnit = unit || foundRv?.unit || (isKg ? 'KG' : 'Crate');
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" list="patVarietyDatalist" placeholder="Fish Variety" value="${variety || ''}" class="patItemVariety" style="font-weight:700; width:100%;" oninput="recalculatePatiya()"/></td>
-    <td class="num"><input type="number" value="${qty || ''}" placeholder="Crates" class="patItemQty" min="1" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
-    <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">Crate</span></td>
+    <td class="num"><input type="number" value="${qty || ''}" placeholder="${itemUnit}" class="patItemQty" min="0.1" step="any" style="width:80px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/></td>
+    <td class="num"><span class="patItemUnit" style="font-size:12px; color:#64748b;">${itemUnit}</span></td>
     <td class="num" style="background:#fffbeb;">
       <input type="number" value="${rate || ''}" placeholder="₹ Rate" class="patItemRate" style="width:90px; text-align:right; font-weight:700;" oninput="recalculatePatiya()"/>
     </td>
@@ -10862,9 +11408,13 @@ function recalculatePatiya() {
   const totalGrossEl = document.getElementById('mPatTotalGrossSales');
   if (totalGrossEl) totalGrossEl.textContent = `₹${gross.toLocaleString('en-IN')}`;
 
+  const isKg = !!(curPatiyaData?.isKg || curPatiyaData?.items?.some(it => it.unit === 'KG'));
+  const unitLabel = isKg ? 'KG' : 'Box';
+  const unitPlural = isKg ? 'KG' : 'Crates';
+
   const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
   const avgBadge = document.getElementById('mPatBlendedAvgBadge');
-  if (avgBadge) avgBadge.textContent = `Blended Avg: @ ₹${avgRate.toLocaleString('en-IN')} / Box`;
+  if (avgBadge) avgBadge.textContent = `Blended Avg: @ ₹${avgRate.toLocaleString('en-IN')} / ${unitLabel}`;
 
   // Update dynamic per-variety status badges
   const recVars = curPatiyaData?.receivedVarieties || [];
@@ -10873,18 +11423,20 @@ function recalculatePatiya() {
     const pill = document.getElementById(safeId);
     if (pill) {
       const accounted = accountedMap[rv.variety.toLowerCase()] || 0;
+      const total = Number(rv.totalQty !== undefined ? rv.totalQty : rv.totalCrates) || 0;
+      const rvUnit = rv.unit || unitPlural;
       if (accounted === 0) {
         pill.className = 'badge badge-gray pat-var-pill';
-        pill.textContent = `0 / ${rv.totalCrates} Accounted (${rv.totalCrates} Left)`;
-      } else if (accounted < rv.totalCrates) {
+        pill.textContent = `0 / ${total} ${rvUnit} Accounted (${total} Left)`;
+      } else if (accounted < total) {
         pill.className = 'badge badge-amber pat-var-pill';
-        pill.textContent = `${accounted} / ${rv.totalCrates} Accounted (${rv.totalCrates - accounted} Left)`;
-      } else if (accounted === rv.totalCrates) {
+        pill.textContent = `${accounted} / ${total} ${rvUnit} Accounted (${total - accounted} Left)`;
+      } else if (accounted === total) {
         pill.className = 'badge badge-green pat-var-pill';
-        pill.textContent = `✓ ${accounted} / ${rv.totalCrates} Fully Accounted`;
+        pill.textContent = `✓ ${accounted} / ${total} ${rvUnit} Fully Accounted`;
       } else {
         pill.className = 'badge badge-purple pat-var-pill';
-        pill.textContent = `${accounted} / ${rv.totalCrates} (${accounted - rv.totalCrates} Extra)`;
+        pill.textContent = `${accounted} / ${total} ${rvUnit} (${accounted - total} Extra)`;
       }
     }
   });
@@ -10897,17 +11449,17 @@ function recalculatePatiya() {
       const leftOverall = totalArr - totalSold;
       if (leftOverall === 0) {
         statBadge.className = 'badge badge-green';
-        statBadge.innerHTML = `<i class="fas fa-check"></i> All ${totalArr} Crates Accounted`;
+        statBadge.innerHTML = `<i class="fas fa-check"></i> All ${totalArr} ${unitPlural} Accounted`;
       } else if (leftOverall > 0) {
         statBadge.className = 'badge badge-amber';
-        statBadge.innerHTML = `${totalSold} / ${totalArr} Crates Accounted (${leftOverall} Left)`;
+        statBadge.innerHTML = `${totalSold} / ${totalArr} ${unitPlural} Accounted (${leftOverall} Left)`;
       } else {
         statBadge.className = 'badge badge-purple';
-        statBadge.innerHTML = `${totalSold} / ${totalArr} Crates (${Math.abs(leftOverall)} Extra)`;
+        statBadge.innerHTML = `${totalSold} / ${totalArr} ${unitPlural} (${Math.abs(leftOverall)} Extra)`;
       }
     } else {
       statBadge.className = 'badge badge-blue';
-      statBadge.innerHTML = `${totalSold} Crates Accounted`;
+      statBadge.innerHTML = `${totalSold} ${unitPlural} Accounted`;
     }
   }
 
@@ -10957,12 +11509,21 @@ function recalculatePatiya() {
   if (unsoldEl) unsoldEl.textContent = unsoldLeft;
 }
 
-async function saveFinalizedPatiya(action = 'save') {
+function onAcknowledgeUnsoldPatiya() {
+  closeModal('unsoldPatiyaWarningModal');
+  const action = window._pendingPatiyaAction || 'save';
+  saveFinalizedPatiya(action, true);
+}
+
+async function saveFinalizedPatiya(action = 'save', isAcknowledged = false) {
   if (!curPatiyaData) return;
   const dealer = curPatiyaData.dealer;
   const date = document.getElementById('mPatDate').value;
   const today = getTodayIsoDate();
   if (date > today) return showToast('Settlement date cannot be in the future', 'error');
+
+  const isKgSettlement = !!(curPatiyaData?.isKg || curPatiyaData?.items?.some(it => it.unit === 'KG'));
+  const unitName = isKgSettlement ? 'KG' : 'Crates';
 
   const itemRows = document.querySelectorAll('#patItemsTbody tr');
   const items = [];
@@ -10973,11 +11534,12 @@ async function saveFinalizedPatiya(action = 'save') {
     const variety = r.querySelector('.patItemVariety')?.value.trim() || 'Fish';
     const qty = Number(r.querySelector('.patItemQty')?.value) || 0;
     const rate = Number(r.querySelector('.patItemRate')?.value) || 0;
+    const unit = r.querySelector('.patItemUnit')?.textContent?.trim() || (isKgSettlement ? 'KG' : 'Crate');
     const lineGross = Math.round(qty * rate);
     if (qty > 0) {
       items.push({
         variety,
-        unit: 'Crate',
+        unit,
         qtySold: qty,
         reportedRate: rate,
         reportedGross: lineGross,
@@ -10989,10 +11551,47 @@ async function saveFinalizedPatiya(action = 'save') {
     }
   });
 
-  if (items.length === 0) return showToast('Please enter at least one fish lot item with sold crates', 'error');
+  if (items.length === 0) return showToast(isKgSettlement ? 'Please enter at least one fish lot item with sold KG' : 'Please enter at least one fish lot item with sold crates', 'error');
 
   const arrivalCrates = Number(document.getElementById('mPatArrivalCrates').value) || totalSold;
   const avgRate = totalSold > 0 ? Math.round(gross / totalSold) : 0;
+
+  // Warning Popup: Check if arrival items are not fully sold
+  if (!isAcknowledged) {
+    const unsoldUnits = Math.max(0, arrivalCrates - totalSold);
+    const recVars = curPatiyaData?.receivedVarieties || [];
+    let hasUnsoldRec = false;
+    const unsoldDetails = [];
+    recVars.forEach(rv => {
+      const total = Number(rv.totalQty !== undefined ? rv.totalQty : rv.totalCrates) || 0;
+      let accounted = 0;
+      items.filter(it => it.variety.toLowerCase() === rv.variety.toLowerCase()).forEach(it => accounted += it.qtySold);
+      if (total > accounted) {
+        hasUnsoldRec = true;
+        unsoldDetails.push(`${rv.variety}: ${total - accounted} ${rv.unit || unitName} remaining`);
+      }
+    });
+
+    if (unsoldUnits > 0 || hasUnsoldRec || (curPatiyaData?.unsoldCratesRemaining > 0)) {
+      const warnBox = document.getElementById('unsoldPatiyaWarningText');
+      if (warnBox) {
+        const countToDisplay = unsoldUnits > 0 ? unsoldUnits : (curPatiyaData?.unsoldCratesRemaining || '');
+        warnBox.innerHTML = `
+          <div style="font-weight:700; color:#92400e; margin-bottom:6px;">
+            <i class="fas fa-triangle-exclamation"></i> Warning: Arrival items are not fully sold!
+          </div>
+          <div>This arrival lot still has <b>${countToDisplay} ${unitName}</b> remaining unsold in godown (${totalSold} of ${arrivalCrates} accounted).</div>
+          ${unsoldDetails.length > 0 ? `<div style="font-size:12px; color:#b45309; margin-top:8px; background:#fef3c7; padding:6px 10px; border-radius:6px; line-height:1.4;">• ${unsoldDetails.join('<br/>• ')}</div>` : ''}
+          <div style="margin-top:10px; font-size:12px; color:#64748b;">
+            Unsold stock will remain in the godown. Are you sure you want to finalize this settlement now?
+          </div>
+        `;
+      }
+      window._pendingPatiyaAction = action;
+      openModal('unsoldPatiyaWarningModal');
+      return;
+    }
+  }
 
   const expenses = [];
   document.querySelectorAll('#patExpenseTbody tr').forEach(r => {
@@ -11016,9 +11615,15 @@ async function saveFinalizedPatiya(action = 'save') {
   const cashPaidPayee = document.getElementById('mPatCashPayee').value.trim() || (cashPaidToday > 0 ? 'Paid to Driver on Settlement' : '');
   const closingBalance = Math.ceil(totalBalanceDue - cashPaidToday);
 
+  if (window._isSavingPatiya) return;
+  window._isSavingPatiya = true;
+
   const saveBtn = document.getElementById('savePatiyaBtn');
-  if (saveBtn && saveBtn.disabled) return;
-  if (saveBtn) saveBtn.disabled = true;
+  const origSaveHtml = saveBtn ? saveBtn.innerHTML : '';
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalizing...';
+  }
 
   try {
     const res = await fetch('/api/settlements', {
@@ -11028,6 +11633,7 @@ async function saveFinalizedPatiya(action = 'save') {
         dealerId: dealer.id,
         dealerName: dealer.name,
         date,
+        isKg: isKgSettlement,
         consignmentId: curPatiyaData?.consignmentId || appState.activeSettlingConsignmentId || null,
         consignmentIds: curPatiyaData?.consignmentIds || (appState.activeSettlingConsignmentId ? [appState.activeSettlingConsignmentId] : []),
         arrivalCrates,
@@ -11069,13 +11675,24 @@ async function saveFinalizedPatiya(action = 'save') {
   } catch (e) {
     showToast('Error: ' + e.message, 'error');
   } finally {
-    if (saveBtn) saveBtn.disabled = false;
+    window._isSavingPatiya = false;
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = origSaveHtml;
+    }
   }
 }
 
 async function deletePatiyaSettlement(id) {
   id = Number(id);
-  if (!confirm('Are you sure you want to delete this settlement? This will revert the settled lots back to active and remove any associated payout records.')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Delete Settlement?',
+    message: 'Are you sure you want to delete this settlement?',
+    subtext: 'This will revert the settled lots back to active and remove any associated payout records.',
+    confirmText: 'Delete Settlement',
+    danger: true
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/settlements/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -11161,34 +11778,44 @@ function downloadA4Patiya(id) {
   doc.text(`Date: ${s.date}`, 110, 29);
 
   // Dealer & Arrival Lot Banner
+  const isKg = !!(s.isKg || (Array.isArray(s.items) && s.items.some(it => String(it.unit || '').toUpperCase() === 'KG' || it.isKg)));
+  const unitLabel = isKg ? 'KG' : 'Crates (P)';
+  const arrivalBannerText = s.arrivalCrates ? (isKg ? `ARR. ${s.arrivalCrates} Box (${Number(s.totalQtySold || 0).toLocaleString('en-IN')} KG)` : `ARR. ${s.arrivalCrates} Crates (P)`) : `ARR. ${Number(s.totalQtySold || 0).toLocaleString('en-IN')} ${unitLabel}`;
   doc.setFillColor(224, 242, 254);
   doc.rect(14, 36, 182, 12, 'F');
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
   doc.text(`Dealer: ${s.dealerName}`, 18, 44);
   doc.setTextColor(2, 132, 199);
-  doc.text(`Arrival Consignment Lot: ARR. ${s.arrivalCrates || s.totalQtySold || 0} Crates (P)`, 110, 44);
+  doc.text(`Arrival Consignment Lot: ${arrivalBannerText}`, 105, 44);
   doc.setTextColor(15, 23, 42);
 
   // Items Sold Table
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
     variety: 'Consignment Lot',
     qtySold: s.totalQtySold || 0,
-    unit: 'Crate',
+    unit: isKg ? 'KG' : 'Crate',
     reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
     reportedGross: s.totalReportedGross || 0
   }];
-  const tableData = items.map((it, idx) => [
-    idx + 1,
-    it.variety,
-    `${it.qtySold} ${it.unit || 'Crate'}`,
-    `Rs. ${it.reportedRate}`,
-    `Rs. ${(it.reportedGross || 0).toLocaleString('en-IN')}`
-  ]);
+  const tableData = items.map((it, idx) => {
+    const itIsKg = String(it.unit || '').toUpperCase() === 'KG' || it.isKg || isKg;
+    const itUnit = itIsKg ? 'KG' : (it.unit || 'Crate');
+    const rateUnit = itIsKg ? '/kg' : '';
+    return [
+      idx + 1,
+      it.variety,
+      `${Number(it.qtySold || 0).toLocaleString('en-IN')} ${itUnit}`,
+      `Rs. ${Number(it.reportedRate || 0).toLocaleString('en-IN')}${rateUnit}`,
+      `Rs. ${(it.reportedGross || 0).toLocaleString('en-IN')}`
+    ];
+  });
 
+  const rateHeader = isKg ? 'Settled Rate (Rs./KG)' : 'Settled Rate / Box';
+  const qtyHeader = isKg ? 'Quantity Sold (KG)' : 'Quantity Sold';
   doc.autoTable({
     startY: 52,
-    head: [['#', 'Fish Variety', 'Quantity Sold', 'Settled Rate / Box', 'Gross Total (Rs.)']],
+    head: [['#', 'Fish Variety', qtyHeader, rateHeader, 'Gross Total (Rs.)']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [0, 132, 255] },
@@ -11280,14 +11907,21 @@ function sendPatiyaWhatsApp(id) {
   const dealer = appState.contacts.find(c => c.name.toLowerCase() === s.dealerName.toLowerCase());
   const phone = (dealer?.phone || '').replace(/[^0-9]/g, '');
 
+  const isKg = !!(s.isKg || (Array.isArray(s.items) && s.items.some(it => String(it.unit || '').toUpperCase() === 'KG' || it.isKg)));
+
   const items = Array.isArray(s.items) && s.items.length > 0 ? s.items : [{
     variety: 'Fish Lot',
     qtySold: s.totalQtySold || 0,
-    unit: 'Box',
+    unit: isKg ? 'KG' : 'Box',
     reportedRate: s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0,
     reportedGross: s.totalReportedGross || 0
   }];
-  const itemsText = items.map(it => `• ${it.qtySold} Box ${it.variety} @ Rs.${Number(it.reportedRate || 0).toLocaleString('en-IN')} = Rs.${Number(it.reportedGross || 0).toLocaleString('en-IN')}`).join('\n');
+  const itemsText = items.map(it => {
+    const itIsKg = String(it.unit || '').toUpperCase() === 'KG' || it.isKg || isKg;
+    const itUnit = itIsKg ? 'KG' : 'Box';
+    const rateUnit = itIsKg ? '/kg' : '/bx';
+    return `• ${Number(it.qtySold || 0).toLocaleString('en-IN')} ${itUnit} ${it.variety} @ Rs.${Number(it.reportedRate || 0).toLocaleString('en-IN')}${rateUnit} = Rs.${Number(it.reportedGross || 0).toLocaleString('en-IN')}`;
+  }).join('\n');
   const netProceed = Math.ceil(Number(s.netConsignmentAmount) !== undefined ? Number(s.netConsignmentAmount) : Number(s.netPayableToDealer || 0));
   const prevBal = Number(s.previousBalance) || 0;
   const totalDue = Math.ceil(Number(s.totalBalanceDue) !== undefined ? Number(s.totalBalanceDue) : (netProceed + prevBal));
@@ -11295,13 +11929,13 @@ function sendPatiyaWhatsApp(id) {
   const closingBal = Math.ceil(Number(s.closingBalance) !== undefined ? Number(s.closingBalance) : (totalDue - cashPaid));
 
   const formattedDate = s.date ? s.date.split('-').reverse().join('-') : '';
-  const totalBoxes = s.arrivalCrates || s.totalQtySold || 0;
+  const totalUnits = s.arrivalCrates ? (isKg ? `${s.arrivalCrates} Box (${Number(s.totalQtySold || 0).toLocaleString('en-IN')} KG)` : `${s.arrivalCrates} Box`) : `${Number(s.totalQtySold || 0).toLocaleString('en-IN')} ${isKg ? 'KG' : 'Box'}`;
 
   const msgLines = [
     `*AL HASEENA EXPORTS*`,
     `Date: ${formattedDate || s.date}`,
     `Dealer: *${s.dealerName}*`,
-    `Total: *${totalBoxes} Box*`,
+    `Total: *${totalUnits}*`,
     ``,
     itemsText,
     ``,
@@ -11643,9 +12277,13 @@ async function bulkDeleteSelectedContacts() {
 
   const count = ids.length;
   const label = count > 1 ? `${count} contacts` : '1 contact';
-  if (!confirm(`Are you sure you want to delete ${label}?`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Contacts' : 'Contact'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'This will remove the selected contacts from your directory.',
+    confirmText: 'Delete Contacts'
+  });
+  if (!confirmed) return;
 
   showToast(`Deleting ${label}...`, 'info');
 
@@ -11679,8 +12317,14 @@ async function bulkDeleteSelectedContacts() {
 async function deleteContactSingle(id) {
   id = Number(id);
   const c = (appState.contacts || []).find(x => x.id === id);
-  const name = c ? c.name : 'this person';
-  if (!confirm(`Delete ${name} from contacts directory?`)) return;
+  const name = c ? c.name : 'this contact';
+  const confirmed = await showDeleteModal({
+    title: 'Delete Contact?',
+    message: `Are you sure you want to delete "${name}" from contacts directory?`,
+    subtext: 'This will remove this contact from your directory.',
+    confirmText: 'Delete Contact'
+  });
+  if (!confirmed) return;
 
   try {
     const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
@@ -12291,11 +12935,13 @@ function renderStatementView() {
     } else if (r.type === 'SETTLEMENT_PATIYA' || (r.description && r.description.toLowerCase().includes('patiya'))) {
       if (isDetailed && Array.isArray(r.items) && r.items.length > 0) {
         const itemHtmlList = r.items.map(it => {
+          const isItKg = String(it.unit || '').toUpperCase() === 'KG' || it.isKg;
+          const itUnit = isItKg ? 'KG' : (it.unit || 'Box');
           const qty = it.qtySold || it.crates || 0;
           const rate = Number(it.reportedRate || it.rate || 0);
           const gross = Number(it.reportedGross || (qty * rate) || 0);
           const varName = it.variety ? ` ${it.variety}` : '';
-          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>• ${qty} Box${varName} @ ₹${rate.toLocaleString('en-IN')}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${gross.toLocaleString('en-IN')}</span></div>`;
+          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>• ${Number(qty || 0).toLocaleString('en-IN')} ${itUnit}${varName} @ ₹${rate.toLocaleString('en-IN')}${isItKg ? '/kg' : ''}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${gross.toLocaleString('en-IN')}</span></div>`;
         }).join('');
 
         let deductionsHtml = '';
@@ -12313,7 +12959,7 @@ function renderStatementView() {
         const stId = r.id || r.settlementId;
         const viewLink = stId ? `<button type="button" class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:11px; color:#7c3aed; margin-left:6px;" onclick="viewPatiyaBill(${stId})" title="View or Delete Settlement Bill"><i class="fas fa-file-invoice"></i> View / Delete</button>` : '';
         descHtml = `
-          <div style="font-weight:700; color:#0f172a; display:flex; align-items:center;">Fish Sold (${r.crates || 0} Box) ${viewLink}</div>
+          <div style="font-weight:700; color:#0f172a; display:flex; align-items:center;">${r.description || `Fish Sold (${r.crates || 0} Box)`} ${viewLink}</div>
           <div style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; font-size:11.5px; color:#334155; line-height:1.45;">
             ${itemHtmlList}
             ${deductionsHtml}
@@ -12322,25 +12968,31 @@ function renderStatementView() {
       } else {
         const stId = r.id || r.settlementId;
         const viewLink = stId ? `<button type="button" class="btn btn-ghost btn-sm" style="padding:1px 6px; font-size:11px; color:#7c3aed; margin-left:6px;" onclick="viewPatiyaBill(${stId})" title="View or Delete Settlement Bill"><i class="fas fa-file-invoice"></i> View / Delete</button>` : '';
-        descHtml = `<span style="font-weight:600;">Fish Sold (${r.crates || 0} Box)</span> ${viewLink}`;
+        descHtml = `<span style="font-weight:600;">${r.description || `Fish Sold (${r.crates || 0} Box)`}</span> ${viewLink}`;
       }
     } else if (r.type === 'GOODS_PURCHASED') {
       if (isDetailed && Array.isArray(r.lines) && r.lines.length > 0) {
         const lineHtmlList = r.lines.map(l => {
+          const isKgLine = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+          const cratesCount = Number(l.crates || 0);
+          const kg = isKgLine ? (Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0)) : 0;
           const qty = Number(l.crates || l.qty || 0);
-          const unit = l.unit || 'Box';
+          const unit = isKgLine ? 'KG' : (l.unit || 'Box');
           const rate = Number(l.rate || 0);
           const total = Number(l.total || (qty * rate) || 0);
-          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>• ${qty} ${unit} ${l.variety || 'Fish'} @ ₹${rate.toLocaleString('en-IN')}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${total.toLocaleString('en-IN')}</span></div>`;
+          const lineStr = (isKgLine && cratesCount > 0 && Number(l.kgPerCrate) > 0)
+            ? `• ${cratesCount} Box (${l.kgPerCrate}kg/b - ${kg.toLocaleString('en-IN')}kg) ${l.variety || 'Fish'} @ ₹${rate.toLocaleString('en-IN')}/kg`
+            : `• ${qty} ${unit} ${l.variety || 'Fish'} @ ₹${rate.toLocaleString('en-IN')}${isKgLine ? '/kg' : ''}`;
+          return `<div style="display:flex; justify-content:space-between; gap:12px;"><span>${lineStr}</span><span style="font-family:var(--font-mono); font-weight:600;">₹${total.toLocaleString('en-IN')}</span></div>`;
         }).join('');
         descHtml = `
-          <div style="font-weight:700; color:#0f172a;">Fish Bought (${r.crates || 0} Box)</div>
+          <div style="font-weight:700; color:#0f172a;">${r.description || `Fish Bought (${r.crates || 0} Box)`}</div>
           <div style="margin-top:4px; padding:6px 10px; background:#f8fafc; border-radius:6px; border:1px solid #e2e8f0; font-size:11.5px; color:#334155; line-height:1.45;">
             ${lineHtmlList}
           </div>
         `;
       } else {
-        descHtml = `<span style="font-weight:600;">Fish Bought (${r.crates || 0} Box)</span>`;
+        descHtml = `<span style="font-weight:600;">${r.description || `Fish Bought (${r.crates || 0} Box)`}</span>`;
       }
     } else if (r.type === 'DEALER_PAYMENT') {
       descHtml = `<span style="font-weight:600;">${r.description && r.description.includes('Paid') ? r.description : 'Cash Paid'}</span>`;
@@ -12426,14 +13078,16 @@ function exportPartyStatementPDF() {
     if (isArrival) {
       desc = r.description || `Fish Arrival (${r.crates || 0} Box)`;
     } else if (r.type === 'SETTLEMENT_PATIYA' || (desc && desc.toLowerCase().includes('patiya'))) {
-      desc = `Fish Sold (${r.crates || 0} Box)`;
+      desc = r.description || `Fish Sold (${r.crates || 0} Box)`;
       if (isDetailed && Array.isArray(r.items) && r.items.length > 0) {
         const itemLines = r.items.map(it => {
+          const isItKg = String(it.unit || '').toUpperCase() === 'KG' || it.isKg;
+          const itUnit = isItKg ? 'KG' : (it.unit || 'Box');
           const qty = it.qtySold || it.crates || 0;
           const rate = Number(it.reportedRate || it.rate || 0);
           const gross = Number(it.reportedGross || (qty * rate) || 0);
           const varName = it.variety ? ` ${it.variety}` : '';
-          return `  - ${qty} Box${varName} @ Rs. ${rate.toLocaleString('en-IN')} = Rs. ${gross.toLocaleString('en-IN')}`;
+          return `  - ${Number(qty || 0).toLocaleString('en-IN')} ${itUnit}${varName} @ Rs. ${rate.toLocaleString('en-IN')}${isItKg ? '/kg' : ''} = Rs. ${gross.toLocaleString('en-IN')}`;
         });
         const expParts = [];
         if (Array.isArray(r.expenses) && r.expenses.length > 0) {
@@ -12446,14 +13100,20 @@ function exportPartyStatementPDF() {
         desc = [desc, ...itemLines, expStr].filter(Boolean).join('\n');
       }
     } else if (r.type === 'GOODS_PURCHASED') {
-      desc = `Fish Bought (${r.crates || 0} Box)`;
+      desc = r.description || `Fish Bought (${r.crates || 0} Box)`;
       if (isDetailed && Array.isArray(r.lines) && r.lines.length > 0) {
         const lineLines = r.lines.map(l => {
+          const isKgLine = String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0;
+          const cratesCount = Number(l.crates || 0);
+          const kg = isKgLine ? (Number(l.qty) || (cratesCount > 0 && Number(l.kgPerCrate) > 0 ? cratesCount * Number(l.kgPerCrate) : 0)) : 0;
           const qty = Number(l.crates || l.qty || 0);
-          const unit = l.unit || 'Box';
+          const unit = isKgLine ? 'KG' : (l.unit || 'Box');
           const rate = Number(l.rate || 0);
           const total = Number(l.total || (qty * rate) || 0);
-          return `  - ${qty} ${unit} ${l.variety || 'Fish'} @ Rs. ${rate.toLocaleString('en-IN')} = Rs. ${total.toLocaleString('en-IN')}`;
+          if (isKgLine && cratesCount > 0 && Number(l.kgPerCrate) > 0) {
+            return `  - ${cratesCount} Box (${l.kgPerCrate}kg/b - ${kg.toLocaleString('en-IN')}kg) ${l.variety || 'Fish'} @ Rs. ${rate.toLocaleString('en-IN')}/kg = Rs. ${total.toLocaleString('en-IN')}`;
+          }
+          return `  - ${qty} ${unit} ${l.variety || 'Fish'} @ Rs. ${rate.toLocaleString('en-IN')}${isKgLine ? '/kg' : ''} = Rs. ${total.toLocaleString('en-IN')}`;
         });
         desc = [desc, ...lineLines].filter(Boolean).join('\n');
       }
@@ -12769,7 +13429,15 @@ async function markSaleBadDebtPrompt(saleId, buyerName, amount) {
 }
 
 async function restoreSaleBadDebtPrompt(saleId, buyerName) {
-  if (!confirm(`Restore Sale #${saleId} to "${buyerName}" from Bad Debt?`)) return;
+  const confirmed = await showDeleteModal({
+    title: 'Restore Sale from Bad Debt?',
+    message: `Restore Sale #${saleId} to "${buyerName}"?`,
+    subtext: 'This will remove the bad debt write-off and reinstate the outstanding balance on the ledger.',
+    confirmText: 'Restore Sale',
+    icon: 'fas fa-rotate-left',
+    danger: false
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/sales/${saleId}/bad-debt`, {
       method: 'POST',
@@ -13122,9 +13790,13 @@ async function bulkDeleteSelectedPayments() {
 
   const count = ids.length;
   const label = count > 1 ? `${count} payment records` : '1 payment record';
-  if (!confirm(`Are you sure you want to delete ${label}?`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Delete ${count > 1 ? count + ' Payment Records' : 'Payment Record'}?`,
+    message: `Are you sure you want to delete ${label}?`,
+    subtext: 'This will remove the selected payment records and adjust ledger balances accordingly.',
+    confirmText: 'Delete Payments'
+  });
+  if (!confirmed) return;
 
   showToast(`Deleting ${label}...`, 'info');
 
@@ -13397,7 +14069,13 @@ async function savePaymentEntry() {
 
 async function deletePaymentEntry(id) {
   id = Number(id);
-  if (!confirm('Delete this payment transaction?')) return;
+  const confirmed = await showDeleteModal({
+    title: 'Delete Payment Transaction?',
+    message: 'Are you sure you want to delete this payment transaction?',
+    subtext: 'This will remove the payment and adjust the party ledger and cash balances.',
+    confirmText: 'Delete Payment'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
     if (res.ok) {
@@ -13784,9 +14462,13 @@ function previewStockContribution(varietyName) {
 
 async function deleteStockVariety(variety, event) {
   if (event) event.stopPropagation();
-  if (!confirm(`Are you sure you want to delete and write off all remaining ${variety} stock from godown inventory?`)) {
-    return;
-  }
+  const confirmed = await showDeleteModal({
+    title: `Write Off ${variety} Stock?`,
+    message: `Are you sure you want to write off all remaining ${variety} stock from inventory?`,
+    subtext: 'Unsold crates and weight recorded in godown inventory for this variety will be zeroed out.',
+    confirmText: 'Write Off Stock'
+  });
+  if (!confirmed) return;
   try {
     const res = await fetch(`/api/inventory?variety=${encodeURIComponent(variety)}`, {
       method: 'DELETE'

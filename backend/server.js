@@ -67,7 +67,7 @@ function writeJsonFile(filename, data) {
 function getDefaultSettings() {
   return {
     companyName: 'Al Haseena Exports',
-    harborLocation: 'Kasimedu Fishing Harbor, Chennai - Gate 2',
+    harborLocation: 'Kasimedu Fishing Harbor, Chennai',
     proprietorName: 'M S Bhathrudeen',
     contactPhone: '+91 9841021203',
     contactEmail: 'alhaseenaexports@gmail.com',
@@ -426,17 +426,40 @@ function normalizeConsignment(data) {
     lorryBhada: Number(data.lorryBhada) || 0,
     lorryBhadaMode: data.lorryBhadaMode || 'Cash', // 'Cash', 'Bank', 'UPI'
     lorryBhadaNotes: String(data.lorryBhadaNotes || ''),
+    isKg: !!data.isKg,
     items: Array.isArray(data.items)
-      ? data.items.map((it, idx) => ({
-          id: Number(it.id) || idx + 1,
-          variety: String(it.variety || '').trim(),
-          crates: Number(it.crates) || 0,
-          weightKg: Number(it.weightKg) || 0,
-          unsoldCrates: Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0,
-          unsoldWeightKg: Number(it.unsoldWeightKg !== undefined ? it.unsoldWeightKg : it.weightKg) || 0,
-          rateExpectation: Number(it.rateExpectation) || 0,
-          notes: String(it.notes || '')
-        }))
+      ? data.items.map((it, idx) => {
+          const crates = Number(it.crates) || 0;
+          let kgPerCrate = Number(it.kgPerCrate) || 0;
+          let weightKg = Number(it.weightKg) || 0;
+          if (data.isKg) {
+            if (kgPerCrate > 0 && crates > 0 && weightKg <= kgPerCrate) {
+              weightKg = crates * kgPerCrate;
+            } else if (!kgPerCrate && weightKg > 0 && crates > 0 && weightKg < 100 && crates >= 10) {
+              kgPerCrate = weightKg;
+              weightKg = crates * kgPerCrate;
+            } else if (!kgPerCrate && weightKg > 0 && crates > 0) {
+              kgPerCrate = Math.round((weightKg / crates) * 100) / 100;
+            }
+          }
+          const unsoldCrates = Number(it.unsoldCrates !== undefined ? it.unsoldCrates : crates) || 0;
+          let unsoldWeightKg = Number(it.unsoldWeightKg !== undefined ? it.unsoldWeightKg : weightKg) || 0;
+          if (data.isKg && kgPerCrate > 0 && unsoldWeightKg <= kgPerCrate && unsoldCrates > 0) {
+            unsoldWeightKg = unsoldCrates * kgPerCrate;
+          }
+          return {
+            id: Number(it.id) || idx + 1,
+            variety: String(it.variety || '').trim(),
+            unit: data.isKg ? 'KG' : (it.unit || 'Crate'),
+            crates,
+            kgPerCrate,
+            weightKg,
+            unsoldCrates,
+            unsoldWeightKg,
+            rateExpectation: Number(it.rateExpectation) || 0,
+            notes: String(it.notes || '')
+          };
+        })
       : [],
     status: data.status || 'Active', // 'Active', 'Settled'
     isSettled: !!data.isSettled,
@@ -539,7 +562,10 @@ function normalizeSettlement(data) {
         consignmentId: Number(it.consignmentId) || null,
         consignmentNo: String(it.consignmentNo || ''),
         variety: String(it.variety || ''),
-        unit: it.unit || 'Crate',
+        unit: it.unit || (data.isKg ? 'KG' : 'Crate'),
+        isKg: !!(it.isKg || String(it.unit || '').toUpperCase() === 'KG'),
+        crates: Number(it.crates) || 0,
+        kgPerCrate: Number(it.kgPerCrate) || 0,
         qtySold: Number(it.qtySold) || 0,
         realizedRevenue: Math.round(Number(it.realizedRevenue) || 0),
         systemAvgRate: Number(it.systemAvgRate) || 0,
@@ -551,11 +577,13 @@ function normalizeSettlement(data) {
 
   const totalQtySold = Number(data.totalQtySold) || items.reduce((s, it) => s + (it.qtySold || 0), 0);
   const avgRate = Number(data.averageRate) || (totalQtySold > 0 ? Math.round(gross / totalQtySold) : 0);
+  const isKg = !!(data.isKg || items.some(it => String(it.unit || '').toUpperCase() === 'KG'));
 
   return {
     id: Number(data.id) || now,
     settlementNo: String(data.settlementNo || `SET-${now}`).trim(),
     date: data.date || new Date().toISOString().split('T')[0],
+    isKg,
     dealerId: Number(data.dealerId) || 0,
     dealerName: String(data.dealerName || '').trim(),
     arrivalCrates: Number(data.arrivalCrates) || 0,
@@ -757,7 +785,8 @@ async function getLiveStockSummary() {
     for (const it of (c.items || [])) {
       const uCrates = Number(it.unsoldCrates) || 0;
       let uKg = Number(it.unsoldWeightKg) || 0;
-      if (uCrates <= 0) {
+      const isKgItem = c.isKg || it.unit === 'KG' || it.unit === 'Kg';
+      if (!isKgItem && uCrates <= 0) {
         uKg = 0;
       }
 
@@ -1308,14 +1337,21 @@ async function getContactFullStatement(contactId, mode = 'all') {
     for (const c of consignments) {
       const items = Array.isArray(c.items) ? c.items : [];
       const totalCrates = items.reduce((s, it) => s + (Number(it.crates) || 0), 0);
+      const isKgArrival = c.isKg || items.some(it => Number(it.kgPerCrate) > 0 || Number(it.weightKg) > 0);
+      const totalWeightKg = items.reduce((s, it) => s + (Number(it.weightKg) || ((Number(it.crates) || 0) * (Number(it.kgPerCrate) || 0)) || 0), 0);
       const uniqueVarieties = [...new Set(items.map(it => it.variety).filter(Boolean))];
       const fishText = uniqueVarieties.length > 0 ? ` (${uniqueVarieties.join(', ')})` : '';
+      let descArrival = `Fish Arrival: ${totalCrates} Box`;
+      if (isKgArrival && totalWeightKg > 0) {
+        descArrival = `Fish Arrival: ${totalCrates} Box (${totalWeightKg.toLocaleString('en-IN')} KG)`;
+      }
+      descArrival += fishText;
       rows.push({
         id: `CON-${c.id}`,
         date: c.date,
         type: 'CONSIGNMENT_INWARD',
         ref: c.consignmentNo,
-        description: `Fish Arrival: ${totalCrates} Box${fishText}`,
+        description: descArrival,
         crates: totalCrates,
         rate: 0,
         debit: 0,
@@ -1329,15 +1365,20 @@ async function getContactFullStatement(contactId, mode = 'all') {
     const settlements = await database.collection('settlements').find({ dealerId: cId }).toArray();
     for (const s of settlements) {
       const items = Array.isArray(s.items) ? s.items : [];
+      const isKgSettlement = s.isKg || items.some(it => String(it.unit || '').toUpperCase() === 'KG' || it.isKg);
       const repRate = (items[0] && items[0].reportedRate) || (s.totalQtySold > 0 ? Math.round((s.totalReportedGross || 0) / s.totalQtySold) : 0);
       const netCredit = Math.ceil(Number(s.netPayableToDealer) || Number(s.netConsignmentAmount) || 0);
       const totalBoxes = s.totalQtySold || items.reduce((sum, it) => sum + (Number(it.qtySold) || 0), 0);
+      let descSettlement = `Fish Sold (${totalBoxes} Box)`;
+      if (isKgSettlement) {
+        descSettlement = s.arrivalCrates ? `Fish Sold (${s.arrivalCrates} Box - ${totalBoxes.toLocaleString('en-IN')} KG)` : `Fish Sold (${totalBoxes.toLocaleString('en-IN')} KG)`;
+      }
       rows.push({
         id: `SET-${s.id}`,
         date: s.date,
         type: 'SETTLEMENT_PATIYA',
         ref: s.settlementNo,
-        description: `Fish Sold (${totalBoxes} Box)`,
+        description: descSettlement,
         crates: totalBoxes,
         rate: repRate || 0,
         debit: 0,
@@ -1360,12 +1401,20 @@ async function getContactFullStatement(contactId, mode = 'all') {
       const lines = Array.isArray(s.lines) ? s.lines : [];
       const isBad = !!s.isBadDebt;
       const totalBoxes = lines.reduce((acc, l) => acc + (Number(l.crates) || Number(l.qty) || 0), 0);
+      const hasKg = lines.some(l => String(l.unit || '').toUpperCase() === 'KG' || Number(l.kgPerCrate) > 0);
+      let descPurchase = `Fish Bought (${totalBoxes} Box)`;
+      if (hasKg) {
+        const totalKg = lines.reduce((acc, l) => acc + (Number(l.qty) || ((Number(l.crates) || 0) * (Number(l.kgPerCrate) || 0)) || 0), 0);
+        if (totalKg > 0) {
+          descPurchase = `Fish Bought (${totalBoxes} Box - ${totalKg.toLocaleString('en-IN')} KG)`;
+        }
+      }
       rows.push({
         id: `SAL-${s.id}`,
         date: s.date,
         type: 'GOODS_PURCHASED',
         ref: s.billNo,
-        description: `Fish Bought (${totalBoxes} Box)`,
+        description: descPurchase,
         crates: totalBoxes,
         rate: lines[0]?.rate || 0,
         debit: Number(s.total) || 0,
@@ -1899,7 +1948,8 @@ const server = http.createServer(async (req, res) => {
             const cons = await database.collection('consignments').findOne({ id: oldLine.consignmentId });
             if (cons) {
               const lineCrates = Number(oldLine.crates) > 0 ? Number(oldLine.crates) : ((oldLine.unit === 'Crate' || oldLine.unit === 'Box') ? Number(oldLine.qty) : 0);
-              const lineKg = oldLine.unit === 'Kg' ? Number(oldLine.qty) : (Number(oldLine.crates) > 0 && Number(oldLine.kgPerCrate) > 0 ? Number(oldLine.crates) * Number(oldLine.kgPerCrate) : 0);
+              const oldIsKg = oldLine.unit === 'Kg' || oldLine.unit === 'KG' || cons.isKg || Number(oldLine.kgPerCrate) > 0;
+              const lineKg = oldIsKg ? (Number(oldLine.qty) || (lineCrates * (Number(oldLine.kgPerCrate) || 1))) : (Number(oldLine.crates) > 0 && Number(oldLine.kgPerCrate) > 0 ? Number(oldLine.crates) * Number(oldLine.kgPerCrate) : 0);
               const updatedItems = cons.items.map(it => {
                 if (it.variety === oldLine.variety) {
                   return {
@@ -1921,12 +1971,13 @@ const server = http.createServer(async (req, res) => {
         if (line.consignmentId) {
           const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
           if (cons) {
+            const isKgSale = line.unit === 'Kg' || line.unit === 'KG' || cons.isKg || Number(line.kgPerCrate) > 0;
             const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : ((line.unit === 'Crate' || line.unit === 'Box') ? Number(line.qty) : 0);
-            const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
+            const lineKg = isKgSale ? (Number(line.qty) || (lineCrates * (Number(line.kgPerCrate) || 1))) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
             const updatedItems = cons.items.map(it => {
               if (it.variety === line.variety) {
                 const remCrates = Math.max(0, (it.unsoldCrates || 0) - lineCrates);
-                const remKg = remCrates === 0 ? 0 : Math.max(0, (it.unsoldWeightKg || 0) - lineKg);
+                const remKg = isKgSale ? Math.max(0, (it.unsoldWeightKg || 0) - lineKg) : (remCrates === 0 ? 0 : Math.max(0, (it.unsoldWeightKg || 0) - lineKg));
                 return {
                   ...it,
                   unsoldCrates: remCrates,
@@ -2003,8 +2054,9 @@ const server = http.createServer(async (req, res) => {
           if (line.consignmentId) {
             const cons = await database.collection('consignments').findOne({ id: line.consignmentId });
             if (cons) {
-              const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : (line.unit === 'Crate' ? Number(line.qty) : 0);
-              const lineKg = line.unit === 'Kg' ? Number(line.qty) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
+              const isKgDel = line.unit === 'Kg' || line.unit === 'KG' || cons.isKg || Number(line.kgPerCrate) > 0;
+              const lineCrates = Number(line.crates) > 0 ? Number(line.crates) : ((line.unit === 'Crate' || line.unit === 'Box') ? Number(line.qty) : 0);
+              const lineKg = isKgDel ? (Number(line.qty) || (lineCrates * (Number(line.kgPerCrate) || 1))) : (Number(line.crates) > 0 && Number(line.kgPerCrate) > 0 ? Number(line.crates) * Number(line.kgPerCrate) : 0);
               const updatedItems = cons.items.map(it => {
                 if (it.variety === line.variety) {
                   return {
@@ -2111,7 +2163,10 @@ const server = http.createServer(async (req, res) => {
             if (line.consignmentId && targetConsignmentIds.size > 0 && !targetConsignmentIds.has(Number(line.consignmentId))) {
               continue;
             }
-            const lineQty = Number(line.crates) || Number(line.qty) || 0;
+            const isKgLine = line.unit === 'KG' || line.unit === 'Kg' || Number(line.kgPerCrate) > 0;
+            const lineQty = isKgLine
+              ? (Number(line.qty) || (Number(line.crates) * (Number(line.kgPerCrate) || 1)) || 0)
+              : (Number(line.crates) || Number(line.qty) || 0);
             const lineRate = Number(line.rate) || 0;
             const lineAmount = (line.amount !== undefined && line.amount !== null && !isNaN(line.amount) && Number(line.amount) > 0)
               ? Number(line.amount)
@@ -2123,7 +2178,7 @@ const server = http.createServer(async (req, res) => {
               date: s.date,
               consignmentId: line.consignmentId,
               variety: line.variety,
-              unit: line.unit || (line.crates ? 'Crate' : 'Kg'),
+              unit: isKgLine ? 'KG' : (line.unit || (line.crates ? 'Crate' : 'Kg')),
               qty: lineQty,
               rate: lineRate,
               amount: lineAmount
@@ -2173,6 +2228,7 @@ const server = http.createServer(async (req, res) => {
         };
       });
 
+      const isKgCons = targetConsignments.some(c => c.isKg);
       const receivedVarietiesMap = {};
       let arrivalCratesToday = 0;
       let unsoldCrates = 0;
@@ -2180,24 +2236,36 @@ const server = http.createServer(async (req, res) => {
       for (const c of targetConsignments) {
         for (const it of (c.items || [])) {
           const varName = (it.variety || 'Fish').trim();
-          arrivalCratesToday += Number(it.crates) || 0;
+          const itIsKg = c.isKg || it.unit === 'KG' || it.unit === 'Kg';
+          const lineTotal = itIsKg ? (Number(it.weightKg) || Number(it.crates) || 0) : (Number(it.crates) || 0);
+          const lineUnsold = itIsKg
+            ? (Number(it.unsoldWeightKg !== undefined ? it.unsoldWeightKg : it.weightKg) || 0)
+            : (Number(it.unsoldCrates !== undefined ? it.unsoldCrates : it.crates) || 0);
+
+          arrivalCratesToday += lineTotal;
           if (!receivedVarietiesMap[varName]) {
             receivedVarietiesMap[varName] = {
               variety: varName,
-              totalCrates: 0,
-              unsoldCrates: 0
+              unit: itIsKg ? 'KG' : 'Crate',
+              totalCrates: lineTotal,
+              totalQty: lineTotal,
+              unsoldCrates: lineUnsold,
+              unsoldQty: lineUnsold
             };
+          } else {
+            receivedVarietiesMap[varName].totalCrates += lineTotal;
+            receivedVarietiesMap[varName].totalQty += lineTotal;
+            receivedVarietiesMap[varName].unsoldCrates += lineUnsold;
+            receivedVarietiesMap[varName].unsoldQty += lineUnsold;
           }
-          receivedVarietiesMap[varName].totalCrates += Number(it.crates) || 0;
-          receivedVarietiesMap[varName].unsoldCrates += (it.unsoldCrates !== undefined ? Number(it.unsoldCrates) : Number(it.crates)) || 0;
-          unsoldCrates += Number(it.unsoldCrates) || 0;
+          unsoldCrates += lineUnsold;
         }
       }
 
       const receivedVarieties = Object.values(receivedVarietiesMap);
 
       if (!arrivalCratesToday && items.length > 0) {
-        arrivalCratesToday = items.reduce((s, it) => s + (it.unit === 'Crate' ? it.qtySold : 0), 0);
+        arrivalCratesToday = items.reduce((s, it) => s + (Number(it.qtySold) || 0), 0);
       }
 
       let totalLorryBhada = 0;
@@ -2212,6 +2280,7 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, {
         dealer,
         date,
+        isKg: isKgCons,
         consignmentId: targetConsignments[0]?.id || null,
         consignmentIds: targetConsignments.map(c => c.id),
         items,
@@ -2249,6 +2318,20 @@ const server = http.createServer(async (req, res) => {
       }).toArray();
 
       if (targetConsignmentIds.length > 0) {
+        // 1. Check if lot is already recorded as settled in settlements collection
+        const existingSettlement = await database.collection('settlements').findOne({
+          id: { $ne: settlement.id },
+          $or: [
+            { consignmentId: { $in: targetConsignmentIds } },
+            { consignmentIds: { $in: targetConsignmentIds } }
+          ]
+        });
+        if (existingSettlement) {
+          return sendJson(res, {
+            error: `This consignment lot has already been finalized in Settlement #${existingSettlement.settlementNo || existingSettlement.id}! Duplicate settlements for the same lot are not permitted.`
+          }, 400);
+        }
+
         for (const cid of targetConsignmentIds) {
           const c = dealerConsignments.find(item => item.id === cid);
           if (c && (c.status === 'Settled' || c.isSettled)) {
@@ -2269,6 +2352,20 @@ const server = http.createServer(async (req, res) => {
           const anyActive = dealerConsignments.filter(c => c.status !== 'Settled' && !c.isSettled).map(c => c.id);
           targetConsignmentIds = anyActive;
         }
+      }
+
+      // Prevent rapid accidental double-clicking / duplicate submissions
+      const recentDuplicate = await database.collection('settlements').findOne({
+        id: { $ne: settlement.id },
+        dealerId: settlement.dealerId,
+        date: settlement.date,
+        netPayableToDealer: settlement.netPayableToDealer,
+        created: { $gt: Date.now() - 30000 }
+      });
+      if (recentDuplicate) {
+        return sendJson(res, {
+          error: `A matching settlement (#${recentDuplicate.settlementNo || recentDuplicate.id}) was just finalized moments ago! Duplicate settlement blocked.`
+        }, 400);
       }
 
       settlement.consignmentIds = targetConsignmentIds;
