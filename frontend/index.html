@@ -576,6 +576,27 @@ input[type="text"].global-search-input:focus {
   letter-spacing: 0.5px;
 }
 
+.harbor-live-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: 0.4px;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.harbor-live-clock i {
+  color: #38bdf8;
+  font-size: 10.5px;
+}
+
 .harbor-sub-loc {
   font-size: 11px;
   color: #94a3b8;
@@ -2594,6 +2615,10 @@ th:last-child {
               <div class="harbor-live-badge">
                 <span class="pulse-radar-dot"></span>
                 <span class="harbor-pulse-title">Today Insights</span>
+              </div>
+              <div class="harbor-live-clock" id="heroLiveClock" title="Live Time (12-hour format)">
+                <i class="fa-regular fa-clock"></i>
+                <span id="heroLiveClockText">--:--:-- --</span>
               </div>
             </div>
             
@@ -6179,6 +6204,19 @@ async function clearLocalAppCache() {
   }
 }
 
+function updateLiveHarborClock() {
+  const clockEl = document.getElementById('heroLiveClockText');
+  if (!clockEl) return;
+  const now = new Date();
+  let hours = now.getHours();
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
+  const hoursStr = String(hours).padStart(2, '0');
+  clockEl.textContent = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
+}
+
 function updateHourlyQuote() {
   const quoteEl = document.getElementById('heroQuote');
   if (!quoteEl || !HERO_QUOTES.length) return;
@@ -7198,6 +7236,8 @@ function exportTreasuryCSV() {
 async function initApp() {
   applyMaxDateRestrictions();
   updateDisplayDatePill();
+  updateLiveHarborClock();
+  setInterval(updateLiveHarborClock, 1000);
   await loadAppSettings();
   loadChennaiLiveWeather();
   setInterval(loadChennaiLiveWeather, 60 * 60 * 1000);
