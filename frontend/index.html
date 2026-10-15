@@ -3237,7 +3237,7 @@ th:last-child {
   <div class="view-container" id="view-settlements">
     <div class="view-sub-header-bar">
       <div>
-        <h1 class="view-heading-title">Settlements (Patiya)</h1>
+        <h1 class="view-heading-title">Settlements</h1>
         <div style="font-size:12px; color:#64748b;">Consignment settlements, profit breakdown, expenses and net payable to dealers</div>
       </div>
       <div style="display:flex; gap:8px;">
@@ -3265,7 +3265,7 @@ th:last-child {
           </div>
         </div>
 
-        <!-- Filter & Date Bar for Dealer Bills (Patiya) -->
+        <!-- Filter & Date Bar for Dealer Bills (Settlements) -->
         <div style="background:#f8fafc; border-top:1px solid #e2e8f0; border-bottom:1px solid #e2e8f0; padding:10px 14px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
           <div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px;">
             <!-- Period Preset Selector -->
@@ -3421,7 +3421,7 @@ th:last-child {
         <button class="btn btn-purple" onclick="openPatiyaModal()"><i class="fas fa-calculator"></i> Settle Dealer</button>
         <button class="btn btn-amber" onclick="openPaymentModal('DEALER_PAYMENT')"><i class="fas fa-hand-holding-dollar"></i> Pay Dealer</button>
         <button class="btn btn-green" onclick="openPaymentModal('BUYER_COLLECTION')"><i class="fas fa-sack-dollar"></i> Collect Buyer</button>
-        <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-arrows-split-up-and-left"></i> Contra Offset</button>
+        <button class="btn btn-outline" onclick="openContraModal()"><i class="fas fa-sliders"></i> Adjustment</button>
       </div>
     </div>
 
@@ -3460,7 +3460,7 @@ th:last-child {
                 <option value="payments_paid">Payments Paid</option>
                 <option value="payments_received">Payments Received</option>
                 <option value="discounts">Discounts</option>
-                <option value="contra">Contra Adjustments</option>
+                <option value="contra">Adjustments</option>
               </select>
             </div>
 
@@ -3521,7 +3521,7 @@ th:last-child {
 
       <!-- Sub-view 2: Daybook -->
       <div id="subViewPayDaybook" style="display:none;">
-        <div class="data-table-box" style="margin-bottom:16px;">
+        <div class="data-table-box" style="margin-bottom:20px;">
           <div class="table-filter-bar">
             <div style="display:flex; align-items:center; gap:10px;">
               <span style="font-weight:700;"><i class="fas fa-vault" style="color:#10b981;"></i> Physical Drawer Cash</span>
@@ -3529,7 +3529,7 @@ th:last-child {
             </div>
             <button class="btn btn-outline btn-sm" onclick="openManualDaybookModal()"><i class="fas fa-plus"></i> Add Cash In/Out</button>
           </div>
-          <div class="money-dual-cards">
+          <div class="money-dual-cards" style="padding: 16px 18px 22px;">
             <div class="money-sub-card green-theme">
               <div class="money-sub-header">Cash In Today</div>
               <div class="money-big-number" id="dbCashIn">₹0</div>
@@ -3627,7 +3627,7 @@ th:last-child {
       <div class="data-table-box" style="margin-top:16px;">
         <div class="table-filter-bar" style="flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;">
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <span style="font-weight:700; font-size:13.5px;"><i class="fas fa-clock-rotate-left" style="color:#0084ff;"></i> Recent Transactions</span>
+            <span style="font-weight:700; font-size:13.5px;"><i class="fas fa-book" style="color:#0084ff;"></i> Ledger</span>
             <div id="treasuryBulkActionBar" style="display:none; align-items:center; gap:8px;">
               <span class="badge" style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-weight:700; font-size:11.5px; padding:3px 10px;" id="treasurySelectedCountBadge">
                 0 selected
@@ -3741,7 +3741,7 @@ th:last-child {
       </div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-outline" id="btnRefreshReports" onclick="refreshReportsView()" title="Refresh live report data"><i class="fas fa-rotate"></i> Refresh</button>
-        <button class="btn btn-primary" onclick="openCustomReportModal()"><i class="fas fa-file-invoice-dollar"></i> Custom Period & Category Report</button>
+        <button class="btn btn-primary" onclick="openCustomReportModal()"><i class="fas fa-download"></i> Download Report</button>
       </div>
     </div>
 
@@ -3813,7 +3813,7 @@ th:last-child {
           <div class="settings-card-header">
             <div>
               <div class="settings-card-title"><i class="fas fa-building" style="color:#0084ff;"></i> Brokerage Firm & Mandi Profile</div>
-              <div class="settings-card-desc">Trade identity used across buyer bills, dealer patiyas, headers and WhatsApp messages.</div>
+              <div class="settings-card-desc">Trade identity used across buyer bills, dealer settlements, headers and WhatsApp messages.</div>
             </div>
           </div>
           <div class="settings-grid-2">
@@ -3900,7 +3900,7 @@ th:last-child {
             <div class="settings-toggle-row">
               <div class="settings-toggle-info">
                 <h4>Deduct Advance Lorry Bhada (Freight)</h4>
-                <p>Include advance road freight paid to truck drivers as standard deduction in dealer patiya settlement.</p>
+                <p>Include advance road freight paid to truck drivers as standard deduction in dealer settlement.</p>
               </div>
               <label class="switch-toggle">
                 <input type="checkbox" id="setDeductLorryBhada" checked />
@@ -4698,7 +4698,7 @@ th:last-child {
       <div id="mPayDealerSettlementNotice" style="display:none; background:#faf5ff; border:1.5px solid #d8b4fe; border-radius:10px; padding:10px 12px; margin-bottom:12px; justify-content:space-between; align-items:center;">
         <div>
           <strong style="color:#6d28d9; font-size:12px; display:block;"><i class="fas fa-hand-holding-dollar"></i> Paying money to reduce dealer balance</strong>
-          <div style="font-size:11px; color:#475569;">To account for received crates and calculate amount owed, use Patiya Settlement instead.</div>
+          <div style="font-size:11px; color:#475569;">To account for received crates and calculate amount owed, use Settlement instead.</div>
         </div>
         <button type="button" class="btn btn-purple btn-sm" onclick="switchPayToSettlement()" style="white-space:nowrap;"><i class="fas fa-calculator"></i> Settle Crates</button>
       </div>
@@ -4768,11 +4768,11 @@ th:last-child {
   </div>
 </div>
 
-<!-- Modal 6: Contra Offset Adjustment -->
+<!-- Modal 6: Adjustment -->
 <div class="modal-backdrop" id="contraModal">
   <div class="modal-window modal-sm">
     <div class="modal-top-bar">
-      <span class="modal-headline"><i class="fas fa-arrows-split-up-and-left" style="color:#0084ff"></i> Contra Offset Adjustment</span>
+      <span class="modal-headline"><i class="fas fa-arrows-split-up-and-left" style="color:#0084ff"></i> Adjustment</span>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('contraModal')">✕</button>
     </div>
     <div class="modal-scroll-body">
@@ -5302,7 +5302,7 @@ th:last-child {
   <div class="modal-window modal-xl" style="max-width:980px;">
     <div class="modal-top-bar" style="background:#f8fafc;">
       <div>
-        <span class="modal-headline"><i class="fas fa-file-invoice-dollar" style="color:#0084ff;"></i> Custom Period & Category Reports</span>
+        <span class="modal-headline"><i class="fas fa-download" style="color:#0084ff;"></i> Download Report</span>
         <div style="font-size:12px; color:#64748b; margin-top:2px;">Download daily, weekly, or custom reports filtered by purchases, sales, or payments</div>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="closeModal('customReportModal')" title="Close">✕</button>
@@ -5423,7 +5423,7 @@ th:last-child {
         <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border-radius:8px; border:1px solid #e2e8f0;">
           <div>
             <div style="font-size:13px; color:#475569; font-weight:500;">Adjustments</div>
-            <div style="font-size:10.5px; color:#94a3b8;" id="mPrevAdjNote">Contra & Discounts</div>
+            <div style="font-size:10.5px; color:#94a3b8;" id="mPrevAdjNote">Adjustments & Discounts</div>
           </div>
           <span style="font-size:15px; font-weight:700; font-family:var(--font-mono); color:#7c3aed;" id="mPrevAdjVal">₹0</span>
         </div>
@@ -7272,8 +7272,8 @@ function openContraTransferModal(fromAcc = 'cash_in_hand') {
 
 async function deleteTreasuryTxn(id) {
   const confirmed = await showDeleteModal({
-    title: 'Delete Treasury Transaction?',
-    message: 'Are you sure you want to delete this manual treasury transaction?',
+    title: 'Delete Ledger Entry?',
+    message: 'Are you sure you want to delete this ledger entry?',
     subtext: 'This will remove the entry and update cash in hand.',
     confirmText: 'Delete Entry'
   });
@@ -7317,7 +7317,7 @@ function exportTreasuryCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `treasury_ledger_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = `ledger_${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -7691,7 +7691,7 @@ function renderNeedsAttention() {
           </div>
           <div>
             <div class="attention-title-text blue-t">${dealersToSettle.length} dealer${dealersToSettle.length > 1 ? 's' : ''} to settle</div>
-            <div class="attention-sub-text">${first.name}: ${first.unsettledCount} lot(s) awaiting Patiya</div>
+            <div class="attention-sub-text">${first.name}: ${first.unsettledCount} lot(s) awaiting Settlement</div>
           </div>
         </div>
         <i class="fa-solid fa-chevron-right attention-chevron-arrow"></i>
@@ -7840,7 +7840,7 @@ function updateDashboardMetrics() {
   const tSold = document.getElementById('titleFishSold');
   if (tSold) tSold.innerHTML = `FISH SOLD <span>(${isToday ? 'Today' : targetDate})</span>`;
   const tComm = document.getElementById('titleCommission');
-  if (tComm) tComm.innerHTML = `COMMISSION <span>(${isToday ? 'Today' : targetDate})</span>`;
+  if (tComm) tComm.innerHTML = 'TRADE LEFT TO SETTLE';
 
   // 1. Fish In (Today / Selected Date)
   let fishInKg = 0;
@@ -10361,7 +10361,7 @@ function viewPatiyaBill(settlementId) {
           <div style="display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:#0284c7; background:#e0f2fe; border:1px solid #bae6fd; padding:4px 10px; border-radius:6px; margin-bottom:6px;">
             DEALER CONSIGNMENT SETTLEMENT
           </div>
-          <div style="font-size:13.5px; font-weight:700; font-family:var(--font-mono); color:#0f172a;">Patiya #: ${s.settlementNo || ('#' + s.id)}</div>
+          <div style="font-size:13.5px; font-weight:700; font-family:var(--font-mono); color:#0f172a;">Settlement #: ${s.settlementNo || ('#' + s.id)}</div>
           <div style="font-size:11.5px; color:#64748b; margin-top:2px;">Date: ${s.date}</div>
         </div>
       </div>
@@ -12526,12 +12526,12 @@ function openBalancePreviewModal(contactId) {
 
   if (totalAdj > 0) {
     const parts = [];
-    if (contra > 0) parts.push(`Contra: ₹${contra.toLocaleString('en-IN')}`);
+    if (contra > 0) parts.push(`Adjustment: ₹${contra.toLocaleString('en-IN')}`);
     if (discounts > 0) parts.push(`Disc: ₹${discounts.toLocaleString('en-IN')}`);
     if (badDebt > 0) parts.push(`Bad Debt: ₹${badDebt.toLocaleString('en-IN')}`);
     document.getElementById('mPrevAdjNote').textContent = parts.join(' | ');
   } else {
-    document.getElementById('mPrevAdjNote').textContent = 'Contra & Discounts (None)';
+    document.getElementById('mPrevAdjNote').textContent = 'Adjustments & Discounts (None)';
   }
 
   // Net Box styling
@@ -13831,7 +13831,7 @@ function renderPaymentsList() {
 
     if (isContra) {
       amountStyle = 'color: #7c3aed; font-weight: 800;';
-      flowBadge = `<span class="badge" style="font-size:10px; padding:2px 7px; background:#f3e8ff; color:#7e22ce; border:1px solid #e9d5ff; margin-left:6px;"><i class="fas fa-arrows-split-up-and-left" style="font-size:9px;"></i> Contra</span>`;
+      flowBadge = `<span class="badge" style="font-size:10px; padding:2px 7px; background:#f3e8ff; color:#7e22ce; border:1px solid #e9d5ff; margin-left:6px;"><i class="fas fa-arrows-split-up-and-left" style="font-size:9px;"></i> Adjustment</span>`;
       prefix = '⇄ ';
     } else if (isReceived) {
       amountStyle = 'color: #059669; font-weight: 800;';
@@ -14298,7 +14298,7 @@ async function saveContraAdjustment() {
   const amount = Number(document.getElementById('mContraAmount').value) || 0;
   const date = document.getElementById('mContraDate').value;
   const today = getTodayIsoDate();
-  if (date > today) return showToast('Contra date cannot be in the future', 'error');
+  if (date > today) return showToast('Adjustment date cannot be in the future', 'error');
 
   if (!contactName || !contactId) return showToast('Please select a 2-in-1 party', 'error');
   if (amount <= 0) return showToast('Enter an adjustment amount', 'error');
@@ -14310,7 +14310,7 @@ async function saveContraAdjustment() {
       body: JSON.stringify({ type: 'CONTRA_ADJUSTMENT', contactId, contactName, amount, date, notes: 'Offsetting goods bought against consignment credit' })
     });
     if (res.ok) {
-      showToast('Contra offset applied!', 'success');
+      showToast('Adjustment applied!', 'success');
       closeModal('contraModal');
       await Promise.all([loadPayments(), loadContacts()]);
     } else {
@@ -14682,7 +14682,7 @@ function handleCtrlKSearch(q) {
         <span class="badge badge-green">Action</span>
       </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); switchTo('settlements');">
-        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> View All Settlements (Patiya)</div>
+        <div><i class="fas fa-calculator" style="margin-right:8px; color:#7c3aed;"></i> View All Settlements</div>
         <span class="badge badge-purple">View</span>
       </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openPatiyaModal();">
@@ -14694,7 +14694,7 @@ function handleCtrlKSearch(q) {
         <span class="badge badge-amber">Action</span>
       </div>
       <div class="ctrl-k-item" onclick="closeModal('searchModal'); openCustomReportModal();">
-        <div><i class="fas fa-file-invoice-dollar" style="margin-right:8px; color:#0284c7;"></i> Custom Period & Category Report</div>
+        <div><i class="fas fa-download" style="margin-right:8px; color:#0284c7;"></i> Download Report</div>
         <span class="badge badge-blue">Report</span>
       </div>
     `;
@@ -14746,7 +14746,7 @@ function handleCtrlKSearch(q) {
     }
   });
 
-  // Settlements (Patiya)
+  // Settlements
   (appState.settlements || []).forEach(st => {
     if (
       (st.settlementNo && st.settlementNo.toLowerCase().includes(term)) ||
