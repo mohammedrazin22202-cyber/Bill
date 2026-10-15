@@ -2776,38 +2776,29 @@ th:last-child {
 
       <div class="flow-connector-arrow"><i class="fa-solid fa-arrow-right"></i></div>
 
-      <!-- 4. Commission -->
-      <div class="flow-metric-card" onclick="switchTo('reports')">
+      <!-- 4. Trade Left to Settle -->
+      <div class="flow-metric-card" onclick="switchTo('settlements')" title="View Settlements & Pending Trades">
         <div class="flow-crate-visual">
-          <!-- 3D Stack of Shiny Gold Coins SVG -->
+          <!-- 3D Isometric Purple Settlement Ledger SVG -->
           <svg width="48" height="44" viewBox="0 0 64 56" fill="none">
-            <!-- Left Stack -->
-            <ellipse cx="22" cy="46" rx="14" ry="5.5" fill="#92400e"/>
-            <rect x="8" y="40" width="28" height="6" fill="#b45309"/>
-            <ellipse cx="22" cy="40" rx="14" ry="5.5" fill="#d97706"/>
-            <rect x="8" y="34" width="28" height="6" fill="#d97706"/>
-            <ellipse cx="22" cy="34" rx="14" ry="5.5" fill="#f59e0b"/>
-            <rect x="8" y="28" width="28" height="6" fill="#f59e0b"/>
-            <ellipse cx="22" cy="28" rx="14" ry="5.5" fill="#fde047"/>
-            <ellipse cx="22" cy="28" rx="11" ry="4" fill="none" stroke="#d97706" stroke-width="1"/>
-            <!-- Right Front Stack -->
-            <ellipse cx="42" cy="40" rx="14" ry="5.5" fill="#92400e"/>
-            <rect x="28" y="34" width="28" height="6" fill="#b45309"/>
-            <ellipse cx="42" cy="34" rx="14" ry="5.5" fill="#d97706"/>
-            <rect x="28" y="28" width="28" height="6" fill="#d97706"/>
-            <ellipse cx="42" cy="28" rx="14" ry="5.5" fill="#f59e0b"/>
-            <rect x="28" y="22" width="28" height="6" fill="#f59e0b"/>
-            <ellipse cx="42" cy="22" rx="14" ry="5.5" fill="#fef08a"/>
-            <ellipse cx="42" cy="22" rx="11" ry="4" fill="none" stroke="#d97706" stroke-width="1"/>
-            <!-- Currency Symbol -->
-            <text x="42" y="24" font-size="7.5" font-weight="900" fill="#b45309" text-anchor="middle">₹</text>
-            <text x="22" y="30" font-size="7.5" font-weight="900" fill="#b45309" text-anchor="middle">₹</text>
+            <polygon points="32,4 54,16 32,28 10,16" fill="#c084fc"/>
+            <polygon points="32,8 50,18 32,27 14,18" fill="#a855f7"/>
+            <polygon points="10,16 32,28 32,50 10,38" fill="#7c3aed"/>
+            <polygon points="32,28 54,16 54,38 32,50" fill="#6d28d9"/>
+            <line x1="16" y1="24" x2="26" y2="29" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="31" x2="26" y2="36" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round"/>
+            <line x1="16" y1="38" x2="23" y2="42" stroke="#e9d5ff" stroke-width="2" stroke-linecap="round"/>
+            <line x1="38" y1="29" x2="48" y2="24" stroke="#ddd6fe" stroke-width="2" stroke-linecap="round"/>
+            <line x1="38" y1="36" x2="48" y2="31" stroke="#ddd6fe" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="32" cy="18" r="5" fill="#facc15"/>
+            <text x="32" y="21" font-size="7" font-weight="900" fill="#78350f" text-anchor="middle">₹</text>
           </svg>
         </div>
         <div class="flow-data-content">
-          <div class="flow-title" id="titleCommission">COMMISSION <span>(Today)</span></div>
+          <div class="flow-title" id="titleCommission">TRADE LEFT TO SETTLE</div>
           <div class="flow-main-val" id="valCommission">₹0</div>
           <div class="flow-meta-line">
+            <span id="subSalesToSettle">0 pending</span>
             <span class="trend-badge neutral" id="trendCommission">0%</span>
           </div>
         </div>
@@ -7839,24 +7830,56 @@ function updateDashboardMetrics() {
   const prevClosingStock = Math.max(0, prevArrivedTotal - prevSoldTotal);
   updateTrendBadge('trendInStock', inStockKg, prevClosingStock, 'KG');
 
-  // 4. Commission (Today / Selected Date)
-  const settlementsForDate = (appState.settlements || []).filter(st => st.date === targetDate);
-  let comm = settlementsForDate.reduce((sum, st) => sum + (Number(st.commissionAmount) || 0), 0);
-  if (comm === 0 && salesForDate.length > 0) {
-    const dayTurnover = salesForDate.reduce((sum, sl) => sum + (Number(sl.total) || 0), 0);
-    comm = Math.round(dayTurnover * 0.05);
-  }
-  const elComm = document.getElementById('valCommission');
-  if (elComm) elComm.textContent = `₹${comm.toLocaleString('en-IN')}`;
+  // 4. Trade Left to Settle (All pending / unsettled sales across all dates)
+  const settledConsignmentIds = new Set();
+  (appState.consignments || []).forEach(c => {
+    if (c.status === 'Settled' || c.isSettled) settledConsignmentIds.add(Number(c.id));
+  });
+  (appState.settlements || []).forEach(st => {
+    if (st.consignmentId) settledConsignmentIds.add(Number(st.consignmentId));
+    if (Array.isArray(st.consignmentIds)) st.consignmentIds.forEach(id => settledConsignmentIds.add(Number(id)));
+  });
 
-  // 4b. Previous Day Commission & Trend
-  const settlementsForPrevDate = (appState.settlements || []).filter(st => st.date === prevDate);
-  let prevComm = settlementsForPrevDate.reduce((sum, st) => sum + (Number(st.commissionAmount) || 0), 0);
-  if (prevComm === 0 && salesForPrevDate.length > 0) {
-    const prevTurnover = salesForPrevDate.reduce((sum, sl) => sum + (Number(sl.total) || 0), 0);
-    prevComm = Math.round(prevTurnover * 0.05);
+  let unsettledTradesAmount = 0;
+  let unsettledTradesCount = 0;
+  (appState.sales || []).forEach(s => {
+    const isUnsettled = (s.lines || []).some(line => !line.consignmentId || !settledConsignmentIds.has(Number(line.consignmentId)));
+    if (isUnsettled) {
+      unsettledTradesCount += 1;
+      let sAmt = 0;
+      (s.lines || []).forEach(line => {
+        if (!line.consignmentId || !settledConsignmentIds.has(Number(line.consignmentId))) {
+          const lQty = Number(line.qty) || Number(line.crates) || 0;
+          const lAmt = Number(line.amount) || Math.round(lQty * (Number(line.rate) || 0));
+          sAmt += lAmt;
+        }
+      });
+      unsettledTradesAmount += (sAmt || Number(s.total) || 0);
+    }
+  });
+
+  const elComm = document.getElementById('valCommission');
+  if (elComm) elComm.textContent = `₹${unsettledTradesAmount.toLocaleString('en-IN')}`;
+
+  const elSubToSettle = document.getElementById('subSalesToSettle');
+  if (elSubToSettle) {
+    elSubToSettle.textContent = unsettledTradesCount === 0
+      ? '0 pending'
+      : `${unsettledTradesCount} trade${unsettledTradesCount === 1 ? '' : 's'} pending`;
   }
-  updateTrendBadge('trendCommission', comm, prevComm, '₹');
+
+  const elTrend = document.getElementById('trendCommission');
+  if (elTrend) {
+    if (unsettledTradesCount === 0) {
+      elTrend.className = 'trend-badge green';
+      elTrend.innerHTML = '<i class="fa-solid fa-check"></i> Settled';
+      elTrend.title = 'All trades are settled and clear!';
+    } else {
+      elTrend.className = 'trend-badge red';
+      elTrend.innerHTML = `${unsettledTradesCount} Pending`;
+      elTrend.title = `${unsettledTradesCount} unsettled trade bill${unsettledTradesCount === 1 ? '' : 's'}`;
+    }
+  }
 
   // 5. Market Insight Text
   const elInsightText = document.getElementById('dashboardMarketInsightText');
