@@ -1650,6 +1650,31 @@ const server = http.createServer(async (req, res) => {
   const pathname = urlObj.pathname;
   const searchParams = urlObj.searchParams;
 
+  // ── Health Check & System Diagnostics API ──
+  if (req.method === 'GET' && (pathname === '/api/health' || pathname === '/api/status')) {
+    const memory = process.memoryUsage();
+    const uptimeSec = Math.floor(process.uptime());
+    const uptimeFormatted = `${Math.floor(uptimeSec / 3600)}h ${Math.floor((uptimeSec % 3600) / 60)}m ${uptimeSec % 60}s`;
+
+    return sendJson(res, {
+      status: 'ok',
+      service: 'billify-erp',
+      version: '1.0.0',
+      uptime: uptimeSec,
+      uptimeFormatted,
+      database: {
+        type: DB_TYPE,
+        storage: useLocalStorage ? 'local_json' : 'mongodb_hybrid'
+      },
+      memory: {
+        heapUsedMb: Math.round((memory.heapUsed / 1024 / 1024) * 100) / 100,
+        heapTotalMb: Math.round((memory.heapTotal / 1024 / 1024) * 100) / 100,
+        rssMb: Math.round((memory.rss / 1024 / 1024) * 100) / 100
+      },
+      timestamp: new Date().toISOString()
+    });
+  }
+
   // ── Auth API ──
   if (req.method === 'POST' && pathname === '/api/auth/login') {
     try {
@@ -3236,6 +3261,30 @@ if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Fish Brokerage ERP Server running at http://localhost:${PORT}`);
   });
+
+  const handleShutdown = async (signal) => {
+    console.log(`\nReceived ${signal}, gracefully shutting down Billify ERP server...`);
+    server.close(async () => {
+      console.log('HTTP server closed.');
+      if (client) {
+        try {
+          await client.close();
+          console.log('MongoDB connection closed.');
+        } catch (err) {
+          console.error('Error closing MongoDB connection:', err.message);
+        }
+      }
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      console.error('Forced shutdown due to timeout.');
+      process.exit(1);
+    }, 5000).unref();
+  };
+
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 module.exports = { server, connectDb };

@@ -94,3 +94,14 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 |---|---|---|
 | **Admin** | `admin` | `admin123` |
 | **Mobile Account** | `9841021203` | `Msbdeen@21203` |
+
+---
+
+## System Diagnostics & Backup API
+
+### Health & Uptime Diagnostics
+- **`GET /api/health`** (or `/api/status`): Returns operational health status, service uptime, memory allocation (heap & RSS in MB), storage backend mode (`local_json` or `mongodb_hybrid`), and server timestamp. Used by cloud health monitors and orchestrators (e.g. Render `healthCheckPath`).
+
+### Database Backup & Recovery
+- **`GET /api/backup/export`**: Exports an atomic full-database JSON snapshot containing all consignments, contacts, sales, settlements, payments, daybook, products, bank accounts, treasury ledger, and settings.
+- **`POST /api/backup/restore`**: Restores and synchronizes database collections from an exported backup payload with transactional file and database writes.
