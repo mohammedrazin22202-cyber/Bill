@@ -3172,6 +3172,57 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // ── Backup Restore API ──
+  if (req.method === 'POST' && pathname === '/api/backup/restore') {
+    try {
+      const body = await readBody(req);
+      const payload = body && body.data ? body.data : body;
+      if (!payload || typeof payload !== 'object') {
+        return sendJson(res, { error: 'Invalid backup payload format' }, 400);
+      }
+
+      const database = await connectDb();
+      const collections = [
+        'consignments',
+        'contacts',
+        'sales',
+        'settlements',
+        'payments',
+        'daybook',
+        'products',
+        'bank_accounts',
+        'treasury_transactions'
+      ];
+
+      for (const col of collections) {
+        if (Array.isArray(payload[col])) {
+          await database.collection(col).deleteMany({});
+          if (payload[col].length > 0) {
+            await database.collection(col).insertMany(payload[col]);
+          }
+          writeJsonFile(`${col}.json`, payload[col]);
+        }
+      }
+
+      if (payload.settings && typeof payload.settings === 'object') {
+        const cleanSettings = { ...payload.settings };
+        delete cleanSettings._id;
+        if (!useLocalStorage) {
+          await database.collection('settings').replaceOne(
+            { _id: 'app_settings' },
+            { _id: 'app_settings', ...cleanSettings },
+            { upsert: true }
+          );
+        }
+        writeJsonFile('settings.json', cleanSettings);
+      }
+
+      return sendJson(res, { ok: true, message: 'Backup data successfully restored and synchronized' });
+    } catch (err) {
+      return sendJson(res, { error: err.message }, 500);
+    }
+  }
+
   // ── Static Files Fallback ──
   if (req.method === 'GET') {
     return serveStatic(req, res, pathname);

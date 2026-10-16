@@ -6262,13 +6262,15 @@ async function handleRestoreFileSelected(event) {
       if (!parsed || !parsed.data) {
         throw new Error('Invalid backup file format');
       }
-      showToast('Importing backup data...', 'info');
-      if (parsed.data.settings) {
-        await fetch('/api/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed.data.settings)
-        });
+      showToast('Restoring database records...', 'info');
+      const res = await fetch('/api/backup/restore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed)
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.error || 'Server rejected restoration');
       }
       showToast('Backup restored successfully! Refreshing...', 'success');
       setTimeout(() => location.reload(), 1200);
